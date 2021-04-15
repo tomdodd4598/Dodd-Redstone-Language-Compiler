@@ -1,0 +1,232 @@
+Package drlc;
+
+Helpers
+	all = [0 .. 0xFFFF];
+	digit = ['0' .. '9'];
+	letter = [['a' .. 'z'] + ['A' .. 'Z']];
+	nondigit = ['_' + letter];
+	char = digit | nondigit;
+	sign = '-' | '+';
+	
+	tab = 9;
+	lf = 10;
+	cr = 13;
+	eol = lf | cr | cr lf;
+	separator = ' ' | tab | eol;
+	
+	double_slash = '//';
+	slash_star = '/*';
+	star_slash = '*/';
+	
+	not_eol = [all - [cr + lf]];
+	not_star = [all - '*'];
+	not_star_slash = [not_star - '/'];
+	
+	line_comment = double_slash not_eol* eol;
+	block_comment = slash_star not_star* '*'+ (not_star_slash not_star* '*'+)* '/';
+
+Tokens
+	const = 'const';
+	var = 'var';
+	void = 'void';
+	fun = 'fun';
+	
+	out = 'out';
+	
+	return = 'return';
+	if = 'if';
+	else = 'else';
+	while = 'while';
+	continue = 'continue';
+	break = 'break';
+	
+	equals = '=';
+	
+	l_par = '(';
+	r_par = ')';
+	l_brace = '{';
+	r_brace = '}';
+	comma = ',';
+	semicolon = ';';
+	
+	plus = '+';
+	minus = '-';
+	
+	complement = '~';
+	to_bool = '?';
+	not = '!';
+	
+	and = '&';
+	or = '|';
+	xor = '^';
+	
+	left_shift = '<<';
+	right_shift = '>>';
+	
+	multiply = '*';
+	divide = '/';
+	modulo = '%';
+	
+	equal_to = '==';
+	not_equal_to = '!=';
+	less_than = '<';
+	less_or_equal = '<=';
+	more_than = '>';
+	more_or_equal = '>=';
+	
+	name = nondigit char*;
+	integer = sign? digit+;
+	
+	reference = '@';
+	dereference = '#';
+	
+	blank = separator+;
+	comment = line_comment | block_comment;
+
+Ignored Tokens
+	blank,
+	comment;
+
+Productions
+	unit =
+		general_section*;
+	
+	
+	
+	/* UNIT SPECIFICATION */
+	
+	general_section =
+		{method_definition} method_definition |
+		{function_definition} function_definition |
+		{basic} basic_section;
+	
+	basic_section =
+		{constant_definition} constant_definition |
+		{variable_declaration} variable_declaration |
+		{variable_modification} variable_modification |
+		{method_call} method_call |
+		{conditional} if_block else_if_block* else_block? |
+		{iterative} iterative_block;
+	
+	
+	
+	/* SECTION SPECIFICATIONS */
+	
+	method_definition =
+		void name l_par parameter_list? r_par l_brace basic_section* stop_statement? r_brace;
+	
+	function_definition =
+		fun name l_par parameter_list? r_par l_brace basic_section* stop_statement? r_brace;
+	
+	constant_definition =
+		const name equals expression semicolon;
+	
+	variable_declaration =
+		{no_initialisation} var variable semicolon |
+		{with_initialisation} var variable equals expression semicolon;
+	
+	variable_modification =
+		variable equals expression semicolon;
+	
+	method_call =
+		{built_in_out} out l_par expression r_par semicolon |
+		{defined} name l_par argument_list? r_par semicolon;
+	
+	if_block =
+		if l_par expression r_par l_brace basic_section* stop_statement? r_brace;
+	
+	else_if_block =
+		else if l_par expression r_par l_brace basic_section* stop_statement? r_brace;
+	
+	else_block =
+		else l_brace basic_section* stop_statement? r_brace;
+	
+	iterative_block =
+		while l_par expression r_par l_brace basic_section* stop_statement? r_brace;
+	
+	stop_statement =
+		{return} return semicolon dead_code* |
+		{continue} continue semicolon dead_code* |
+		{break} break semicolon dead_code* |
+		{return_expression} return expression semicolon dead_code*;
+	
+	dead_code =
+		{dead1} basic_section |
+		{dead2} return semicolon |
+		{dead3} continue semicolon |
+		{dead4} break semicolon |
+		{dead5} return expression semicolon;
+	
+	
+	
+	/* COMPONENT SPECIFICATIONS */
+	
+	expression =
+		{prioritized} prioritized_expression |
+		{binary} expression binary_op prioritized_expression;
+	
+	prioritized_expression =
+		{term} term |
+		{binary} prioritized_expression prioritized_binary_op term;
+	
+	term =
+		{value} value |
+		{unary} unary_op term |
+		{par_expression} l_par expression r_par;
+	
+	value =
+		{integer} integer |
+		{variable} variable |
+		{function} name l_par argument_list? r_par;
+	
+	variable =
+		{direct} name |
+		{referenced} reference non_referenced_variable |
+		{dereferenced} dereference variable;
+	
+	non_referenced_variable =
+		{direct} name |
+		{dereferenced} dereference variable;
+	
+	argument_list =
+		expression argument_list_tail*;
+	
+	argument_list_tail =
+		comma expression;
+	
+	parameter_list =
+		name parameter_list_tail*;
+	
+	parameter_list_tail =
+		comma name;
+	
+	
+	
+	/* OPERATION SPECIFICATIONS */
+	
+	unary_op =
+		{plus} plus |
+		{minus} minus |
+		{complement} complement |
+		{to_bool} to_bool |
+		{not} not;
+	
+	binary_op =
+		{plus} plus |
+		{and} and |
+		{or} or |
+		{xor} xor |
+		{minus} minus;
+	
+	prioritized_binary_op =
+		{left_shift} left_shift |
+		{right_shift} right_shift |
+		{multiply} multiply |
+		{equal_to} equal_to |
+		{divide} divide |
+		{modulo} modulo |
+		{not_equal_to} not_equal_to |
+		{less_than} less_than |
+		{less_or_equal} less_or_equal |
+		{more_than} more_than |
+		{more_or_equal} more_or_equal;
