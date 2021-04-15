@@ -431,9 +431,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getSemicolon().apply(this);
         }
-        if(node.getName() != null)
+        if(node.getNonAddressVariable() != null)
         {
-            node.getName().apply(this);
+            node.getNonAddressVariable().apply(this);
         }
         if(node.getVar() != null)
         {
@@ -468,9 +468,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getEquals().apply(this);
         }
-        if(node.getName() != null)
+        if(node.getNonAddressVariable() != null)
         {
-            node.getName().apply(this);
+            node.getNonAddressVariable().apply(this);
         }
         if(node.getVar() != null)
         {
@@ -505,9 +505,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getEquals().apply(this);
         }
-        if(node.getName() != null)
+        if(node.getNonAddressVariable() != null)
         {
-            node.getName().apply(this);
+            node.getNonAddressVariable().apply(this);
         }
         outAVariableModification(node);
     }
@@ -1261,9 +1261,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseAVariableValue(AVariableValue node)
     {
         inAVariableValue(node);
-        if(node.getName() != null)
+        if(node.getVariable() != null)
         {
-            node.getName().apply(this);
+            node.getVariable().apply(this);
         }
         outAVariableValue(node);
     }
@@ -1494,9 +1494,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
                 e.apply(this);
             }
         }
-        if(node.getName() != null)
+        if(node.getNonAddressVariable() != null)
         {
-            node.getName().apply(this);
+            node.getNonAddressVariable().apply(this);
         }
         outAParameterList(node);
     }
@@ -1515,9 +1515,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseAParameterListTail(AParameterListTail node)
     {
         inAParameterListTail(node);
-        if(node.getName() != null)
+        if(node.getNonAddressVariable() != null)
         {
-            node.getName().apply(this);
+            node.getNonAddressVariable().apply(this);
         }
         if(node.getComma() != null)
         {
