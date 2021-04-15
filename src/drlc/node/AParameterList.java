@@ -8,7 +8,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AParameterList extends PParameterList
 {
-    private TName _name_;
+    private PNonAddressVariable _nonAddressVariable_;
     private final LinkedList<PParameterListTail> _parameterListTail_ = new LinkedList<PParameterListTail>();
 
     public AParameterList()
@@ -17,11 +17,11 @@ public final class AParameterList extends PParameterList
     }
 
     public AParameterList(
-        @SuppressWarnings("hiding") TName _name_,
+        @SuppressWarnings("hiding") PNonAddressVariable _nonAddressVariable_,
         @SuppressWarnings("hiding") List<?> _parameterListTail_)
     {
         // Constructor
-        setName(_name_);
+        setNonAddressVariable(_nonAddressVariable_);
 
         setParameterListTail(_parameterListTail_);
 
@@ -31,7 +31,7 @@ public final class AParameterList extends PParameterList
     public Object clone()
     {
         return new AParameterList(
-            cloneNode(this._name_),
+            cloneNode(this._nonAddressVariable_),
             cloneList(this._parameterListTail_));
     }
 
@@ -41,16 +41,16 @@ public final class AParameterList extends PParameterList
         ((Analysis) sw).caseAParameterList(this);
     }
 
-    public TName getName()
+    public PNonAddressVariable getNonAddressVariable()
     {
-        return this._name_;
+        return this._nonAddressVariable_;
     }
 
-    public void setName(TName node)
+    public void setNonAddressVariable(PNonAddressVariable node)
     {
-        if(this._name_ != null)
+        if(this._nonAddressVariable_ != null)
         {
-            this._name_.parent(null);
+            this._nonAddressVariable_.parent(null);
         }
 
         if(node != null)
@@ -63,7 +63,7 @@ public final class AParameterList extends PParameterList
             node.parent(this);
         }
 
-        this._name_ = node;
+        this._nonAddressVariable_ = node;
     }
 
     public LinkedList<PParameterListTail> getParameterListTail()
@@ -96,7 +96,7 @@ public final class AParameterList extends PParameterList
     public String toString()
     {
         return ""
-            + toString(this._name_)
+            + toString(this._nonAddressVariable_)
             + toString(this._parameterListTail_);
     }
 
@@ -104,9 +104,9 @@ public final class AParameterList extends PParameterList
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._name_ == child)
+        if(this._nonAddressVariable_ == child)
         {
-            this._name_ = null;
+            this._nonAddressVariable_ = null;
             return;
         }
 
@@ -122,9 +122,9 @@ public final class AParameterList extends PParameterList
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._name_ == oldChild)
+        if(this._nonAddressVariable_ == oldChild)
         {
-            setName((TName) newChild);
+            setNonAddressVariable((PNonAddressVariable) newChild);
             return;
         }
 

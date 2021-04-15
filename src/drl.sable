@@ -122,11 +122,11 @@ Productions
 		const name equals expression semicolon;
 	
 	variable_declaration =
-		{no_initialisation} var name semicolon |
-		{with_initialisation} var name equals expression semicolon;
+		{no_initialisation} var non_address_variable semicolon |
+		{with_initialisation} var non_address_variable equals expression semicolon;
 	
 	variable_modification =
-		name equals expression semicolon;
+		non_address_variable equals expression semicolon;
 	
 	method_call =
 		{built_in_out} out l_par expression r_par semicolon |
@@ -176,7 +176,7 @@ Productions
 	
 	value =
 		{integer} integer |
-		{variable} name |
+		{variable} variable |
 		{function} name l_par argument_list? r_par;
 	
 	variable =
@@ -195,10 +195,10 @@ Productions
 		comma expression;
 	
 	parameter_list =
-		name parameter_list_tail*;
+		non_address_variable parameter_list_tail*;
 	
 	parameter_list_tail =
-		comma name;
+		comma non_address_variable;
 	
 	
 	

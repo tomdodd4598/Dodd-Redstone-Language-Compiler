@@ -8,7 +8,7 @@ import drlc.analysis.*;
 public final class ANoInitialisationVariableDeclaration extends PVariableDeclaration
 {
     private TVar _var_;
-    private TName _name_;
+    private PNonAddressVariable _nonAddressVariable_;
     private TSemicolon _semicolon_;
 
     public ANoInitialisationVariableDeclaration()
@@ -18,13 +18,13 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
 
     public ANoInitialisationVariableDeclaration(
         @SuppressWarnings("hiding") TVar _var_,
-        @SuppressWarnings("hiding") TName _name_,
+        @SuppressWarnings("hiding") PNonAddressVariable _nonAddressVariable_,
         @SuppressWarnings("hiding") TSemicolon _semicolon_)
     {
         // Constructor
         setVar(_var_);
 
-        setName(_name_);
+        setNonAddressVariable(_nonAddressVariable_);
 
         setSemicolon(_semicolon_);
 
@@ -35,7 +35,7 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
     {
         return new ANoInitialisationVariableDeclaration(
             cloneNode(this._var_),
-            cloneNode(this._name_),
+            cloneNode(this._nonAddressVariable_),
             cloneNode(this._semicolon_));
     }
 
@@ -70,16 +70,16 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
         this._var_ = node;
     }
 
-    public TName getName()
+    public PNonAddressVariable getNonAddressVariable()
     {
-        return this._name_;
+        return this._nonAddressVariable_;
     }
 
-    public void setName(TName node)
+    public void setNonAddressVariable(PNonAddressVariable node)
     {
-        if(this._name_ != null)
+        if(this._nonAddressVariable_ != null)
         {
-            this._name_.parent(null);
+            this._nonAddressVariable_.parent(null);
         }
 
         if(node != null)
@@ -92,7 +92,7 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
             node.parent(this);
         }
 
-        this._name_ = node;
+        this._nonAddressVariable_ = node;
     }
 
     public TSemicolon getSemicolon()
@@ -125,7 +125,7 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
     {
         return ""
             + toString(this._var_)
-            + toString(this._name_)
+            + toString(this._nonAddressVariable_)
             + toString(this._semicolon_);
     }
 
@@ -139,9 +139,9 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
             return;
         }
 
-        if(this._name_ == child)
+        if(this._nonAddressVariable_ == child)
         {
-            this._name_ = null;
+            this._nonAddressVariable_ = null;
             return;
         }
 
@@ -164,9 +164,9 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
             return;
         }
 
-        if(this._name_ == oldChild)
+        if(this._nonAddressVariable_ == oldChild)
         {
-            setName((TName) newChild);
+            setNonAddressVariable((PNonAddressVariable) newChild);
             return;
         }
 
