@@ -427,9 +427,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getVar().apply(this);
         }
-        if(node.getNonAddressVariable() != null)
+        if(node.getName() != null)
         {
-            node.getNonAddressVariable().apply(this);
+            node.getName().apply(this);
         }
         if(node.getSemicolon() != null)
         {
@@ -456,9 +456,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getVar().apply(this);
         }
-        if(node.getNonAddressVariable() != null)
+        if(node.getName() != null)
         {
-            node.getNonAddressVariable().apply(this);
+            node.getName().apply(this);
         }
         if(node.getEquals() != null)
         {
@@ -489,9 +489,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAVariableModification(AVariableModification node)
     {
         inAVariableModification(node);
-        if(node.getNonAddressVariable() != null)
+        if(node.getName() != null)
         {
-            node.getNonAddressVariable().apply(this);
+            node.getName().apply(this);
         }
         if(node.getEquals() != null)
         {
@@ -1249,9 +1249,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAVariableValue(AVariableValue node)
     {
         inAVariableValue(node);
-        if(node.getVariable() != null)
+        if(node.getName() != null)
         {
-            node.getVariable().apply(this);
+            node.getName().apply(this);
         }
         outAVariableValue(node);
     }
@@ -1473,9 +1473,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAParameterList(AParameterList node)
     {
         inAParameterList(node);
-        if(node.getNonAddressVariable() != null)
+        if(node.getName() != null)
         {
-            node.getNonAddressVariable().apply(this);
+            node.getName().apply(this);
         }
         {
             List<PParameterListTail> copy = new ArrayList<PParameterListTail>(node.getParameterListTail());
@@ -1505,9 +1505,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getComma().apply(this);
         }
-        if(node.getNonAddressVariable() != null)
+        if(node.getName() != null)
         {
-            node.getNonAddressVariable().apply(this);
+            node.getName().apply(this);
         }
         outAParameterListTail(node);
     }

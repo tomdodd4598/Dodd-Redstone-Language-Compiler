@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AVariableValue extends PValue
 {
-    private PVariable _variable_;
+    private TName _name_;
 
     public AVariableValue()
     {
@@ -15,10 +15,10 @@ public final class AVariableValue extends PValue
     }
 
     public AVariableValue(
-        @SuppressWarnings("hiding") PVariable _variable_)
+        @SuppressWarnings("hiding") TName _name_)
     {
         // Constructor
-        setVariable(_variable_);
+        setName(_name_);
 
     }
 
@@ -26,7 +26,7 @@ public final class AVariableValue extends PValue
     public Object clone()
     {
         return new AVariableValue(
-            cloneNode(this._variable_));
+            cloneNode(this._name_));
     }
 
     @Override
@@ -35,16 +35,16 @@ public final class AVariableValue extends PValue
         ((Analysis) sw).caseAVariableValue(this);
     }
 
-    public PVariable getVariable()
+    public TName getName()
     {
-        return this._variable_;
+        return this._name_;
     }
 
-    public void setVariable(PVariable node)
+    public void setName(TName node)
     {
-        if(this._variable_ != null)
+        if(this._name_ != null)
         {
-            this._variable_.parent(null);
+            this._name_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class AVariableValue extends PValue
             node.parent(this);
         }
 
-        this._variable_ = node;
+        this._name_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._variable_);
+            + toString(this._name_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._variable_ == child)
+        if(this._name_ == child)
         {
-            this._variable_ = null;
+            this._name_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class AVariableValue extends PValue
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._variable_ == oldChild)
+        if(this._name_ == oldChild)
         {
-            setVariable((PVariable) newChild);
+            setName((TName) newChild);
             return;
         }
 
