@@ -327,7 +327,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAReferencedVariable(AReferencedVariable node)
+    public void caseAAddressVariable(AAddressVariable node)
     {
         defaultCase(node);
     }
@@ -339,13 +339,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseADirectNonReferencedVariable(ADirectNonReferencedVariable node)
+    public void caseADirectNonAddressVariable(ADirectNonAddressVariable node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseADereferencedNonReferencedVariable(ADereferencedNonReferencedVariable node)
+    public void caseADereferencedNonAddressVariable(ADereferencedNonAddressVariable node)
     {
         defaultCase(node);
     }
@@ -735,7 +735,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTReference(TReference node)
+    public void caseTAddressOf(TAddressOf node)
     {
         defaultCase(node);
     }

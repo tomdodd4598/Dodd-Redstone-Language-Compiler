@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AVariableModification extends PVariableModification
 {
-    private PVariable _variable_;
+    private TName _name_;
     private TEquals _equals_;
     private PExpression _expression_;
     private TSemicolon _semicolon_;
@@ -18,13 +18,13 @@ public final class AVariableModification extends PVariableModification
     }
 
     public AVariableModification(
-        @SuppressWarnings("hiding") PVariable _variable_,
+        @SuppressWarnings("hiding") TName _name_,
         @SuppressWarnings("hiding") TEquals _equals_,
         @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") TSemicolon _semicolon_)
     {
         // Constructor
-        setVariable(_variable_);
+        setName(_name_);
 
         setEquals(_equals_);
 
@@ -38,7 +38,7 @@ public final class AVariableModification extends PVariableModification
     public Object clone()
     {
         return new AVariableModification(
-            cloneNode(this._variable_),
+            cloneNode(this._name_),
             cloneNode(this._equals_),
             cloneNode(this._expression_),
             cloneNode(this._semicolon_));
@@ -50,16 +50,16 @@ public final class AVariableModification extends PVariableModification
         ((Analysis) sw).caseAVariableModification(this);
     }
 
-    public PVariable getVariable()
+    public TName getName()
     {
-        return this._variable_;
+        return this._name_;
     }
 
-    public void setVariable(PVariable node)
+    public void setName(TName node)
     {
-        if(this._variable_ != null)
+        if(this._name_ != null)
         {
-            this._variable_.parent(null);
+            this._name_.parent(null);
         }
 
         if(node != null)
@@ -72,7 +72,7 @@ public final class AVariableModification extends PVariableModification
             node.parent(this);
         }
 
-        this._variable_ = node;
+        this._name_ = node;
     }
 
     public TEquals getEquals()
@@ -154,7 +154,7 @@ public final class AVariableModification extends PVariableModification
     public String toString()
     {
         return ""
-            + toString(this._variable_)
+            + toString(this._name_)
             + toString(this._equals_)
             + toString(this._expression_)
             + toString(this._semicolon_);
@@ -164,9 +164,9 @@ public final class AVariableModification extends PVariableModification
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._variable_ == child)
+        if(this._name_ == child)
         {
-            this._variable_ = null;
+            this._name_ = null;
             return;
         }
 
@@ -195,9 +195,9 @@ public final class AVariableModification extends PVariableModification
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._variable_ == oldChild)
+        if(this._name_ == oldChild)
         {
-            setVariable((PVariable) newChild);
+            setName((TName) newChild);
             return;
         }
 

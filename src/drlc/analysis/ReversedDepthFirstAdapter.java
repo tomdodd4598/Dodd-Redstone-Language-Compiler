@@ -431,9 +431,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getSemicolon().apply(this);
         }
-        if(node.getVariable() != null)
+        if(node.getName() != null)
         {
-            node.getVariable().apply(this);
+            node.getName().apply(this);
         }
         if(node.getVar() != null)
         {
@@ -468,9 +468,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getEquals().apply(this);
         }
-        if(node.getVariable() != null)
+        if(node.getName() != null)
         {
-            node.getVariable().apply(this);
+            node.getName().apply(this);
         }
         if(node.getVar() != null)
         {
@@ -505,9 +505,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getEquals().apply(this);
         }
-        if(node.getVariable() != null)
+        if(node.getName() != null)
         {
-            node.getVariable().apply(this);
+            node.getName().apply(this);
         }
         outAVariableModification(node);
     }
@@ -1261,9 +1261,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseAVariableValue(AVariableValue node)
     {
         inAVariableValue(node);
-        if(node.getVariable() != null)
+        if(node.getName() != null)
         {
-            node.getVariable().apply(this);
+            node.getName().apply(this);
         }
         outAVariableValue(node);
     }
@@ -1322,29 +1322,29 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outADirectVariable(node);
     }
 
-    public void inAReferencedVariable(AReferencedVariable node)
+    public void inAAddressVariable(AAddressVariable node)
     {
         defaultIn(node);
     }
 
-    public void outAReferencedVariable(AReferencedVariable node)
+    public void outAAddressVariable(AAddressVariable node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAReferencedVariable(AReferencedVariable node)
+    public void caseAAddressVariable(AAddressVariable node)
     {
-        inAReferencedVariable(node);
-        if(node.getNonReferencedVariable() != null)
+        inAAddressVariable(node);
+        if(node.getNonAddressVariable() != null)
         {
-            node.getNonReferencedVariable().apply(this);
+            node.getNonAddressVariable().apply(this);
         }
-        if(node.getReference() != null)
+        if(node.getAddressOf() != null)
         {
-            node.getReference().apply(this);
+            node.getAddressOf().apply(this);
         }
-        outAReferencedVariable(node);
+        outAAddressVariable(node);
     }
 
     public void inADereferencedVariable(ADereferencedVariable node)
@@ -1372,41 +1372,41 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outADereferencedVariable(node);
     }
 
-    public void inADirectNonReferencedVariable(ADirectNonReferencedVariable node)
+    public void inADirectNonAddressVariable(ADirectNonAddressVariable node)
     {
         defaultIn(node);
     }
 
-    public void outADirectNonReferencedVariable(ADirectNonReferencedVariable node)
+    public void outADirectNonAddressVariable(ADirectNonAddressVariable node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseADirectNonReferencedVariable(ADirectNonReferencedVariable node)
+    public void caseADirectNonAddressVariable(ADirectNonAddressVariable node)
     {
-        inADirectNonReferencedVariable(node);
+        inADirectNonAddressVariable(node);
         if(node.getName() != null)
         {
             node.getName().apply(this);
         }
-        outADirectNonReferencedVariable(node);
+        outADirectNonAddressVariable(node);
     }
 
-    public void inADereferencedNonReferencedVariable(ADereferencedNonReferencedVariable node)
+    public void inADereferencedNonAddressVariable(ADereferencedNonAddressVariable node)
     {
         defaultIn(node);
     }
 
-    public void outADereferencedNonReferencedVariable(ADereferencedNonReferencedVariable node)
+    public void outADereferencedNonAddressVariable(ADereferencedNonAddressVariable node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseADereferencedNonReferencedVariable(ADereferencedNonReferencedVariable node)
+    public void caseADereferencedNonAddressVariable(ADereferencedNonAddressVariable node)
     {
-        inADereferencedNonReferencedVariable(node);
+        inADereferencedNonAddressVariable(node);
         if(node.getVariable() != null)
         {
             node.getVariable().apply(this);
@@ -1415,7 +1415,7 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getDereference().apply(this);
         }
-        outADereferencedNonReferencedVariable(node);
+        outADereferencedNonAddressVariable(node);
     }
 
     public void inAArgumentList(AArgumentList node)

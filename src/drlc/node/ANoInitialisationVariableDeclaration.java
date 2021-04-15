@@ -8,7 +8,7 @@ import drlc.analysis.*;
 public final class ANoInitialisationVariableDeclaration extends PVariableDeclaration
 {
     private TVar _var_;
-    private PVariable _variable_;
+    private TName _name_;
     private TSemicolon _semicolon_;
 
     public ANoInitialisationVariableDeclaration()
@@ -18,13 +18,13 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
 
     public ANoInitialisationVariableDeclaration(
         @SuppressWarnings("hiding") TVar _var_,
-        @SuppressWarnings("hiding") PVariable _variable_,
+        @SuppressWarnings("hiding") TName _name_,
         @SuppressWarnings("hiding") TSemicolon _semicolon_)
     {
         // Constructor
         setVar(_var_);
 
-        setVariable(_variable_);
+        setName(_name_);
 
         setSemicolon(_semicolon_);
 
@@ -35,7 +35,7 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
     {
         return new ANoInitialisationVariableDeclaration(
             cloneNode(this._var_),
-            cloneNode(this._variable_),
+            cloneNode(this._name_),
             cloneNode(this._semicolon_));
     }
 
@@ -70,16 +70,16 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
         this._var_ = node;
     }
 
-    public PVariable getVariable()
+    public TName getName()
     {
-        return this._variable_;
+        return this._name_;
     }
 
-    public void setVariable(PVariable node)
+    public void setName(TName node)
     {
-        if(this._variable_ != null)
+        if(this._name_ != null)
         {
-            this._variable_.parent(null);
+            this._name_.parent(null);
         }
 
         if(node != null)
@@ -92,7 +92,7 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
             node.parent(this);
         }
 
-        this._variable_ = node;
+        this._name_ = node;
     }
 
     public TSemicolon getSemicolon()
@@ -125,7 +125,7 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
     {
         return ""
             + toString(this._var_)
-            + toString(this._variable_)
+            + toString(this._name_)
             + toString(this._semicolon_);
     }
 
@@ -139,9 +139,9 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
             return;
         }
 
-        if(this._variable_ == child)
+        if(this._name_ == child)
         {
-            this._variable_ = null;
+            this._name_ = null;
             return;
         }
 
@@ -164,9 +164,9 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
             return;
         }
 
-        if(this._variable_ == oldChild)
+        if(this._name_ == oldChild)
         {
-            setVariable((PVariable) newChild);
+            setName((TName) newChild);
             return;
         }
 

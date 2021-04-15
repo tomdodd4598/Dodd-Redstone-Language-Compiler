@@ -7,6 +7,7 @@ import drlc.generate.Generator;
 import drlc.interpret.scope.ConditionalSectionInfo;
 import drlc.interpret.scope.IterativeSectionInfo;
 import drlc.interpret.scope.Scope;
+import drlc.node.AAddressVariable;
 import drlc.node.AAndBinaryOp;
 import drlc.node.AArgumentList;
 import drlc.node.AArgumentListTail;
@@ -26,9 +27,9 @@ import drlc.node.ADead3DeadCode;
 import drlc.node.ADead4DeadCode;
 import drlc.node.ADead5DeadCode;
 import drlc.node.ADefinedMethodCall;
-import drlc.node.ADereferencedNonReferencedVariable;
+import drlc.node.ADereferencedNonAddressVariable;
 import drlc.node.ADereferencedVariable;
-import drlc.node.ADirectNonReferencedVariable;
+import drlc.node.ADirectNonAddressVariable;
 import drlc.node.ADirectVariable;
 import drlc.node.ADividePrioritizedBinaryOp;
 import drlc.node.AElseBlock;
@@ -63,7 +64,6 @@ import drlc.node.AParameterListTail;
 import drlc.node.APlusBinaryOp;
 import drlc.node.APlusUnaryOp;
 import drlc.node.APrioritizedExpression;
-import drlc.node.AReferencedVariable;
 import drlc.node.AReturnExpressionStopStatement;
 import drlc.node.AReturnStopStatement;
 import drlc.node.ARightShiftPrioritizedBinaryOp;
@@ -582,9 +582,9 @@ public class Interpreter extends DepthFirstAdapter {
 	
 	//TODO
 	@Override
-	public void caseAReferencedVariable(AReferencedVariable node) {
-		node.getReference().apply(this);
-		node.getNonReferencedVariable().apply(this);
+	public void caseAAddressVariable(AAddressVariable node) {
+		node.getAddressOf().apply(this);
+		node.getNonAddressVariable().apply(this);
 	}
 	
 	//TODO
@@ -596,13 +596,13 @@ public class Interpreter extends DepthFirstAdapter {
 	
 	//TODO
 	@Override
-	public void caseADirectNonReferencedVariable(ADirectNonReferencedVariable node) {
+	public void caseADirectNonAddressVariable(ADirectNonAddressVariable node) {
 		node.getName().apply(this);
 	}
 	
 	//TODO
 	@Override
-	public void caseADereferencedNonReferencedVariable(ADereferencedNonReferencedVariable node) {
+	public void caseADereferencedNonAddressVariable(ADereferencedNonAddressVariable node) {
 		node.getDereference().apply(this);
 		node.getVariable().apply(this);
 	}

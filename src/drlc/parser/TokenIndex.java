@@ -244,7 +244,7 @@ class TokenIndex extends AnalysisAdapter
     }
 
     @Override
-    public void caseTReference(@SuppressWarnings("unused") TReference node)
+    public void caseTAddressOf(@SuppressWarnings("unused") TAddressOf node)
     {
         this.index = 39;
     }

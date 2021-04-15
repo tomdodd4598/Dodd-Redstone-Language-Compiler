@@ -54,10 +54,10 @@ public interface Analysis extends Switch
     void caseAVariableValue(AVariableValue node);
     void caseAFunctionValue(AFunctionValue node);
     void caseADirectVariable(ADirectVariable node);
-    void caseAReferencedVariable(AReferencedVariable node);
+    void caseAAddressVariable(AAddressVariable node);
     void caseADereferencedVariable(ADereferencedVariable node);
-    void caseADirectNonReferencedVariable(ADirectNonReferencedVariable node);
-    void caseADereferencedNonReferencedVariable(ADereferencedNonReferencedVariable node);
+    void caseADirectNonAddressVariable(ADirectNonAddressVariable node);
+    void caseADereferencedNonAddressVariable(ADereferencedNonAddressVariable node);
     void caseAArgumentList(AArgumentList node);
     void caseAArgumentListTail(AArgumentListTail node);
     void caseAParameterList(AParameterList node);
@@ -123,7 +123,7 @@ public interface Analysis extends Switch
     void caseTMoreOrEqual(TMoreOrEqual node);
     void caseTName(TName node);
     void caseTInteger(TInteger node);
-    void caseTReference(TReference node);
+    void caseTAddressOf(TAddressOf node);
     void caseTDereference(TDereference node);
     void caseTBlank(TBlank node);
     void caseTComment(TComment node);

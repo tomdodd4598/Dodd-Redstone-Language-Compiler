@@ -6,10 +6,6 @@ import java.util.Map;
 
 import drlc.generate.intermediate.IntermediateGenerator;
 import drlc.generate.intermediate.IntermediateOptimization;
-import drlc.generate.redstone.RedstoneAssemblyGenerator;
-import drlc.generate.redstone.RedstoneBinaryGenerator;
-import drlc.generate.redstone.RedstoneHexadecimalGenerator;
-import drlc.generate.redstone.RedstoneOCGenerator;
 import drlc.interpret.Program;
 import drlc.interpret.routine.Routine;
 import drlc.node.Node;
@@ -20,10 +16,10 @@ public abstract class Generator {
 	
 	static {
 		MAP.put("i", IntermediateGenerator.class);
-		MAP.put("s", RedstoneAssemblyGenerator.class);
-		MAP.put("b", RedstoneBinaryGenerator.class);
-		MAP.put("h", RedstoneHexadecimalGenerator.class);
-		MAP.put("oc", RedstoneOCGenerator.class);
+		MAP.put("s1", drlc.generate.drc1.RedstoneAssemblyGenerator.class);
+		MAP.put("b1", drlc.generate.drc1.RedstoneBinaryGenerator.class);
+		MAP.put("h1", drlc.generate.drc1.RedstoneHexadecimalGenerator.class);
+		MAP.put("oc1", drlc.generate.drc1.RedstoneOCGenerator.class);
 	}
 	
 	protected final boolean intermediateOptimization, machineOptimization;

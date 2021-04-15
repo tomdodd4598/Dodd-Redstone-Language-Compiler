@@ -15,13 +15,13 @@ public class Scope {
 	
 	public final Scope previous;
 	
-	final Map<String, Constant> constantMap = new HashMap<>();
-	final Map<String, Variable> variableMap = new HashMap<>();
-	final Map<String, Method> methodMap = new HashMap<>();
-	final Map<String, Function> functionMap = new HashMap<>();
-	final Set<String> nameSet = new HashSet<>();
+	private final Map<String, Constant> constantMap = new HashMap<>();
+	private final Map<String, Variable> variableMap = new HashMap<>();
+	private final Map<String, Method> methodMap = new HashMap<>();
+	private final Map<String, Function> functionMap = new HashMap<>();
+	private final Set<String> nameSet = new HashSet<>();
 	
-	Boolean expectingFunctionReturn = null;
+	private Boolean expectingFunctionReturn = null;
 	
 	public Scope(Scope previous) {
 		this.previous = previous;

@@ -77,7 +77,7 @@ Tokens
 	name = nondigit char*;
 	integer = sign? digit+;
 	
-	reference = '@';
+	address_of = '@';
 	dereference = '#';
 	
 	blank = separator+;
@@ -122,11 +122,11 @@ Productions
 		const name equals expression semicolon;
 	
 	variable_declaration =
-		{no_initialisation} var variable semicolon |
-		{with_initialisation} var variable equals expression semicolon;
+		{no_initialisation} var name semicolon |
+		{with_initialisation} var name equals expression semicolon;
 	
 	variable_modification =
-		variable equals expression semicolon;
+		name equals expression semicolon;
 	
 	method_call =
 		{built_in_out} out l_par expression r_par semicolon |
@@ -176,15 +176,15 @@ Productions
 	
 	value =
 		{integer} integer |
-		{variable} variable |
+		{variable} name |
 		{function} name l_par argument_list? r_par;
 	
 	variable =
 		{direct} name |
-		{referenced} reference non_referenced_variable |
+		{address} address_of non_address_variable |
 		{dereferenced} dereference variable;
 	
-	non_referenced_variable =
+	non_address_variable =
 		{direct} name |
 		{dereferenced} dereference variable;
 	
