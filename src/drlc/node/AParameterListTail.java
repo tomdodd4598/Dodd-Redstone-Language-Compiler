@@ -8,7 +8,7 @@ import drlc.analysis.*;
 public final class AParameterListTail extends PParameterListTail
 {
     private TComma _comma_;
-    private PNonAddressVariable _nonAddressVariable_;
+    private PLvalueVariable _lvalueVariable_;
 
     public AParameterListTail()
     {
@@ -17,12 +17,12 @@ public final class AParameterListTail extends PParameterListTail
 
     public AParameterListTail(
         @SuppressWarnings("hiding") TComma _comma_,
-        @SuppressWarnings("hiding") PNonAddressVariable _nonAddressVariable_)
+        @SuppressWarnings("hiding") PLvalueVariable _lvalueVariable_)
     {
         // Constructor
         setComma(_comma_);
 
-        setNonAddressVariable(_nonAddressVariable_);
+        setLvalueVariable(_lvalueVariable_);
 
     }
 
@@ -31,7 +31,7 @@ public final class AParameterListTail extends PParameterListTail
     {
         return new AParameterListTail(
             cloneNode(this._comma_),
-            cloneNode(this._nonAddressVariable_));
+            cloneNode(this._lvalueVariable_));
     }
 
     @Override
@@ -65,16 +65,16 @@ public final class AParameterListTail extends PParameterListTail
         this._comma_ = node;
     }
 
-    public PNonAddressVariable getNonAddressVariable()
+    public PLvalueVariable getLvalueVariable()
     {
-        return this._nonAddressVariable_;
+        return this._lvalueVariable_;
     }
 
-    public void setNonAddressVariable(PNonAddressVariable node)
+    public void setLvalueVariable(PLvalueVariable node)
     {
-        if(this._nonAddressVariable_ != null)
+        if(this._lvalueVariable_ != null)
         {
-            this._nonAddressVariable_.parent(null);
+            this._lvalueVariable_.parent(null);
         }
 
         if(node != null)
@@ -87,7 +87,7 @@ public final class AParameterListTail extends PParameterListTail
             node.parent(this);
         }
 
-        this._nonAddressVariable_ = node;
+        this._lvalueVariable_ = node;
     }
 
     @Override
@@ -95,7 +95,7 @@ public final class AParameterListTail extends PParameterListTail
     {
         return ""
             + toString(this._comma_)
-            + toString(this._nonAddressVariable_);
+            + toString(this._lvalueVariable_);
     }
 
     @Override
@@ -108,9 +108,9 @@ public final class AParameterListTail extends PParameterListTail
             return;
         }
 
-        if(this._nonAddressVariable_ == child)
+        if(this._lvalueVariable_ == child)
         {
-            this._nonAddressVariable_ = null;
+            this._lvalueVariable_ = null;
             return;
         }
 
@@ -127,9 +127,9 @@ public final class AParameterListTail extends PParameterListTail
             return;
         }
 
-        if(this._nonAddressVariable_ == oldChild)
+        if(this._lvalueVariable_ == oldChild)
         {
-            setNonAddressVariable((PNonAddressVariable) newChild);
+            setLvalueVariable((PLvalueVariable) newChild);
             return;
         }
 

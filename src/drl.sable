@@ -26,12 +26,17 @@ Helpers
 	block_comment = slash_star not_star* '*'+ (not_star_slash not_star* '*'+)* '/';
 
 Tokens
+	set_argc = 'set_argc';
+	
 	const = 'const';
 	var = 'var';
 	void = 'void';
 	fun = 'fun';
 	
 	out = 'out';
+	
+	argc = 'argc';
+	argv = 'argv';
 	
 	return = 'return';
 	if = 'if';
@@ -48,6 +53,9 @@ Tokens
 	r_brace = '}';
 	comma = ',';
 	semicolon = ';';
+	
+	address_of = '@';
+	dereference = '#';
 	
 	plus = '+';
 	minus = '-';
@@ -77,9 +85,6 @@ Tokens
 	name = nondigit char*;
 	integer = sign? digit+;
 	
-	address_of = '@';
-	dereference = '#';
-	
 	blank = separator+;
 	comment = line_comment | block_comment;
 
@@ -89,11 +94,17 @@ Ignored Tokens
 
 Productions
 	unit =
-		general_section*;
+		setup_section general_section*;
 	
 	
 	
 	/* UNIT SPECIFICATION */
+	
+	setup_section =
+		input_declaration?;
+	
+	input_declaration =
+		set_argc l_par expression r_par semicolon;
 	
 	general_section =
 		{method_definition} method_definition |
@@ -122,11 +133,11 @@ Productions
 		const name equals expression semicolon;
 	
 	variable_declaration =
-		{no_initialisation} var non_address_variable semicolon |
-		{with_initialisation} var non_address_variable equals expression semicolon;
+		{no_initialisation} var lvalue_variable semicolon |
+		{with_initialisation} var lvalue_variable equals expression semicolon;
 	
 	variable_modification =
-		non_address_variable equals expression semicolon;
+		lvalue_variable equals expression semicolon;
 	
 	method_call =
 		{built_in_out} out l_par expression r_par semicolon |
@@ -171,22 +182,26 @@ Productions
 	
 	term =
 		{value} value |
+		{address_of} address_of rvalue_variable |
+		{dereference} dereference+ rvalue_variable |
 		{unary} unary_op term |
 		{par_expression} l_par expression r_par;
 	
 	value =
 		{integer} integer |
-		{variable} variable |
-		{function} name l_par argument_list? r_par;
+		{variable} rvalue_variable |
+		{function} function;
 	
-	variable =
-		{direct} name |
-		{address} address_of non_address_variable |
-		{dereferenced} dereference variable;
+	function =
+		{built_in_argc} argc l_par r_par |
+		{built_in_argv} argv l_par expression r_par |
+		{defined} name l_par argument_list? r_par;
 	
-	non_address_variable =
-		{direct} name |
-		{dereferenced} dereference variable;
+	rvalue_variable =
+		name;
+	
+	lvalue_variable =
+		dereference* name;
 	
 	argument_list =
 		expression argument_list_tail*;
@@ -195,10 +210,10 @@ Productions
 		comma expression;
 	
 	parameter_list =
-		non_address_variable parameter_list_tail*;
+		lvalue_variable parameter_list_tail*;
 	
 	parameter_list_tail =
-		comma non_address_variable;
+		comma lvalue_variable;
 	
 	
 	

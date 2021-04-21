@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import drlc.Helper;
 import drlc.interpret.type.Constant;
 import drlc.interpret.type.Function;
 import drlc.interpret.type.Method;
@@ -23,7 +24,7 @@ public class Scope {
 	
 	private Boolean expectingFunctionReturn = null;
 	
-	public Scope(Scope previous) {
+	public Scope(Node node, Scope previous) {
 		this.previous = previous;
 		if (previous != null) {
 			constantMap.putAll(previous.constantMap);
@@ -44,31 +45,40 @@ public class Scope {
 		return variableMap.containsKey(name);
 	}
 	
+	public boolean methodExists(String name) {
+		return methodMap.containsKey(name);
+	}
+	
+	public boolean functionExists(String name) {
+		return functionMap.containsKey(name);
+	}
+	
 	// Getters
 	
 	public Constant getConstant(Node node, String name) {
-		if (!constantMap.containsKey(name)) {
+		if (!constantExists(name)) {
 			throw new IllegalArgumentException(String.format("Constant \"%s\" not defined! %s", name, node));
 		}
 		return constantMap.get(name);
 	}
 	
 	public Variable getVariable(Node node, String name) {
-		if (!variableMap.containsKey(name)) {
+		name = Helper.fullyDereference(name);
+		if (!variableExists(name)) {
 			throw new IllegalArgumentException(String.format("Variable \"%s\" not defined! %s", name, node));
 		}
 		return variableMap.get(name);
 	}
 	
 	public Method getMethod(Node node, String name) {
-		if (!methodMap.containsKey(name)) {
+		if (!methodExists(name)) {
 			throw new IllegalArgumentException(String.format("Method \"%s\" not defined! %s", name, node));
 		}
 		return methodMap.get(name);
 	}
 	
 	public Function getFunction(Node node, String name) {
-		if (!functionMap.containsKey(name)) {
+		if (!functionExists(name)) {
 			throw new IllegalArgumentException(String.format("Function \"%s\" not defined! %s", name, node));
 		}
 		return functionMap.get(name);
@@ -91,17 +101,22 @@ public class Scope {
 		}
 	}
 	
-	public Variable addVariable(Node node, String name, boolean initialised) {
-		if (name == null) {
+	public Variable addVariable(Node node, Variable variable) {
+		if (variable == null) {
+			throw new IllegalArgumentException(String.format("Attempted to add null variable! %s", node));
+		}
+		else if (variable.name == null) {
 			throw new IllegalArgumentException(String.format("Variable created with null name! %s", node));
 		}
-		else if (nameSet.contains(name)) {
-			throw new IllegalArgumentException(String.format("Variable name \"%s\" already used in this scope! %s", name, node));
+		else if (nameSet.contains(variable.name)) {
+			throw new IllegalArgumentException(String.format("Variable name \"%s\" already used in this scope! %s", variable.name, node));
+		}
+		else if (variable.baseReferenceLevel < 0) {
+			throw new IllegalArgumentException(String.format("Variable reference level \"%s\" is negative! %s", variable.name, node));
 		}
 		else {
-			Variable variable = new Variable(name, initialised);
-			variableMap.put(name, variable);
-			nameSet.add(name);
+			variableMap.put(variable.name, variable);
+			nameSet.add(variable.name);
 			return variable;
 		}
 	}

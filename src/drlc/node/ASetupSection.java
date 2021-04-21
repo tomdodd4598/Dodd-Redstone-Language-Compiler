@@ -5,46 +5,46 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class ADirectNonAddressVariable extends PNonAddressVariable
+public final class ASetupSection extends PSetupSection
 {
-    private TName _name_;
+    private PInputDeclaration _inputDeclaration_;
 
-    public ADirectNonAddressVariable()
+    public ASetupSection()
     {
         // Constructor
     }
 
-    public ADirectNonAddressVariable(
-        @SuppressWarnings("hiding") TName _name_)
+    public ASetupSection(
+        @SuppressWarnings("hiding") PInputDeclaration _inputDeclaration_)
     {
         // Constructor
-        setName(_name_);
+        setInputDeclaration(_inputDeclaration_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new ADirectNonAddressVariable(
-            cloneNode(this._name_));
+        return new ASetupSection(
+            cloneNode(this._inputDeclaration_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseADirectNonAddressVariable(this);
+        ((Analysis) sw).caseASetupSection(this);
     }
 
-    public TName getName()
+    public PInputDeclaration getInputDeclaration()
     {
-        return this._name_;
+        return this._inputDeclaration_;
     }
 
-    public void setName(TName node)
+    public void setInputDeclaration(PInputDeclaration node)
     {
-        if(this._name_ != null)
+        if(this._inputDeclaration_ != null)
         {
-            this._name_.parent(null);
+            this._inputDeclaration_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class ADirectNonAddressVariable extends PNonAddressVariable
             node.parent(this);
         }
 
-        this._name_ = node;
+        this._inputDeclaration_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._name_);
+            + toString(this._inputDeclaration_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._name_ == child)
+        if(this._inputDeclaration_ == child)
         {
-            this._name_ = null;
+            this._inputDeclaration_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class ADirectNonAddressVariable extends PNonAddressVariable
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._name_ == oldChild)
+        if(this._inputDeclaration_ == oldChild)
         {
-            setName((TName) newChild);
+            setInputDeclaration((PInputDeclaration) newChild);
             return;
         }
 

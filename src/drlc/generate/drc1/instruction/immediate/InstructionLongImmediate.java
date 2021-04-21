@@ -15,4 +15,9 @@ public abstract class InstructionLongImmediate extends Instruction implements II
 	public boolean precedesData() {
 		return true;
 	}
+	
+	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		return null;
+	}
 }

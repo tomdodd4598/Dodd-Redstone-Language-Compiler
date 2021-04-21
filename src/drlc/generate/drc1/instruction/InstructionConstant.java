@@ -38,6 +38,11 @@ public class InstructionConstant extends Instruction {
 	}
 	
 	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		return null;
+	}
+	
+	@Override
 	public String binaryString() {
 		return valueString;
 	}

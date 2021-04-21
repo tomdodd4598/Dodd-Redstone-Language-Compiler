@@ -3,7 +3,7 @@ package drlc.generate.intermediate;
 import java.io.PrintWriter;
 import java.util.List;
 
-import drlc.Global;
+import drlc.Helper;
 import drlc.generate.Generator;
 import drlc.interpret.Program;
 import drlc.interpret.action.Action;
@@ -32,10 +32,10 @@ public class IntermediateGenerator extends Generator {
 		program.finalizeRoutines();
 		
 		for (Routine routine : program.getRoutineMap().values()) {
-			builder.append("\n::[").append(routine.getType().str).append("] ").append(routine.toString()).append("::\n");
+			builder.append("\n::(").append(routine.getType().str).append(") ").append(routine.toString()).append("::\n");
 			List<List<Action>> list = routine.getBodyActionLists();
 			for (int i = 0; i < list.size(); i++) {
-				builder.append(Global.SECTION).append(Integer.toString(i)).append(":\n");
+				builder.append(Helper.sectionIdString(i)).append(":\n");
 				for (Action action : list.get(i)) {
 					builder.append("\t").append(action.toString()).append("\n");
 				}

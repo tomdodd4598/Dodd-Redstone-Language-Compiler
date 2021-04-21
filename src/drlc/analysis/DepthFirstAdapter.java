@@ -50,6 +50,10 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAUnit(AUnit node)
     {
         inAUnit(node);
+        if(node.getSetupSection() != null)
+        {
+            node.getSetupSection().apply(this);
+        }
         {
             List<PGeneralSection> copy = new ArrayList<PGeneralSection>(node.getGeneralSection());
             for(PGeneralSection e : copy)
@@ -58,6 +62,64 @@ public class DepthFirstAdapter extends AnalysisAdapter
             }
         }
         outAUnit(node);
+    }
+
+    public void inASetupSection(ASetupSection node)
+    {
+        defaultIn(node);
+    }
+
+    public void outASetupSection(ASetupSection node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseASetupSection(ASetupSection node)
+    {
+        inASetupSection(node);
+        if(node.getInputDeclaration() != null)
+        {
+            node.getInputDeclaration().apply(this);
+        }
+        outASetupSection(node);
+    }
+
+    public void inAInputDeclaration(AInputDeclaration node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAInputDeclaration(AInputDeclaration node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAInputDeclaration(AInputDeclaration node)
+    {
+        inAInputDeclaration(node);
+        if(node.getSetArgc() != null)
+        {
+            node.getSetArgc().apply(this);
+        }
+        if(node.getLPar() != null)
+        {
+            node.getLPar().apply(this);
+        }
+        if(node.getExpression() != null)
+        {
+            node.getExpression().apply(this);
+        }
+        if(node.getRPar() != null)
+        {
+            node.getRPar().apply(this);
+        }
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        outAInputDeclaration(node);
     }
 
     public void inAMethodDefinitionGeneralSection(AMethodDefinitionGeneralSection node)
@@ -427,9 +489,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getVar().apply(this);
         }
-        if(node.getNonAddressVariable() != null)
+        if(node.getLvalueVariable() != null)
         {
-            node.getNonAddressVariable().apply(this);
+            node.getLvalueVariable().apply(this);
         }
         if(node.getSemicolon() != null)
         {
@@ -456,9 +518,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getVar().apply(this);
         }
-        if(node.getNonAddressVariable() != null)
+        if(node.getLvalueVariable() != null)
         {
-            node.getNonAddressVariable().apply(this);
+            node.getLvalueVariable().apply(this);
         }
         if(node.getEquals() != null)
         {
@@ -489,9 +551,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAVariableModification(AVariableModification node)
     {
         inAVariableModification(node);
-        if(node.getNonAddressVariable() != null)
+        if(node.getLvalueVariable() != null)
         {
-            node.getNonAddressVariable().apply(this);
+            node.getLvalueVariable().apply(this);
         }
         if(node.getEquals() != null)
         {
@@ -1160,6 +1222,59 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outAValueTerm(node);
     }
 
+    public void inAAddressOfTerm(AAddressOfTerm node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAAddressOfTerm(AAddressOfTerm node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAAddressOfTerm(AAddressOfTerm node)
+    {
+        inAAddressOfTerm(node);
+        if(node.getAddressOf() != null)
+        {
+            node.getAddressOf().apply(this);
+        }
+        if(node.getRvalueVariable() != null)
+        {
+            node.getRvalueVariable().apply(this);
+        }
+        outAAddressOfTerm(node);
+    }
+
+    public void inADereferenceTerm(ADereferenceTerm node)
+    {
+        defaultIn(node);
+    }
+
+    public void outADereferenceTerm(ADereferenceTerm node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseADereferenceTerm(ADereferenceTerm node)
+    {
+        inADereferenceTerm(node);
+        {
+            List<TDereference> copy = new ArrayList<TDereference>(node.getDereference());
+            for(TDereference e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        if(node.getRvalueVariable() != null)
+        {
+            node.getRvalueVariable().apply(this);
+        }
+        outADereferenceTerm(node);
+    }
+
     public void inAUnaryTerm(AUnaryTerm node)
     {
         defaultIn(node);
@@ -1249,9 +1364,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAVariableValue(AVariableValue node)
     {
         inAVariableValue(node);
-        if(node.getVariable() != null)
+        if(node.getRvalueVariable() != null)
         {
-            node.getVariable().apply(this);
+            node.getRvalueVariable().apply(this);
         }
         outAVariableValue(node);
     }
@@ -1270,6 +1385,89 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAFunctionValue(AFunctionValue node)
     {
         inAFunctionValue(node);
+        if(node.getFunction() != null)
+        {
+            node.getFunction().apply(this);
+        }
+        outAFunctionValue(node);
+    }
+
+    public void inABuiltInArgcFunction(ABuiltInArgcFunction node)
+    {
+        defaultIn(node);
+    }
+
+    public void outABuiltInArgcFunction(ABuiltInArgcFunction node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseABuiltInArgcFunction(ABuiltInArgcFunction node)
+    {
+        inABuiltInArgcFunction(node);
+        if(node.getArgc() != null)
+        {
+            node.getArgc().apply(this);
+        }
+        if(node.getLPar() != null)
+        {
+            node.getLPar().apply(this);
+        }
+        if(node.getRPar() != null)
+        {
+            node.getRPar().apply(this);
+        }
+        outABuiltInArgcFunction(node);
+    }
+
+    public void inABuiltInArgvFunction(ABuiltInArgvFunction node)
+    {
+        defaultIn(node);
+    }
+
+    public void outABuiltInArgvFunction(ABuiltInArgvFunction node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseABuiltInArgvFunction(ABuiltInArgvFunction node)
+    {
+        inABuiltInArgvFunction(node);
+        if(node.getArgv() != null)
+        {
+            node.getArgv().apply(this);
+        }
+        if(node.getLPar() != null)
+        {
+            node.getLPar().apply(this);
+        }
+        if(node.getExpression() != null)
+        {
+            node.getExpression().apply(this);
+        }
+        if(node.getRPar() != null)
+        {
+            node.getRPar().apply(this);
+        }
+        outABuiltInArgvFunction(node);
+    }
+
+    public void inADefinedFunction(ADefinedFunction node)
+    {
+        defaultIn(node);
+    }
+
+    public void outADefinedFunction(ADefinedFunction node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseADefinedFunction(ADefinedFunction node)
+    {
+        inADefinedFunction(node);
         if(node.getName() != null)
         {
             node.getName().apply(this);
@@ -1286,124 +1484,56 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getRPar().apply(this);
         }
-        outAFunctionValue(node);
+        outADefinedFunction(node);
     }
 
-    public void inADirectVariable(ADirectVariable node)
+    public void inARvalueVariable(ARvalueVariable node)
     {
         defaultIn(node);
     }
 
-    public void outADirectVariable(ADirectVariable node)
+    public void outARvalueVariable(ARvalueVariable node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseADirectVariable(ADirectVariable node)
+    public void caseARvalueVariable(ARvalueVariable node)
     {
-        inADirectVariable(node);
+        inARvalueVariable(node);
         if(node.getName() != null)
         {
             node.getName().apply(this);
         }
-        outADirectVariable(node);
+        outARvalueVariable(node);
     }
 
-    public void inAAddressVariable(AAddressVariable node)
+    public void inALvalueVariable(ALvalueVariable node)
     {
         defaultIn(node);
     }
 
-    public void outAAddressVariable(AAddressVariable node)
+    public void outALvalueVariable(ALvalueVariable node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAAddressVariable(AAddressVariable node)
+    public void caseALvalueVariable(ALvalueVariable node)
     {
-        inAAddressVariable(node);
-        if(node.getAddressOf() != null)
+        inALvalueVariable(node);
         {
-            node.getAddressOf().apply(this);
+            List<TDereference> copy = new ArrayList<TDereference>(node.getDereference());
+            for(TDereference e : copy)
+            {
+                e.apply(this);
+            }
         }
-        if(node.getNonAddressVariable() != null)
-        {
-            node.getNonAddressVariable().apply(this);
-        }
-        outAAddressVariable(node);
-    }
-
-    public void inADereferencedVariable(ADereferencedVariable node)
-    {
-        defaultIn(node);
-    }
-
-    public void outADereferencedVariable(ADereferencedVariable node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseADereferencedVariable(ADereferencedVariable node)
-    {
-        inADereferencedVariable(node);
-        if(node.getDereference() != null)
-        {
-            node.getDereference().apply(this);
-        }
-        if(node.getVariable() != null)
-        {
-            node.getVariable().apply(this);
-        }
-        outADereferencedVariable(node);
-    }
-
-    public void inADirectNonAddressVariable(ADirectNonAddressVariable node)
-    {
-        defaultIn(node);
-    }
-
-    public void outADirectNonAddressVariable(ADirectNonAddressVariable node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseADirectNonAddressVariable(ADirectNonAddressVariable node)
-    {
-        inADirectNonAddressVariable(node);
         if(node.getName() != null)
         {
             node.getName().apply(this);
         }
-        outADirectNonAddressVariable(node);
-    }
-
-    public void inADereferencedNonAddressVariable(ADereferencedNonAddressVariable node)
-    {
-        defaultIn(node);
-    }
-
-    public void outADereferencedNonAddressVariable(ADereferencedNonAddressVariable node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseADereferencedNonAddressVariable(ADereferencedNonAddressVariable node)
-    {
-        inADereferencedNonAddressVariable(node);
-        if(node.getDereference() != null)
-        {
-            node.getDereference().apply(this);
-        }
-        if(node.getVariable() != null)
-        {
-            node.getVariable().apply(this);
-        }
-        outADereferencedNonAddressVariable(node);
+        outALvalueVariable(node);
     }
 
     public void inAArgumentList(AArgumentList node)
@@ -1473,9 +1603,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAParameterList(AParameterList node)
     {
         inAParameterList(node);
-        if(node.getNonAddressVariable() != null)
+        if(node.getLvalueVariable() != null)
         {
-            node.getNonAddressVariable().apply(this);
+            node.getLvalueVariable().apply(this);
         }
         {
             List<PParameterListTail> copy = new ArrayList<PParameterListTail>(node.getParameterListTail());
@@ -1505,9 +1635,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getComma().apply(this);
         }
-        if(node.getNonAddressVariable() != null)
+        if(node.getLvalueVariable() != null)
         {
-            node.getNonAddressVariable().apply(this);
+            node.getLvalueVariable().apply(this);
         }
         outAParameterListTail(node);
     }

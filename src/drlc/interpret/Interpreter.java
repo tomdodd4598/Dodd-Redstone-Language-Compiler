@@ -7,7 +7,9 @@ import drlc.generate.Generator;
 import drlc.interpret.scope.ConditionalSectionInfo;
 import drlc.interpret.scope.IterativeSectionInfo;
 import drlc.interpret.scope.Scope;
-import drlc.node.AAddressVariable;
+import drlc.interpret.type.Variable;
+import drlc.interpret.type.VariableReferenceInfo;
+import drlc.node.AAddressOfTerm;
 import drlc.node.AAndBinaryOp;
 import drlc.node.AArgumentList;
 import drlc.node.AArgumentListTail;
@@ -26,11 +28,9 @@ import drlc.node.ADead2DeadCode;
 import drlc.node.ADead3DeadCode;
 import drlc.node.ADead4DeadCode;
 import drlc.node.ADead5DeadCode;
+import drlc.node.ADefinedFunction;
 import drlc.node.ADefinedMethodCall;
-import drlc.node.ADereferencedNonAddressVariable;
-import drlc.node.ADereferencedVariable;
-import drlc.node.ADirectNonAddressVariable;
-import drlc.node.ADirectVariable;
+import drlc.node.ADereferenceTerm;
 import drlc.node.ADividePrioritizedBinaryOp;
 import drlc.node.AElseBlock;
 import drlc.node.AElseIfBlock;
@@ -45,6 +45,7 @@ import drlc.node.AIterativeBlock;
 import drlc.node.ALeftShiftPrioritizedBinaryOp;
 import drlc.node.ALessOrEqualPrioritizedBinaryOp;
 import drlc.node.ALessThanPrioritizedBinaryOp;
+import drlc.node.ALvalueVariable;
 import drlc.node.AMethodCallBasicSection;
 import drlc.node.AMethodDefinition;
 import drlc.node.AMethodDefinitionGeneralSection;
@@ -67,6 +68,7 @@ import drlc.node.APrioritizedExpression;
 import drlc.node.AReturnExpressionStopStatement;
 import drlc.node.AReturnStopStatement;
 import drlc.node.ARightShiftPrioritizedBinaryOp;
+import drlc.node.ARvalueVariable;
 import drlc.node.ATermPrioritizedExpression;
 import drlc.node.AToBoolUnaryOp;
 import drlc.node.AUnaryTerm;
@@ -81,8 +83,10 @@ import drlc.node.AXorBinaryOp;
 import drlc.node.Node;
 import drlc.node.PArgumentListTail;
 import drlc.node.PBasicSection;
+import drlc.node.PLvalueVariable;
 import drlc.node.PParameterList;
 import drlc.node.Start;
+import drlc.node.TDereference;
 import drlc.node.TLBrace;
 import drlc.node.TRBrace;
 
@@ -124,7 +128,7 @@ public class Interpreter extends DepthFirstAdapter {
 	
 	@Override
 	public void inAUnit(AUnit node) {
-		scope = new Scope(scope);
+		scope = new Scope(node, scope);
 		program.addBuiltInMethods(node, scope);
 		program.addBuiltInFunctions(node, scope);
 	}
@@ -215,8 +219,8 @@ public class Interpreter extends DepthFirstAdapter {
 		}
 		node.getRPar().apply(this);
 		node.getLBrace().apply(this);
-		for (String param : program.getParamArray(node, scope.previous.methodArgs, false)) {
-			scope.addVariable(node, param, true);
+		for (VariableReferenceInfo param : program.getParamArray(node, scope.previous.methodArgs, false)) {
+			scope.addVariable(node, param.variable);
 		}
 		program.createAndSetMethodRoutine(node, scope);
 		for (PBasicSection section : node.getBasicSection()) {
@@ -244,8 +248,8 @@ public class Interpreter extends DepthFirstAdapter {
 		}
 		node.getRPar().apply(this);
 		node.getLBrace().apply(this);
-		for (String param : program.getParamArray(node, scope.previous.functionArgs, false)) {
-			scope.addVariable(node, param, true);
+		for (VariableReferenceInfo param : program.getParamArray(node, scope.previous.functionArgs, false)) {
+			scope.addVariable(node, param.variable);
 		}
 		program.createAndSetFunctionRoutine(node, scope);
 		scope.setExpectingFunctionReturn(true);
@@ -277,9 +281,9 @@ public class Interpreter extends DepthFirstAdapter {
 	
 	@Override
 	public void inANoInitialisationVariableDeclaration(ANoInitialisationVariableDeclaration node) {
-		String name = node.getName().getText();
-		scope.addVariable(node, name, false);
-		program.currentRoutine().addStackDeclarationAction(node, scope, name);
+		VariableReferenceInfo info = createLvalueVariableInfo(node.getLvalueVariable(), 0, false);
+		scope.addVariable(node, info.variable);
+		program.currentRoutine().addStackDeclarationAction(node, scope, info.toString());
 	}
 	
 	@Override
@@ -287,24 +291,37 @@ public class Interpreter extends DepthFirstAdapter {
 	
 	@Override
 	public void caseAWithInitialisationVariableDeclaration(AWithInitialisationVariableDeclaration node) {
+		String expression = node.getExpression().toString();
+		boolean hasAddressPrefix = Helper.hasAddressPrefix(expression), isValidAddress = false;
+		if (hasAddressPrefix) {
+			String removedAddressPrefix = Helper.removeAddressPrefix(expression);
+			if (scope.variableExists(removedAddressPrefix)) {
+				isValidAddress = true;
+			}
+		}
 		node.getVar().apply(this);
-		node.getName().apply(this);
-		String name = node.getName().getText();
+		VariableReferenceInfo info = createLvalueVariableInfo(node.getLvalueVariable(), isValidAddress ? 1 : 0, true);
 		node.getEquals().apply(this);
-		node.getExpression().apply(this);
+		if (isValidAddress) {
+			program.currentRoutine().incrementRegId();
+			program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.removeWhitespace(expression));
+		}
+		else {
+			node.getExpression().apply(this);
+		}
 		program.currentRoutine().pushCurrentRegIdToStack(node);
-		program.currentRoutine().addStackInitialisationAction(node, scope, name);
-		scope.addVariable(node, name, true);
+		program.currentRoutine().addStackInitialisationAction(node, scope, info.toString());
+		scope.addVariable(node, info.variable);
 		node.getSemicolon().apply(this);
 	}
 	
 	@Override
 	public void caseAVariableModification(AVariableModification node) {
-		node.getName().apply(this);
+		VariableReferenceInfo info = createLvalueVariableInfo(node.getLvalueVariable(), 0, true);
 		node.getEquals().apply(this);
 		node.getExpression().apply(this);
 		program.currentRoutine().pushCurrentRegIdToStack(node);
-		program.currentRoutine().addStackVariableAssignmentAction(node, scope, node.getName().getText());
+		program.currentRoutine().addStackVariableAssignmentAction(node, scope, info.toString());
 		node.getSemicolon().apply(this);
 	}
 	
@@ -495,6 +512,33 @@ public class Interpreter extends DepthFirstAdapter {
 	public void outATermPrioritizedExpression(ATermPrioritizedExpression node) {}
 	
 	@Override
+	public void caseAAddressOfTerm(AAddressOfTerm node) {
+		node.getAddressOf().apply(this);
+		scope.getVariable(node, node.getRvalueVariable().toString().trim());
+		program.currentRoutine().incrementRegId();
+		program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.removeWhitespace(node.toString()));
+	}
+	
+	@Override
+	public void caseADereferenceTerm(ADereferenceTerm node) {
+		Integer value = Evaluator.tryEvaluate(node, generator, scope, node.toString());
+		if (value != null) {
+			generator.checkInteger(node, value);
+			program.currentRoutine().incrementRegId();
+			program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.immediateValueString(value));
+		}
+		else {
+			for (TDereference dereference : node.getDereference()) {
+				dereference.apply(this);
+			}
+			node.getRvalueVariable().apply(this);
+			program.currentRoutine().pushCurrentRegIdToStack(node);
+			program.currentRoutine().incrementRegId();
+			program.currentRoutine().addDereferenceAction(node, scope, node.getDereference().size());
+		}
+	}
+	
+	@Override
 	public void caseAUnaryTerm(AUnaryTerm node) {
 		Integer value = Evaluator.tryEvaluate(node, generator, scope, node.toString());
 		if (value != null) {
@@ -551,9 +595,29 @@ public class Interpreter extends DepthFirstAdapter {
 		program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.immediateValueString(value));
 	}
 	
-	//TODO
 	@Override
-	public void caseAVariableValue(AVariableValue node) {
+	public void inAVariableValue(AVariableValue node) {}
+
+	@Override
+	public void outAVariableValue(AVariableValue node) {}
+	
+	@Override
+	public void inAFunctionValue(AFunctionValue node) {}
+	
+	@Override
+	public void outAFunctionValue(AFunctionValue node) {}
+	
+	@Override
+	public void inADefinedFunction(ADefinedFunction node) {}
+	
+	@Override
+	public void outADefinedFunction(ADefinedFunction node) {
+		program.currentRoutine().incrementRegId();
+		program.currentRoutine().addFunctionSubroutineCallAction(node, scope, node.getName().getText());
+	}
+	
+	@Override
+	public void caseARvalueVariable(ARvalueVariable node) {
 		node.getName().apply(this);
 		program.currentRoutine().incrementRegId();
 		String name = node.getName().getText();
@@ -566,45 +630,13 @@ public class Interpreter extends DepthFirstAdapter {
 	}
 	
 	@Override
-	public void inAFunctionValue(AFunctionValue node) {}
+	public void caseALvalueVariable(ALvalueVariable node) {}
 	
-	@Override
-	public void outAFunctionValue(AFunctionValue node) {
-		program.currentRoutine().incrementRegId();
-		program.currentRoutine().addFunctionSubroutineCallAction(node, scope, node.getName().getText());
-	}
-	
-	//TODO
-	@Override
-	public void caseADirectVariable(ADirectVariable node) {
-		node.getName().apply(this);
-	}
-	
-	//TODO
-	@Override
-	public void caseAAddressVariable(AAddressVariable node) {
-		node.getAddressOf().apply(this);
-		node.getNonAddressVariable().apply(this);
-	}
-	
-	//TODO
-	@Override
-	public void caseADereferencedVariable(ADereferencedVariable node) {
-		node.getDereference().apply(this);
-		node.getVariable().apply(this);
-	}
-	
-	//TODO
-	@Override
-	public void caseADirectNonAddressVariable(ADirectNonAddressVariable node) {
-		node.getName().apply(this);
-	}
-	
-	//TODO
-	@Override
-	public void caseADereferencedNonAddressVariable(ADereferencedNonAddressVariable node) {
-		node.getDereference().apply(this);
-		node.getVariable().apply(this);
+	public VariableReferenceInfo createLvalueVariableInfo(PLvalueVariable node, int referenceLevelOffset, boolean initialised) {
+		ALvalueVariable variableNode = (ALvalueVariable) node;
+		VariableReferenceInfo info = new VariableReferenceInfo(new Variable(variableNode.getName().getText(), variableNode.getDereference().size() + referenceLevelOffset, initialised));
+		info.dereferenceLevel = info.variable.baseReferenceLevel - referenceLevelOffset;
+		return info;
 	}
 	
 	@Override
@@ -625,7 +657,7 @@ public class Interpreter extends DepthFirstAdapter {
 	
 	@Override
 	public void inAParameterList(AParameterList node) {
-		program.addParam(node, node.getName().getText());
+		program.addParam(node, createLvalueVariableInfo(node.getLvalueVariable(), 0, true));
 	}
 	
 	@Override
@@ -633,7 +665,7 @@ public class Interpreter extends DepthFirstAdapter {
 	
 	@Override
 	public void inAParameterListTail(AParameterListTail node) {
-		program.addParam(node, node.getName().getText());
+		program.addParam(node, createLvalueVariableInfo(node.getLvalueVariable(), 0, true));
 	}
 	
 	@Override
@@ -769,7 +801,7 @@ public class Interpreter extends DepthFirstAdapter {
 	
 	@Override
 	public void caseTLBrace(TLBrace node) {
-		scope = new Scope(scope);
+		scope = new Scope(node, scope);
 	}
 	
 	@Override

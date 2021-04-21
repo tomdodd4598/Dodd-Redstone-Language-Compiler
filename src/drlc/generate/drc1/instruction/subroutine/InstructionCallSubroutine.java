@@ -31,6 +31,11 @@ public class InstructionCallSubroutine extends Instruction {
 	}
 	
 	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		return null;
+	}
+	
+	@Override
 	public String binaryString() {
 		return RedstoneOpcodes.get(RedstoneMnemonics.CALL).concat(Helper.toBinary(returnAddress, 8));
 	}

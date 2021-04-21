@@ -30,6 +30,15 @@ public class InstructionRightShiftImmediate extends InstructionALUImmediate {
 	}
 	
 	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		/*if (next instanceof InstructionRightShiftImmediate) {
+			InstructionRightShiftImmediate rsh = (InstructionRightShiftImmediate) next;
+			return new InstructionRightShiftImmediate((short) (value + rsh.value));
+		}*/
+		return null;
+	}
+	
+	@Override
 	public String binaryString() {
 		return RedstoneOpcodes.get(RedstoneMnemonics.RSHI).concat(Helper.toBinary(value, 8));
 	}

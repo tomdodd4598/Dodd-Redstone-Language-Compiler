@@ -18,4 +18,9 @@ public abstract class InstructionAddressOffset extends Instruction implements II
 	public DataInfo getDataInfo() {
 		return info;
 	}
+	
+	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		return null;
+	}
 }

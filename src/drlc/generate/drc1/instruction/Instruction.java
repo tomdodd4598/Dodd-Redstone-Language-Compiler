@@ -12,6 +12,8 @@ public abstract class Instruction {
 		return false;
 	}
 	
+	public abstract Instruction getCompressedWithNextInstruction(Instruction next);
+	
 	public abstract String binaryString();
 	
 	@Override

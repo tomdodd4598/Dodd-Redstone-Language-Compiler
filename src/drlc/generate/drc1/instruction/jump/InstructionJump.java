@@ -26,6 +26,11 @@ public class InstructionJump extends Instruction {
 	}
 	
 	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		return null;
+	}
+	
+	@Override
 	public String binaryString() {
 		return RedstoneOpcodes.get(RedstoneMnemonics.JMP).concat(Helper.toBinary(address, 8));
 	}

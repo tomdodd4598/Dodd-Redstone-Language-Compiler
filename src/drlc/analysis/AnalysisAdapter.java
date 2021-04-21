@@ -81,6 +81,18 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseASetupSection(ASetupSection node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAInputDeclaration(AInputDeclaration node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseAMethodDefinitionGeneralSection(AMethodDefinitionGeneralSection node)
     {
         defaultCase(node);
@@ -291,6 +303,18 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseAAddressOfTerm(AAddressOfTerm node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseADereferenceTerm(ADereferenceTerm node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseAUnaryTerm(AUnaryTerm node)
     {
         defaultCase(node);
@@ -321,31 +345,31 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseADirectVariable(ADirectVariable node)
+    public void caseABuiltInArgcFunction(ABuiltInArgcFunction node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAAddressVariable(AAddressVariable node)
+    public void caseABuiltInArgvFunction(ABuiltInArgvFunction node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseADereferencedVariable(ADereferencedVariable node)
+    public void caseADefinedFunction(ADefinedFunction node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseADirectNonAddressVariable(ADirectNonAddressVariable node)
+    public void caseARvalueVariable(ARvalueVariable node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseADereferencedNonAddressVariable(ADereferencedNonAddressVariable node)
+    public void caseALvalueVariable(ALvalueVariable node)
     {
         defaultCase(node);
     }
@@ -501,6 +525,12 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseTSetArgc(TSetArgc node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseTConst(TConst node)
     {
         defaultCase(node);
@@ -526,6 +556,18 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTOut(TOut node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTArgc(TArgc node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTArgv(TArgv node)
     {
         defaultCase(node);
     }
@@ -604,6 +646,18 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTSemicolon(TSemicolon node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTAddressOf(TAddressOf node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTDereference(TDereference node)
     {
         defaultCase(node);
     }
@@ -730,18 +784,6 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTInteger(TInteger node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTAddressOf(TAddressOf node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTDereference(TDereference node)
     {
         defaultCase(node);
     }

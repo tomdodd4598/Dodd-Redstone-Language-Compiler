@@ -28,6 +28,15 @@ public class InstructionAndImmediate extends InstructionALUImmediate {
 	}
 	
 	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		/*if (next instanceof InstructionAndImmediate) {
+			InstructionAndImmediate and = (InstructionAndImmediate) next;
+			return new InstructionAndImmediate((short) (value & and.value));
+		}*/
+		return null;
+	}
+	
+	@Override
 	public String binaryString() {
 		return RedstoneOpcodes.get(RedstoneMnemonics.ANDI).concat(Helper.toBinary(value, 8));
 	}

@@ -5,16 +5,16 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class ADirectVariable extends PVariable
+public final class ARvalueVariable extends PRvalueVariable
 {
     private TName _name_;
 
-    public ADirectVariable()
+    public ARvalueVariable()
     {
         // Constructor
     }
 
-    public ADirectVariable(
+    public ARvalueVariable(
         @SuppressWarnings("hiding") TName _name_)
     {
         // Constructor
@@ -25,14 +25,14 @@ public final class ADirectVariable extends PVariable
     @Override
     public Object clone()
     {
-        return new ADirectVariable(
+        return new ARvalueVariable(
             cloneNode(this._name_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseADirectVariable(this);
+        ((Analysis) sw).caseARvalueVariable(this);
     }
 
     public TName getName()

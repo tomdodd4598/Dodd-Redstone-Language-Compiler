@@ -23,6 +23,31 @@ public class InstructionAddImmediate extends InstructionALUImmediate {
 	}
 	
 	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		/*if (next instanceof InstructionAddImmediate) {
+			InstructionAddImmediate add = (InstructionAddImmediate) next;
+			int sum = value + add.value;
+			if (!RedstoneCode.isLongImmediate((short) sum)) {
+				return new InstructionAddImmediate((short) sum);
+			}
+			else if (!RedstoneCode.isLongImmediate((short) -sum)) {
+				return new InstructionSubtractImmediate((short) -sum);
+			}
+		}
+		else if (next instanceof InstructionSubtractImmediate) {
+			InstructionSubtractImmediate subtract = (InstructionSubtractImmediate) next;
+			int sum = value - subtract.value;
+			if (!RedstoneCode.isLongImmediate((short) sum)) {
+				return new InstructionAddImmediate((short) sum);
+			}
+			else if (!RedstoneCode.isLongImmediate((short) -sum)) {
+				return new InstructionSubtractImmediate((short) -sum);
+			}
+		}*/
+		return null;
+	}
+	
+	@Override
 	public String binaryString() {
 		return RedstoneOpcodes.get(RedstoneMnemonics.ADDI).concat(Helper.toBinary(value, 8));
 	}

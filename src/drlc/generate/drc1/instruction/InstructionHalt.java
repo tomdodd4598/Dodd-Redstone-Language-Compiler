@@ -21,6 +21,11 @@ public class InstructionHalt extends Instruction {
 	}
 	
 	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		return null;
+	}
+	
+	@Override
 	public String binaryString() {
 		return RedstoneOpcodes.get(RedstoneMnemonics.HLT).concat(Global.ZERO_8);
 	}

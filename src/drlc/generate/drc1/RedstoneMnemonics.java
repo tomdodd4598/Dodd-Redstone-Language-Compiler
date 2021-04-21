@@ -32,6 +32,11 @@ public class RedstoneMnemonics {
 	public static final String ADDSP = format("ADDSP");
 	public static final String SUBSP = format("SUBSP");
 	
+	public static final String DEA = format("DEA");
+	public static final String DEB = format("DEB");
+	public static final String STATB = format("STATB");
+	public static final String STBTA = format("STBTA");
+	
 	public static final String CALL = format("CALL");
 	public static final String RET = format("RET");
 	
@@ -48,6 +53,9 @@ public class RedstoneMnemonics {
 	public static final String SUB = format("SUB");
 	public static final String LSH = format("LSH");
 	public static final String RSH = format("RSH");
+	
+	public static final String STB = format("STB");
+	public static final String LDB = format("LDB");
 	
 	public static final String LDEZ = format("LDEZ");
 	public static final String LDNEZ = format("LDNEZ");
@@ -78,6 +86,10 @@ public class RedstoneMnemonics {
 	public static final String LSHPB = format("LSHPB");
 	public static final String RSHPB = format("RSHPB");
 	
+	public static final String STBPB = format("STBPB");
+	public static final String LDBPB = format("LDBPB");
+	public static final String LDIPB = format("LDIPB");
+	
 	public static final String STANB = format("STANB");
 	public static final String LDANB = format("LDANB");
 	public static final String NOTNB = format("NOTNB");
@@ -88,6 +100,10 @@ public class RedstoneMnemonics {
 	public static final String SUBNB = format("SUBNB");
 	public static final String LSHNB = format("LSHNB");
 	public static final String RSHNB = format("RSHNB");
+	
+	public static final String STBNB = format("STBNB");
+	public static final String LDBNB = format("LDBNB");
+	public static final String LDINB = format("LDINB");
 	
 	public static final String MULI = format("MULI");
 	public static final String MULLI = format("MULLI");

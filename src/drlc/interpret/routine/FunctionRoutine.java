@@ -2,12 +2,13 @@ package drlc.interpret.routine;
 
 import drlc.interpret.Program;
 import drlc.interpret.type.Function;
+import drlc.interpret.type.VariableReferenceInfo;
 
 public class FunctionRoutine extends Subroutine {
 	
 	public final Function function;
 	
-	public FunctionRoutine(Program program, String name, Function function, String[] params) {
+	public FunctionRoutine(Program program, String name, Function function, VariableReferenceInfo[] params) {
 		super(program, name, params);
 		this.function = function;
 	}
@@ -16,8 +17,8 @@ public class FunctionRoutine extends Subroutine {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(name);
-		for (String param : params) {
-			builder.append(" ").append(param);
+		for (VariableReferenceInfo param : params) {
+			builder.append(" ").append(param.toString());
 		}
 		return builder.toString();
 	}

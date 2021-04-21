@@ -75,6 +75,7 @@ public class RedstoneCode {
 				flag |= RedstoneOptimization.removeUnnecessaryJumps(routine);
 				flag |= RedstoneOptimization.simplifyConditionalJumps(routine);
 				flag |= RedstoneOptimization.simplifyALUImmediateInstructions(routine);
+				flag |= RedstoneOptimization.compressSuccessiveInstruction(routine);
 			}
 		}
 	}

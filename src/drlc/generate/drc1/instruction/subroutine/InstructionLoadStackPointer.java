@@ -26,6 +26,14 @@ public class InstructionLoadStackPointer extends Instruction {
 	}
 	
 	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		if (next instanceof InstructionLoadStackPointer) {
+			return next;
+		}
+		return null;
+	}
+	
+	@Override
 	public String binaryString() {
 		return RedstoneOpcodes.get(RedstoneMnemonics.LDSP).concat(Helper.toBinary(value, 8));
 	}

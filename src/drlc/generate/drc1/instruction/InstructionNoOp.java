@@ -21,6 +21,11 @@ public class InstructionNoOp extends Instruction {
 	}
 	
 	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		return null;
+	}
+	
+	@Override
 	public String binaryString() {
 		return RedstoneOpcodes.get(RedstoneMnemonics.NOP).concat(Global.ZERO_8);
 	}

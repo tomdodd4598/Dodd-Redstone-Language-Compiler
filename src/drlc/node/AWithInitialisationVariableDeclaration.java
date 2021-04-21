@@ -8,7 +8,7 @@ import drlc.analysis.*;
 public final class AWithInitialisationVariableDeclaration extends PVariableDeclaration
 {
     private TVar _var_;
-    private PNonAddressVariable _nonAddressVariable_;
+    private PLvalueVariable _lvalueVariable_;
     private TEquals _equals_;
     private PExpression _expression_;
     private TSemicolon _semicolon_;
@@ -20,7 +20,7 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
 
     public AWithInitialisationVariableDeclaration(
         @SuppressWarnings("hiding") TVar _var_,
-        @SuppressWarnings("hiding") PNonAddressVariable _nonAddressVariable_,
+        @SuppressWarnings("hiding") PLvalueVariable _lvalueVariable_,
         @SuppressWarnings("hiding") TEquals _equals_,
         @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") TSemicolon _semicolon_)
@@ -28,7 +28,7 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
         // Constructor
         setVar(_var_);
 
-        setNonAddressVariable(_nonAddressVariable_);
+        setLvalueVariable(_lvalueVariable_);
 
         setEquals(_equals_);
 
@@ -43,7 +43,7 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
     {
         return new AWithInitialisationVariableDeclaration(
             cloneNode(this._var_),
-            cloneNode(this._nonAddressVariable_),
+            cloneNode(this._lvalueVariable_),
             cloneNode(this._equals_),
             cloneNode(this._expression_),
             cloneNode(this._semicolon_));
@@ -80,16 +80,16 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
         this._var_ = node;
     }
 
-    public PNonAddressVariable getNonAddressVariable()
+    public PLvalueVariable getLvalueVariable()
     {
-        return this._nonAddressVariable_;
+        return this._lvalueVariable_;
     }
 
-    public void setNonAddressVariable(PNonAddressVariable node)
+    public void setLvalueVariable(PLvalueVariable node)
     {
-        if(this._nonAddressVariable_ != null)
+        if(this._lvalueVariable_ != null)
         {
-            this._nonAddressVariable_.parent(null);
+            this._lvalueVariable_.parent(null);
         }
 
         if(node != null)
@@ -102,7 +102,7 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
             node.parent(this);
         }
 
-        this._nonAddressVariable_ = node;
+        this._lvalueVariable_ = node;
     }
 
     public TEquals getEquals()
@@ -185,7 +185,7 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
     {
         return ""
             + toString(this._var_)
-            + toString(this._nonAddressVariable_)
+            + toString(this._lvalueVariable_)
             + toString(this._equals_)
             + toString(this._expression_)
             + toString(this._semicolon_);
@@ -201,9 +201,9 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
             return;
         }
 
-        if(this._nonAddressVariable_ == child)
+        if(this._lvalueVariable_ == child)
         {
-            this._nonAddressVariable_ = null;
+            this._lvalueVariable_ = null;
             return;
         }
 
@@ -238,9 +238,9 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
             return;
         }
 
-        if(this._nonAddressVariable_ == oldChild)
+        if(this._lvalueVariable_ == oldChild)
         {
-            setNonAddressVariable((PNonAddressVariable) newChild);
+            setLvalueVariable((PLvalueVariable) newChild);
             return;
         }
 

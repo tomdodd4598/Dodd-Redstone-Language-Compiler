@@ -1,5 +1,6 @@
 package drlc.generate.drc1;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -319,5 +320,37 @@ public class RedstoneOptimization {
 			}
 		}
 		return flag;
+	}
+	
+	public static boolean compressSuccessiveInstruction(RedstoneRoutine routine) {
+		boolean flag = false;
+		Collection<List<Instruction>> sections = routine.textSectionMap.values();
+		List<Instruction>[] sectionArray = sections.toArray(new List[sections.size()]);
+		for (int s = 0; s < sectionArray.length; s++) {
+			for (int i = 0; i < sectionArray[s].size(); i++) {
+				flag |= compressWithNextInstruction(sectionArray, s, i, false);
+			}
+		}
+		return flag;
+	}
+	
+	public static boolean compressWithNextInstruction(List<Instruction>[] sectionArray, int s, int i, boolean ignoreSections) {
+		if (ignoreSections && i == sectionArray[s].size() - 1 && s < sectionArray.length - 1 && !sectionArray[s + 1].isEmpty()) {
+			Instruction replacement = sectionArray[s].get(i).getCompressedWithNextInstruction(sectionArray[s + 1].get(0));
+			if (replacement != null) {
+				sectionArray[s].set(i, replacement);
+				sectionArray[s + 1].remove(0);
+				return true;
+			}
+		}
+		else if (i < sectionArray[s].size() - 1) {
+			Instruction replacement = sectionArray[s].get(i).getCompressedWithNextInstruction(sectionArray[s].get(i + 1));
+			if (replacement != null) {
+				sectionArray[s].set(i, replacement);
+				sectionArray[s].remove(i + 1);
+				return true;
+			}
+		}
+		return false;
 	}
 }

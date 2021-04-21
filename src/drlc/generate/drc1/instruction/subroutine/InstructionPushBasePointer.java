@@ -22,6 +22,11 @@ public class InstructionPushBasePointer extends Instruction {
 	}
 	
 	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		return null;
+	}
+	
+	@Override
 	public String binaryString() {
 		return RedstoneOpcodes.get(RedstoneMnemonics.PSHBP).concat(Global.ZERO_8);
 	}

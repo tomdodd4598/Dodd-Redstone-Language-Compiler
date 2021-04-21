@@ -23,6 +23,15 @@ public class InstructionXorImmediate extends InstructionALUImmediate {
 	}
 	
 	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		/*if (next instanceof InstructionXorImmediate) {
+			InstructionXorImmediate xor = (InstructionXorImmediate) next;
+			return new InstructionXorImmediate((short) (value ^ xor.value));
+		}*/
+		return null;
+	}
+	
+	@Override
 	public String binaryString() {
 		return RedstoneOpcodes.get(RedstoneMnemonics.XORI).concat(Helper.toBinary(value, 8));
 	}

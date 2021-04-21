@@ -5,39 +5,39 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AAddressVariable extends PVariable
+public final class AAddressOfTerm extends PTerm
 {
     private TAddressOf _addressOf_;
-    private PNonAddressVariable _nonAddressVariable_;
+    private PRvalueVariable _rvalueVariable_;
 
-    public AAddressVariable()
+    public AAddressOfTerm()
     {
         // Constructor
     }
 
-    public AAddressVariable(
+    public AAddressOfTerm(
         @SuppressWarnings("hiding") TAddressOf _addressOf_,
-        @SuppressWarnings("hiding") PNonAddressVariable _nonAddressVariable_)
+        @SuppressWarnings("hiding") PRvalueVariable _rvalueVariable_)
     {
         // Constructor
         setAddressOf(_addressOf_);
 
-        setNonAddressVariable(_nonAddressVariable_);
+        setRvalueVariable(_rvalueVariable_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new AAddressVariable(
+        return new AAddressOfTerm(
             cloneNode(this._addressOf_),
-            cloneNode(this._nonAddressVariable_));
+            cloneNode(this._rvalueVariable_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAAddressVariable(this);
+        ((Analysis) sw).caseAAddressOfTerm(this);
     }
 
     public TAddressOf getAddressOf()
@@ -65,16 +65,16 @@ public final class AAddressVariable extends PVariable
         this._addressOf_ = node;
     }
 
-    public PNonAddressVariable getNonAddressVariable()
+    public PRvalueVariable getRvalueVariable()
     {
-        return this._nonAddressVariable_;
+        return this._rvalueVariable_;
     }
 
-    public void setNonAddressVariable(PNonAddressVariable node)
+    public void setRvalueVariable(PRvalueVariable node)
     {
-        if(this._nonAddressVariable_ != null)
+        if(this._rvalueVariable_ != null)
         {
-            this._nonAddressVariable_.parent(null);
+            this._rvalueVariable_.parent(null);
         }
 
         if(node != null)
@@ -87,7 +87,7 @@ public final class AAddressVariable extends PVariable
             node.parent(this);
         }
 
-        this._nonAddressVariable_ = node;
+        this._rvalueVariable_ = node;
     }
 
     @Override
@@ -95,7 +95,7 @@ public final class AAddressVariable extends PVariable
     {
         return ""
             + toString(this._addressOf_)
-            + toString(this._nonAddressVariable_);
+            + toString(this._rvalueVariable_);
     }
 
     @Override
@@ -108,9 +108,9 @@ public final class AAddressVariable extends PVariable
             return;
         }
 
-        if(this._nonAddressVariable_ == child)
+        if(this._rvalueVariable_ == child)
         {
-            this._nonAddressVariable_ = null;
+            this._rvalueVariable_ = null;
             return;
         }
 
@@ -127,9 +127,9 @@ public final class AAddressVariable extends PVariable
             return;
         }
 
-        if(this._nonAddressVariable_ == oldChild)
+        if(this._rvalueVariable_ == oldChild)
         {
-            setNonAddressVariable((PNonAddressVariable) newChild);
+            setRvalueVariable((PRvalueVariable) newChild);
             return;
         }
 

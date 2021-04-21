@@ -22,6 +22,11 @@ public class InstructionReturnFromSubroutine extends Instruction {
 	}
 	
 	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		return null;
+	}
+	
+	@Override
 	public String binaryString() {
 		return RedstoneOpcodes.get(RedstoneMnemonics.RET).concat(Global.ZERO_8);
 	}

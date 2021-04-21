@@ -23,6 +23,15 @@ public class InstructionOrImmediate extends InstructionALUImmediate {
 	}
 	
 	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		/*if (next instanceof InstructionOrImmediate) {
+			InstructionOrImmediate or = (InstructionOrImmediate) next;
+			return new InstructionOrImmediate((short) (value | or.value));
+		}*/
+		return null;
+	}
+	
+	@Override
 	public String binaryString() {
 		return RedstoneOpcodes.get(RedstoneMnemonics.ORI).concat(Helper.toBinary(value, 8));
 	}

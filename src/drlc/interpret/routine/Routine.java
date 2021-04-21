@@ -16,6 +16,7 @@ import drlc.interpret.action.BuiltInFunctionCallAction;
 import drlc.interpret.action.BuiltInMethodCallAction;
 import drlc.interpret.action.ConditionalJumpAction;
 import drlc.interpret.action.DeclarationAction;
+import drlc.interpret.action.DereferenceAction;
 import drlc.interpret.action.FunctionCallAction;
 import drlc.interpret.action.IValueAction;
 import drlc.interpret.action.InitialisationAction;
@@ -164,6 +165,10 @@ public abstract class Routine {
 		checkVariableExists(node, scope, target, true, "not defined in this scope!");
 		scope.getVariable(node, target).initialised = true;
 		addAction(new AssignmentAction(node, target, popRegIdStack(1)[0]));
+	}
+	
+	public void addDereferenceAction(Node node, Scope scope, int dereferenceLevel) {
+		addAction(new DereferenceAction(node, currentRegId(node), dereferenceLevel, popRegIdStack(1)[0]));
 	}
 	
 	public void addUnaryOpAction(Node node, Scope scope, String operation) {

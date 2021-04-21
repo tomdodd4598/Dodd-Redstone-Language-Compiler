@@ -22,6 +22,11 @@ public class InstructionMoveStackPointerToBasePointer extends Instruction {
 	}
 	
 	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		return null;
+	}
+	
+	@Override
 	public String binaryString() {
 		return RedstoneOpcodes.get(RedstoneMnemonics.MSPBP).concat(Global.ZERO_8);
 	}

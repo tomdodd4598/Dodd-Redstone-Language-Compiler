@@ -17,4 +17,9 @@ public abstract class InstructionAddress extends Instruction implements IInstruc
 	public DataInfo getDataInfo() {
 		return info;
 	}
+	
+	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		return null;
+	}
 }

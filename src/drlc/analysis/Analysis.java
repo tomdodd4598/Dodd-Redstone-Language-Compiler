@@ -13,6 +13,8 @@ public interface Analysis extends Switch
 
     void caseStart(Start node);
     void caseAUnit(AUnit node);
+    void caseASetupSection(ASetupSection node);
+    void caseAInputDeclaration(AInputDeclaration node);
     void caseAMethodDefinitionGeneralSection(AMethodDefinitionGeneralSection node);
     void caseAFunctionDefinitionGeneralSection(AFunctionDefinitionGeneralSection node);
     void caseABasicGeneralSection(ABasicGeneralSection node);
@@ -48,16 +50,18 @@ public interface Analysis extends Switch
     void caseATermPrioritizedExpression(ATermPrioritizedExpression node);
     void caseABinaryPrioritizedExpression(ABinaryPrioritizedExpression node);
     void caseAValueTerm(AValueTerm node);
+    void caseAAddressOfTerm(AAddressOfTerm node);
+    void caseADereferenceTerm(ADereferenceTerm node);
     void caseAUnaryTerm(AUnaryTerm node);
     void caseAParExpressionTerm(AParExpressionTerm node);
     void caseAIntegerValue(AIntegerValue node);
     void caseAVariableValue(AVariableValue node);
     void caseAFunctionValue(AFunctionValue node);
-    void caseADirectVariable(ADirectVariable node);
-    void caseAAddressVariable(AAddressVariable node);
-    void caseADereferencedVariable(ADereferencedVariable node);
-    void caseADirectNonAddressVariable(ADirectNonAddressVariable node);
-    void caseADereferencedNonAddressVariable(ADereferencedNonAddressVariable node);
+    void caseABuiltInArgcFunction(ABuiltInArgcFunction node);
+    void caseABuiltInArgvFunction(ABuiltInArgvFunction node);
+    void caseADefinedFunction(ADefinedFunction node);
+    void caseARvalueVariable(ARvalueVariable node);
+    void caseALvalueVariable(ALvalueVariable node);
     void caseAArgumentList(AArgumentList node);
     void caseAArgumentListTail(AArgumentListTail node);
     void caseAParameterList(AParameterList node);
@@ -84,11 +88,14 @@ public interface Analysis extends Switch
     void caseAMoreThanPrioritizedBinaryOp(AMoreThanPrioritizedBinaryOp node);
     void caseAMoreOrEqualPrioritizedBinaryOp(AMoreOrEqualPrioritizedBinaryOp node);
 
+    void caseTSetArgc(TSetArgc node);
     void caseTConst(TConst node);
     void caseTVar(TVar node);
     void caseTVoid(TVoid node);
     void caseTFun(TFun node);
     void caseTOut(TOut node);
+    void caseTArgc(TArgc node);
+    void caseTArgv(TArgv node);
     void caseTReturn(TReturn node);
     void caseTIf(TIf node);
     void caseTElse(TElse node);
@@ -102,6 +109,8 @@ public interface Analysis extends Switch
     void caseTRBrace(TRBrace node);
     void caseTComma(TComma node);
     void caseTSemicolon(TSemicolon node);
+    void caseTAddressOf(TAddressOf node);
+    void caseTDereference(TDereference node);
     void caseTPlus(TPlus node);
     void caseTMinus(TMinus node);
     void caseTComplement(TComplement node);
@@ -123,8 +132,6 @@ public interface Analysis extends Switch
     void caseTMoreOrEqual(TMoreOrEqual node);
     void caseTName(TName node);
     void caseTInteger(TInteger node);
-    void caseTAddressOf(TAddressOf node);
-    void caseTDereference(TDereference node);
     void caseTBlank(TBlank node);
     void caseTComment(TComment node);
     void caseEOF(EOF node);

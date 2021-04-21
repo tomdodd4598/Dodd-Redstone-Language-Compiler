@@ -40,6 +40,11 @@ public class RedstoneOpcodes {
 		put(RedstoneMnemonics.ADDSP, 0x25);
 		put(RedstoneMnemonics.SUBSP, 0x26);
 		
+		put(RedstoneMnemonics.DEA, 0x2A);
+		put(RedstoneMnemonics.DEB, 0x2B);
+		put(RedstoneMnemonics.STATB, 0x2C);
+		put(RedstoneMnemonics.STBTA, 0x2D);
+		
 		put(RedstoneMnemonics.CALL, 0x30);
 		put(RedstoneMnemonics.RET, 0x31);
 		
@@ -56,6 +61,9 @@ public class RedstoneOpcodes {
 		put(RedstoneMnemonics.SUB, 0x47);
 		put(RedstoneMnemonics.LSH, 0x48);
 		put(RedstoneMnemonics.RSH, 0x49);
+		
+		put(RedstoneMnemonics.STB, 0x4A);
+		put(RedstoneMnemonics.LDB, 0x4B);
 		
 		put(RedstoneMnemonics.LDEZ, 0x51);
 		put(RedstoneMnemonics.LDNEZ, 0x52);
@@ -86,6 +94,10 @@ public class RedstoneOpcodes {
 		put(RedstoneMnemonics.LSHPB, 0x88);
 		put(RedstoneMnemonics.RSHPB, 0x89);
 		
+		put(RedstoneMnemonics.STBPB, 0x8A);
+		put(RedstoneMnemonics.LDBPB, 0x8B);
+		put(RedstoneMnemonics.LDIPB, 0x8C);
+		
 		put(RedstoneMnemonics.STANB, 0xA0);
 		put(RedstoneMnemonics.LDANB, 0xA1);
 		put(RedstoneMnemonics.NOTNB, 0xA2);
@@ -96,6 +108,10 @@ public class RedstoneOpcodes {
 		put(RedstoneMnemonics.SUBNB, 0xA7);
 		put(RedstoneMnemonics.LSHNB, 0xA8);
 		put(RedstoneMnemonics.RSHNB, 0xA9);
+		
+		put(RedstoneMnemonics.STBNB, 0xAA);
+		put(RedstoneMnemonics.LDBNB, 0xAB);
+		put(RedstoneMnemonics.LDINB, 0xAC);
 		
 		put(RedstoneMnemonics.MULI, 0xC0);
 		put(RedstoneMnemonics.MULLI, 0xC1);

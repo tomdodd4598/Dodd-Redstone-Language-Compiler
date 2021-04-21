@@ -1,5 +1,6 @@
 package drlc;
 
+import java.util.Arrays;
 import java.util.Locale;
 
 public class Helper {
@@ -14,6 +15,10 @@ public class Helper {
 	
 	public static boolean isLetterOrDigit(char c) {
 		return isLetter(c) || isDigit(c);
+	}
+	
+	public static String removeWhitespace(String s) {
+		return s.replaceAll("\\s+", "");
 	}
 	
 	public static String immediateValueString(Integer immediateValue) {
@@ -55,20 +60,72 @@ public class Helper {
 	}
 	
 	public static String sectionIdString(int sectionId) {
-		return Global.SECTION.concat(Integer.toString(sectionId));
+		return Global.SECTION_1.concat(Integer.toString(sectionId)).concat(Global.SECTION_2);
 	}
 	
 	public static boolean isSectionId(String sectionIdString) {
-		return sectionIdString.startsWith(Global.SECTION);
+		return sectionIdString.startsWith(Global.SECTION_1) && sectionIdString.endsWith(Global.SECTION_2);
 	}
 	
 	public static Integer parseSectionId(String sectionIdString) {
 		if (isSectionId(sectionIdString)) {
-			return Integer.parseInt(sectionIdString.substring(Global.SECTION.length()));
+			return Integer.parseInt(sectionIdString.substring(Global.SECTION_1.length(), sectionIdString.length() - Global.SECTION_2.length()));
 		}
 		else {
 			return null;
 		}
+	}
+	
+	public static boolean hasAddressPrefix(String s) {
+		s = s.trim();
+		if (s.startsWith(Character.toString(Global.ADDRESS_OF))) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public static String removeAddressPrefix(String s) {
+		s = s.trim();
+		String addressOf = Character.toString(Global.ADDRESS_OF);
+		if (s.startsWith(addressOf)) {
+			return s.substring(addressOf.length()).trim();
+		}
+		else {
+			throw new IllegalArgumentException(String.format("Attempted to remove the address prefix of invalid variable expression \"%s\"!", s));
+		}
+	}
+	
+	public static int getDereferenceLevel(String s) {
+		s = s.trim();
+		return (int) s.chars().filter(ch -> ch == Global.DEREFERENCE).count();
+	}
+	
+	public static String fullyDereference(String s) {
+		s = s.trim();
+		String dereferenced = s.replace(Character.toString(Global.DEREFERENCE), "");
+		if (!s.contains(dereferenced)) {
+			throw new IllegalArgumentException(String.format("Attempted to fully dereference invalid variable expression \"%s\"!", s));
+		}
+		return dereferenced.trim();
+	}
+	
+	public static String singlyDereference(String s) {
+		s = s.trim();
+		String dereference = Character.toString(Global.DEREFERENCE);
+		if (s.startsWith(dereference)) {
+			return s.substring(dereference.length()).trim();
+		}
+		else {
+			throw new IllegalArgumentException(String.format("Attempted to singly dereference invalid variable expression \"%s\"!", s));
+		}
+	}
+	
+	public static String charLine(char c, int length) {
+		char[] charArray = new char[length];
+		Arrays.fill(charArray, c);
+		return new String(charArray);
 	}
 	
 	public static String toBinary(int value, int length) {

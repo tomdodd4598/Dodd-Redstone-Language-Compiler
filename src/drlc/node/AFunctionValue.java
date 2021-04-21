@@ -7,10 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AFunctionValue extends PValue
 {
-    private TName _name_;
-    private TLPar _lPar_;
-    private PArgumentList _argumentList_;
-    private TRPar _rPar_;
+    private PFunction _function_;
 
     public AFunctionValue()
     {
@@ -18,19 +15,10 @@ public final class AFunctionValue extends PValue
     }
 
     public AFunctionValue(
-        @SuppressWarnings("hiding") TName _name_,
-        @SuppressWarnings("hiding") TLPar _lPar_,
-        @SuppressWarnings("hiding") PArgumentList _argumentList_,
-        @SuppressWarnings("hiding") TRPar _rPar_)
+        @SuppressWarnings("hiding") PFunction _function_)
     {
         // Constructor
-        setName(_name_);
-
-        setLPar(_lPar_);
-
-        setArgumentList(_argumentList_);
-
-        setRPar(_rPar_);
+        setFunction(_function_);
 
     }
 
@@ -38,10 +26,7 @@ public final class AFunctionValue extends PValue
     public Object clone()
     {
         return new AFunctionValue(
-            cloneNode(this._name_),
-            cloneNode(this._lPar_),
-            cloneNode(this._argumentList_),
-            cloneNode(this._rPar_));
+            cloneNode(this._function_));
     }
 
     @Override
@@ -50,16 +35,16 @@ public final class AFunctionValue extends PValue
         ((Analysis) sw).caseAFunctionValue(this);
     }
 
-    public TName getName()
+    public PFunction getFunction()
     {
-        return this._name_;
+        return this._function_;
     }
 
-    public void setName(TName node)
+    public void setFunction(PFunction node)
     {
-        if(this._name_ != null)
+        if(this._function_ != null)
         {
-            this._name_.parent(null);
+            this._function_.parent(null);
         }
 
         if(node != null)
@@ -72,119 +57,23 @@ public final class AFunctionValue extends PValue
             node.parent(this);
         }
 
-        this._name_ = node;
-    }
-
-    public TLPar getLPar()
-    {
-        return this._lPar_;
-    }
-
-    public void setLPar(TLPar node)
-    {
-        if(this._lPar_ != null)
-        {
-            this._lPar_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._lPar_ = node;
-    }
-
-    public PArgumentList getArgumentList()
-    {
-        return this._argumentList_;
-    }
-
-    public void setArgumentList(PArgumentList node)
-    {
-        if(this._argumentList_ != null)
-        {
-            this._argumentList_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._argumentList_ = node;
-    }
-
-    public TRPar getRPar()
-    {
-        return this._rPar_;
-    }
-
-    public void setRPar(TRPar node)
-    {
-        if(this._rPar_ != null)
-        {
-            this._rPar_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._rPar_ = node;
+        this._function_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._name_)
-            + toString(this._lPar_)
-            + toString(this._argumentList_)
-            + toString(this._rPar_);
+            + toString(this._function_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._name_ == child)
+        if(this._function_ == child)
         {
-            this._name_ = null;
-            return;
-        }
-
-        if(this._lPar_ == child)
-        {
-            this._lPar_ = null;
-            return;
-        }
-
-        if(this._argumentList_ == child)
-        {
-            this._argumentList_ = null;
-            return;
-        }
-
-        if(this._rPar_ == child)
-        {
-            this._rPar_ = null;
+            this._function_ = null;
             return;
         }
 
@@ -195,27 +84,9 @@ public final class AFunctionValue extends PValue
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._name_ == oldChild)
+        if(this._function_ == oldChild)
         {
-            setName((TName) newChild);
-            return;
-        }
-
-        if(this._lPar_ == oldChild)
-        {
-            setLPar((TLPar) newChild);
-            return;
-        }
-
-        if(this._argumentList_ == oldChild)
-        {
-            setArgumentList((PArgumentList) newChild);
-            return;
-        }
-
-        if(this._rPar_ == oldChild)
-        {
-            setRPar((TRPar) newChild);
+            setFunction((PFunction) newChild);
             return;
         }
 

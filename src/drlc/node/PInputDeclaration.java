@@ -2,7 +2,7 @@
 
 package drlc.node;
 
-public abstract class PVariable extends Node
+public abstract class PInputDeclaration extends Node
 {
     // Empty body
 }

@@ -8,6 +8,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AUnit extends PUnit
 {
+    private PSetupSection _setupSection_;
     private final LinkedList<PGeneralSection> _generalSection_ = new LinkedList<PGeneralSection>();
 
     public AUnit()
@@ -16,9 +17,12 @@ public final class AUnit extends PUnit
     }
 
     public AUnit(
+        @SuppressWarnings("hiding") PSetupSection _setupSection_,
         @SuppressWarnings("hiding") List<?> _generalSection_)
     {
         // Constructor
+        setSetupSection(_setupSection_);
+
         setGeneralSection(_generalSection_);
 
     }
@@ -27,6 +31,7 @@ public final class AUnit extends PUnit
     public Object clone()
     {
         return new AUnit(
+            cloneNode(this._setupSection_),
             cloneList(this._generalSection_));
     }
 
@@ -34,6 +39,31 @@ public final class AUnit extends PUnit
     public void apply(Switch sw)
     {
         ((Analysis) sw).caseAUnit(this);
+    }
+
+    public PSetupSection getSetupSection()
+    {
+        return this._setupSection_;
+    }
+
+    public void setSetupSection(PSetupSection node)
+    {
+        if(this._setupSection_ != null)
+        {
+            this._setupSection_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._setupSection_ = node;
     }
 
     public LinkedList<PGeneralSection> getGeneralSection()
@@ -66,6 +96,7 @@ public final class AUnit extends PUnit
     public String toString()
     {
         return ""
+            + toString(this._setupSection_)
             + toString(this._generalSection_);
     }
 
@@ -73,6 +104,12 @@ public final class AUnit extends PUnit
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
+        if(this._setupSection_ == child)
+        {
+            this._setupSection_ = null;
+            return;
+        }
+
         if(this._generalSection_.remove(child))
         {
             return;
@@ -85,6 +122,12 @@ public final class AUnit extends PUnit
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
+        if(this._setupSection_ == oldChild)
+        {
+            setSetupSection((PSetupSection) newChild);
+            return;
+        }
+
         for(ListIterator<PGeneralSection> i = this._generalSection_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)

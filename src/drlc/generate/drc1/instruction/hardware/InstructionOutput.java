@@ -22,6 +22,16 @@ public class InstructionOutput extends Instruction {
 	}
 	
 	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		if (next instanceof InstructionOutput) {
+			return this;
+		}
+		else {
+			return null;
+		}
+	}
+	
+	@Override
 	public String binaryString() {
 		return RedstoneOpcodes.get(RedstoneMnemonics.OUT).concat(Global.ZERO_8);
 	}

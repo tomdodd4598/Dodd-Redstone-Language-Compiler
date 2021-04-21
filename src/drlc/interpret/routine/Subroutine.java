@@ -1,12 +1,13 @@
 package drlc.interpret.routine;
 
 import drlc.interpret.Program;
+import drlc.interpret.type.VariableReferenceInfo;
 
 public abstract class Subroutine extends Routine {
 	
-	public final String[] params;
+	public final VariableReferenceInfo[] params;
 	
-	public Subroutine(Program program, String name, String[] params) {
+	public Subroutine(Program program, String name, VariableReferenceInfo[] params) {
 		super(program, name);
 		this.params = params;
 	}

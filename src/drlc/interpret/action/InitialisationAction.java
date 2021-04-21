@@ -101,6 +101,6 @@ public class InitialisationAction extends Action implements IValueAction {
 	
 	@Override
 	public String toString() {
-		return Global.NEW.concat(" ").concat(target).concat(" = ").concat(arg);
+		return Global.VAR.concat(" ").concat(target).concat(" = ").concat(arg);
 	}
 }

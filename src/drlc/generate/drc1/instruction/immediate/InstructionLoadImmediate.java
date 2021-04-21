@@ -4,6 +4,7 @@ import drlc.Global;
 import drlc.Helper;
 import drlc.generate.drc1.RedstoneMnemonics;
 import drlc.generate.drc1.RedstoneOpcodes;
+import drlc.generate.drc1.instruction.Instruction;
 
 public class InstructionLoadImmediate extends InstructionImmediate implements IInstructionLoadImmediate {
 	
@@ -29,6 +30,14 @@ public class InstructionLoadImmediate extends InstructionImmediate implements II
 	@Override
 	public short getLoadedValue() {
 		return value;
+	}
+	
+	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		if (next instanceof InstructionLoadImmediate) {
+			return next;
+		}
+		return null;
 	}
 	
 	@Override

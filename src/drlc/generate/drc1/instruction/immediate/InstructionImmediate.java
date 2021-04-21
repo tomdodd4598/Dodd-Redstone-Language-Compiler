@@ -10,4 +10,9 @@ public abstract class InstructionImmediate extends Instruction implements IInstr
 		super();
 		this.value = value;
 	}
+	
+	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		return null;
+	}
 }

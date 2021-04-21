@@ -17,4 +17,9 @@ public abstract class InstructionSet extends Instruction {
 	public boolean isRegisterExported() {
 		return false;
 	}
+	
+	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		return null;
+	}
 }

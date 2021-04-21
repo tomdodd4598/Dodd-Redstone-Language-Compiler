@@ -22,7 +22,9 @@ import drlc.generate.drc1.instruction.address.InstructionAddress;
 import drlc.generate.drc1.instruction.address.InstructionAnd;
 import drlc.generate.drc1.instruction.address.InstructionDivide;
 import drlc.generate.drc1.instruction.address.InstructionLeftShift;
-import drlc.generate.drc1.instruction.address.InstructionLoad;
+import drlc.generate.drc1.instruction.address.InstructionLoadA;
+import drlc.generate.drc1.instruction.address.InstructionLoadB;
+import drlc.generate.drc1.instruction.address.InstructionLoadImmediateAddress;
 import drlc.generate.drc1.instruction.address.InstructionModulo;
 import drlc.generate.drc1.instruction.address.InstructionMultiply;
 import drlc.generate.drc1.instruction.address.InstructionNot;
@@ -36,7 +38,9 @@ import drlc.generate.drc1.instruction.address.offset.InstructionAddressOffset;
 import drlc.generate.drc1.instruction.address.offset.InstructionAndOffset;
 import drlc.generate.drc1.instruction.address.offset.InstructionDivideOffset;
 import drlc.generate.drc1.instruction.address.offset.InstructionLeftShiftOffset;
-import drlc.generate.drc1.instruction.address.offset.InstructionLoadOffset;
+import drlc.generate.drc1.instruction.address.offset.InstructionLoadAOffset;
+import drlc.generate.drc1.instruction.address.offset.InstructionLoadBOffset;
+import drlc.generate.drc1.instruction.address.offset.InstructionLoadImmediateAddressOffset;
 import drlc.generate.drc1.instruction.address.offset.InstructionModuloOffset;
 import drlc.generate.drc1.instruction.address.offset.InstructionMultiplyOffset;
 import drlc.generate.drc1.instruction.address.offset.InstructionNotOffset;
@@ -70,6 +74,9 @@ import drlc.generate.drc1.instruction.immediate.InstructionXorImmediate;
 import drlc.generate.drc1.instruction.immediate.InstructionXorLongImmediate;
 import drlc.generate.drc1.instruction.jump.InstructionConditionalJumpIfNotZero;
 import drlc.generate.drc1.instruction.jump.InstructionJump;
+import drlc.generate.drc1.instruction.pointer.InstructionDereferenceA;
+import drlc.generate.drc1.instruction.pointer.InstructionDereferenceB;
+import drlc.generate.drc1.instruction.pointer.InstructionStoreAToBAddress;
 import drlc.generate.drc1.instruction.set.InstructionSetIsLessThanOrEqualToZero;
 import drlc.generate.drc1.instruction.set.InstructionSetIsLessThanZero;
 import drlc.generate.drc1.instruction.set.InstructionSetIsMoreThanOrEqualToZero;
@@ -96,6 +103,7 @@ import drlc.interpret.action.BuiltInFunctionCallAction;
 import drlc.interpret.action.BuiltInMethodCallAction;
 import drlc.interpret.action.ConditionalJumpAction;
 import drlc.interpret.action.DeclarationAction;
+import drlc.interpret.action.DereferenceAction;
 import drlc.interpret.action.FunctionCallAction;
 import drlc.interpret.action.HaltAction;
 import drlc.interpret.action.InitialisationAction;
@@ -111,13 +119,14 @@ import drlc.interpret.routine.RootRoutine;
 import drlc.interpret.routine.Routine;
 import drlc.interpret.routine.RoutineType;
 import drlc.interpret.routine.Subroutine;
+import drlc.interpret.type.VariableReferenceInfo;
 
 public class RedstoneRoutine {
 	
 	protected final RedstoneCode code;
 	protected final Routine intermediateRoutine;
 	protected final String name;
-	protected final String[] params;
+	protected final VariableReferenceInfo[] params;
 	
 	public final Map<Short, List<Instruction>> textSectionMap = new TreeMap<>();
 	
@@ -149,9 +158,9 @@ public class RedstoneRoutine {
 	}
 	
 	public void mapParams() {
-		for (String param : params) {
+		for (VariableReferenceInfo param : params) {
 			int id = nextParamId();
-			dataIdMap.put(param, id);
+			dataIdMap.put(param.variable.name, id);
 		}
 	}
 	
@@ -184,7 +193,7 @@ public class RedstoneRoutine {
 				if (action instanceof AssignmentAction) {
 					AssignmentAction aa = (AssignmentAction) action;
 					load(text, aa.arg);
-					store(text, aa.target);
+					store(text, aa.target, false);
 				}
 				
 				else if (action instanceof BasicAction) {
@@ -200,7 +209,7 @@ public class RedstoneRoutine {
 					BinaryOpAction boa = (BinaryOpAction) action;
 					load(text, boa.arg1);
 					binaryOp(text, boa.opType, boa.arg2);
-					store(text, boa.target);
+					store(text, boa.target, false);
 				}
 				
 				else if (action instanceof ConditionalJumpAction) {
@@ -211,13 +220,13 @@ public class RedstoneRoutine {
 				else if (action instanceof DeclarationAction) {
 					DeclarationAction da = (DeclarationAction) action;
 					load(text, Helper.immediateValueString(0));
-					store(text, da.target);
+					store(text, da.target, true);
 				}
 				
 				else if (action instanceof InitialisationAction) {
 					InitialisationAction ia = (InitialisationAction) action;
 					load(text, ia.arg);
-					store(text, ia.target);
+					store(text, ia.target, true);
 				}
 				
 				else if (action instanceof JumpAction) {
@@ -281,7 +290,7 @@ public class RedstoneRoutine {
 						else {
 							for (int k = 0; k < sca.args.length; k++) {
 								load(text, sca.args[k]);
-								subroutine.store(text, subroutine.params[k]);
+								subroutine.store(text, subroutine.params[k].variable.name, false);
 							}
 						}
 						
@@ -294,15 +303,21 @@ public class RedstoneRoutine {
 						
 						if (sca instanceof FunctionCallAction) {
 							FunctionCallAction fca = (FunctionCallAction) sca;
-							store(text, fca.target);
+							store(text, fca.target, false);
 						}
 					}
+				}
+				
+				else if (action instanceof DereferenceAction) {
+					DereferenceAction da = (DereferenceAction) action;
+					dereference(text, da.dereferenceLevel, da.arg);
+					store(text, da.target, false);
 				}
 				
 				else if (action instanceof UnaryOpAction) {
 					UnaryOpAction uoa = (UnaryOpAction) action;
 					unaryOp(text, uoa.opType, uoa.arg);
-					store(text, uoa.target);
+					store(text, uoa.target, false);
 				}
 				
 				else {
@@ -341,23 +356,44 @@ public class RedstoneRoutine {
 			if (stackSize < 0) {
 				throw new IllegalArgumentException(String.format("Recursive subroutine %s has unexpected stack size %s!", name, stackSize));
 			}
-			for (List<Instruction> section : textSectionMap.values()) {
-				for (int i = 0; i < section.size(); i++) {
-					Instruction instruction = section.get(i);
-					if (instruction instanceof InstructionAddToStackPointer) {
-						InstructionAddToStackPointer iatsp = (InstructionAddToStackPointer) instruction;
-						if (iatsp.value == null) {
-							iatsp.value = stackSize;
-						}
-						if (iatsp.value == 0) {
-							section.remove(i);
-						}
-					}
-					else if (instruction instanceof InstructionSubtractFromStackPointer) {
-						InstructionSubtractFromStackPointer isfsp = (InstructionSubtractFromStackPointer) instruction;
-						isfsp.value = stackSize;
-						if (isfsp.value == 0) {
-							section.remove(i);
+			
+			// Post-optimization!
+			
+			boolean flag = true;
+			while (flag) {
+				flag = false;
+				Collection<List<Instruction>> sections = textSectionMap.values();
+				List<Instruction>[] sectionArray = sections.toArray(new List[sections.size()]);
+				for (int s = 0; s < sectionArray.length; s++) {
+					for (int i = 0; i < sectionArray[s].size(); i++) {
+						Instruction instruction = sectionArray[s].get(i);
+						boolean asp = instruction instanceof InstructionAddToStackPointer;
+						boolean ssp = instruction instanceof InstructionSubtractFromStackPointer;
+						if (asp || ssp) {
+							if (asp) {
+								InstructionAddToStackPointer iatsp = (InstructionAddToStackPointer) instruction;
+								if (iatsp.value == null) {
+									flag = true;
+									iatsp.value = stackSize;
+								}
+								if (iatsp.value == 0) {
+									flag = true;
+									sectionArray[s].remove(i);
+								}
+							}
+							else if (ssp) {
+								InstructionSubtractFromStackPointer isfsp = (InstructionSubtractFromStackPointer) instruction;
+								if (!isfsp.initialized) {
+									flag = isfsp.initialized = true;
+									isfsp.value = stackSize;
+								}
+								if (isfsp.value == 0) {
+									flag = true;
+									sectionArray[s].remove(i);
+								}
+							}
+							
+							flag |= RedstoneOptimization.compressWithNextInstruction(sectionArray, s, i, true);
 						}
 					}
 				}
@@ -546,7 +582,7 @@ public class RedstoneRoutine {
 	
 	// Instructions
 	
-	protected void store(List<Instruction> text, String arg) {
+	protected void store(List<Instruction> text, String arg, boolean declarationOrInitialization) {
 		if (arg.equals(Global.TRANSIENT)) {
 			return;
 		}
@@ -554,12 +590,52 @@ public class RedstoneRoutine {
 			throw new IllegalArgumentException(String.format("Attempted to add an immediate store instruction! %s", arg));
 		}
 		else {
-			final DataInfo argInfo = dataInfo(arg);
-			if (isStackData(argInfo)) {
-				text.add(new InstructionStoreOffset(argInfo));
+			final int dereferenceLevel = Helper.getDereferenceLevel(arg);
+			if (dereferenceLevel == 0 || declarationOrInitialization) {
+				DataInfo argInfo = dataInfo(arg);
+				if (isStackData(argInfo)) {
+					text.add(new InstructionStoreOffset(argInfo));
+				}
+				else {
+					text.add(new InstructionStore(argInfo));
+				}
+				
+				if (declarationOrInitialization) {
+					for (int i = 0; i < dereferenceLevel; i++) {
+						if (isStackData(argInfo)) {
+							text.add(new InstructionLoadImmediateAddressOffset(argInfo));
+						}
+						else {
+							text.add(new InstructionLoadImmediateAddress(argInfo));
+						}
+						
+						arg = Helper.singlyDereference(arg);
+						argInfo = dataInfo(arg);
+						
+						if (isStackData(argInfo)) {
+							text.add(new InstructionStoreOffset(argInfo));
+						}
+						else {
+							text.add(new InstructionStore(argInfo));
+						}
+					}
+				}
 			}
 			else {
-				text.add(new InstructionStore(argInfo));
+				arg = Helper.fullyDereference(arg);
+				final DataInfo argInfo = dataInfo(arg);
+				if (isStackData(argInfo)) {
+					text.add(new InstructionLoadBOffset(argInfo));
+				}
+				else {
+					text.add(new InstructionLoadB(argInfo));
+				}
+				
+				for (int i = 0; i < dereferenceLevel - 1; i++) {
+					text.add(new InstructionDereferenceB());
+				}
+				
+				text.add(new InstructionStoreAToBAddress());
 			}
 		}
 	}
@@ -576,12 +652,24 @@ public class RedstoneRoutine {
 			}
 		}
 		else {
-			final DataInfo argInfo = dataInfo(arg);
-			if (isStackData(argInfo)) {
-				text.add(new InstructionLoadOffset(argInfo));
+			final boolean hasAddressPrefix = Helper.hasAddressPrefix(arg);
+			if (hasAddressPrefix) {
+				final DataInfo argInfo = dataInfo(Helper.removeAddressPrefix(arg));
+				if (isStackData(argInfo)) {
+					text.add(new InstructionLoadImmediateAddressOffset(argInfo));
+				}
+				else {
+					text.add(new InstructionLoadImmediateAddress(argInfo));
+				}
 			}
 			else {
-				text.add(new InstructionLoad(argInfo));
+				final DataInfo argInfo = dataInfo(arg);
+				if (isStackData(argInfo)) {
+					text.add(new InstructionLoadAOffset(argInfo));
+				}
+				else {
+					text.add(new InstructionLoadA(argInfo));
+				}
 			}
 		}
 	}
@@ -660,7 +748,7 @@ public class RedstoneRoutine {
 					text.add(new InstructionSetIsMoreThanOrEqualToZero());
 					break;
 				default:
-					throw new IllegalArgumentException(String.format("Attempted to add long immediate binary op instruction of unknown type! %s", arg));
+					throw new IllegalArgumentException(String.format("Attempted to add long immediate binary op instruction of unknown type! %s %s", type, arg));
 				}
 			}
 			else {
@@ -720,7 +808,7 @@ public class RedstoneRoutine {
 					text.add(new InstructionSetIsMoreThanOrEqualToZero());
 					break;
 				default:
-					throw new IllegalArgumentException(String.format("Attempted to add immediate binary op instruction of unknown type! %s", arg));
+					throw new IllegalArgumentException(String.format("Attempted to add immediate binary op instruction of unknown type! %s %s", type, arg));
 				}
 			}
 		}
@@ -783,7 +871,7 @@ public class RedstoneRoutine {
 					text.add(new InstructionSetIsMoreThanOrEqualToZero());
 					break;
 				default:
-					throw new IllegalArgumentException(String.format("Attempted to add address offset binary op instruction of unknown type! %s", arg));
+					throw new IllegalArgumentException(String.format("Attempted to add address offset binary op instruction of unknown type! %s %s", type, arg));
 				}
 			}
 			else {
@@ -843,7 +931,7 @@ public class RedstoneRoutine {
 					text.add(new InstructionSetIsMoreThanOrEqualToZero());
 					break;
 				default:
-					throw new IllegalArgumentException(String.format("Attempted to add address binary op instruction of unknown type! %s", arg));
+					throw new IllegalArgumentException(String.format("Attempted to add address binary op instruction of unknown type! %s %s", type, arg));
 				}
 			}
 		}
@@ -855,6 +943,31 @@ public class RedstoneRoutine {
 	
 	protected void jump(List<Instruction> text, String section) {
 		text.add(new InstructionJump(Helper.parseSectionId(section).shortValue()));
+	}
+	
+	protected void dereference(List<Instruction> text, int dereferenceLevel, String arg) {
+		if (Helper.isImmediateValue(arg)) {
+			final short value = Helper.parseImmediateValue(arg).shortValue();
+			if (RedstoneCode.isLongImmediate(value)) {
+				text.add(new InstructionLoadImmediate(RedstoneCode.lowBits(value)));
+			}
+			else {
+				text.add(new InstructionLoadImmediate(value));
+			}
+		}
+		else {
+			final DataInfo argInfo = dataInfo(arg);
+			if (isStackData(argInfo)) {
+				text.add(new InstructionLoadAOffset(argInfo));
+			}
+			else {
+				text.add(new InstructionLoadA(argInfo));
+			}
+		}
+		
+		for (int i = 0; i < dereferenceLevel; i++) {
+			text.add(new InstructionDereferenceA());
+		}
 	}
 	
 	protected void unaryOp(List<Instruction> text, UnaryOpType type, String arg) {
@@ -890,7 +1003,7 @@ public class RedstoneRoutine {
 					text.add(new InstructionSetIsZero());
 					break;
 				default:
-					throw new IllegalArgumentException(String.format("Attempted to add long immediate unary op instruction of unknown type! %s", arg));
+					throw new IllegalArgumentException(String.format("Attempted to add long immediate unary op instruction of unknown type! %s %s", type, arg));
 				}
 			}
 			else {
@@ -919,7 +1032,7 @@ public class RedstoneRoutine {
 					text.add(new InstructionSetIsZero());
 					break;
 				default:
-					throw new IllegalArgumentException(String.format("Attempted to add immediate unary op instruction of unknown type! %s", arg));
+					throw new IllegalArgumentException(String.format("Attempted to add immediate unary op instruction of unknown type! %s %s", type, arg));
 				}
 			}
 		}
@@ -928,49 +1041,49 @@ public class RedstoneRoutine {
 			if (isStackData(argInfo)) {
 				switch (type) {
 				case PLUS:
-					text.add(new InstructionLoadOffset(argInfo));
+					text.add(new InstructionLoadAOffset(argInfo));
 					break;
 				case MINUS:
-					text.add(new InstructionLoadOffset(argInfo));
+					text.add(new InstructionLoadAOffset(argInfo));
 					text.add(new InstructionSetNegative());
 					break;
 				case COMPLEMENT:
 					text.add(new InstructionNotOffset(argInfo));
 					break;
 				case TO_BOOL:
-					text.add(new InstructionLoadOffset(argInfo));
+					text.add(new InstructionLoadAOffset(argInfo));
 					text.add(new InstructionSetIsNotZero());
 					break;
 				case NOT:
-					text.add(new InstructionLoadOffset(argInfo));
+					text.add(new InstructionLoadAOffset(argInfo));
 					text.add(new InstructionSetIsZero());
 					break;
 				default:
-					throw new IllegalArgumentException(String.format("Attempted to add address offset unary op instruction of unknown type! %s", arg));
+					throw new IllegalArgumentException(String.format("Attempted to add address offset unary op instruction of unknown type! %s %s", type, arg));
 				}
 			}
 			else {
 				switch (type) {
 				case PLUS:
-					text.add(new InstructionLoad(argInfo));
+					text.add(new InstructionLoadA(argInfo));
 					break;
 				case MINUS:
-					text.add(new InstructionLoad(argInfo));
+					text.add(new InstructionLoadA(argInfo));
 					text.add(new InstructionSetNegative());
 					break;
 				case COMPLEMENT:
 					text.add(new InstructionNot(argInfo));
 					break;
 				case TO_BOOL:
-					text.add(new InstructionLoad(argInfo));
+					text.add(new InstructionLoadA(argInfo));
 					text.add(new InstructionSetIsNotZero());
 					break;
 				case NOT:
-					text.add(new InstructionLoad(argInfo));
+					text.add(new InstructionLoadA(argInfo));
 					text.add(new InstructionSetIsZero());
 					break;
 				default:
-					throw new IllegalArgumentException(String.format("Attempted to add address unary op instruction of unknown type! %s", arg));
+					throw new IllegalArgumentException(String.format("Attempted to add address unary op instruction of unknown type! %s %s", type, arg));
 				}
 			}
 		}

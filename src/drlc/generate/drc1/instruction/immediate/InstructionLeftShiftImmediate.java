@@ -30,6 +30,15 @@ public class InstructionLeftShiftImmediate extends InstructionALUImmediate {
 	}
 	
 	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next) {
+		/*if (next instanceof InstructionLeftShiftImmediate) {
+			InstructionLeftShiftImmediate lsh = (InstructionLeftShiftImmediate) next;
+			return new InstructionLeftShiftImmediate((short) (value + lsh.value));
+		}*/
+		return null;
+	}
+	
+	@Override
 	public String binaryString() {
 		return RedstoneOpcodes.get(RedstoneMnemonics.LSHI).concat(Helper.toBinary(value, 8));
 	}

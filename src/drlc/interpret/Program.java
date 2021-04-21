@@ -15,6 +15,7 @@ import drlc.interpret.routine.MethodRoutine;
 import drlc.interpret.routine.RootRoutine;
 import drlc.interpret.routine.Routine;
 import drlc.interpret.scope.Scope;
+import drlc.interpret.type.VariableReferenceInfo;
 import drlc.node.Node;
 
 public class Program {
@@ -22,7 +23,7 @@ public class Program {
 	final Map<String, Routine> routineMap = new LinkedHashMap<>();
 	public String currentRoutine = Global.ROOT_ROUTINE;
 	
-	final List<String> paramList = new ArrayList<>();
+	final List<VariableReferenceInfo> paramList = new ArrayList<>();
 	
 	public Program() {
 		routineMap.put(Global.ROOT_ROUTINE, new RootRoutine(this));
@@ -64,7 +65,7 @@ public class Program {
 		else {
 			currentRoutine = methodName;
 			int args = scope.methodArgs = scope.previous.methodArgs;
-			String[] paramArray = getParamArray(node, args, true);
+			VariableReferenceInfo[] paramArray = getParamArray(node, args, true);
 			for (Scope s : new Scope[] {scope, scope.previous}) {
 				routineMap.put(methodName, new MethodRoutine(this, methodName, s.addMethod(node), paramArray));
 			}
@@ -79,14 +80,14 @@ public class Program {
 		else {
 			currentRoutine = functionName;
 			int args = scope.functionArgs = scope.previous.functionArgs;
-			String[] paramArray = getParamArray(node, args, true);
+			VariableReferenceInfo[] paramArray = getParamArray(node, args, true);
 			for (Scope s : new Scope[] {scope, scope.previous}) {
 				routineMap.put(functionName, new FunctionRoutine(this, functionName, s.addFunction(node), paramArray));
 			}
 		}
 	}
 	
-	public void addParam(Node node, String param) {
+	public void addParam(Node node, VariableReferenceInfo param) {
 		if (param == null) {
 			throw new IllegalArgumentException(String.format("Method or function parameter was null! %s", node));
 		}
@@ -95,12 +96,12 @@ public class Program {
 		}
 	}
 	
-	public String[] getParamArray(Node node, int args, boolean clear) {
+	public VariableReferenceInfo[] getParamArray(Node node, int args, boolean clear) {
 		if (args != paramList.size()) {
 			throw new IllegalArgumentException(String.format("Found %s parameters but expected %s! %s", paramList.size(), args, node));
 		}
 		else {
-			String[] paramArray = paramList.toArray(new String[args]);
+			VariableReferenceInfo[] paramArray = paramList.toArray(new VariableReferenceInfo[args]);
 			if (clear) {
 				paramList.clear();
 			}

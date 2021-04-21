@@ -76,7 +76,7 @@ while (f > 0) {
 }
 */
 
-///*
+/*
 const max = 15;
 const fail = max + 1;
 var n = 1;
@@ -108,4 +108,8 @@ while (n < max) {
 		out(n);
 	}
 }
-//*/
+*/
+
+set_argc(1);
+
+out(argc() * argv(0));

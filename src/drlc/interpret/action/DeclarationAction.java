@@ -92,6 +92,6 @@ public class DeclarationAction extends Action implements IValueAction {
 	
 	@Override
 	public String toString() {
-		return Global.NEW.concat(" ").concat(target);
+		return Global.VAR.concat(" ").concat(target);
 	}
 }

@@ -2,7 +2,7 @@
 
 package drlc.node;
 
-public abstract class PNonAddressVariable extends Node
+public abstract class PRvalueVariable extends Node
 {
     // Empty body
 }

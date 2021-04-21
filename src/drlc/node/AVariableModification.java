@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AVariableModification extends PVariableModification
 {
-    private PNonAddressVariable _nonAddressVariable_;
+    private PLvalueVariable _lvalueVariable_;
     private TEquals _equals_;
     private PExpression _expression_;
     private TSemicolon _semicolon_;
@@ -18,13 +18,13 @@ public final class AVariableModification extends PVariableModification
     }
 
     public AVariableModification(
-        @SuppressWarnings("hiding") PNonAddressVariable _nonAddressVariable_,
+        @SuppressWarnings("hiding") PLvalueVariable _lvalueVariable_,
         @SuppressWarnings("hiding") TEquals _equals_,
         @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") TSemicolon _semicolon_)
     {
         // Constructor
-        setNonAddressVariable(_nonAddressVariable_);
+        setLvalueVariable(_lvalueVariable_);
 
         setEquals(_equals_);
 
@@ -38,7 +38,7 @@ public final class AVariableModification extends PVariableModification
     public Object clone()
     {
         return new AVariableModification(
-            cloneNode(this._nonAddressVariable_),
+            cloneNode(this._lvalueVariable_),
             cloneNode(this._equals_),
             cloneNode(this._expression_),
             cloneNode(this._semicolon_));
@@ -50,16 +50,16 @@ public final class AVariableModification extends PVariableModification
         ((Analysis) sw).caseAVariableModification(this);
     }
 
-    public PNonAddressVariable getNonAddressVariable()
+    public PLvalueVariable getLvalueVariable()
     {
-        return this._nonAddressVariable_;
+        return this._lvalueVariable_;
     }
 
-    public void setNonAddressVariable(PNonAddressVariable node)
+    public void setLvalueVariable(PLvalueVariable node)
     {
-        if(this._nonAddressVariable_ != null)
+        if(this._lvalueVariable_ != null)
         {
-            this._nonAddressVariable_.parent(null);
+            this._lvalueVariable_.parent(null);
         }
 
         if(node != null)
@@ -72,7 +72,7 @@ public final class AVariableModification extends PVariableModification
             node.parent(this);
         }
 
-        this._nonAddressVariable_ = node;
+        this._lvalueVariable_ = node;
     }
 
     public TEquals getEquals()
@@ -154,7 +154,7 @@ public final class AVariableModification extends PVariableModification
     public String toString()
     {
         return ""
-            + toString(this._nonAddressVariable_)
+            + toString(this._lvalueVariable_)
             + toString(this._equals_)
             + toString(this._expression_)
             + toString(this._semicolon_);
@@ -164,9 +164,9 @@ public final class AVariableModification extends PVariableModification
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._nonAddressVariable_ == child)
+        if(this._lvalueVariable_ == child)
         {
-            this._nonAddressVariable_ = null;
+            this._lvalueVariable_ = null;
             return;
         }
 
@@ -195,9 +195,9 @@ public final class AVariableModification extends PVariableModification
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._nonAddressVariable_ == oldChild)
+        if(this._lvalueVariable_ == oldChild)
         {
-            setNonAddressVariable((PNonAddressVariable) newChild);
+            setLvalueVariable((PLvalueVariable) newChild);
             return;
         }
 
