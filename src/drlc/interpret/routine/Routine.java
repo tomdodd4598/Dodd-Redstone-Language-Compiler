@@ -113,7 +113,7 @@ public abstract class Routine {
 						}
 						if (!checked.contains(name)) {
 							checked.add(name);
-							updateRoutineTypeInternal(program.getRoutineMap().get(name), checked);
+							updateRoutineTypeInternal(program.routineMap.get(name), checked);
 						}
 					}
 				}
@@ -197,31 +197,31 @@ public abstract class Routine {
 		}
 	}
 	
-	public void addBuiltInFunctionCallAction(Node node, Scope scope, String target, String name) {
+	public void addBuiltInFunctionCallAction(Node node, Scope scope, String name) {
 		if (!Global.BUILT_IN_FUNCTIONS.containsKey(name)) {
 			throw new IllegalArgumentException(String.format("Built-in function \"%s\" not defined! %s", name, node));
 		}
 		else {
-			addAction(new BuiltInFunctionCallAction(node, target, name, popRegIdStack(scope.getFunction(node, name).args)));
+			addAction(new BuiltInFunctionCallAction(node, currentRegId(node), name, popRegIdStack(scope.getFunction(node, name).args)));
 		}
 	}
 	
 	public void addMethodSubroutineCallAction(Node node, Scope scope, String name) {
-		if (!program.getRoutineMap().containsKey(name)) {
+		if (!program.routineMap.containsKey(name)) {
 			throw new IllegalArgumentException(String.format("Subroutine \"%s\" not defined! %s", name, node));
 		}
 		else {
-			program.getRoutineMap().get(name).called = true;
+			program.routineMap.get(name).called = true;
 			addAction(new MethodCallAction(node, name, popRegIdStack(scope.getMethod(node, name).args)));
 		}
 	}
 	
 	public void addFunctionSubroutineCallAction(Node node, Scope scope, String name) {
-		if (!program.getRoutineMap().containsKey(name)) {
+		if (!program.routineMap.containsKey(name)) {
 			throw new IllegalArgumentException(String.format("Subroutine \"%s\" not defined! %s", name, node));
 		}
 		else {
-			program.getRoutineMap().get(name).called = true;
+			program.routineMap.get(name).called = true;
 			addAction(new FunctionCallAction(node, currentRegId(node), name, popRegIdStack(scope.getFunction(node, name).args)));
 		}
 	}

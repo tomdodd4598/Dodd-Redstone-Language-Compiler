@@ -29,7 +29,7 @@ public class RedstoneCode {
 	}
 	
 	public void generate(boolean optimize) {
-		for (Entry<String, Routine> entry : program.getRoutineMap().entrySet()) {
+		for (Entry<String, Routine> entry : program.routineMap.entrySet()) {
 			RedstoneRoutine routine = new RedstoneRoutine(this, entry.getValue());
 			routineMap.put(entry.getKey(), routine);
 			if (routine.isRecursive()) {

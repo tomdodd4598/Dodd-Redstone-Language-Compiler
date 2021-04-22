@@ -79,27 +79,27 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseASetupSection(ASetupSection node)
     {
         inASetupSection(node);
-        if(node.getInputDeclaration() != null)
+        if(node.getInputSpecification() != null)
         {
-            node.getInputDeclaration().apply(this);
+            node.getInputSpecification().apply(this);
         }
         outASetupSection(node);
     }
 
-    public void inAInputDeclaration(AInputDeclaration node)
+    public void inAInputSpecification(AInputSpecification node)
     {
         defaultIn(node);
     }
 
-    public void outAInputDeclaration(AInputDeclaration node)
+    public void outAInputSpecification(AInputSpecification node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAInputDeclaration(AInputDeclaration node)
+    public void caseAInputSpecification(AInputSpecification node)
     {
-        inAInputDeclaration(node);
+        inAInputSpecification(node);
         if(node.getSemicolon() != null)
         {
             node.getSemicolon().apply(this);
@@ -120,7 +120,7 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getSetArgc().apply(this);
         }
-        outAInputDeclaration(node);
+        outAInputSpecification(node);
     }
 
     public void inAMethodDefinitionGeneralSection(AMethodDefinitionGeneralSection node)

@@ -31,7 +31,7 @@ public class IntermediateGenerator extends Generator {
 		}
 		program.finalizeRoutines();
 		
-		for (Routine routine : program.getRoutineMap().values()) {
+		for (Routine routine : program.routineMap.values()) {
 			builder.append("\n::(").append(routine.getType().str).append(") ").append(routine.toString()).append("::\n");
 			List<List<Action>> list = routine.getBodyActionLists();
 			for (int i = 0; i < list.size(); i++) {

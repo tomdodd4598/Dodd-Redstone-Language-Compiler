@@ -27,7 +27,6 @@ import drlc.generate.drc1.instruction.address.InstructionLoadB;
 import drlc.generate.drc1.instruction.address.InstructionLoadImmediateAddress;
 import drlc.generate.drc1.instruction.address.InstructionModulo;
 import drlc.generate.drc1.instruction.address.InstructionMultiply;
-import drlc.generate.drc1.instruction.address.InstructionNot;
 import drlc.generate.drc1.instruction.address.InstructionOr;
 import drlc.generate.drc1.instruction.address.InstructionRightShift;
 import drlc.generate.drc1.instruction.address.InstructionStore;
@@ -43,7 +42,6 @@ import drlc.generate.drc1.instruction.address.offset.InstructionLoadBOffset;
 import drlc.generate.drc1.instruction.address.offset.InstructionLoadImmediateAddressOffset;
 import drlc.generate.drc1.instruction.address.offset.InstructionModuloOffset;
 import drlc.generate.drc1.instruction.address.offset.InstructionMultiplyOffset;
-import drlc.generate.drc1.instruction.address.offset.InstructionNotOffset;
 import drlc.generate.drc1.instruction.address.offset.InstructionOrOffset;
 import drlc.generate.drc1.instruction.address.offset.InstructionRightShiftOffset;
 import drlc.generate.drc1.instruction.address.offset.InstructionStoreOffset;
@@ -84,6 +82,7 @@ import drlc.generate.drc1.instruction.set.InstructionSetIsMoreThanZero;
 import drlc.generate.drc1.instruction.set.InstructionSetIsNotZero;
 import drlc.generate.drc1.instruction.set.InstructionSetIsZero;
 import drlc.generate.drc1.instruction.set.InstructionSetNegative;
+import drlc.generate.drc1.instruction.set.InstructionSetNot;
 import drlc.generate.drc1.instruction.subroutine.InstructionAddToStackPointer;
 import drlc.generate.drc1.instruction.subroutine.InstructionCallSubroutine;
 import drlc.generate.drc1.instruction.subroutine.InstructionLoadBasePointer;
@@ -119,6 +118,7 @@ import drlc.interpret.routine.RootRoutine;
 import drlc.interpret.routine.Routine;
 import drlc.interpret.routine.RoutineType;
 import drlc.interpret.routine.Subroutine;
+import drlc.interpret.type.Variable;
 import drlc.interpret.type.VariableReferenceInfo;
 
 public class RedstoneRoutine {
@@ -144,7 +144,7 @@ public class RedstoneRoutine {
 		this.name = intermediateRoutine.name;
 		if (isRootRoutine()) {
 			RootRoutine rootRoutine = (RootRoutine) intermediateRoutine;
-			params = rootRoutine.args;
+			params = generateRootParams(rootRoutine);
 			dataIdMap = code.staticIdMap;
 			dataAddressMap = code.staticAddressMap;
 		}
@@ -153,8 +153,30 @@ public class RedstoneRoutine {
 			params = subroutine.params;
 			dataIdMap = new LinkedHashMap<>();
 			dataAddressMap = new HashMap<>();
-			mapParams();
 		}
+		mapParams();
+	}
+	
+	public VariableReferenceInfo[] generateRootParams(RootRoutine rootRoutine) {
+		VariableReferenceInfo[] array = new VariableReferenceInfo[rootRoutine.argc];
+		for (int i = 0; i < rootRoutine.argc; i++) {
+			array[i] = new VariableReferenceInfo(new Variable(getRootParam(i), 0, true));
+		}
+		return array;
+	}
+	
+	public static final String ARGV_PARAM = "\\argv";
+	
+	public String getRootParam(int i) {
+		return ARGV_PARAM.concat(Integer.toString(i));
+	}
+	
+	public boolean isRootParam(String s) {
+		return s.startsWith(ARGV_PARAM);
+	}
+	
+	public int parseRootParam(String s) {
+		return Integer.parseInt(s.substring(ARGV_PARAM.length()));
 	}
 	
 	public void mapParams() {
@@ -431,9 +453,14 @@ public class RedstoneRoutine {
 			}
 		}
 		else {
-			for (int id : dataIdMap.values()) {
-				dataAddressMap.put(id, (short) (code.addressOffset + dataAddressOffset));
-				dataAddressOffset++;
+			for (Entry<String, Integer> entry : dataIdMap.entrySet()) {
+				if (isRootRoutine() && isRootParam(entry.getKey())) {
+					dataAddressMap.put(entry.getValue(), (short) (0xFF - parseRootParam(entry.getKey())));
+				}
+				else {
+					dataAddressMap.put(entry.getValue(), (short) (code.addressOffset + dataAddressOffset));
+					dataAddressOffset++;
+				}
 			}
 			for (int i = 0; i < tempSize; i++) {
 				tempAddressMap.put(i, (short) (code.addressOffset + dataAddressOffset));
@@ -1048,7 +1075,8 @@ public class RedstoneRoutine {
 					text.add(new InstructionSetNegative());
 					break;
 				case COMPLEMENT:
-					text.add(new InstructionNotOffset(argInfo));
+					text.add(new InstructionLoadAOffset(argInfo));
+					text.add(new InstructionSetNot());
 					break;
 				case TO_BOOL:
 					text.add(new InstructionLoadAOffset(argInfo));
@@ -1072,7 +1100,8 @@ public class RedstoneRoutine {
 					text.add(new InstructionSetNegative());
 					break;
 				case COMPLEMENT:
-					text.add(new InstructionNot(argInfo));
+					text.add(new InstructionLoadA(argInfo));
+					text.add(new InstructionSetNot());
 					break;
 				case TO_BOOL:
 					text.add(new InstructionLoadA(argInfo));
@@ -1090,7 +1119,22 @@ public class RedstoneRoutine {
 	}
 	
 	protected void builtInFunction(List<Instruction> text, BuiltInFunctionCallAction action) {
-		throw new IllegalArgumentException(String.format("Encountered unknown built-in function action %s!", action));
+		if (action.name.equals(Global.ARGV)) {
+			String arg = action.args[0];
+			if (Helper.isImmediateValue(arg)) {
+				load(text, getRootParam(Helper.parseImmediateValue(arg).shortValue()));
+			}
+			else {
+				text.add(new InstructionLoadA(dataInfo(arg)));
+				text.add(new InstructionSetNot());
+				text.add(new InstructionDereferenceA());
+				
+			}
+			store(text, action.target, false);
+		}
+		else {
+			throw new IllegalArgumentException(String.format("Encountered unknown built-in function action %s!", action));
+		}
 	}
 	
 	protected void builtInMethod(List<Instruction> text, BuiltInMethodCallAction action) {

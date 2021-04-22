@@ -38,7 +38,7 @@ public abstract class Generator {
 	public abstract void generate(Program program, StringBuilder builder);
 	
 	public void optimizeIntermediate(Program program) {
-		Map<String, Routine> map = program.getRoutineMap();
+		Map<String, Routine> map = program.routineMap;
 		for (String name : new HashSet<>(map.keySet())) {
 			if (!map.get(name).called) {
 				map.remove(name);

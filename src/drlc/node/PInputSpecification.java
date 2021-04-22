@@ -2,7 +2,7 @@
 
 package drlc.node;
 
-public abstract class PInputDeclaration extends Node
+public abstract class PInputSpecification extends Node
 {
     // Empty body
 }

@@ -222,7 +222,7 @@ public class Parser
                 push(goTo(1), list, false);
             }
             break;
-            case 4: /* reduce AInputDeclaration */
+            case 4: /* reduce AInputSpecification */
             {
                 ArrayList<Object> list = new4();
                 push(goTo(2), list, false);
@@ -1059,10 +1059,10 @@ public class Parser
         PSetupSection psetupsectionNode1;
         {
             // Block
-        PInputDeclaration pinputdeclarationNode2;
-        pinputdeclarationNode2 = (PInputDeclaration)nodeArrayList1.get(0);
+        PInputSpecification pinputspecificationNode2;
+        pinputspecificationNode2 = (PInputSpecification)nodeArrayList1.get(0);
 
-        psetupsectionNode1 = new ASetupSection(pinputdeclarationNode2);
+        psetupsectionNode1 = new ASetupSection(pinputspecificationNode2);
         }
 	nodeList.add(psetupsectionNode1);
         return nodeList;
@@ -1071,7 +1071,7 @@ public class Parser
 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new4() /* reduce AInputDeclaration */
+    ArrayList<Object> new4() /* reduce AInputSpecification */
     {
         @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
 
@@ -1080,7 +1080,7 @@ public class Parser
         @SuppressWarnings("unused") ArrayList<Object> nodeArrayList3 = pop();
         @SuppressWarnings("unused") ArrayList<Object> nodeArrayList2 = pop();
         @SuppressWarnings("unused") ArrayList<Object> nodeArrayList1 = pop();
-        PInputDeclaration pinputdeclarationNode1;
+        PInputSpecification pinputspecificationNode1;
         {
             // Block
         TSetArgc tsetargcNode2;
@@ -1094,9 +1094,9 @@ public class Parser
         trparNode5 = (TRPar)nodeArrayList4.get(0);
         tsemicolonNode6 = (TSemicolon)nodeArrayList5.get(0);
 
-        pinputdeclarationNode1 = new AInputDeclaration(tsetargcNode2, tlparNode3, pexpressionNode4, trparNode5, tsemicolonNode6);
+        pinputspecificationNode1 = new AInputSpecification(tsetargcNode2, tlparNode3, pexpressionNode4, trparNode5, tsemicolonNode6);
         }
-	nodeList.add(pinputdeclarationNode1);
+	nodeList.add(pinputspecificationNode1);
         return nodeList;
     }
 

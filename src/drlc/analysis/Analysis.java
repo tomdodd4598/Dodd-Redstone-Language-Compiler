@@ -14,7 +14,7 @@ public interface Analysis extends Switch
     void caseStart(Start node);
     void caseAUnit(AUnit node);
     void caseASetupSection(ASetupSection node);
-    void caseAInputDeclaration(AInputDeclaration node);
+    void caseAInputSpecification(AInputSpecification node);
     void caseAMethodDefinitionGeneralSection(AMethodDefinitionGeneralSection node);
     void caseAFunctionDefinitionGeneralSection(AFunctionDefinitionGeneralSection node);
     void caseABasicGeneralSection(ABasicGeneralSection node);

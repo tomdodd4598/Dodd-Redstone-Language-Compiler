@@ -2,11 +2,10 @@ package drlc.interpret.routine;
 
 import drlc.Global;
 import drlc.interpret.Program;
-import drlc.interpret.type.VariableReferenceInfo;
 
 public class RootRoutine extends Routine {
 	
-	public VariableReferenceInfo[] args = new VariableReferenceInfo[0];
+	public int argc = 0;
 	
 	public RootRoutine(Program program) {
 		super(program, Global.ROOT_ROUTINE);

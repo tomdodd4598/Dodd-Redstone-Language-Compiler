@@ -101,9 +101,9 @@ Productions
 	/* UNIT SPECIFICATION */
 	
 	setup_section =
-		input_declaration?;
+		input_specification?;
 	
-	input_declaration =
+	input_specification =
 		set_argc l_par expression r_par semicolon;
 	
 	general_section =

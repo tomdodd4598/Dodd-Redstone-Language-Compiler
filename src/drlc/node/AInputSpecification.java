@@ -5,7 +5,7 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AInputDeclaration extends PInputDeclaration
+public final class AInputSpecification extends PInputSpecification
 {
     private TSetArgc _setArgc_;
     private TLPar _lPar_;
@@ -13,12 +13,12 @@ public final class AInputDeclaration extends PInputDeclaration
     private TRPar _rPar_;
     private TSemicolon _semicolon_;
 
-    public AInputDeclaration()
+    public AInputSpecification()
     {
         // Constructor
     }
 
-    public AInputDeclaration(
+    public AInputSpecification(
         @SuppressWarnings("hiding") TSetArgc _setArgc_,
         @SuppressWarnings("hiding") TLPar _lPar_,
         @SuppressWarnings("hiding") PExpression _expression_,
@@ -41,7 +41,7 @@ public final class AInputDeclaration extends PInputDeclaration
     @Override
     public Object clone()
     {
-        return new AInputDeclaration(
+        return new AInputSpecification(
             cloneNode(this._setArgc_),
             cloneNode(this._lPar_),
             cloneNode(this._expression_),
@@ -52,7 +52,7 @@ public final class AInputDeclaration extends PInputDeclaration
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAInputDeclaration(this);
+        ((Analysis) sw).caseAInputSpecification(this);
     }
 
     public TSetArgc getSetArgc()

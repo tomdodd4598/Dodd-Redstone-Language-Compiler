@@ -87,7 +87,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAInputDeclaration(AInputDeclaration node)
+    public void caseAInputSpecification(AInputSpecification node)
     {
         defaultCase(node);
     }

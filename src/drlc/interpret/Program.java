@@ -20,17 +20,15 @@ import drlc.node.Node;
 
 public class Program {
 	
-	final Map<String, Routine> routineMap = new LinkedHashMap<>();
+	public final RootRoutine rootRoutine;
+	public final Map<String, Routine> routineMap = new LinkedHashMap<>();
 	public String currentRoutine = Global.ROOT_ROUTINE;
 	
 	final List<VariableReferenceInfo> paramList = new ArrayList<>();
 	
 	public Program() {
-		routineMap.put(Global.ROOT_ROUTINE, new RootRoutine(this));
-	}
-	
-	public Map<String, Routine> getRoutineMap() {
-		return routineMap;
+		rootRoutine = new RootRoutine(this);
+		routineMap.put(Global.ROOT_ROUTINE, rootRoutine);
 	}
 	
 	public Routine currentRoutine() {

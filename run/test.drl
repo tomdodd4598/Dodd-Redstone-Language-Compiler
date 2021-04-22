@@ -110,6 +110,17 @@ while (n < max) {
 }
 */
 
-set_argc(1);
+set_argc(2);
 
-out(argc() * argv(0));
+var a = argv(1);
+var #b = argv(0);
+var c = @a;
+
+var i = 0;
+while (i < argc()) {
+	#c = argv(i);
+	c = b;
+	i = i + 1;
+}
+
+out(a * #b);

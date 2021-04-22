@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class ASetupSection extends PSetupSection
 {
-    private PInputDeclaration _inputDeclaration_;
+    private PInputSpecification _inputSpecification_;
 
     public ASetupSection()
     {
@@ -15,10 +15,10 @@ public final class ASetupSection extends PSetupSection
     }
 
     public ASetupSection(
-        @SuppressWarnings("hiding") PInputDeclaration _inputDeclaration_)
+        @SuppressWarnings("hiding") PInputSpecification _inputSpecification_)
     {
         // Constructor
-        setInputDeclaration(_inputDeclaration_);
+        setInputSpecification(_inputSpecification_);
 
     }
 
@@ -26,7 +26,7 @@ public final class ASetupSection extends PSetupSection
     public Object clone()
     {
         return new ASetupSection(
-            cloneNode(this._inputDeclaration_));
+            cloneNode(this._inputSpecification_));
     }
 
     @Override
@@ -35,16 +35,16 @@ public final class ASetupSection extends PSetupSection
         ((Analysis) sw).caseASetupSection(this);
     }
 
-    public PInputDeclaration getInputDeclaration()
+    public PInputSpecification getInputSpecification()
     {
-        return this._inputDeclaration_;
+        return this._inputSpecification_;
     }
 
-    public void setInputDeclaration(PInputDeclaration node)
+    public void setInputSpecification(PInputSpecification node)
     {
-        if(this._inputDeclaration_ != null)
+        if(this._inputSpecification_ != null)
         {
-            this._inputDeclaration_.parent(null);
+            this._inputSpecification_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class ASetupSection extends PSetupSection
             node.parent(this);
         }
 
-        this._inputDeclaration_ = node;
+        this._inputSpecification_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._inputDeclaration_);
+            + toString(this._inputSpecification_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._inputDeclaration_ == child)
+        if(this._inputSpecification_ == child)
         {
-            this._inputDeclaration_ = null;
+            this._inputSpecification_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class ASetupSection extends PSetupSection
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._inputDeclaration_ == oldChild)
+        if(this._inputSpecification_ == oldChild)
         {
-            setInputDeclaration((PInputDeclaration) newChild);
+            setInputSpecification((PInputSpecification) newChild);
             return;
         }
 

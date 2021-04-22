@@ -17,6 +17,8 @@ import drlc.node.ABasicGeneralSection;
 import drlc.node.ABinaryExpression;
 import drlc.node.ABinaryPrioritizedExpression;
 import drlc.node.ABreakStopStatement;
+import drlc.node.ABuiltInArgcFunction;
+import drlc.node.ABuiltInArgvFunction;
 import drlc.node.ABuiltInOutMethodCall;
 import drlc.node.AComplementUnaryOp;
 import drlc.node.AConditionalBasicSection;
@@ -39,6 +41,7 @@ import drlc.node.AFunctionDefinition;
 import drlc.node.AFunctionDefinitionGeneralSection;
 import drlc.node.AFunctionValue;
 import drlc.node.AIfBlock;
+import drlc.node.AInputSpecification;
 import drlc.node.AIntegerValue;
 import drlc.node.AIterativeBasicSection;
 import drlc.node.AIterativeBlock;
@@ -69,6 +72,7 @@ import drlc.node.AReturnExpressionStopStatement;
 import drlc.node.AReturnStopStatement;
 import drlc.node.ARightShiftPrioritizedBinaryOp;
 import drlc.node.ARvalueVariable;
+import drlc.node.ASetupSection;
 import drlc.node.ATermPrioritizedExpression;
 import drlc.node.AToBoolUnaryOp;
 import drlc.node.AUnaryTerm;
@@ -136,6 +140,22 @@ public class Interpreter extends DepthFirstAdapter {
 	@Override
 	public void outAUnit(AUnit node) {
 		scope = scope.previous;
+	}
+	
+	@Override
+	public void inASetupSection(ASetupSection node) {}
+
+	@Override
+	public void outASetupSection(ASetupSection node) {}
+	
+	@Override
+	public void caseAInputSpecification(AInputSpecification node) {
+		node.getSetArgc().apply(this);
+		node.getLPar().apply(this);
+		//node.getExpression().apply(this);
+		program.rootRoutine.argc = Evaluator.tryEvaluate(node, generator, scope, node.getExpression().toString());
+		node.getRPar().apply(this);
+		node.getSemicolon().apply(this);
 	}
 	
 	@Override
@@ -606,6 +626,29 @@ public class Interpreter extends DepthFirstAdapter {
 	
 	@Override
 	public void outAFunctionValue(AFunctionValue node) {}
+	
+	@Override
+	public void caseABuiltInArgcFunction(ABuiltInArgcFunction node) {
+		node.getArgc().apply(this);
+		node.getLPar().apply(this);
+		node.getRPar().apply(this);
+		program.currentRoutine().incrementRegId();
+		int argc = program.rootRoutine.argc;
+		generator.checkInteger(node, argc);
+		program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.immediateValueString(argc));
+	}
+	
+	//TODO
+	@Override
+	public void caseABuiltInArgvFunction(ABuiltInArgvFunction node) {
+		node.getArgv().apply(this);
+		node.getLPar().apply(this);
+		node.getExpression().apply(this);
+		program.currentRoutine().pushCurrentRegIdToStack(node);
+		node.getRPar().apply(this);
+		program.currentRoutine().incrementRegId();
+		program.currentRoutine().addBuiltInFunctionCallAction(node, scope, node.getArgv().getText());
+	}
 	
 	@Override
 	public void inADefinedFunction(ADefinedFunction node) {}
