@@ -1,33 +1,11 @@
 package drlc.interpret.routine;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
-import drlc.Global;
-import drlc.Helper;
+import drlc.*;
 import drlc.interpret.Program;
-import drlc.interpret.action.Action;
-import drlc.interpret.action.AssignmentAction;
-import drlc.interpret.action.BinaryOpAction;
-import drlc.interpret.action.BuiltInFunctionCallAction;
-import drlc.interpret.action.BuiltInMethodCallAction;
-import drlc.interpret.action.ConditionalJumpAction;
-import drlc.interpret.action.DeclarationAction;
-import drlc.interpret.action.DereferenceAction;
-import drlc.interpret.action.FunctionCallAction;
-import drlc.interpret.action.IValueAction;
-import drlc.interpret.action.InitialisationAction;
-import drlc.interpret.action.JumpAction;
-import drlc.interpret.action.MethodCallAction;
-import drlc.interpret.action.ReturnValueAction;
-import drlc.interpret.action.SubroutineCallAction;
-import drlc.interpret.action.UnaryOpAction;
-import drlc.interpret.scope.ConditionalSectionInfo;
-import drlc.interpret.scope.IterativeSectionInfo;
-import drlc.interpret.scope.Scope;
+import drlc.interpret.action.*;
+import drlc.interpret.scope.*;
 import drlc.node.Node;
 
 public abstract class Routine {

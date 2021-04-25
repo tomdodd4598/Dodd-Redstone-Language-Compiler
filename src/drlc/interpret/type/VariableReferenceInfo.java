@@ -1,7 +1,6 @@
 package drlc.interpret.type;
 
-import drlc.Global;
-import drlc.Helper;
+import drlc.*;
 
 public class VariableReferenceInfo {
 	

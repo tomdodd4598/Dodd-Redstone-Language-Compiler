@@ -1,9 +1,7 @@
 package drlc.generate.drc1.instruction.subroutine;
 
-import drlc.Global;
-import drlc.Helper;
-import drlc.generate.drc1.RedstoneMnemonics;
-import drlc.generate.drc1.RedstoneOpcodes;
+import drlc.*;
+import drlc.generate.drc1.*;
 import drlc.generate.drc1.instruction.Instruction;
 
 public class InstructionLoadBasePointer extends Instruction {

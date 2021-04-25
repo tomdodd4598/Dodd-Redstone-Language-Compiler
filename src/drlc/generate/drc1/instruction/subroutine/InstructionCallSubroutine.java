@@ -1,8 +1,7 @@
 package drlc.generate.drc1.instruction.subroutine;
 
 import drlc.Helper;
-import drlc.generate.drc1.RedstoneMnemonics;
-import drlc.generate.drc1.RedstoneOpcodes;
+import drlc.generate.drc1.*;
 import drlc.generate.drc1.instruction.Instruction;
 
 public class InstructionCallSubroutine extends Instruction {

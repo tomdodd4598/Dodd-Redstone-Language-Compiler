@@ -1,7 +1,6 @@
 package drlc;
 
-import java.io.FileReader;
-import java.io.PushbackReader;
+import java.io.*;
 import java.lang.reflect.Constructor;
 
 import drlc.generate.Generator;
@@ -61,7 +60,7 @@ public class Main {
 			Start ast = new Parser(new Lexer(new PushbackReader(new FileReader(input), 8192))).parse();
 			
 			currentTime = System.nanoTime();
-			System.out.print(String.format("Parsing time: %.2f ms\n", (currentTime - previousTime)/1E6));
+			System.out.print(String.format("Parsing time: %.2f ms\n", (currentTime - previousTime) / 1E6));
 			previousTime = currentTime;
 			
 			/* Run interpreter */
@@ -69,13 +68,13 @@ public class Main {
 			ast.apply(interpreter);
 			
 			currentTime = System.nanoTime();
-			System.out.print(String.format("Interpreting time: %.2f ms\n", (currentTime - previousTime)/1E6));
+			System.out.print(String.format("Interpreting time: %.2f ms\n", (currentTime - previousTime) / 1E6));
 			previousTime = currentTime;
 			
 			/* Generate code */
 			interpreter.generate();
 			
-			System.out.print(String.format("Generating time: %.2f ms\n", (System.nanoTime() - previousTime)/1E6));
+			System.out.print(String.format("Generating time: %.2f ms\n", (System.nanoTime() - previousTime) / 1E6));
 			
 			System.out.print("Finished!\n");
 		}

@@ -1,19 +1,9 @@
 package drlc.generate.drc1.instruction.jump;
 
 import drlc.Helper;
-import drlc.generate.drc1.RedstoneMnemonics;
-import drlc.generate.drc1.RedstoneOpcodes;
-import drlc.generate.drc1.instruction.Instruction;
-import drlc.generate.drc1.instruction.InstructionNoOp;
-import drlc.generate.drc1.instruction.set.InstructionSet;
-import drlc.generate.drc1.instruction.set.InstructionSetIsLessThanOrEqualToZero;
-import drlc.generate.drc1.instruction.set.InstructionSetIsLessThanZero;
-import drlc.generate.drc1.instruction.set.InstructionSetIsMoreThanOrEqualToZero;
-import drlc.generate.drc1.instruction.set.InstructionSetIsMoreThanZero;
-import drlc.generate.drc1.instruction.set.InstructionSetIsNotZero;
-import drlc.generate.drc1.instruction.set.InstructionSetIsZero;
-import drlc.generate.drc1.instruction.set.InstructionSetNegative;
-import drlc.generate.drc1.instruction.set.InstructionSetNot;
+import drlc.generate.drc1.*;
+import drlc.generate.drc1.instruction.*;
+import drlc.generate.drc1.instruction.set.*;
 
 public class InstructionConditionalJumpIfLessThanZero extends InstructionConditionalJump {
 	

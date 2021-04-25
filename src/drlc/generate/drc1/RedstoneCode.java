@@ -1,10 +1,7 @@
 package drlc.generate.drc1;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 
 import drlc.generate.drc1.instruction.Instruction;
 import drlc.interpret.Program;
@@ -106,15 +103,15 @@ public class RedstoneCode {
 	public static short log2(short value) {
 		if (value > 0) {
 			int log = 0;
-			if (value >= 256) { 
+			if (value >= 256) {
 				value >>>= 8;
 				log += 8;
 			}
-			if (value >= 16) { 
+			if (value >= 16) {
 				value >>>= 4;
 				log += 4;
 			}
-			if (value >= 4) { 
+			if (value >= 4) {
 				value >>>= 2;
 				log += 2;
 			}

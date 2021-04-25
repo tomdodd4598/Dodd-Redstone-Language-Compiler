@@ -15,7 +15,7 @@ while (f > 0) {
 }
 */
 
-/*
+///*
 var f = 1;
 var i = 1;
 
@@ -35,7 +35,7 @@ while (f > 0) {
 	out(f);
 	update();
 }
-*/
+//*/
 
 /*
 var f = 1;
@@ -110,6 +110,7 @@ while (n < max) {
 }
 */
 
+/*
 set_argc(2);
 
 var a = argv(1);
@@ -124,3 +125,4 @@ while (i < argc()) {
 }
 
 out(a * #b);
+*/

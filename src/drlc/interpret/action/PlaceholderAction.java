@@ -23,6 +23,6 @@ public class PlaceholderAction extends Action {
 	
 	@Override
 	public boolean equals(Object object) {
-		return object instanceof PlaceholderAction && ((PlaceholderAction)object).type.equals(type);
+		return object instanceof PlaceholderAction && ((PlaceholderAction) object).type.equals(type);
 	}
 }

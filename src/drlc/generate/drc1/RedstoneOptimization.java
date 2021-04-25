@@ -1,27 +1,13 @@
 package drlc.generate.drc1;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import drlc.Helper.Pair;
-import drlc.generate.drc1.instruction.IInstructionLoad;
-import drlc.generate.drc1.instruction.Instruction;
-import drlc.generate.drc1.instruction.InstructionConstant;
-import drlc.generate.drc1.instruction.InstructionNoOp;
-import drlc.generate.drc1.instruction.address.IInstructionAddress;
-import drlc.generate.drc1.instruction.address.IInstructionLoadAddress;
-import drlc.generate.drc1.instruction.address.IInstructionStoreAddress;
-import drlc.generate.drc1.instruction.immediate.IInstructionImmediate;
-import drlc.generate.drc1.instruction.immediate.IInstructionLoadImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionALUImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionALULongImmediate;
-import drlc.generate.drc1.instruction.jump.InstructionConditionalJump;
-import drlc.generate.drc1.instruction.jump.InstructionJump;
+import drlc.generate.drc1.instruction.*;
+import drlc.generate.drc1.instruction.address.*;
+import drlc.generate.drc1.instruction.immediate.*;
+import drlc.generate.drc1.instruction.jump.*;
 import drlc.generate.drc1.instruction.set.InstructionSet;
 
 public class RedstoneOptimization {
@@ -138,6 +124,7 @@ public class RedstoneOptimization {
 	}
 	
 	static class InstructionSectionPair extends Pair<Instruction, Short> {
+		
 		public InstructionSectionPair(Instruction instruction, short section) {
 			super(instruction, section);
 		}

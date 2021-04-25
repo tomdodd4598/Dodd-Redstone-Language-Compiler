@@ -1,98 +1,11 @@
 package drlc.interpret;
 
-import drlc.Global;
-import drlc.Helper;
+import drlc.*;
 import drlc.analysis.DepthFirstAdapter;
 import drlc.generate.Generator;
-import drlc.interpret.scope.ConditionalSectionInfo;
-import drlc.interpret.scope.IterativeSectionInfo;
-import drlc.interpret.scope.Scope;
-import drlc.interpret.type.Variable;
-import drlc.interpret.type.VariableReferenceInfo;
-import drlc.node.AAddressOfTerm;
-import drlc.node.AAndBinaryOp;
-import drlc.node.AArgumentList;
-import drlc.node.AArgumentListTail;
-import drlc.node.ABasicGeneralSection;
-import drlc.node.ABinaryExpression;
-import drlc.node.ABinaryPrioritizedExpression;
-import drlc.node.ABreakStopStatement;
-import drlc.node.ABuiltInArgcFunction;
-import drlc.node.ABuiltInArgvFunction;
-import drlc.node.ABuiltInOutMethodCall;
-import drlc.node.AComplementUnaryOp;
-import drlc.node.AConditionalBasicSection;
-import drlc.node.AConstantDefinition;
-import drlc.node.AConstantDefinitionBasicSection;
-import drlc.node.AContinueStopStatement;
-import drlc.node.ADead1DeadCode;
-import drlc.node.ADead2DeadCode;
-import drlc.node.ADead3DeadCode;
-import drlc.node.ADead4DeadCode;
-import drlc.node.ADead5DeadCode;
-import drlc.node.ADefinedFunction;
-import drlc.node.ADefinedMethodCall;
-import drlc.node.ADereferenceTerm;
-import drlc.node.ADividePrioritizedBinaryOp;
-import drlc.node.AElseBlock;
-import drlc.node.AElseIfBlock;
-import drlc.node.AEqualToPrioritizedBinaryOp;
-import drlc.node.AFunctionDefinition;
-import drlc.node.AFunctionDefinitionGeneralSection;
-import drlc.node.AFunctionValue;
-import drlc.node.AIfBlock;
-import drlc.node.AInputSpecification;
-import drlc.node.AIntegerValue;
-import drlc.node.AIterativeBasicSection;
-import drlc.node.AIterativeBlock;
-import drlc.node.ALeftShiftPrioritizedBinaryOp;
-import drlc.node.ALessOrEqualPrioritizedBinaryOp;
-import drlc.node.ALessThanPrioritizedBinaryOp;
-import drlc.node.ALvalueVariable;
-import drlc.node.AMethodCallBasicSection;
-import drlc.node.AMethodDefinition;
-import drlc.node.AMethodDefinitionGeneralSection;
-import drlc.node.AMinusBinaryOp;
-import drlc.node.AMinusUnaryOp;
-import drlc.node.AModuloPrioritizedBinaryOp;
-import drlc.node.AMoreOrEqualPrioritizedBinaryOp;
-import drlc.node.AMoreThanPrioritizedBinaryOp;
-import drlc.node.AMultiplyPrioritizedBinaryOp;
-import drlc.node.ANoInitialisationVariableDeclaration;
-import drlc.node.ANotEqualToPrioritizedBinaryOp;
-import drlc.node.ANotUnaryOp;
-import drlc.node.AOrBinaryOp;
-import drlc.node.AParExpressionTerm;
-import drlc.node.AParameterList;
-import drlc.node.AParameterListTail;
-import drlc.node.APlusBinaryOp;
-import drlc.node.APlusUnaryOp;
-import drlc.node.APrioritizedExpression;
-import drlc.node.AReturnExpressionStopStatement;
-import drlc.node.AReturnStopStatement;
-import drlc.node.ARightShiftPrioritizedBinaryOp;
-import drlc.node.ARvalueVariable;
-import drlc.node.ASetupSection;
-import drlc.node.ATermPrioritizedExpression;
-import drlc.node.AToBoolUnaryOp;
-import drlc.node.AUnaryTerm;
-import drlc.node.AUnit;
-import drlc.node.AValueTerm;
-import drlc.node.AVariableDeclarationBasicSection;
-import drlc.node.AVariableModification;
-import drlc.node.AVariableModificationBasicSection;
-import drlc.node.AVariableValue;
-import drlc.node.AWithInitialisationVariableDeclaration;
-import drlc.node.AXorBinaryOp;
-import drlc.node.Node;
-import drlc.node.PArgumentListTail;
-import drlc.node.PBasicSection;
-import drlc.node.PLvalueVariable;
-import drlc.node.PParameterList;
-import drlc.node.Start;
-import drlc.node.TDereference;
-import drlc.node.TLBrace;
-import drlc.node.TRBrace;
+import drlc.interpret.scope.*;
+import drlc.interpret.type.*;
+import drlc.node.*;
 
 public class Interpreter extends DepthFirstAdapter {
 	
@@ -144,7 +57,7 @@ public class Interpreter extends DepthFirstAdapter {
 	
 	@Override
 	public void inASetupSection(ASetupSection node) {}
-
+	
 	@Override
 	public void outASetupSection(ASetupSection node) {}
 	
@@ -152,7 +65,7 @@ public class Interpreter extends DepthFirstAdapter {
 	public void caseAInputSpecification(AInputSpecification node) {
 		node.getSetArgc().apply(this);
 		node.getLPar().apply(this);
-		//node.getExpression().apply(this);
+		// node.getExpression().apply(this);
 		program.rootRoutine.argc = Evaluator.tryEvaluate(node, generator, scope, node.getExpression().toString());
 		node.getRPar().apply(this);
 		node.getSemicolon().apply(this);
@@ -292,7 +205,7 @@ public class Interpreter extends DepthFirstAdapter {
 		node.getName().apply(this);
 		String name = node.getName().getText();
 		node.getEquals().apply(this);
-		//node.getNumericalExpression().apply(this);
+		// node.getNumericalExpression().apply(this);
 		int value = Evaluator.evaluate(node, generator, scope, node.getExpression().toString());
 		generator.checkInteger(node, value);
 		scope.addConstant(node, name, value);
@@ -617,7 +530,7 @@ public class Interpreter extends DepthFirstAdapter {
 	
 	@Override
 	public void inAVariableValue(AVariableValue node) {}
-
+	
 	@Override
 	public void outAVariableValue(AVariableValue node) {}
 	
@@ -638,7 +551,7 @@ public class Interpreter extends DepthFirstAdapter {
 		program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.immediateValueString(argc));
 	}
 	
-	//TODO
+	// TODO
 	@Override
 	public void caseABuiltInArgvFunction(ABuiltInArgvFunction node) {
 		node.getArgv().apply(this);

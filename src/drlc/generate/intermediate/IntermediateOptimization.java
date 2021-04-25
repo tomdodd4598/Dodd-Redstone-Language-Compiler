@@ -1,20 +1,11 @@
 package drlc.generate.intermediate;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
 
 import drlc.Helper;
 import drlc.Helper.Pair;
-import drlc.interpret.action.Action;
-import drlc.interpret.action.IJumpAction;
-import drlc.interpret.action.IStopAction;
-import drlc.interpret.action.IValueAction;
-import drlc.interpret.action.NoOpAction;
+import drlc.interpret.action.*;
 import drlc.interpret.routine.Routine;
 
 public class IntermediateOptimization {
@@ -172,6 +163,7 @@ public class IntermediateOptimization {
 	}
 	
 	static class MapArrayPair extends Pair<Map<Integer, Integer>, String[]> {
+		
 		public MapArrayPair(Map<Integer, Integer> map, String[] array) {
 			super(map, array);
 		}

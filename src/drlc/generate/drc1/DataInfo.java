@@ -44,15 +44,15 @@ public class DataInfo {
 		
 		@Override
 		public String toString() {
-			switch(this) {
-			case DATA:
-				return "DATA";
-			case STATIC:
-				return "STATIC";
-			case TEMP:
-				return "TEMP";
-			default:
-				return null;
+			switch (this) {
+				case DATA:
+					return "DATA";
+				case STATIC:
+					return "STATIC";
+				case TEMP:
+					return "TEMP";
+				default:
+					return null;
 			}
 		}
 	}

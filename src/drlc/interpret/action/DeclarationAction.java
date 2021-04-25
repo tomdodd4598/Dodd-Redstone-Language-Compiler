@@ -2,8 +2,7 @@ package drlc.interpret.action;
 
 import java.util.Map;
 
-import drlc.Global;
-import drlc.Helper;
+import drlc.*;
 import drlc.node.Node;
 
 public class DeclarationAction extends Action implements IValueAction {

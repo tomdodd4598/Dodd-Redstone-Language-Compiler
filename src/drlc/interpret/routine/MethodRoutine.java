@@ -2,8 +2,7 @@ package drlc.interpret.routine;
 
 import drlc.Global;
 import drlc.interpret.Program;
-import drlc.interpret.type.Method;
-import drlc.interpret.type.VariableReferenceInfo;
+import drlc.interpret.type.*;
 
 public class MethodRoutine extends Subroutine {
 	

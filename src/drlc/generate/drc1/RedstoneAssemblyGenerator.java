@@ -4,8 +4,7 @@ import java.io.PrintWriter;
 import java.util.List;
 
 import drlc.Helper;
-import drlc.generate.drc1.instruction.Instruction;
-import drlc.generate.drc1.instruction.InstructionConstant;
+import drlc.generate.drc1.instruction.*;
 import drlc.interpret.Program;
 
 public class RedstoneAssemblyGenerator extends RedstoneGenerator {
@@ -37,7 +36,8 @@ public class RedstoneAssemblyGenerator extends RedstoneGenerator {
 			PrintWriter out = new PrintWriter(outputFile);
 			out.print(builder.substring(1));
 			out.close();
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

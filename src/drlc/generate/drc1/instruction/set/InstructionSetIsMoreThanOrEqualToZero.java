@@ -1,8 +1,7 @@
 package drlc.generate.drc1.instruction.set;
 
 import drlc.Global;
-import drlc.generate.drc1.RedstoneMnemonics;
-import drlc.generate.drc1.RedstoneOpcodes;
+import drlc.generate.drc1.*;
 
 public class InstructionSetIsMoreThanOrEqualToZero extends InstructionSet {
 	

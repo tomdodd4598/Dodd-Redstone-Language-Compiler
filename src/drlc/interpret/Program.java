@@ -1,19 +1,11 @@
 package drlc.interpret;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
-import drlc.Global;
-import drlc.Helper;
-import drlc.interpret.action.Action;
-import drlc.interpret.action.IJumpAction;
-import drlc.interpret.routine.FunctionRoutine;
-import drlc.interpret.routine.MethodRoutine;
-import drlc.interpret.routine.RootRoutine;
-import drlc.interpret.routine.Routine;
+import drlc.*;
+import drlc.interpret.action.*;
+import drlc.interpret.routine.*;
 import drlc.interpret.scope.Scope;
 import drlc.interpret.type.VariableReferenceInfo;
 import drlc.node.Node;

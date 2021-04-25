@@ -1,10 +1,8 @@
 package drlc.interpret.action;
 
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
 
-import drlc.Global;
-import drlc.Helper;
+import drlc.*;
 import drlc.node.Node;
 
 public class MethodCallAction extends SubroutineCallAction implements IValueAction {

@@ -1,10 +1,7 @@
 package drlc.generate.drc1.instruction.immediate;
 
-import drlc.Global;
-import drlc.Helper;
-import drlc.generate.drc1.RedstoneCode;
-import drlc.generate.drc1.RedstoneMnemonics;
-import drlc.generate.drc1.RedstoneOpcodes;
+import drlc.*;
+import drlc.generate.drc1.*;
 import drlc.generate.drc1.instruction.Instruction;
 
 public class InstructionNotLongImmediate extends InstructionALULongImmediate {

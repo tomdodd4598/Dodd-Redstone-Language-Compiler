@@ -1,10 +1,8 @@
 package drlc.generate.drc1.instruction.set;
 
 import drlc.Global;
-import drlc.generate.drc1.RedstoneMnemonics;
-import drlc.generate.drc1.RedstoneOpcodes;
-import drlc.generate.drc1.instruction.Instruction;
-import drlc.generate.drc1.instruction.InstructionNoOp;
+import drlc.generate.drc1.*;
+import drlc.generate.drc1.instruction.*;
 
 public class InstructionSetNegative extends InstructionSet {
 	

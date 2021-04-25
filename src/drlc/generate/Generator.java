@@ -1,11 +1,8 @@
 package drlc.generate;
 
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
-import drlc.generate.intermediate.IntermediateGenerator;
-import drlc.generate.intermediate.IntermediateOptimization;
+import drlc.generate.intermediate.*;
 import drlc.interpret.Program;
 import drlc.interpret.routine.Routine;
 import drlc.node.Node;

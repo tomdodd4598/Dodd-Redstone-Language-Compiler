@@ -1,7 +1,6 @@
 package drlc.generate.drc1.instruction.immediate;
 
-import drlc.generate.drc1.instruction.Instruction;
-import drlc.generate.drc1.instruction.InstructionNoOp;
+import drlc.generate.drc1.instruction.*;
 
 public abstract class InstructionALULongImmediate extends InstructionLongImmediate {
 	

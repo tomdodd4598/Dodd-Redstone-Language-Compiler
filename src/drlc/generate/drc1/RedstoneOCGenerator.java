@@ -33,7 +33,8 @@ public class RedstoneOCGenerator extends RedstoneGenerator {
 			PrintWriter out = new PrintWriter(outputFile);
 			out.print(builder.substring(1));
 			out.close();
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

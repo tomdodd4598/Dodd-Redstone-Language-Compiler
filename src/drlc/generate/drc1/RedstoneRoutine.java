@@ -1,125 +1,24 @@
 package drlc.generate.drc1;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 
-import drlc.Global;
-import drlc.Helper;
+import drlc.*;
 import drlc.generate.drc1.DataInfo.DataType;
-import drlc.generate.drc1.instruction.Instruction;
-import drlc.generate.drc1.instruction.InstructionConstant;
-import drlc.generate.drc1.instruction.InstructionHalt;
-import drlc.generate.drc1.instruction.InstructionNoOp;
-import drlc.generate.drc1.instruction.address.IInstructionAddress;
-import drlc.generate.drc1.instruction.address.InstructionAdd;
-import drlc.generate.drc1.instruction.address.InstructionAddress;
-import drlc.generate.drc1.instruction.address.InstructionAnd;
-import drlc.generate.drc1.instruction.address.InstructionDivide;
-import drlc.generate.drc1.instruction.address.InstructionLeftShift;
-import drlc.generate.drc1.instruction.address.InstructionLoadA;
-import drlc.generate.drc1.instruction.address.InstructionLoadB;
-import drlc.generate.drc1.instruction.address.InstructionLoadImmediateAddress;
-import drlc.generate.drc1.instruction.address.InstructionModulo;
-import drlc.generate.drc1.instruction.address.InstructionMultiply;
-import drlc.generate.drc1.instruction.address.InstructionOr;
-import drlc.generate.drc1.instruction.address.InstructionRightShift;
-import drlc.generate.drc1.instruction.address.InstructionStore;
-import drlc.generate.drc1.instruction.address.InstructionSubtract;
-import drlc.generate.drc1.instruction.address.InstructionXor;
-import drlc.generate.drc1.instruction.address.offset.InstructionAddOffset;
-import drlc.generate.drc1.instruction.address.offset.InstructionAddressOffset;
-import drlc.generate.drc1.instruction.address.offset.InstructionAndOffset;
-import drlc.generate.drc1.instruction.address.offset.InstructionDivideOffset;
-import drlc.generate.drc1.instruction.address.offset.InstructionLeftShiftOffset;
-import drlc.generate.drc1.instruction.address.offset.InstructionLoadAOffset;
-import drlc.generate.drc1.instruction.address.offset.InstructionLoadBOffset;
-import drlc.generate.drc1.instruction.address.offset.InstructionLoadImmediateAddressOffset;
-import drlc.generate.drc1.instruction.address.offset.InstructionModuloOffset;
-import drlc.generate.drc1.instruction.address.offset.InstructionMultiplyOffset;
-import drlc.generate.drc1.instruction.address.offset.InstructionOrOffset;
-import drlc.generate.drc1.instruction.address.offset.InstructionRightShiftOffset;
-import drlc.generate.drc1.instruction.address.offset.InstructionStoreOffset;
-import drlc.generate.drc1.instruction.address.offset.InstructionSubtractOffset;
-import drlc.generate.drc1.instruction.address.offset.InstructionXorOffset;
+import drlc.generate.drc1.instruction.*;
+import drlc.generate.drc1.instruction.address.*;
+import drlc.generate.drc1.instruction.address.offset.*;
 import drlc.generate.drc1.instruction.hardware.InstructionOutput;
-import drlc.generate.drc1.instruction.immediate.InstructionAddImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionAddLongImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionAndImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionAndLongImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionDivideImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionDivideLongImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionLeftShiftImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionLoadImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionLoadLongImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionModuloImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionModuloLongImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionMultiplyImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionMultiplyLongImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionNotImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionNotLongImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionOrImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionOrLongImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionRightShiftImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionSubtractImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionSubtractLongImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionXorImmediate;
-import drlc.generate.drc1.instruction.immediate.InstructionXorLongImmediate;
-import drlc.generate.drc1.instruction.jump.InstructionConditionalJumpIfNotZero;
-import drlc.generate.drc1.instruction.jump.InstructionJump;
-import drlc.generate.drc1.instruction.pointer.InstructionDereferenceA;
-import drlc.generate.drc1.instruction.pointer.InstructionDereferenceB;
-import drlc.generate.drc1.instruction.pointer.InstructionStoreAToBAddress;
-import drlc.generate.drc1.instruction.set.InstructionSetIsLessThanOrEqualToZero;
-import drlc.generate.drc1.instruction.set.InstructionSetIsLessThanZero;
-import drlc.generate.drc1.instruction.set.InstructionSetIsMoreThanOrEqualToZero;
-import drlc.generate.drc1.instruction.set.InstructionSetIsMoreThanZero;
-import drlc.generate.drc1.instruction.set.InstructionSetIsNotZero;
-import drlc.generate.drc1.instruction.set.InstructionSetIsZero;
-import drlc.generate.drc1.instruction.set.InstructionSetNegative;
-import drlc.generate.drc1.instruction.set.InstructionSetNot;
-import drlc.generate.drc1.instruction.subroutine.InstructionAddToStackPointer;
-import drlc.generate.drc1.instruction.subroutine.InstructionCallSubroutine;
-import drlc.generate.drc1.instruction.subroutine.InstructionLoadBasePointer;
-import drlc.generate.drc1.instruction.subroutine.InstructionLoadStackPointer;
-import drlc.generate.drc1.instruction.subroutine.InstructionMoveStackPointerToBasePointer;
-import drlc.generate.drc1.instruction.subroutine.InstructionPopBasePointer;
-import drlc.generate.drc1.instruction.subroutine.InstructionPush;
-import drlc.generate.drc1.instruction.subroutine.InstructionPushBasePointer;
-import drlc.generate.drc1.instruction.subroutine.InstructionReturnFromSubroutine;
-import drlc.generate.drc1.instruction.subroutine.InstructionSubtractFromStackPointer;
-import drlc.interpret.action.Action;
-import drlc.interpret.action.AssignmentAction;
-import drlc.interpret.action.BasicAction;
-import drlc.interpret.action.BinaryOpAction;
+import drlc.generate.drc1.instruction.immediate.*;
+import drlc.generate.drc1.instruction.jump.*;
+import drlc.generate.drc1.instruction.pointer.*;
+import drlc.generate.drc1.instruction.set.*;
+import drlc.generate.drc1.instruction.subroutine.*;
+import drlc.interpret.action.*;
 import drlc.interpret.action.BinaryOpAction.BinaryOpType;
-import drlc.interpret.action.BuiltInFunctionCallAction;
-import drlc.interpret.action.BuiltInMethodCallAction;
-import drlc.interpret.action.ConditionalJumpAction;
-import drlc.interpret.action.DeclarationAction;
-import drlc.interpret.action.DereferenceAction;
-import drlc.interpret.action.FunctionCallAction;
-import drlc.interpret.action.HaltAction;
-import drlc.interpret.action.InitialisationAction;
-import drlc.interpret.action.JumpAction;
-import drlc.interpret.action.NoOpAction;
-import drlc.interpret.action.PlaceholderAction;
-import drlc.interpret.action.ReturnAction;
-import drlc.interpret.action.ReturnValueAction;
-import drlc.interpret.action.SubroutineCallAction;
-import drlc.interpret.action.UnaryOpAction;
 import drlc.interpret.action.UnaryOpAction.UnaryOpType;
-import drlc.interpret.routine.RootRoutine;
-import drlc.interpret.routine.Routine;
-import drlc.interpret.routine.RoutineType;
-import drlc.interpret.routine.Subroutine;
-import drlc.interpret.type.Variable;
-import drlc.interpret.type.VariableReferenceInfo;
+import drlc.interpret.routine.*;
+import drlc.interpret.type.*;
 
 public class RedstoneRoutine {
 	
@@ -596,14 +495,14 @@ public class RedstoneRoutine {
 	protected short getAddress(DataInfo info) {
 		RedstoneRoutine routine = code.routineMap.get(info.routineName);
 		switch (info.type) {
-		case DATA:
-			return routine.dataAddressMap.get(info.id);
-		case TEMP:
-			return routine.tempAddressMap.get(info.id);
-		case STATIC:
-			return code.staticAddressMap.get(info.id);
-		default:
-			throw new IllegalArgumentException(String.format("Encountered unknown address data type %s!", info.type));
+			case DATA:
+				return routine.dataAddressMap.get(info.id);
+			case TEMP:
+				return routine.tempAddressMap.get(info.id);
+			case STATIC:
+				return code.staticAddressMap.get(info.id);
+			default:
+				throw new IllegalArgumentException(String.format("Encountered unknown address data type %s!", info.type));
 		}
 	}
 	
@@ -706,136 +605,136 @@ public class RedstoneRoutine {
 			final short value = Helper.parseImmediateValue(arg).shortValue();
 			if (RedstoneCode.isLongImmediate(value)) {
 				switch (type) {
-				case PLUS:
-					text.add(new InstructionAddLongImmediate(value));
-					text.add(new InstructionConstant(value));
-					break;
-				case AND:
-					text.add(new InstructionAndLongImmediate(value));
-					text.add(new InstructionConstant(value));
-					break;
-				case OR:
-					text.add(new InstructionOrLongImmediate(value));
-					text.add(new InstructionConstant(value));
-					break;
-				case XOR:
-					text.add(new InstructionXorLongImmediate(value));
-					text.add(new InstructionConstant(value));
-					break;
-				case MINUS:
-					text.add(new InstructionSubtractLongImmediate(value));
-					text.add(new InstructionConstant(value));
-					break;
-				case LEFT_SHIFT:
-					text.add(new InstructionLeftShiftImmediate(RedstoneCode.lowBits(value)));
-					break;
-				case RIGHT_SHIFT:
-					text.add(new InstructionRightShiftImmediate(RedstoneCode.lowBits(value)));
-					break;
-				case MULTIPLY:
-					text.add(new InstructionMultiplyLongImmediate(value));
-					text.add(new InstructionConstant(value));
-					break;
-				case EQUAL_TO:
-					text.add(new InstructionXorLongImmediate(value));
-					text.add(new InstructionConstant(value));
-					text.add(new InstructionSetIsZero());
-					break;
-				case DIVIDE:
-					text.add(new InstructionDivideLongImmediate(value));
-					text.add(new InstructionConstant(value));
-					break;
-				case MODULO:
-					text.add(new InstructionModuloLongImmediate(value));
-					text.add(new InstructionConstant(value));
-					break;
-				case NOT_EQUAL_TO:
-					text.add(new InstructionXorLongImmediate(value));
-					text.add(new InstructionConstant(value));
-					text.add(new InstructionSetIsNotZero());
-					break;
-				case LESS_THAN:
-					text.add(new InstructionSubtractLongImmediate(value));
-					text.add(new InstructionConstant(value));
-					text.add(new InstructionSetIsLessThanZero());
-					break;
-				case LESS_OR_EQUAL:
-					text.add(new InstructionSubtractLongImmediate(value));
-					text.add(new InstructionConstant(value));
-					text.add(new InstructionSetIsLessThanOrEqualToZero());
-					break;
-				case MORE_THAN:
-					text.add(new InstructionSubtractLongImmediate(value));
-					text.add(new InstructionConstant(value));
-					text.add(new InstructionSetIsMoreThanZero());
-					break;
-				case MORE_OR_EQUAL:
-					text.add(new InstructionSubtractLongImmediate(value));
-					text.add(new InstructionConstant(value));
-					text.add(new InstructionSetIsMoreThanOrEqualToZero());
-					break;
-				default:
-					throw new IllegalArgumentException(String.format("Attempted to add long immediate binary op instruction of unknown type! %s %s", type, arg));
+					case PLUS:
+						text.add(new InstructionAddLongImmediate(value));
+						text.add(new InstructionConstant(value));
+						break;
+					case AND:
+						text.add(new InstructionAndLongImmediate(value));
+						text.add(new InstructionConstant(value));
+						break;
+					case OR:
+						text.add(new InstructionOrLongImmediate(value));
+						text.add(new InstructionConstant(value));
+						break;
+					case XOR:
+						text.add(new InstructionXorLongImmediate(value));
+						text.add(new InstructionConstant(value));
+						break;
+					case MINUS:
+						text.add(new InstructionSubtractLongImmediate(value));
+						text.add(new InstructionConstant(value));
+						break;
+					case LEFT_SHIFT:
+						text.add(new InstructionLeftShiftImmediate(RedstoneCode.lowBits(value)));
+						break;
+					case RIGHT_SHIFT:
+						text.add(new InstructionRightShiftImmediate(RedstoneCode.lowBits(value)));
+						break;
+					case MULTIPLY:
+						text.add(new InstructionMultiplyLongImmediate(value));
+						text.add(new InstructionConstant(value));
+						break;
+					case EQUAL_TO:
+						text.add(new InstructionXorLongImmediate(value));
+						text.add(new InstructionConstant(value));
+						text.add(new InstructionSetIsZero());
+						break;
+					case DIVIDE:
+						text.add(new InstructionDivideLongImmediate(value));
+						text.add(new InstructionConstant(value));
+						break;
+					case MODULO:
+						text.add(new InstructionModuloLongImmediate(value));
+						text.add(new InstructionConstant(value));
+						break;
+					case NOT_EQUAL_TO:
+						text.add(new InstructionXorLongImmediate(value));
+						text.add(new InstructionConstant(value));
+						text.add(new InstructionSetIsNotZero());
+						break;
+					case LESS_THAN:
+						text.add(new InstructionSubtractLongImmediate(value));
+						text.add(new InstructionConstant(value));
+						text.add(new InstructionSetIsLessThanZero());
+						break;
+					case LESS_OR_EQUAL:
+						text.add(new InstructionSubtractLongImmediate(value));
+						text.add(new InstructionConstant(value));
+						text.add(new InstructionSetIsLessThanOrEqualToZero());
+						break;
+					case MORE_THAN:
+						text.add(new InstructionSubtractLongImmediate(value));
+						text.add(new InstructionConstant(value));
+						text.add(new InstructionSetIsMoreThanZero());
+						break;
+					case MORE_OR_EQUAL:
+						text.add(new InstructionSubtractLongImmediate(value));
+						text.add(new InstructionConstant(value));
+						text.add(new InstructionSetIsMoreThanOrEqualToZero());
+						break;
+					default:
+						throw new IllegalArgumentException(String.format("Attempted to add long immediate binary op instruction of unknown type! %s %s", type, arg));
 				}
 			}
 			else {
 				switch (type) {
-				case PLUS:
-					text.add(new InstructionAddImmediate(value));
-					break;
-				case AND:
-					text.add(new InstructionAndImmediate(value));
-					break;
-				case OR:
-					text.add(new InstructionOrImmediate(value));
-					break;
-				case XOR:
-					text.add(new InstructionXorImmediate(value));
-					break;
-				case MINUS:
-					text.add(new InstructionSubtractImmediate(value));
-					break;
-				case LEFT_SHIFT:
-					text.add(new InstructionLeftShiftImmediate(value));
-					break;
-				case RIGHT_SHIFT:
-					text.add(new InstructionRightShiftImmediate(value));
-					break;
-				case MULTIPLY:
-					text.add(new InstructionMultiplyImmediate(value));
-					break;
-				case EQUAL_TO:
-					text.add(new InstructionXorImmediate(value));
-					text.add(new InstructionSetIsZero());
-					break;
-				case DIVIDE:
-					text.add(new InstructionDivideImmediate(value));
-					break;
-				case MODULO:
-					text.add(new InstructionModuloImmediate(value));
-					break;
-				case NOT_EQUAL_TO:
-					text.add(new InstructionXorImmediate(value));
-					text.add(new InstructionSetIsNotZero());
-					break;
-				case LESS_THAN:
-					text.add(new InstructionSubtractImmediate(value));
-					text.add(new InstructionSetIsLessThanZero());
-					break;
-				case LESS_OR_EQUAL:
-					text.add(new InstructionSubtractImmediate(value));
-					text.add(new InstructionSetIsLessThanOrEqualToZero());
-					break;
-				case MORE_THAN:
-					text.add(new InstructionSubtractImmediate(value));
-					text.add(new InstructionSetIsMoreThanZero());
-					break;
-				case MORE_OR_EQUAL:
-					text.add(new InstructionSubtractImmediate(value));
-					text.add(new InstructionSetIsMoreThanOrEqualToZero());
-					break;
-				default:
-					throw new IllegalArgumentException(String.format("Attempted to add immediate binary op instruction of unknown type! %s %s", type, arg));
+					case PLUS:
+						text.add(new InstructionAddImmediate(value));
+						break;
+					case AND:
+						text.add(new InstructionAndImmediate(value));
+						break;
+					case OR:
+						text.add(new InstructionOrImmediate(value));
+						break;
+					case XOR:
+						text.add(new InstructionXorImmediate(value));
+						break;
+					case MINUS:
+						text.add(new InstructionSubtractImmediate(value));
+						break;
+					case LEFT_SHIFT:
+						text.add(new InstructionLeftShiftImmediate(value));
+						break;
+					case RIGHT_SHIFT:
+						text.add(new InstructionRightShiftImmediate(value));
+						break;
+					case MULTIPLY:
+						text.add(new InstructionMultiplyImmediate(value));
+						break;
+					case EQUAL_TO:
+						text.add(new InstructionXorImmediate(value));
+						text.add(new InstructionSetIsZero());
+						break;
+					case DIVIDE:
+						text.add(new InstructionDivideImmediate(value));
+						break;
+					case MODULO:
+						text.add(new InstructionModuloImmediate(value));
+						break;
+					case NOT_EQUAL_TO:
+						text.add(new InstructionXorImmediate(value));
+						text.add(new InstructionSetIsNotZero());
+						break;
+					case LESS_THAN:
+						text.add(new InstructionSubtractImmediate(value));
+						text.add(new InstructionSetIsLessThanZero());
+						break;
+					case LESS_OR_EQUAL:
+						text.add(new InstructionSubtractImmediate(value));
+						text.add(new InstructionSetIsLessThanOrEqualToZero());
+						break;
+					case MORE_THAN:
+						text.add(new InstructionSubtractImmediate(value));
+						text.add(new InstructionSetIsMoreThanZero());
+						break;
+					case MORE_OR_EQUAL:
+						text.add(new InstructionSubtractImmediate(value));
+						text.add(new InstructionSetIsMoreThanOrEqualToZero());
+						break;
+					default:
+						throw new IllegalArgumentException(String.format("Attempted to add immediate binary op instruction of unknown type! %s %s", type, arg));
 				}
 			}
 		}
@@ -843,122 +742,122 @@ public class RedstoneRoutine {
 			final DataInfo argInfo = dataInfo(arg);
 			if (isStackData(argInfo)) {
 				switch (type) {
-				case PLUS:
-					text.add(new InstructionAddOffset(argInfo));
-					break;
-				case AND:
-					text.add(new InstructionAndOffset(argInfo));
-					break;
-				case OR:
-					text.add(new InstructionOrOffset(argInfo));
-					break;
-				case XOR:
-					text.add(new InstructionXorOffset(argInfo));
-					break;
-				case MINUS:
-					text.add(new InstructionSubtractOffset(argInfo));
-					break;
-				case LEFT_SHIFT:
-					text.add(new InstructionLeftShiftOffset(argInfo));
-					break;
-				case RIGHT_SHIFT:
-					text.add(new InstructionRightShiftOffset(argInfo));
-					break;
-				case MULTIPLY:
-					text.add(new InstructionMultiplyOffset(argInfo));
-					break;
-				case EQUAL_TO:
-					text.add(new InstructionXorOffset(argInfo));
-					text.add(new InstructionSetIsZero());
-					break;
-				case DIVIDE:
-					text.add(new InstructionDivideOffset(argInfo));
-					break;
-				case MODULO:
-					text.add(new InstructionModuloOffset(argInfo));
-					break;
-				case NOT_EQUAL_TO:
-					text.add(new InstructionXorOffset(argInfo));
-					text.add(new InstructionSetIsNotZero());
-					break;
-				case LESS_THAN:
-					text.add(new InstructionSubtractOffset(argInfo));
-					text.add(new InstructionSetIsLessThanZero());
-					break;
-				case LESS_OR_EQUAL:
-					text.add(new InstructionSubtractOffset(argInfo));
-					text.add(new InstructionSetIsLessThanOrEqualToZero());
-					break;
-				case MORE_THAN:
-					text.add(new InstructionSubtractOffset(argInfo));
-					text.add(new InstructionSetIsMoreThanZero());
-					break;
-				case MORE_OR_EQUAL:
-					text.add(new InstructionSubtractOffset(argInfo));
-					text.add(new InstructionSetIsMoreThanOrEqualToZero());
-					break;
-				default:
-					throw new IllegalArgumentException(String.format("Attempted to add address offset binary op instruction of unknown type! %s %s", type, arg));
+					case PLUS:
+						text.add(new InstructionAddOffset(argInfo));
+						break;
+					case AND:
+						text.add(new InstructionAndOffset(argInfo));
+						break;
+					case OR:
+						text.add(new InstructionOrOffset(argInfo));
+						break;
+					case XOR:
+						text.add(new InstructionXorOffset(argInfo));
+						break;
+					case MINUS:
+						text.add(new InstructionSubtractOffset(argInfo));
+						break;
+					case LEFT_SHIFT:
+						text.add(new InstructionLeftShiftOffset(argInfo));
+						break;
+					case RIGHT_SHIFT:
+						text.add(new InstructionRightShiftOffset(argInfo));
+						break;
+					case MULTIPLY:
+						text.add(new InstructionMultiplyOffset(argInfo));
+						break;
+					case EQUAL_TO:
+						text.add(new InstructionXorOffset(argInfo));
+						text.add(new InstructionSetIsZero());
+						break;
+					case DIVIDE:
+						text.add(new InstructionDivideOffset(argInfo));
+						break;
+					case MODULO:
+						text.add(new InstructionModuloOffset(argInfo));
+						break;
+					case NOT_EQUAL_TO:
+						text.add(new InstructionXorOffset(argInfo));
+						text.add(new InstructionSetIsNotZero());
+						break;
+					case LESS_THAN:
+						text.add(new InstructionSubtractOffset(argInfo));
+						text.add(new InstructionSetIsLessThanZero());
+						break;
+					case LESS_OR_EQUAL:
+						text.add(new InstructionSubtractOffset(argInfo));
+						text.add(new InstructionSetIsLessThanOrEqualToZero());
+						break;
+					case MORE_THAN:
+						text.add(new InstructionSubtractOffset(argInfo));
+						text.add(new InstructionSetIsMoreThanZero());
+						break;
+					case MORE_OR_EQUAL:
+						text.add(new InstructionSubtractOffset(argInfo));
+						text.add(new InstructionSetIsMoreThanOrEqualToZero());
+						break;
+					default:
+						throw new IllegalArgumentException(String.format("Attempted to add address offset binary op instruction of unknown type! %s %s", type, arg));
 				}
 			}
 			else {
 				switch (type) {
-				case PLUS:
-					text.add(new InstructionAdd(argInfo));
-					break;
-				case AND:
-					text.add(new InstructionAnd(argInfo));
-					break;
-				case OR:
-					text.add(new InstructionOr(argInfo));
-					break;
-				case XOR:
-					text.add(new InstructionXor(argInfo));
-					break;
-				case MINUS:
-					text.add(new InstructionSubtract(argInfo));
-					break;
-				case LEFT_SHIFT:
-					text.add(new InstructionLeftShift(argInfo));
-					break;
-				case RIGHT_SHIFT:
-					text.add(new InstructionRightShift(argInfo));
-					break;
-				case MULTIPLY:
-					text.add(new InstructionMultiply(argInfo));
-					break;
-				case EQUAL_TO:
-					text.add(new InstructionXor(argInfo));
-					text.add(new InstructionSetIsZero());
-					break;
-				case DIVIDE:
-					text.add(new InstructionDivide(argInfo));
-					break;
-				case MODULO:
-					text.add(new InstructionModulo(argInfo));
-					break;
-				case NOT_EQUAL_TO:
-					text.add(new InstructionXor(argInfo));
-					text.add(new InstructionSetIsNotZero());
-					break;
-				case LESS_THAN:
-					text.add(new InstructionSubtract(argInfo));
-					text.add(new InstructionSetIsLessThanZero());
-					break;
-				case LESS_OR_EQUAL:
-					text.add(new InstructionSubtract(argInfo));
-					text.add(new InstructionSetIsLessThanOrEqualToZero());
-					break;
-				case MORE_THAN:
-					text.add(new InstructionSubtract(argInfo));
-					text.add(new InstructionSetIsMoreThanZero());
-					break;
-				case MORE_OR_EQUAL:
-					text.add(new InstructionSubtract(argInfo));
-					text.add(new InstructionSetIsMoreThanOrEqualToZero());
-					break;
-				default:
-					throw new IllegalArgumentException(String.format("Attempted to add address binary op instruction of unknown type! %s %s", type, arg));
+					case PLUS:
+						text.add(new InstructionAdd(argInfo));
+						break;
+					case AND:
+						text.add(new InstructionAnd(argInfo));
+						break;
+					case OR:
+						text.add(new InstructionOr(argInfo));
+						break;
+					case XOR:
+						text.add(new InstructionXor(argInfo));
+						break;
+					case MINUS:
+						text.add(new InstructionSubtract(argInfo));
+						break;
+					case LEFT_SHIFT:
+						text.add(new InstructionLeftShift(argInfo));
+						break;
+					case RIGHT_SHIFT:
+						text.add(new InstructionRightShift(argInfo));
+						break;
+					case MULTIPLY:
+						text.add(new InstructionMultiply(argInfo));
+						break;
+					case EQUAL_TO:
+						text.add(new InstructionXor(argInfo));
+						text.add(new InstructionSetIsZero());
+						break;
+					case DIVIDE:
+						text.add(new InstructionDivide(argInfo));
+						break;
+					case MODULO:
+						text.add(new InstructionModulo(argInfo));
+						break;
+					case NOT_EQUAL_TO:
+						text.add(new InstructionXor(argInfo));
+						text.add(new InstructionSetIsNotZero());
+						break;
+					case LESS_THAN:
+						text.add(new InstructionSubtract(argInfo));
+						text.add(new InstructionSetIsLessThanZero());
+						break;
+					case LESS_OR_EQUAL:
+						text.add(new InstructionSubtract(argInfo));
+						text.add(new InstructionSetIsLessThanOrEqualToZero());
+						break;
+					case MORE_THAN:
+						text.add(new InstructionSubtract(argInfo));
+						text.add(new InstructionSetIsMoreThanZero());
+						break;
+					case MORE_OR_EQUAL:
+						text.add(new InstructionSubtract(argInfo));
+						text.add(new InstructionSetIsMoreThanOrEqualToZero());
+						break;
+					default:
+						throw new IllegalArgumentException(String.format("Attempted to add address binary op instruction of unknown type! %s %s", type, arg));
 				}
 			}
 		}
@@ -1002,64 +901,64 @@ public class RedstoneRoutine {
 			final short value = Helper.parseImmediateValue(arg).shortValue();
 			if (RedstoneCode.isLongImmediate(value)) {
 				switch (type) {
-				case PLUS:
-					text.add(new InstructionLoadLongImmediate(value));
-					text.add(new InstructionConstant(value));
-					break;
-				case MINUS:
-					if (RedstoneCode.isLongImmediate((short) (-value))) {
-						text.add(new InstructionLoadLongImmediate((short) (-value)));
-						text.add(new InstructionConstant((short) (-value)));
-					}
-					else {
-						text.add(new InstructionLoadImmediate((short) (-value)));
-					}
-					break;
-				case COMPLEMENT:
-					text.add(new InstructionNotLongImmediate(value));
-					text.add(new InstructionConstant(value));
-					break;
-				case TO_BOOL:
-					text.add(new InstructionLoadLongImmediate(value));
-					text.add(new InstructionConstant(value));
-					text.add(new InstructionSetIsNotZero());
-					break;
-				case NOT:
-					text.add(new InstructionLoadLongImmediate(value));
-					text.add(new InstructionConstant(value));
-					text.add(new InstructionSetIsZero());
-					break;
-				default:
-					throw new IllegalArgumentException(String.format("Attempted to add long immediate unary op instruction of unknown type! %s %s", type, arg));
+					case PLUS:
+						text.add(new InstructionLoadLongImmediate(value));
+						text.add(new InstructionConstant(value));
+						break;
+					case MINUS:
+						if (RedstoneCode.isLongImmediate((short) (-value))) {
+							text.add(new InstructionLoadLongImmediate((short) (-value)));
+							text.add(new InstructionConstant((short) (-value)));
+						}
+						else {
+							text.add(new InstructionLoadImmediate((short) (-value)));
+						}
+						break;
+					case COMPLEMENT:
+						text.add(new InstructionNotLongImmediate(value));
+						text.add(new InstructionConstant(value));
+						break;
+					case TO_BOOL:
+						text.add(new InstructionLoadLongImmediate(value));
+						text.add(new InstructionConstant(value));
+						text.add(new InstructionSetIsNotZero());
+						break;
+					case NOT:
+						text.add(new InstructionLoadLongImmediate(value));
+						text.add(new InstructionConstant(value));
+						text.add(new InstructionSetIsZero());
+						break;
+					default:
+						throw new IllegalArgumentException(String.format("Attempted to add long immediate unary op instruction of unknown type! %s %s", type, arg));
 				}
 			}
 			else {
 				switch (type) {
-				case PLUS:
-					text.add(new InstructionLoadImmediate(value));
-					break;
-				case MINUS:
-					if (RedstoneCode.isLongImmediate((short) (-value))) {
-						text.add(new InstructionLoadLongImmediate((short) (-value)));
-						text.add(new InstructionConstant((short) (-value)));
-					}
-					else {
-						text.add(new InstructionLoadImmediate((short) (-value)));
-					}
-					break;
-				case COMPLEMENT:
-					text.add(new InstructionNotImmediate(value));
-					break;
-				case TO_BOOL:
-					text.add(new InstructionLoadImmediate(value));
-					text.add(new InstructionSetIsNotZero());
-					break;
-				case NOT:
-					text.add(new InstructionLoadImmediate(value));
-					text.add(new InstructionSetIsZero());
-					break;
-				default:
-					throw new IllegalArgumentException(String.format("Attempted to add immediate unary op instruction of unknown type! %s %s", type, arg));
+					case PLUS:
+						text.add(new InstructionLoadImmediate(value));
+						break;
+					case MINUS:
+						if (RedstoneCode.isLongImmediate((short) (-value))) {
+							text.add(new InstructionLoadLongImmediate((short) (-value)));
+							text.add(new InstructionConstant((short) (-value)));
+						}
+						else {
+							text.add(new InstructionLoadImmediate((short) (-value)));
+						}
+						break;
+					case COMPLEMENT:
+						text.add(new InstructionNotImmediate(value));
+						break;
+					case TO_BOOL:
+						text.add(new InstructionLoadImmediate(value));
+						text.add(new InstructionSetIsNotZero());
+						break;
+					case NOT:
+						text.add(new InstructionLoadImmediate(value));
+						text.add(new InstructionSetIsZero());
+						break;
+					default:
+						throw new IllegalArgumentException(String.format("Attempted to add immediate unary op instruction of unknown type! %s %s", type, arg));
 				}
 			}
 		}
@@ -1067,52 +966,52 @@ public class RedstoneRoutine {
 			final DataInfo argInfo = dataInfo(arg);
 			if (isStackData(argInfo)) {
 				switch (type) {
-				case PLUS:
-					text.add(new InstructionLoadAOffset(argInfo));
-					break;
-				case MINUS:
-					text.add(new InstructionLoadAOffset(argInfo));
-					text.add(new InstructionSetNegative());
-					break;
-				case COMPLEMENT:
-					text.add(new InstructionLoadAOffset(argInfo));
-					text.add(new InstructionSetNot());
-					break;
-				case TO_BOOL:
-					text.add(new InstructionLoadAOffset(argInfo));
-					text.add(new InstructionSetIsNotZero());
-					break;
-				case NOT:
-					text.add(new InstructionLoadAOffset(argInfo));
-					text.add(new InstructionSetIsZero());
-					break;
-				default:
-					throw new IllegalArgumentException(String.format("Attempted to add address offset unary op instruction of unknown type! %s %s", type, arg));
+					case PLUS:
+						text.add(new InstructionLoadAOffset(argInfo));
+						break;
+					case MINUS:
+						text.add(new InstructionLoadAOffset(argInfo));
+						text.add(new InstructionSetNegative());
+						break;
+					case COMPLEMENT:
+						text.add(new InstructionLoadAOffset(argInfo));
+						text.add(new InstructionSetNot());
+						break;
+					case TO_BOOL:
+						text.add(new InstructionLoadAOffset(argInfo));
+						text.add(new InstructionSetIsNotZero());
+						break;
+					case NOT:
+						text.add(new InstructionLoadAOffset(argInfo));
+						text.add(new InstructionSetIsZero());
+						break;
+					default:
+						throw new IllegalArgumentException(String.format("Attempted to add address offset unary op instruction of unknown type! %s %s", type, arg));
 				}
 			}
 			else {
 				switch (type) {
-				case PLUS:
-					text.add(new InstructionLoadA(argInfo));
-					break;
-				case MINUS:
-					text.add(new InstructionLoadA(argInfo));
-					text.add(new InstructionSetNegative());
-					break;
-				case COMPLEMENT:
-					text.add(new InstructionLoadA(argInfo));
-					text.add(new InstructionSetNot());
-					break;
-				case TO_BOOL:
-					text.add(new InstructionLoadA(argInfo));
-					text.add(new InstructionSetIsNotZero());
-					break;
-				case NOT:
-					text.add(new InstructionLoadA(argInfo));
-					text.add(new InstructionSetIsZero());
-					break;
-				default:
-					throw new IllegalArgumentException(String.format("Attempted to add address unary op instruction of unknown type! %s %s", type, arg));
+					case PLUS:
+						text.add(new InstructionLoadA(argInfo));
+						break;
+					case MINUS:
+						text.add(new InstructionLoadA(argInfo));
+						text.add(new InstructionSetNegative());
+						break;
+					case COMPLEMENT:
+						text.add(new InstructionLoadA(argInfo));
+						text.add(new InstructionSetNot());
+						break;
+					case TO_BOOL:
+						text.add(new InstructionLoadA(argInfo));
+						text.add(new InstructionSetIsNotZero());
+						break;
+					case NOT:
+						text.add(new InstructionLoadA(argInfo));
+						text.add(new InstructionSetIsZero());
+						break;
+					default:
+						throw new IllegalArgumentException(String.format("Attempted to add address unary op instruction of unknown type! %s %s", type, arg));
 				}
 			}
 		}

@@ -34,7 +34,8 @@ public class RedstoneHexadecimalGenerator extends RedstoneGenerator {
 			PrintWriter out = new PrintWriter(outputFile);
 			out.print(builder.toString());
 			out.close();
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

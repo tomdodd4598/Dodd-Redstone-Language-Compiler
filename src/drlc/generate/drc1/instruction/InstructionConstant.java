@@ -1,7 +1,6 @@
 package drlc.generate.drc1.instruction;
 
-import drlc.Global;
-import drlc.Helper;
+import drlc.*;
 
 public class InstructionConstant extends Instruction {
 	

@@ -1,13 +1,8 @@
 package drlc;
 
+import java.util.*;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import drlc.interpret.action.Action;
-import drlc.interpret.action.HaltAction;
-import drlc.interpret.action.PlaceholderAction;
-import drlc.interpret.action.ReturnAction;
+import drlc.interpret.action.*;
 
 public final class Global {
 	

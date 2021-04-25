@@ -1,7 +1,6 @@
 package drlc.generate.drc1;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import drlc.Helper;
 

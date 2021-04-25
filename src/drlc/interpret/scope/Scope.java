@@ -1,15 +1,9 @@
 package drlc.interpret.scope;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import drlc.Helper;
-import drlc.interpret.type.Constant;
-import drlc.interpret.type.Function;
-import drlc.interpret.type.Method;
-import drlc.interpret.type.Variable;
+import drlc.interpret.type.*;
 import drlc.node.Node;
 
 public class Scope {

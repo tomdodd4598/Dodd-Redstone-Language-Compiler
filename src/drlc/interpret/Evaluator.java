@@ -19,6 +19,7 @@ public class Evaluator {
 	/** Thanks to Boann on stackoverflow for the original! https://stackoverflow.com/a/26227947 */
 	public static int evaluate(Node node, Generator generator, Scope scope, String expression) {
 		return new Object() {
+			
 			int pos = -1, ch;
 			
 			void nextChar() {
@@ -156,7 +157,7 @@ public class Evaluator {
 						nextChar();
 					}
 					x = Integer.parseInt(expression.substring(startPos, this.pos));
-				} 
+				}
 				else if (ch == '_' || Helper.isLetter((char) ch)) { // constants
 					while (ch == '_' || Helper.isLetterOrDigit((char) ch)) {
 						nextChar();
@@ -166,7 +167,7 @@ public class Evaluator {
 				else {
 					throw new IllegalArgumentException(String.format("Evaluator encountered unexpected '%c' character! %s", (char) ch, node));
 				}
-
+				
 				return x;
 			}
 		}.parse();
