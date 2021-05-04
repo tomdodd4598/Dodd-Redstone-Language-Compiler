@@ -6,17 +6,17 @@ import java.util.*;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class ALvalueVariable extends PLvalueVariable
+public final class ALvalueIntegerVariable extends PLvalueIntegerVariable
 {
     private final LinkedList<TDereference> _dereference_ = new LinkedList<TDereference>();
     private TName _name_;
 
-    public ALvalueVariable()
+    public ALvalueIntegerVariable()
     {
         // Constructor
     }
 
-    public ALvalueVariable(
+    public ALvalueIntegerVariable(
         @SuppressWarnings("hiding") List<?> _dereference_,
         @SuppressWarnings("hiding") TName _name_)
     {
@@ -30,7 +30,7 @@ public final class ALvalueVariable extends PLvalueVariable
     @Override
     public Object clone()
     {
-        return new ALvalueVariable(
+        return new ALvalueIntegerVariable(
             cloneList(this._dereference_),
             cloneNode(this._name_));
     }
@@ -38,7 +38,7 @@ public final class ALvalueVariable extends PLvalueVariable
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseALvalueVariable(this);
+        ((Analysis) sw).caseALvalueIntegerVariable(this);
     }
 
     public LinkedList<TDereference> getDereference()

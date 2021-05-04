@@ -2,37 +2,42 @@
 
 package drlc.node;
 
+import java.util.*;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AWithInitialisationVariableDeclaration extends PVariableDeclaration
+public final class AArrayWithImplicitInitialisationVariableDeclaration extends PVariableDeclaration
 {
     private TVar _var_;
-    private PLvalueVariable _lvalueVariable_;
+    private final LinkedList<PArrayBrackets> _arrayBrackets_ = new LinkedList<PArrayBrackets>();
+    private PDeclarationVariable _declarationVariable_;
     private TEquals _equals_;
-    private PExpression _expression_;
+    private PImplicitInitialisationArray _implicitInitialisationArray_;
     private TSemicolon _semicolon_;
 
-    public AWithInitialisationVariableDeclaration()
+    public AArrayWithImplicitInitialisationVariableDeclaration()
     {
         // Constructor
     }
 
-    public AWithInitialisationVariableDeclaration(
+    public AArrayWithImplicitInitialisationVariableDeclaration(
         @SuppressWarnings("hiding") TVar _var_,
-        @SuppressWarnings("hiding") PLvalueVariable _lvalueVariable_,
+        @SuppressWarnings("hiding") List<?> _arrayBrackets_,
+        @SuppressWarnings("hiding") PDeclarationVariable _declarationVariable_,
         @SuppressWarnings("hiding") TEquals _equals_,
-        @SuppressWarnings("hiding") PExpression _expression_,
+        @SuppressWarnings("hiding") PImplicitInitialisationArray _implicitInitialisationArray_,
         @SuppressWarnings("hiding") TSemicolon _semicolon_)
     {
         // Constructor
         setVar(_var_);
 
-        setLvalueVariable(_lvalueVariable_);
+        setArrayBrackets(_arrayBrackets_);
+
+        setDeclarationVariable(_declarationVariable_);
 
         setEquals(_equals_);
 
-        setExpression(_expression_);
+        setImplicitInitialisationArray(_implicitInitialisationArray_);
 
         setSemicolon(_semicolon_);
 
@@ -41,18 +46,19 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
     @Override
     public Object clone()
     {
-        return new AWithInitialisationVariableDeclaration(
+        return new AArrayWithImplicitInitialisationVariableDeclaration(
             cloneNode(this._var_),
-            cloneNode(this._lvalueVariable_),
+            cloneList(this._arrayBrackets_),
+            cloneNode(this._declarationVariable_),
             cloneNode(this._equals_),
-            cloneNode(this._expression_),
+            cloneNode(this._implicitInitialisationArray_),
             cloneNode(this._semicolon_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAWithInitialisationVariableDeclaration(this);
+        ((Analysis) sw).caseAArrayWithImplicitInitialisationVariableDeclaration(this);
     }
 
     public TVar getVar()
@@ -80,16 +86,42 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
         this._var_ = node;
     }
 
-    public PLvalueVariable getLvalueVariable()
+    public LinkedList<PArrayBrackets> getArrayBrackets()
     {
-        return this._lvalueVariable_;
+        return this._arrayBrackets_;
     }
 
-    public void setLvalueVariable(PLvalueVariable node)
+    public void setArrayBrackets(List<?> list)
     {
-        if(this._lvalueVariable_ != null)
+        for(PArrayBrackets e : this._arrayBrackets_)
         {
-            this._lvalueVariable_.parent(null);
+            e.parent(null);
+        }
+        this._arrayBrackets_.clear();
+
+        for(Object obj_e : list)
+        {
+            PArrayBrackets e = (PArrayBrackets) obj_e;
+            if(e.parent() != null)
+            {
+                e.parent().removeChild(e);
+            }
+
+            e.parent(this);
+            this._arrayBrackets_.add(e);
+        }
+    }
+
+    public PDeclarationVariable getDeclarationVariable()
+    {
+        return this._declarationVariable_;
+    }
+
+    public void setDeclarationVariable(PDeclarationVariable node)
+    {
+        if(this._declarationVariable_ != null)
+        {
+            this._declarationVariable_.parent(null);
         }
 
         if(node != null)
@@ -102,7 +134,7 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
             node.parent(this);
         }
 
-        this._lvalueVariable_ = node;
+        this._declarationVariable_ = node;
     }
 
     public TEquals getEquals()
@@ -130,16 +162,16 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
         this._equals_ = node;
     }
 
-    public PExpression getExpression()
+    public PImplicitInitialisationArray getImplicitInitialisationArray()
     {
-        return this._expression_;
+        return this._implicitInitialisationArray_;
     }
 
-    public void setExpression(PExpression node)
+    public void setImplicitInitialisationArray(PImplicitInitialisationArray node)
     {
-        if(this._expression_ != null)
+        if(this._implicitInitialisationArray_ != null)
         {
-            this._expression_.parent(null);
+            this._implicitInitialisationArray_.parent(null);
         }
 
         if(node != null)
@@ -152,7 +184,7 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
             node.parent(this);
         }
 
-        this._expression_ = node;
+        this._implicitInitialisationArray_ = node;
     }
 
     public TSemicolon getSemicolon()
@@ -185,9 +217,10 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
     {
         return ""
             + toString(this._var_)
-            + toString(this._lvalueVariable_)
+            + toString(this._arrayBrackets_)
+            + toString(this._declarationVariable_)
             + toString(this._equals_)
-            + toString(this._expression_)
+            + toString(this._implicitInitialisationArray_)
             + toString(this._semicolon_);
     }
 
@@ -201,9 +234,14 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
             return;
         }
 
-        if(this._lvalueVariable_ == child)
+        if(this._arrayBrackets_.remove(child))
         {
-            this._lvalueVariable_ = null;
+            return;
+        }
+
+        if(this._declarationVariable_ == child)
+        {
+            this._declarationVariable_ = null;
             return;
         }
 
@@ -213,9 +251,9 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
             return;
         }
 
-        if(this._expression_ == child)
+        if(this._implicitInitialisationArray_ == child)
         {
-            this._expression_ = null;
+            this._implicitInitialisationArray_ = null;
             return;
         }
 
@@ -238,9 +276,27 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
             return;
         }
 
-        if(this._lvalueVariable_ == oldChild)
+        for(ListIterator<PArrayBrackets> i = this._arrayBrackets_.listIterator(); i.hasNext();)
         {
-            setLvalueVariable((PLvalueVariable) newChild);
+            if(i.next() == oldChild)
+            {
+                if(newChild != null)
+                {
+                    i.set((PArrayBrackets) newChild);
+                    newChild.parent(this);
+                    oldChild.parent(null);
+                    return;
+                }
+
+                i.remove();
+                oldChild.parent(null);
+                return;
+            }
+        }
+
+        if(this._declarationVariable_ == oldChild)
+        {
+            setDeclarationVariable((PDeclarationVariable) newChild);
             return;
         }
 
@@ -250,9 +306,9 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
             return;
         }
 
-        if(this._expression_ == oldChild)
+        if(this._implicitInitialisationArray_ == oldChild)
         {
-            setExpression((PExpression) newChild);
+            setImplicitInitialisationArray((PImplicitInitialisationArray) newChild);
             return;
         }
 

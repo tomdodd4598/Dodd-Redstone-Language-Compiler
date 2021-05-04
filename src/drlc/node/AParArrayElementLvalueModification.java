@@ -5,26 +5,26 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AVariableModification extends PVariableModification
+public final class AParArrayElementLvalueModification extends PLvalueModification
 {
-    private PLvalueVariable _lvalueVariable_;
+    private PParLvalueArrayElement _parLvalueArrayElement_;
     private TEquals _equals_;
     private PExpression _expression_;
     private TSemicolon _semicolon_;
 
-    public AVariableModification()
+    public AParArrayElementLvalueModification()
     {
         // Constructor
     }
 
-    public AVariableModification(
-        @SuppressWarnings("hiding") PLvalueVariable _lvalueVariable_,
+    public AParArrayElementLvalueModification(
+        @SuppressWarnings("hiding") PParLvalueArrayElement _parLvalueArrayElement_,
         @SuppressWarnings("hiding") TEquals _equals_,
         @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") TSemicolon _semicolon_)
     {
         // Constructor
-        setLvalueVariable(_lvalueVariable_);
+        setParLvalueArrayElement(_parLvalueArrayElement_);
 
         setEquals(_equals_);
 
@@ -37,8 +37,8 @@ public final class AVariableModification extends PVariableModification
     @Override
     public Object clone()
     {
-        return new AVariableModification(
-            cloneNode(this._lvalueVariable_),
+        return new AParArrayElementLvalueModification(
+            cloneNode(this._parLvalueArrayElement_),
             cloneNode(this._equals_),
             cloneNode(this._expression_),
             cloneNode(this._semicolon_));
@@ -47,19 +47,19 @@ public final class AVariableModification extends PVariableModification
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAVariableModification(this);
+        ((Analysis) sw).caseAParArrayElementLvalueModification(this);
     }
 
-    public PLvalueVariable getLvalueVariable()
+    public PParLvalueArrayElement getParLvalueArrayElement()
     {
-        return this._lvalueVariable_;
+        return this._parLvalueArrayElement_;
     }
 
-    public void setLvalueVariable(PLvalueVariable node)
+    public void setParLvalueArrayElement(PParLvalueArrayElement node)
     {
-        if(this._lvalueVariable_ != null)
+        if(this._parLvalueArrayElement_ != null)
         {
-            this._lvalueVariable_.parent(null);
+            this._parLvalueArrayElement_.parent(null);
         }
 
         if(node != null)
@@ -72,7 +72,7 @@ public final class AVariableModification extends PVariableModification
             node.parent(this);
         }
 
-        this._lvalueVariable_ = node;
+        this._parLvalueArrayElement_ = node;
     }
 
     public TEquals getEquals()
@@ -154,7 +154,7 @@ public final class AVariableModification extends PVariableModification
     public String toString()
     {
         return ""
-            + toString(this._lvalueVariable_)
+            + toString(this._parLvalueArrayElement_)
             + toString(this._equals_)
             + toString(this._expression_)
             + toString(this._semicolon_);
@@ -164,9 +164,9 @@ public final class AVariableModification extends PVariableModification
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._lvalueVariable_ == child)
+        if(this._parLvalueArrayElement_ == child)
         {
-            this._lvalueVariable_ = null;
+            this._parLvalueArrayElement_ = null;
             return;
         }
 
@@ -195,9 +195,9 @@ public final class AVariableModification extends PVariableModification
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._lvalueVariable_ == oldChild)
+        if(this._parLvalueArrayElement_ == oldChild)
         {
-            setLvalueVariable((PLvalueVariable) newChild);
+            setParLvalueArrayElement((PParLvalueArrayElement) newChild);
             return;
         }
 

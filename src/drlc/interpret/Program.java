@@ -7,7 +7,7 @@ import drlc.*;
 import drlc.interpret.action.*;
 import drlc.interpret.routine.*;
 import drlc.interpret.scope.Scope;
-import drlc.interpret.type.VariableReferenceInfo;
+import drlc.interpret.type.info.VariableReferenceInfo;
 import drlc.node.Node;
 
 public class Program {

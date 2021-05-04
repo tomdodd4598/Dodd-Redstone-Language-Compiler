@@ -2,14 +2,12 @@
 
 package drlc.node;
 
-import java.util.*;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
 public final class ADereferenceTerm extends PTerm
 {
-    private final LinkedList<TDereference> _dereference_ = new LinkedList<TDereference>();
-    private PRvalueVariable _rvalueVariable_;
+    private PDereferenceTerm _dereferenceTerm_;
 
     public ADereferenceTerm()
     {
@@ -17,13 +15,10 @@ public final class ADereferenceTerm extends PTerm
     }
 
     public ADereferenceTerm(
-        @SuppressWarnings("hiding") List<?> _dereference_,
-        @SuppressWarnings("hiding") PRvalueVariable _rvalueVariable_)
+        @SuppressWarnings("hiding") PDereferenceTerm _dereferenceTerm_)
     {
         // Constructor
-        setDereference(_dereference_);
-
-        setRvalueVariable(_rvalueVariable_);
+        setDereferenceTerm(_dereferenceTerm_);
 
     }
 
@@ -31,8 +26,7 @@ public final class ADereferenceTerm extends PTerm
     public Object clone()
     {
         return new ADereferenceTerm(
-            cloneList(this._dereference_),
-            cloneNode(this._rvalueVariable_));
+            cloneNode(this._dereferenceTerm_));
     }
 
     @Override
@@ -41,42 +35,16 @@ public final class ADereferenceTerm extends PTerm
         ((Analysis) sw).caseADereferenceTerm(this);
     }
 
-    public LinkedList<TDereference> getDereference()
+    public PDereferenceTerm getDereferenceTerm()
     {
-        return this._dereference_;
+        return this._dereferenceTerm_;
     }
 
-    public void setDereference(List<?> list)
+    public void setDereferenceTerm(PDereferenceTerm node)
     {
-        for(TDereference e : this._dereference_)
+        if(this._dereferenceTerm_ != null)
         {
-            e.parent(null);
-        }
-        this._dereference_.clear();
-
-        for(Object obj_e : list)
-        {
-            TDereference e = (TDereference) obj_e;
-            if(e.parent() != null)
-            {
-                e.parent().removeChild(e);
-            }
-
-            e.parent(this);
-            this._dereference_.add(e);
-        }
-    }
-
-    public PRvalueVariable getRvalueVariable()
-    {
-        return this._rvalueVariable_;
-    }
-
-    public void setRvalueVariable(PRvalueVariable node)
-    {
-        if(this._rvalueVariable_ != null)
-        {
-            this._rvalueVariable_.parent(null);
+            this._dereferenceTerm_.parent(null);
         }
 
         if(node != null)
@@ -89,29 +57,23 @@ public final class ADereferenceTerm extends PTerm
             node.parent(this);
         }
 
-        this._rvalueVariable_ = node;
+        this._dereferenceTerm_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._dereference_)
-            + toString(this._rvalueVariable_);
+            + toString(this._dereferenceTerm_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._dereference_.remove(child))
+        if(this._dereferenceTerm_ == child)
         {
-            return;
-        }
-
-        if(this._rvalueVariable_ == child)
-        {
-            this._rvalueVariable_ = null;
+            this._dereferenceTerm_ = null;
             return;
         }
 
@@ -122,27 +84,9 @@ public final class ADereferenceTerm extends PTerm
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        for(ListIterator<TDereference> i = this._dereference_.listIterator(); i.hasNext();)
+        if(this._dereferenceTerm_ == oldChild)
         {
-            if(i.next() == oldChild)
-            {
-                if(newChild != null)
-                {
-                    i.set((TDereference) newChild);
-                    newChild.parent(this);
-                    oldChild.parent(null);
-                    return;
-                }
-
-                i.remove();
-                oldChild.parent(null);
-                return;
-            }
-        }
-
-        if(this._rvalueVariable_ == oldChild)
-        {
-            setRvalueVariable((PRvalueVariable) newChild);
+            setDereferenceTerm((PDereferenceTerm) newChild);
             return;
         }
 

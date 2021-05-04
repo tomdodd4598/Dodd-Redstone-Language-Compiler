@@ -2,7 +2,7 @@
 
 package drlc.node;
 
-public abstract class PVariableModification extends Node
+public abstract class PParRvalueArrayElement extends Node
 {
     // Empty body
 }

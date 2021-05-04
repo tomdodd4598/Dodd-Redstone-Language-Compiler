@@ -1,41 +1,4 @@
-/*
-var f = 1;
-var a = 1;
-var b = 0;
-
-void update() {
-	f = a + b;
-	b = a;
-	a = f;
-}
-
-while (f > 0) {
-	out(f);
-	update();
-}
-*/
-
-///*
-var f = 1;
-var i = 1;
-
-fun fib(n) {
-	if (n <= 2) {
-		return 1;
-	}
-	return fib(n - 1) + fib(n - 2);
-}
-
-void update() {
-	i = i + 1;
-	f = fib(i);
-}
-
-while (f > 0) {
-	out(f);
-	update();
-}
-//*/
+// ITERATIVE FACTORIAL
 
 /*
 var f = 1;
@@ -53,6 +16,8 @@ while (f > 0) {
 	update();
 }
 */
+
+// RECURSIVE FACTORIAL
 
 /*
 var f = 1;
@@ -76,8 +41,57 @@ while (f > 0) {
 }
 */
 
+// ITERATIVE FIBONACCI
+
 /*
-const max = 15;
+set_argc(2);
+
+var f = argv(0);
+var a = argv(1);
+var b = 0;
+
+void update() {
+	f = a + b;
+	b = a;
+	a = f;
+}
+
+while (f > 0) {
+	out(f);
+	update();
+}
+*/
+
+// RECURSIVE FIBONACCI
+
+/*
+set_argc(2);
+
+var f = argv(0);
+var i = 0;
+
+fun fib(n) {
+	if (n <= 1) {
+		return argv(n);
+	}
+	return fib(n - 1) + fib(n - 2);
+}
+
+void update() {
+	i = i + 1;
+	f = fib(i);
+}
+
+while (f > 0) {
+	out(f);
+	update();
+}
+*/
+
+// PRIME NUMBER SIEVE
+
+///*
+const max = 100;
 const fail = max + 1;
 var n = 1;
 
@@ -108,21 +122,80 @@ while (n < max) {
 		out(n);
 	}
 }
-*/
+//*/
+
+// TESTING POINTERS
 
 /*
-set_argc(2);
+var a = 1;
+var #b = 2;
+var ##c = 3;
 
-var a = argv(1);
-var #b = argv(0);
-var c = @a;
+out(@a); out(a);
+out(@b); out(b); out(#b);
+out(@c); out(c); out(#c); out(##c);
 
-var i = 0;
-while (i < argc()) {
-	#c = argv(i);
-	c = b;
-	i = i + 1;
+var d = @a;
+var #e = @b;
+var ##f = @c;
+
+void update(##x, ###y, ####z) {
+	##x = 1001;
+	###y = 1002;
+	####z = 1003;
+	
+	// Force recursive definition
+	if (0) {
+		update(0, 0, 0);
+	}
 }
 
-out(a * #b);
+update(@d, @e, @f);
+
+out(@d); out(d); out(#d);
+out(@e); out(e); out(#e); out(##e);
+out(@f); out(f); out(#f); out(##f); out(###f);
+*/
+
+// TESTING ARRAYS
+
+/*
+var x = 0;
+var #y = 1;
+var ##z = 2;
+
+var[2][3] a = {{1, 2, 3}, {4, 5, 6}};
+var[4] b;
+var[2] #c = {a[0][x], a[#y][1]};
+var[2][2] ##d;
+
+a[1][2] = x;
+b[#c[#y]] = ##z;
+c[x] = y;
+d[a[0][x]][1] = @c[#y];
+
+var[3] e = a[0]; // Copy of array a[0]
+var[2] f = {a[0][0], a[0][1]}; // Copy of section of array a[0]
+
+var[3] g = @a[0]; // Pointer to array a[0]
+var[2] h = {@a[0][0], @a[0][1]}; // Pointers to section of array a[0]
+
+var[3] #i = a[0]; // Dereference to copy of array a[0]
+var[2] #j = {a[0][0], a[0][1]}; // Dereference to copy of section of array a[0]
+
+var[3] #k = @a[0]; // Dereference to pointer to array a[0]
+var[2] #l = {@a[0][0], @a[0][1]}; // Dereference to pointers to section of array a[0]
+
+e[0] = 1;
+f[1] = 2;
+
+#g[0] = 3;
+#(h[1]) = 4;
+
+#i[0] = 5;
+#j[1] = 6;
+
+##k[0] = 7;
+#(#l[1]) = 8;
+
 */

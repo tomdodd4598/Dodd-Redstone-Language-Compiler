@@ -1,7 +1,7 @@
 package drlc.interpret.routine;
 
 import drlc.interpret.Program;
-import drlc.interpret.type.VariableReferenceInfo;
+import drlc.interpret.type.info.VariableReferenceInfo;
 
 public abstract class Subroutine extends Routine {
 	

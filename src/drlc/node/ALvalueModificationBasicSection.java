@@ -5,46 +5,46 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class ARvalueVariable extends PRvalueVariable
+public final class ALvalueModificationBasicSection extends PBasicSection
 {
-    private TName _name_;
+    private PLvalueModification _lvalueModification_;
 
-    public ARvalueVariable()
+    public ALvalueModificationBasicSection()
     {
         // Constructor
     }
 
-    public ARvalueVariable(
-        @SuppressWarnings("hiding") TName _name_)
+    public ALvalueModificationBasicSection(
+        @SuppressWarnings("hiding") PLvalueModification _lvalueModification_)
     {
         // Constructor
-        setName(_name_);
+        setLvalueModification(_lvalueModification_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new ARvalueVariable(
-            cloneNode(this._name_));
+        return new ALvalueModificationBasicSection(
+            cloneNode(this._lvalueModification_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseARvalueVariable(this);
+        ((Analysis) sw).caseALvalueModificationBasicSection(this);
     }
 
-    public TName getName()
+    public PLvalueModification getLvalueModification()
     {
-        return this._name_;
+        return this._lvalueModification_;
     }
 
-    public void setName(TName node)
+    public void setLvalueModification(PLvalueModification node)
     {
-        if(this._name_ != null)
+        if(this._lvalueModification_ != null)
         {
-            this._name_.parent(null);
+            this._lvalueModification_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class ARvalueVariable extends PRvalueVariable
             node.parent(this);
         }
 
-        this._name_ = node;
+        this._lvalueModification_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._name_);
+            + toString(this._lvalueModification_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._name_ == child)
+        if(this._lvalueModification_ == child)
         {
-            this._name_ = null;
+            this._lvalueModification_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class ARvalueVariable extends PRvalueVariable
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._name_ == oldChild)
+        if(this._lvalueModification_ == oldChild)
         {
-            setName((TName) newChild);
+            setLvalueModification((PLvalueModification) newChild);
             return;
         }
 

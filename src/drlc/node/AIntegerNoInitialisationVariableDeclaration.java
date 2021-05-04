@@ -5,26 +5,26 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class ANoInitialisationVariableDeclaration extends PVariableDeclaration
+public final class AIntegerNoInitialisationVariableDeclaration extends PVariableDeclaration
 {
     private TVar _var_;
-    private PLvalueVariable _lvalueVariable_;
+    private PDeclarationVariable _declarationVariable_;
     private TSemicolon _semicolon_;
 
-    public ANoInitialisationVariableDeclaration()
+    public AIntegerNoInitialisationVariableDeclaration()
     {
         // Constructor
     }
 
-    public ANoInitialisationVariableDeclaration(
+    public AIntegerNoInitialisationVariableDeclaration(
         @SuppressWarnings("hiding") TVar _var_,
-        @SuppressWarnings("hiding") PLvalueVariable _lvalueVariable_,
+        @SuppressWarnings("hiding") PDeclarationVariable _declarationVariable_,
         @SuppressWarnings("hiding") TSemicolon _semicolon_)
     {
         // Constructor
         setVar(_var_);
 
-        setLvalueVariable(_lvalueVariable_);
+        setDeclarationVariable(_declarationVariable_);
 
         setSemicolon(_semicolon_);
 
@@ -33,16 +33,16 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
     @Override
     public Object clone()
     {
-        return new ANoInitialisationVariableDeclaration(
+        return new AIntegerNoInitialisationVariableDeclaration(
             cloneNode(this._var_),
-            cloneNode(this._lvalueVariable_),
+            cloneNode(this._declarationVariable_),
             cloneNode(this._semicolon_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseANoInitialisationVariableDeclaration(this);
+        ((Analysis) sw).caseAIntegerNoInitialisationVariableDeclaration(this);
     }
 
     public TVar getVar()
@@ -70,16 +70,16 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
         this._var_ = node;
     }
 
-    public PLvalueVariable getLvalueVariable()
+    public PDeclarationVariable getDeclarationVariable()
     {
-        return this._lvalueVariable_;
+        return this._declarationVariable_;
     }
 
-    public void setLvalueVariable(PLvalueVariable node)
+    public void setDeclarationVariable(PDeclarationVariable node)
     {
-        if(this._lvalueVariable_ != null)
+        if(this._declarationVariable_ != null)
         {
-            this._lvalueVariable_.parent(null);
+            this._declarationVariable_.parent(null);
         }
 
         if(node != null)
@@ -92,7 +92,7 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
             node.parent(this);
         }
 
-        this._lvalueVariable_ = node;
+        this._declarationVariable_ = node;
     }
 
     public TSemicolon getSemicolon()
@@ -125,7 +125,7 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
     {
         return ""
             + toString(this._var_)
-            + toString(this._lvalueVariable_)
+            + toString(this._declarationVariable_)
             + toString(this._semicolon_);
     }
 
@@ -139,9 +139,9 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
             return;
         }
 
-        if(this._lvalueVariable_ == child)
+        if(this._declarationVariable_ == child)
         {
-            this._lvalueVariable_ = null;
+            this._declarationVariable_ = null;
             return;
         }
 
@@ -164,9 +164,9 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
             return;
         }
 
-        if(this._lvalueVariable_ == oldChild)
+        if(this._declarationVariable_ == oldChild)
         {
-            setLvalueVariable((PLvalueVariable) newChild);
+            setDeclarationVariable((PDeclarationVariable) newChild);
             return;
         }
 

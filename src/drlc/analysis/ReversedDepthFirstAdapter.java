@@ -228,25 +228,25 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outAVariableDeclarationBasicSection(node);
     }
 
-    public void inAVariableModificationBasicSection(AVariableModificationBasicSection node)
+    public void inALvalueModificationBasicSection(ALvalueModificationBasicSection node)
     {
         defaultIn(node);
     }
 
-    public void outAVariableModificationBasicSection(AVariableModificationBasicSection node)
+    public void outALvalueModificationBasicSection(ALvalueModificationBasicSection node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAVariableModificationBasicSection(AVariableModificationBasicSection node)
+    public void caseALvalueModificationBasicSection(ALvalueModificationBasicSection node)
     {
-        inAVariableModificationBasicSection(node);
-        if(node.getVariableModification() != null)
+        inALvalueModificationBasicSection(node);
+        if(node.getLvalueModification() != null)
         {
-            node.getVariableModification().apply(this);
+            node.getLvalueModification().apply(this);
         }
-        outAVariableModificationBasicSection(node);
+        outALvalueModificationBasicSection(node);
     }
 
     public void inAMethodCallBasicSection(AMethodCallBasicSection node)
@@ -475,49 +475,49 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outAConstantDefinition(node);
     }
 
-    public void inANoInitialisationVariableDeclaration(ANoInitialisationVariableDeclaration node)
+    public void inAIntegerNoInitialisationVariableDeclaration(AIntegerNoInitialisationVariableDeclaration node)
     {
         defaultIn(node);
     }
 
-    public void outANoInitialisationVariableDeclaration(ANoInitialisationVariableDeclaration node)
+    public void outAIntegerNoInitialisationVariableDeclaration(AIntegerNoInitialisationVariableDeclaration node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseANoInitialisationVariableDeclaration(ANoInitialisationVariableDeclaration node)
+    public void caseAIntegerNoInitialisationVariableDeclaration(AIntegerNoInitialisationVariableDeclaration node)
     {
-        inANoInitialisationVariableDeclaration(node);
+        inAIntegerNoInitialisationVariableDeclaration(node);
         if(node.getSemicolon() != null)
         {
             node.getSemicolon().apply(this);
         }
-        if(node.getLvalueVariable() != null)
+        if(node.getDeclarationVariable() != null)
         {
-            node.getLvalueVariable().apply(this);
+            node.getDeclarationVariable().apply(this);
         }
         if(node.getVar() != null)
         {
             node.getVar().apply(this);
         }
-        outANoInitialisationVariableDeclaration(node);
+        outAIntegerNoInitialisationVariableDeclaration(node);
     }
 
-    public void inAWithInitialisationVariableDeclaration(AWithInitialisationVariableDeclaration node)
+    public void inAIntegerWithInitialisationVariableDeclaration(AIntegerWithInitialisationVariableDeclaration node)
     {
         defaultIn(node);
     }
 
-    public void outAWithInitialisationVariableDeclaration(AWithInitialisationVariableDeclaration node)
+    public void outAIntegerWithInitialisationVariableDeclaration(AIntegerWithInitialisationVariableDeclaration node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAWithInitialisationVariableDeclaration(AWithInitialisationVariableDeclaration node)
+    public void caseAIntegerWithInitialisationVariableDeclaration(AIntegerWithInitialisationVariableDeclaration node)
     {
-        inAWithInitialisationVariableDeclaration(node);
+        inAIntegerWithInitialisationVariableDeclaration(node);
         if(node.getSemicolon() != null)
         {
             node.getSemicolon().apply(this);
@@ -530,31 +530,158 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getEquals().apply(this);
         }
-        if(node.getLvalueVariable() != null)
+        if(node.getDeclarationVariable() != null)
         {
-            node.getLvalueVariable().apply(this);
+            node.getDeclarationVariable().apply(this);
         }
         if(node.getVar() != null)
         {
             node.getVar().apply(this);
         }
-        outAWithInitialisationVariableDeclaration(node);
+        outAIntegerWithInitialisationVariableDeclaration(node);
     }
 
-    public void inAVariableModification(AVariableModification node)
+    public void inAArrayNoInitialisationVariableDeclaration(AArrayNoInitialisationVariableDeclaration node)
     {
         defaultIn(node);
     }
 
-    public void outAVariableModification(AVariableModification node)
+    public void outAArrayNoInitialisationVariableDeclaration(AArrayNoInitialisationVariableDeclaration node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAVariableModification(AVariableModification node)
+    public void caseAArrayNoInitialisationVariableDeclaration(AArrayNoInitialisationVariableDeclaration node)
     {
-        inAVariableModification(node);
+        inAArrayNoInitialisationVariableDeclaration(node);
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        if(node.getDeclarationVariable() != null)
+        {
+            node.getDeclarationVariable().apply(this);
+        }
+        {
+            List<PArrayBrackets> copy = new ArrayList<PArrayBrackets>(node.getArrayBrackets());
+            Collections.reverse(copy);
+            for(PArrayBrackets e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        if(node.getVar() != null)
+        {
+            node.getVar().apply(this);
+        }
+        outAArrayNoInitialisationVariableDeclaration(node);
+    }
+
+    public void inAArrayWithImplicitInitialisationVariableDeclaration(AArrayWithImplicitInitialisationVariableDeclaration node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAArrayWithImplicitInitialisationVariableDeclaration(AArrayWithImplicitInitialisationVariableDeclaration node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAArrayWithImplicitInitialisationVariableDeclaration(AArrayWithImplicitInitialisationVariableDeclaration node)
+    {
+        inAArrayWithImplicitInitialisationVariableDeclaration(node);
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        if(node.getImplicitInitialisationArray() != null)
+        {
+            node.getImplicitInitialisationArray().apply(this);
+        }
+        if(node.getEquals() != null)
+        {
+            node.getEquals().apply(this);
+        }
+        if(node.getDeclarationVariable() != null)
+        {
+            node.getDeclarationVariable().apply(this);
+        }
+        {
+            List<PArrayBrackets> copy = new ArrayList<PArrayBrackets>(node.getArrayBrackets());
+            Collections.reverse(copy);
+            for(PArrayBrackets e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        if(node.getVar() != null)
+        {
+            node.getVar().apply(this);
+        }
+        outAArrayWithImplicitInitialisationVariableDeclaration(node);
+    }
+
+    public void inAArrayWithExplicitInitialisationVariableDeclaration(AArrayWithExplicitInitialisationVariableDeclaration node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAArrayWithExplicitInitialisationVariableDeclaration(AArrayWithExplicitInitialisationVariableDeclaration node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAArrayWithExplicitInitialisationVariableDeclaration(AArrayWithExplicitInitialisationVariableDeclaration node)
+    {
+        inAArrayWithExplicitInitialisationVariableDeclaration(node);
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        if(node.getExplicitInitialisationArray() != null)
+        {
+            node.getExplicitInitialisationArray().apply(this);
+        }
+        if(node.getEquals() != null)
+        {
+            node.getEquals().apply(this);
+        }
+        if(node.getDeclarationVariable() != null)
+        {
+            node.getDeclarationVariable().apply(this);
+        }
+        {
+            List<PArrayBrackets> copy = new ArrayList<PArrayBrackets>(node.getArrayBrackets());
+            Collections.reverse(copy);
+            for(PArrayBrackets e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        if(node.getVar() != null)
+        {
+            node.getVar().apply(this);
+        }
+        outAArrayWithExplicitInitialisationVariableDeclaration(node);
+    }
+
+    public void inAIntegerVariableLvalueModification(AIntegerVariableLvalueModification node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAIntegerVariableLvalueModification(AIntegerVariableLvalueModification node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAIntegerVariableLvalueModification(AIntegerVariableLvalueModification node)
+    {
+        inAIntegerVariableLvalueModification(node);
         if(node.getSemicolon() != null)
         {
             node.getSemicolon().apply(this);
@@ -567,11 +694,77 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getEquals().apply(this);
         }
-        if(node.getLvalueVariable() != null)
+        if(node.getLvalueIntegerVariable() != null)
         {
-            node.getLvalueVariable().apply(this);
+            node.getLvalueIntegerVariable().apply(this);
         }
-        outAVariableModification(node);
+        outAIntegerVariableLvalueModification(node);
+    }
+
+    public void inAArrayElementLvalueModification(AArrayElementLvalueModification node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAArrayElementLvalueModification(AArrayElementLvalueModification node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAArrayElementLvalueModification(AArrayElementLvalueModification node)
+    {
+        inAArrayElementLvalueModification(node);
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        if(node.getExpression() != null)
+        {
+            node.getExpression().apply(this);
+        }
+        if(node.getEquals() != null)
+        {
+            node.getEquals().apply(this);
+        }
+        if(node.getLvalueArrayElement() != null)
+        {
+            node.getLvalueArrayElement().apply(this);
+        }
+        outAArrayElementLvalueModification(node);
+    }
+
+    public void inAParArrayElementLvalueModification(AParArrayElementLvalueModification node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAParArrayElementLvalueModification(AParArrayElementLvalueModification node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAParArrayElementLvalueModification(AParArrayElementLvalueModification node)
+    {
+        inAParArrayElementLvalueModification(node);
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        if(node.getExpression() != null)
+        {
+            node.getExpression().apply(this);
+        }
+        if(node.getEquals() != null)
+        {
+            node.getEquals().apply(this);
+        }
+        if(node.getParLvalueArrayElement() != null)
+        {
+            node.getParLvalueArrayElement().apply(this);
+        }
+        outAParArrayElementLvalueModification(node);
     }
 
     public void inABuiltInOutMethodCall(ABuiltInOutMethodCall node)
@@ -1248,13 +1441,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseAAddressOfTerm(AAddressOfTerm node)
     {
         inAAddressOfTerm(node);
-        if(node.getRvalueVariable() != null)
+        if(node.getAddressOfTerm() != null)
         {
-            node.getRvalueVariable().apply(this);
-        }
-        if(node.getAddressOf() != null)
-        {
-            node.getAddressOf().apply(this);
+            node.getAddressOfTerm().apply(this);
         }
         outAAddressOfTerm(node);
     }
@@ -1273,17 +1462,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseADereferenceTerm(ADereferenceTerm node)
     {
         inADereferenceTerm(node);
-        if(node.getRvalueVariable() != null)
+        if(node.getDereferenceTerm() != null)
         {
-            node.getRvalueVariable().apply(this);
-        }
-        {
-            List<TDereference> copy = new ArrayList<TDereference>(node.getDereference());
-            Collections.reverse(copy);
-            for(TDereference e : copy)
-            {
-                e.apply(this);
-            }
+            node.getDereferenceTerm().apply(this);
         }
         outADereferenceTerm(node);
     }
@@ -1342,6 +1523,168 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outAParExpressionTerm(node);
     }
 
+    public void inAIntegerVariableAddressOfTerm(AIntegerVariableAddressOfTerm node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAIntegerVariableAddressOfTerm(AIntegerVariableAddressOfTerm node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAIntegerVariableAddressOfTerm(AIntegerVariableAddressOfTerm node)
+    {
+        inAIntegerVariableAddressOfTerm(node);
+        if(node.getRvalueIntegerVariable() != null)
+        {
+            node.getRvalueIntegerVariable().apply(this);
+        }
+        if(node.getAddressOf() != null)
+        {
+            node.getAddressOf().apply(this);
+        }
+        outAIntegerVariableAddressOfTerm(node);
+    }
+
+    public void inAArrayElementAddressOfTerm(AArrayElementAddressOfTerm node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAArrayElementAddressOfTerm(AArrayElementAddressOfTerm node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAArrayElementAddressOfTerm(AArrayElementAddressOfTerm node)
+    {
+        inAArrayElementAddressOfTerm(node);
+        if(node.getRvalueArrayElement() != null)
+        {
+            node.getRvalueArrayElement().apply(this);
+        }
+        if(node.getAddressOf() != null)
+        {
+            node.getAddressOf().apply(this);
+        }
+        outAArrayElementAddressOfTerm(node);
+    }
+
+    public void inAParArrayElementAddressOfTerm(AParArrayElementAddressOfTerm node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAParArrayElementAddressOfTerm(AParArrayElementAddressOfTerm node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAParArrayElementAddressOfTerm(AParArrayElementAddressOfTerm node)
+    {
+        inAParArrayElementAddressOfTerm(node);
+        if(node.getParRvalueArrayElement() != null)
+        {
+            node.getParRvalueArrayElement().apply(this);
+        }
+        if(node.getAddressOf() != null)
+        {
+            node.getAddressOf().apply(this);
+        }
+        outAParArrayElementAddressOfTerm(node);
+    }
+
+    public void inAIntegerVariableDereferenceTerm(AIntegerVariableDereferenceTerm node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAIntegerVariableDereferenceTerm(AIntegerVariableDereferenceTerm node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAIntegerVariableDereferenceTerm(AIntegerVariableDereferenceTerm node)
+    {
+        inAIntegerVariableDereferenceTerm(node);
+        if(node.getRvalueIntegerVariable() != null)
+        {
+            node.getRvalueIntegerVariable().apply(this);
+        }
+        {
+            List<TDereference> copy = new ArrayList<TDereference>(node.getDereference());
+            Collections.reverse(copy);
+            for(TDereference e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        outAIntegerVariableDereferenceTerm(node);
+    }
+
+    public void inAArrayElementDereferenceTerm(AArrayElementDereferenceTerm node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAArrayElementDereferenceTerm(AArrayElementDereferenceTerm node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAArrayElementDereferenceTerm(AArrayElementDereferenceTerm node)
+    {
+        inAArrayElementDereferenceTerm(node);
+        if(node.getRvalueArrayElement() != null)
+        {
+            node.getRvalueArrayElement().apply(this);
+        }
+        {
+            List<TDereference> copy = new ArrayList<TDereference>(node.getDereference());
+            Collections.reverse(copy);
+            for(TDereference e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        outAArrayElementDereferenceTerm(node);
+    }
+
+    public void inAParArrayElementDereferenceTerm(AParArrayElementDereferenceTerm node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAParArrayElementDereferenceTerm(AParArrayElementDereferenceTerm node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAParArrayElementDereferenceTerm(AParArrayElementDereferenceTerm node)
+    {
+        inAParArrayElementDereferenceTerm(node);
+        if(node.getParRvalueArrayElement() != null)
+        {
+            node.getParRvalueArrayElement().apply(this);
+        }
+        {
+            List<TDereference> copy = new ArrayList<TDereference>(node.getDereference());
+            Collections.reverse(copy);
+            for(TDereference e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        outAParArrayElementDereferenceTerm(node);
+    }
+
     public void inAIntegerValue(AIntegerValue node)
     {
         defaultIn(node);
@@ -1363,25 +1706,46 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outAIntegerValue(node);
     }
 
-    public void inAVariableValue(AVariableValue node)
+    public void inAIntegerVariableValue(AIntegerVariableValue node)
     {
         defaultIn(node);
     }
 
-    public void outAVariableValue(AVariableValue node)
+    public void outAIntegerVariableValue(AIntegerVariableValue node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAVariableValue(AVariableValue node)
+    public void caseAIntegerVariableValue(AIntegerVariableValue node)
     {
-        inAVariableValue(node);
-        if(node.getRvalueVariable() != null)
+        inAIntegerVariableValue(node);
+        if(node.getRvalueIntegerVariable() != null)
         {
-            node.getRvalueVariable().apply(this);
+            node.getRvalueIntegerVariable().apply(this);
         }
-        outAVariableValue(node);
+        outAIntegerVariableValue(node);
+    }
+
+    public void inAArrayElementValue(AArrayElementValue node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAArrayElementValue(AArrayElementValue node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAArrayElementValue(AArrayElementValue node)
+    {
+        inAArrayElementValue(node);
+        if(node.getRvalueArrayElement() != null)
+        {
+            node.getRvalueArrayElement().apply(this);
+        }
+        outAArrayElementValue(node);
     }
 
     public void inAFunctionValue(AFunctionValue node)
@@ -1500,41 +1864,107 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outADefinedFunction(node);
     }
 
-    public void inARvalueVariable(ARvalueVariable node)
+    public void inARvalueIntegerVariable(ARvalueIntegerVariable node)
     {
         defaultIn(node);
     }
 
-    public void outARvalueVariable(ARvalueVariable node)
+    public void outARvalueIntegerVariable(ARvalueIntegerVariable node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseARvalueVariable(ARvalueVariable node)
+    public void caseARvalueIntegerVariable(ARvalueIntegerVariable node)
     {
-        inARvalueVariable(node);
+        inARvalueIntegerVariable(node);
         if(node.getName() != null)
         {
             node.getName().apply(this);
         }
-        outARvalueVariable(node);
+        outARvalueIntegerVariable(node);
     }
 
-    public void inALvalueVariable(ALvalueVariable node)
+    public void inARvalueArrayElement(ARvalueArrayElement node)
     {
         defaultIn(node);
     }
 
-    public void outALvalueVariable(ALvalueVariable node)
+    public void outARvalueArrayElement(ARvalueArrayElement node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseALvalueVariable(ALvalueVariable node)
+    public void caseARvalueArrayElement(ARvalueArrayElement node)
     {
-        inALvalueVariable(node);
+        inARvalueArrayElement(node);
+        {
+            List<PArrayBrackets> copy = new ArrayList<PArrayBrackets>(node.getArrayBrackets());
+            Collections.reverse(copy);
+            for(PArrayBrackets e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        if(node.getName() != null)
+        {
+            node.getName().apply(this);
+        }
+        outARvalueArrayElement(node);
+    }
+
+    public void inAParRvalueArrayElement(AParRvalueArrayElement node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAParRvalueArrayElement(AParRvalueArrayElement node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAParRvalueArrayElement(AParRvalueArrayElement node)
+    {
+        inAParRvalueArrayElement(node);
+        if(node.getRPar() != null)
+        {
+            node.getRPar().apply(this);
+        }
+        if(node.getParRvalueArrayElementInternal() != null)
+        {
+            node.getParRvalueArrayElementInternal().apply(this);
+        }
+        if(node.getLPar() != null)
+        {
+            node.getLPar().apply(this);
+        }
+        outAParRvalueArrayElement(node);
+    }
+
+    public void inAParRvalueArrayElementInternal(AParRvalueArrayElementInternal node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAParRvalueArrayElementInternal(AParRvalueArrayElementInternal node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAParRvalueArrayElementInternal(AParRvalueArrayElementInternal node)
+    {
+        inAParRvalueArrayElementInternal(node);
+        {
+            List<PArrayBrackets> copy = new ArrayList<PArrayBrackets>(node.getArrayBrackets());
+            Collections.reverse(copy);
+            for(PArrayBrackets e : copy)
+            {
+                e.apply(this);
+            }
+        }
         if(node.getName() != null)
         {
             node.getName().apply(this);
@@ -1547,7 +1977,387 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
                 e.apply(this);
             }
         }
-        outALvalueVariable(node);
+        outAParRvalueArrayElementInternal(node);
+    }
+
+    public void inALvalueIntegerVariable(ALvalueIntegerVariable node)
+    {
+        defaultIn(node);
+    }
+
+    public void outALvalueIntegerVariable(ALvalueIntegerVariable node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseALvalueIntegerVariable(ALvalueIntegerVariable node)
+    {
+        inALvalueIntegerVariable(node);
+        if(node.getName() != null)
+        {
+            node.getName().apply(this);
+        }
+        {
+            List<TDereference> copy = new ArrayList<TDereference>(node.getDereference());
+            Collections.reverse(copy);
+            for(TDereference e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        outALvalueIntegerVariable(node);
+    }
+
+    public void inALvalueArrayElement(ALvalueArrayElement node)
+    {
+        defaultIn(node);
+    }
+
+    public void outALvalueArrayElement(ALvalueArrayElement node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseALvalueArrayElement(ALvalueArrayElement node)
+    {
+        inALvalueArrayElement(node);
+        {
+            List<PArrayBrackets> copy = new ArrayList<PArrayBrackets>(node.getArrayBrackets());
+            Collections.reverse(copy);
+            for(PArrayBrackets e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        if(node.getName() != null)
+        {
+            node.getName().apply(this);
+        }
+        {
+            List<TDereference> copy = new ArrayList<TDereference>(node.getDereference());
+            Collections.reverse(copy);
+            for(TDereference e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        outALvalueArrayElement(node);
+    }
+
+    public void inAParLvalueArrayElement(AParLvalueArrayElement node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAParLvalueArrayElement(AParLvalueArrayElement node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAParLvalueArrayElement(AParLvalueArrayElement node)
+    {
+        inAParLvalueArrayElement(node);
+        if(node.getRPar() != null)
+        {
+            node.getRPar().apply(this);
+        }
+        if(node.getParLvalueArrayElementInternal() != null)
+        {
+            node.getParLvalueArrayElementInternal().apply(this);
+        }
+        if(node.getLPar() != null)
+        {
+            node.getLPar().apply(this);
+        }
+        {
+            List<TDereference> copy = new ArrayList<TDereference>(node.getDereference());
+            Collections.reverse(copy);
+            for(TDereference e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        outAParLvalueArrayElement(node);
+    }
+
+    public void inAParLvalueArrayElementInternal(AParLvalueArrayElementInternal node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAParLvalueArrayElementInternal(AParLvalueArrayElementInternal node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAParLvalueArrayElementInternal(AParLvalueArrayElementInternal node)
+    {
+        inAParLvalueArrayElementInternal(node);
+        {
+            List<PArrayBrackets> copy = new ArrayList<PArrayBrackets>(node.getArrayBrackets());
+            Collections.reverse(copy);
+            for(PArrayBrackets e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        if(node.getName() != null)
+        {
+            node.getName().apply(this);
+        }
+        {
+            List<TDereference> copy = new ArrayList<TDereference>(node.getDereference());
+            Collections.reverse(copy);
+            for(TDereference e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        outAParLvalueArrayElementInternal(node);
+    }
+
+    public void inADeclarationVariable(ADeclarationVariable node)
+    {
+        defaultIn(node);
+    }
+
+    public void outADeclarationVariable(ADeclarationVariable node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseADeclarationVariable(ADeclarationVariable node)
+    {
+        inADeclarationVariable(node);
+        if(node.getName() != null)
+        {
+            node.getName().apply(this);
+        }
+        {
+            List<TDereference> copy = new ArrayList<TDereference>(node.getDereference());
+            Collections.reverse(copy);
+            for(TDereference e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        outADeclarationVariable(node);
+    }
+
+    public void inAArrayBrackets(AArrayBrackets node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAArrayBrackets(AArrayBrackets node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAArrayBrackets(AArrayBrackets node)
+    {
+        inAArrayBrackets(node);
+        if(node.getRBracket() != null)
+        {
+            node.getRBracket().apply(this);
+        }
+        if(node.getExpression() != null)
+        {
+            node.getExpression().apply(this);
+        }
+        if(node.getLBracket() != null)
+        {
+            node.getLBracket().apply(this);
+        }
+        outAArrayBrackets(node);
+    }
+
+    public void inAAddressOfImplicitInitialisationArray(AAddressOfImplicitInitialisationArray node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAAddressOfImplicitInitialisationArray(AAddressOfImplicitInitialisationArray node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAAddressOfImplicitInitialisationArray(AAddressOfImplicitInitialisationArray node)
+    {
+        inAAddressOfImplicitInitialisationArray(node);
+        {
+            List<PArrayBrackets> copy = new ArrayList<PArrayBrackets>(node.getArrayBrackets());
+            Collections.reverse(copy);
+            for(PArrayBrackets e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        if(node.getName() != null)
+        {
+            node.getName().apply(this);
+        }
+        if(node.getAddressOf() != null)
+        {
+            node.getAddressOf().apply(this);
+        }
+        outAAddressOfImplicitInitialisationArray(node);
+    }
+
+    public void inADereferenceImplicitInitialisationArray(ADereferenceImplicitInitialisationArray node)
+    {
+        defaultIn(node);
+    }
+
+    public void outADereferenceImplicitInitialisationArray(ADereferenceImplicitInitialisationArray node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseADereferenceImplicitInitialisationArray(ADereferenceImplicitInitialisationArray node)
+    {
+        inADereferenceImplicitInitialisationArray(node);
+        {
+            List<PArrayBrackets> copy = new ArrayList<PArrayBrackets>(node.getArrayBrackets());
+            Collections.reverse(copy);
+            for(PArrayBrackets e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        if(node.getName() != null)
+        {
+            node.getName().apply(this);
+        }
+        {
+            List<TDereference> copy = new ArrayList<TDereference>(node.getDereference());
+            Collections.reverse(copy);
+            for(TDereference e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        outADereferenceImplicitInitialisationArray(node);
+    }
+
+    public void inANestedExplicitInitialisationArray(ANestedExplicitInitialisationArray node)
+    {
+        defaultIn(node);
+    }
+
+    public void outANestedExplicitInitialisationArray(ANestedExplicitInitialisationArray node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseANestedExplicitInitialisationArray(ANestedExplicitInitialisationArray node)
+    {
+        inANestedExplicitInitialisationArray(node);
+        if(node.getRBrace() != null)
+        {
+            node.getRBrace().apply(this);
+        }
+        if(node.getExplicitInitialisationArrayList() != null)
+        {
+            node.getExplicitInitialisationArrayList().apply(this);
+        }
+        if(node.getLBrace() != null)
+        {
+            node.getLBrace().apply(this);
+        }
+        outANestedExplicitInitialisationArray(node);
+    }
+
+    public void inANonNestedExplicitInitialisationArray(ANonNestedExplicitInitialisationArray node)
+    {
+        defaultIn(node);
+    }
+
+    public void outANonNestedExplicitInitialisationArray(ANonNestedExplicitInitialisationArray node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseANonNestedExplicitInitialisationArray(ANonNestedExplicitInitialisationArray node)
+    {
+        inANonNestedExplicitInitialisationArray(node);
+        if(node.getRBrace() != null)
+        {
+            node.getRBrace().apply(this);
+        }
+        if(node.getArgumentList() != null)
+        {
+            node.getArgumentList().apply(this);
+        }
+        if(node.getLBrace() != null)
+        {
+            node.getLBrace().apply(this);
+        }
+        outANonNestedExplicitInitialisationArray(node);
+    }
+
+    public void inAExplicitInitialisationArrayList(AExplicitInitialisationArrayList node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAExplicitInitialisationArrayList(AExplicitInitialisationArrayList node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAExplicitInitialisationArrayList(AExplicitInitialisationArrayList node)
+    {
+        inAExplicitInitialisationArrayList(node);
+        {
+            List<PExplicitInitialisationArrayListTail> copy = new ArrayList<PExplicitInitialisationArrayListTail>(node.getExplicitInitialisationArrayListTail());
+            Collections.reverse(copy);
+            for(PExplicitInitialisationArrayListTail e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        if(node.getExplicitInitialisationArray() != null)
+        {
+            node.getExplicitInitialisationArray().apply(this);
+        }
+        outAExplicitInitialisationArrayList(node);
+    }
+
+    public void inAExplicitInitialisationArrayListTail(AExplicitInitialisationArrayListTail node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAExplicitInitialisationArrayListTail(AExplicitInitialisationArrayListTail node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAExplicitInitialisationArrayListTail(AExplicitInitialisationArrayListTail node)
+    {
+        inAExplicitInitialisationArrayListTail(node);
+        if(node.getExplicitInitialisationArray() != null)
+        {
+            node.getExplicitInitialisationArray().apply(this);
+        }
+        if(node.getComma() != null)
+        {
+            node.getComma().apply(this);
+        }
+        outAExplicitInitialisationArrayListTail(node);
     }
 
     public void inAArgumentList(AArgumentList node)
@@ -1626,9 +2436,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
                 e.apply(this);
             }
         }
-        if(node.getLvalueVariable() != null)
+        if(node.getDeclarationVariable() != null)
         {
-            node.getLvalueVariable().apply(this);
+            node.getDeclarationVariable().apply(this);
         }
         outAParameterList(node);
     }
@@ -1647,9 +2457,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseAParameterListTail(AParameterListTail node)
     {
         inAParameterListTail(node);
-        if(node.getLvalueVariable() != null)
+        if(node.getDeclarationVariable() != null)
         {
-            node.getLvalueVariable().apply(this);
+            node.getDeclarationVariable().apply(this);
         }
         if(node.getComma() != null)
         {

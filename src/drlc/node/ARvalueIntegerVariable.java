@@ -5,46 +5,46 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AVariableValue extends PValue
+public final class ARvalueIntegerVariable extends PRvalueIntegerVariable
 {
-    private PRvalueVariable _rvalueVariable_;
+    private TName _name_;
 
-    public AVariableValue()
+    public ARvalueIntegerVariable()
     {
         // Constructor
     }
 
-    public AVariableValue(
-        @SuppressWarnings("hiding") PRvalueVariable _rvalueVariable_)
+    public ARvalueIntegerVariable(
+        @SuppressWarnings("hiding") TName _name_)
     {
         // Constructor
-        setRvalueVariable(_rvalueVariable_);
+        setName(_name_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new AVariableValue(
-            cloneNode(this._rvalueVariable_));
+        return new ARvalueIntegerVariable(
+            cloneNode(this._name_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAVariableValue(this);
+        ((Analysis) sw).caseARvalueIntegerVariable(this);
     }
 
-    public PRvalueVariable getRvalueVariable()
+    public TName getName()
     {
-        return this._rvalueVariable_;
+        return this._name_;
     }
 
-    public void setRvalueVariable(PRvalueVariable node)
+    public void setName(TName node)
     {
-        if(this._rvalueVariable_ != null)
+        if(this._name_ != null)
         {
-            this._rvalueVariable_.parent(null);
+            this._name_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class AVariableValue extends PValue
             node.parent(this);
         }
 
-        this._rvalueVariable_ = node;
+        this._name_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._rvalueVariable_);
+            + toString(this._name_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._rvalueVariable_ == child)
+        if(this._name_ == child)
         {
-            this._rvalueVariable_ = null;
+            this._name_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class AVariableValue extends PValue
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._rvalueVariable_ == oldChild)
+        if(this._name_ == oldChild)
         {
-            setRvalueVariable((PRvalueVariable) newChild);
+            setName((TName) newChild);
             return;
         }
 

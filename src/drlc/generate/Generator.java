@@ -9,14 +9,20 @@ import drlc.node.Node;
 
 public abstract class Generator {
 	
-	public static final Map<String, Class<? extends Generator>> MAP = new LinkedHashMap<>();
+	public static final Map<String, Class<? extends Generator>> CLASS_MAP = new LinkedHashMap<>();
+	public static final Map<String, String> NAME_MAP = new HashMap<>();
 	
 	static {
-		MAP.put("i", IntermediateGenerator.class);
-		MAP.put("s1", drlc.generate.drc1.RedstoneAssemblyGenerator.class);
-		MAP.put("b1", drlc.generate.drc1.RedstoneBinaryGenerator.class);
-		MAP.put("h1", drlc.generate.drc1.RedstoneHexadecimalGenerator.class);
-		MAP.put("oc1", drlc.generate.drc1.RedstoneOCGenerator.class);
+		put("i", IntermediateGenerator.class, "Intermediate");
+		put("s1", drlc.generate.drc1.RedstoneAssemblyGenerator.class, "DRC1 Assembly");
+		put("b1", drlc.generate.drc1.RedstoneBinaryGenerator.class, "DRC1 Binary");
+		put("h1", drlc.generate.drc1.RedstoneHexadecimalGenerator.class, "DRC1 Hexadecimal");
+		put("oc1", drlc.generate.drc1.RedstoneOCGenerator.class, "DRC1 OC Input");
+	}
+	
+	private static void put(String id, Class<? extends Generator> clazz, String name) {
+		CLASS_MAP.put(id, clazz);
+		NAME_MAP.put(id, name);
 	}
 	
 	protected final boolean intermediateOptimization, machineOptimization;

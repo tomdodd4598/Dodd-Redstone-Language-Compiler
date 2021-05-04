@@ -4,7 +4,8 @@ import drlc.*;
 import drlc.analysis.DepthFirstAdapter;
 import drlc.generate.Generator;
 import drlc.interpret.scope.*;
-import drlc.interpret.type.*;
+import drlc.interpret.type.Variable;
+import drlc.interpret.type.info.VariableReferenceInfo;
 import drlc.node.*;
 
 public class Interpreter extends DepthFirstAdapter {
@@ -102,10 +103,10 @@ public class Interpreter extends DepthFirstAdapter {
 	public void outAVariableDeclarationBasicSection(AVariableDeclarationBasicSection node) {}
 	
 	@Override
-	public void inAVariableModificationBasicSection(AVariableModificationBasicSection node) {}
+	public void inALvalueModificationBasicSection(ALvalueModificationBasicSection node) {}
 	
 	@Override
-	public void outAVariableModificationBasicSection(AVariableModificationBasicSection node) {}
+	public void outALvalueModificationBasicSection(ALvalueModificationBasicSection node) {}
 	
 	@Override
 	public void inAMethodCallBasicSection(AMethodCallBasicSection node) {}
@@ -213,17 +214,16 @@ public class Interpreter extends DepthFirstAdapter {
 	}
 	
 	@Override
-	public void inANoInitialisationVariableDeclaration(ANoInitialisationVariableDeclaration node) {
-		VariableReferenceInfo info = createLvalueVariableInfo(node.getLvalueVariable(), 0, false);
+	public void caseAIntegerNoInitialisationVariableDeclaration(AIntegerNoInitialisationVariableDeclaration node) {
+		node.getVar().apply(this);
+		VariableReferenceInfo info = createDeclarationIntegerVariableInfo(node.getDeclarationVariable(), 0, false);
 		scope.addVariable(node, info.variable);
 		program.currentRoutine().addStackDeclarationAction(node, scope, info.toString());
+		node.getSemicolon().apply(this);
 	}
 	
 	@Override
-	public void outANoInitialisationVariableDeclaration(ANoInitialisationVariableDeclaration node) {}
-	
-	@Override
-	public void caseAWithInitialisationVariableDeclaration(AWithInitialisationVariableDeclaration node) {
+	public void caseAIntegerWithInitialisationVariableDeclaration(AIntegerWithInitialisationVariableDeclaration node) {
 		String expression = node.getExpression().toString();
 		boolean hasAddressPrefix = Helper.hasAddressPrefix(expression), isValidAddress = false;
 		if (hasAddressPrefix) {
@@ -233,7 +233,7 @@ public class Interpreter extends DepthFirstAdapter {
 			}
 		}
 		node.getVar().apply(this);
-		VariableReferenceInfo info = createLvalueVariableInfo(node.getLvalueVariable(), isValidAddress ? 1 : 0, true);
+		VariableReferenceInfo info = createDeclarationIntegerVariableInfo(node.getDeclarationVariable(), isValidAddress ? 1 : 0, true);
 		node.getEquals().apply(this);
 		if (isValidAddress) {
 			program.currentRoutine().incrementRegId();
@@ -248,13 +248,78 @@ public class Interpreter extends DepthFirstAdapter {
 		node.getSemicolon().apply(this);
 	}
 	
+	// TODO array declaration
 	@Override
-	public void caseAVariableModification(AVariableModification node) {
-		VariableReferenceInfo info = createLvalueVariableInfo(node.getLvalueVariable(), 0, true);
+	public void caseAArrayNoInitialisationVariableDeclaration(AArrayNoInitialisationVariableDeclaration node) {
+		defaultIn(node);
+		
+		node.getVar().apply(this);
+		for (PArrayBrackets brackets : node.getArrayBrackets()) {
+			brackets.apply(this);
+		}
+		node.getDeclarationVariable().apply(this);
+		node.getSemicolon().apply(this);
+	}
+	
+	// TODO array declaration
+	@Override
+	public void caseAArrayWithImplicitInitialisationVariableDeclaration(AArrayWithImplicitInitialisationVariableDeclaration node) {
+		defaultIn(node);
+		
+		node.getVar().apply(this);
+		for (PArrayBrackets brackets : node.getArrayBrackets()) {
+			brackets.apply(this);
+		}
+		node.getDeclarationVariable().apply(this);
+		node.getEquals().apply(this);
+		node.getImplicitInitialisationArray().apply(this);
+		node.getSemicolon().apply(this);
+	}
+	
+	// TODO array declaration
+	@Override
+	public void caseAArrayWithExplicitInitialisationVariableDeclaration(AArrayWithExplicitInitialisationVariableDeclaration node) {
+		defaultIn(node);
+		
+		node.getVar().apply(this);
+		for (PArrayBrackets brackets : node.getArrayBrackets()) {
+			brackets.apply(this);
+		}
+		node.getDeclarationVariable().apply(this);
+		node.getEquals().apply(this);
+		node.getExplicitInitialisationArray().apply(this);
+		node.getSemicolon().apply(this);
+	}
+	
+	@Override
+	public void caseAIntegerVariableLvalueModification(AIntegerVariableLvalueModification node) {
+		VariableReferenceInfo info = createLvalueIntegerVariableInfo(node.getLvalueIntegerVariable(), 0, true);
 		node.getEquals().apply(this);
 		node.getExpression().apply(this);
 		program.currentRoutine().pushCurrentRegIdToStack(node);
 		program.currentRoutine().addStackVariableAssignmentAction(node, scope, info.toString());
+		node.getSemicolon().apply(this);
+	}
+	
+	// TODO array lvalue
+	@Override
+	public void caseAArrayElementLvalueModification(AArrayElementLvalueModification node) {
+		defaultIn(node);
+		
+		node.getLvalueArrayElement().apply(this);
+		node.getEquals().apply(this);
+		node.getExpression().apply(this);
+		node.getSemicolon().apply(this);
+	}
+	
+	// TODO array lvalue
+	@Override
+	public void caseAParArrayElementLvalueModification(AParArrayElementLvalueModification node) {
+		defaultIn(node);
+		
+		node.getParLvalueArrayElement().apply(this);
+		node.getEquals().apply(this);
+		node.getExpression().apply(this);
 		node.getSemicolon().apply(this);
 	}
 	
@@ -445,50 +510,6 @@ public class Interpreter extends DepthFirstAdapter {
 	public void outATermPrioritizedExpression(ATermPrioritizedExpression node) {}
 	
 	@Override
-	public void caseAAddressOfTerm(AAddressOfTerm node) {
-		node.getAddressOf().apply(this);
-		scope.getVariable(node, node.getRvalueVariable().toString().trim());
-		program.currentRoutine().incrementRegId();
-		program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.removeWhitespace(node.toString()));
-	}
-	
-	@Override
-	public void caseADereferenceTerm(ADereferenceTerm node) {
-		Integer value = Evaluator.tryEvaluate(node, generator, scope, node.toString());
-		if (value != null) {
-			generator.checkInteger(node, value);
-			program.currentRoutine().incrementRegId();
-			program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.immediateValueString(value));
-		}
-		else {
-			for (TDereference dereference : node.getDereference()) {
-				dereference.apply(this);
-			}
-			node.getRvalueVariable().apply(this);
-			program.currentRoutine().pushCurrentRegIdToStack(node);
-			program.currentRoutine().incrementRegId();
-			program.currentRoutine().addDereferenceAction(node, scope, node.getDereference().size());
-		}
-	}
-	
-	@Override
-	public void caseAUnaryTerm(AUnaryTerm node) {
-		Integer value = Evaluator.tryEvaluate(node, generator, scope, node.toString());
-		if (value != null) {
-			generator.checkInteger(node, value);
-			program.currentRoutine().incrementRegId();
-			program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.immediateValueString(value));
-		}
-		else {
-			node.getUnaryOp().apply(this);
-			node.getTerm().apply(this);
-			program.currentRoutine().pushCurrentRegIdToStack(node);
-			program.currentRoutine().incrementRegId();
-			program.currentRoutine().addUnaryOpAction(node, scope, node.getUnaryOp().toString().trim());
-		}
-	}
-	
-	@Override
 	public void caseABinaryPrioritizedExpression(ABinaryPrioritizedExpression node) {
 		Integer value = Evaluator.tryEvaluate(node, generator, scope, node.toString());
 		if (value != null) {
@@ -514,10 +535,106 @@ public class Interpreter extends DepthFirstAdapter {
 	public void outAValueTerm(AValueTerm node) {}
 	
 	@Override
+	public void inAAddressOfTerm(AAddressOfTerm node) {}
+	
+	@Override
+	public void outAAddressOfTerm(AAddressOfTerm node) {}
+	
+	@Override
+	public void inADereferenceTerm(ADereferenceTerm node) {}
+	
+	@Override
+	public void outADereferenceTerm(ADereferenceTerm node) {}
+	
+	@Override
+	public void caseAUnaryTerm(AUnaryTerm node) {
+		Integer value = Evaluator.tryEvaluate(node, generator, scope, node.toString());
+		if (value != null) {
+			generator.checkInteger(node, value);
+			program.currentRoutine().incrementRegId();
+			program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.immediateValueString(value));
+		}
+		else {
+			node.getUnaryOp().apply(this);
+			node.getTerm().apply(this);
+			program.currentRoutine().pushCurrentRegIdToStack(node);
+			program.currentRoutine().incrementRegId();
+			program.currentRoutine().addUnaryOpAction(node, scope, node.getUnaryOp().toString().trim());
+		}
+	}
+	
+	@Override
 	public void inAParExpressionTerm(AParExpressionTerm node) {}
 	
 	@Override
 	public void outAParExpressionTerm(AParExpressionTerm node) {}
+	
+	@Override
+	public void caseAIntegerVariableAddressOfTerm(AIntegerVariableAddressOfTerm node) {
+		node.getAddressOf().apply(this);
+		scope.getVariable(node, node.getRvalueIntegerVariable().toString().trim());
+		program.currentRoutine().incrementRegId();
+		program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.removeWhitespace(node.toString()));
+	}
+	
+	// TODO array rvalue
+	@Override
+	public void caseAArrayElementAddressOfTerm(AArrayElementAddressOfTerm node) {
+		defaultIn(node);
+		
+		node.getAddressOf().apply(this);
+		node.getRvalueArrayElement().apply(this);
+	}
+	
+	// TODO array rvalue
+	@Override
+	public void caseAParArrayElementAddressOfTerm(AParArrayElementAddressOfTerm node) {
+		defaultIn(node);
+		
+		node.getAddressOf().apply(this);
+		node.getParRvalueArrayElement().apply(this);
+	}
+	
+	@Override
+	public void caseAIntegerVariableDereferenceTerm(AIntegerVariableDereferenceTerm node) {
+		Integer value = Evaluator.tryEvaluate(node, generator, scope, node.toString());
+		if (value != null) {
+			generator.checkInteger(node, value);
+			program.currentRoutine().incrementRegId();
+			program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.immediateValueString(value));
+		}
+		else {
+			for (TDereference dereference : node.getDereference()) {
+				dereference.apply(this);
+			}
+			node.getRvalueIntegerVariable().apply(this);
+			program.currentRoutine().pushCurrentRegIdToStack(node);
+			program.currentRoutine().incrementRegId();
+			program.currentRoutine().addDereferenceAction(node, scope, node.getDereference().size());
+		}
+	}
+	
+	// TODO array rvalue
+	@Override
+	public void caseAArrayElementDereferenceTerm(AArrayElementDereferenceTerm node) {
+		defaultIn(node);
+		
+		for (TDereference dereference : node.getDereference()) {
+			dereference.apply(this);
+		}
+		node.getRvalueArrayElement().apply(this);
+	}
+	
+	// TODO array rvalue
+	@Override
+	public void caseAParArrayElementDereferenceTerm(AParArrayElementDereferenceTerm node) {
+		defaultIn(node);
+		
+		for (TDereference dereference : node.getDereference()) {
+			dereference.apply(this);
+		}
+		node.getParRvalueArrayElement().apply(this);
+	}
 	
 	@Override
 	public void caseAIntegerValue(AIntegerValue node) {
@@ -529,10 +646,16 @@ public class Interpreter extends DepthFirstAdapter {
 	}
 	
 	@Override
-	public void inAVariableValue(AVariableValue node) {}
+	public void inAIntegerVariableValue(AIntegerVariableValue node) {}
 	
 	@Override
-	public void outAVariableValue(AVariableValue node) {}
+	public void outAIntegerVariableValue(AIntegerVariableValue node) {}
+	
+	@Override
+	public void inAArrayElementValue(AArrayElementValue node) {}
+	
+	@Override
+	public void outAArrayElementValue(AArrayElementValue node) {}
 	
 	@Override
 	public void inAFunctionValue(AFunctionValue node) {}
@@ -540,6 +663,7 @@ public class Interpreter extends DepthFirstAdapter {
 	@Override
 	public void outAFunctionValue(AFunctionValue node) {}
 	
+	// TODO function -> variable?
 	@Override
 	public void caseABuiltInArgcFunction(ABuiltInArgcFunction node) {
 		node.getArgc().apply(this);
@@ -551,7 +675,7 @@ public class Interpreter extends DepthFirstAdapter {
 		program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.immediateValueString(argc));
 	}
 	
-	// TODO
+	// TODO function -> array?
 	@Override
 	public void caseABuiltInArgvFunction(ABuiltInArgvFunction node) {
 		node.getArgv().apply(this);
@@ -573,7 +697,7 @@ public class Interpreter extends DepthFirstAdapter {
 	}
 	
 	@Override
-	public void caseARvalueVariable(ARvalueVariable node) {
+	public void caseARvalueIntegerVariable(ARvalueIntegerVariable node) {
 		node.getName().apply(this);
 		program.currentRoutine().incrementRegId();
 		String name = node.getName().getText();
@@ -585,14 +709,155 @@ public class Interpreter extends DepthFirstAdapter {
 		program.currentRoutine().addRegisterAssignmentAction(node, scope, name);
 	}
 	
+	// TODO array rvalue
 	@Override
-	public void caseALvalueVariable(ALvalueVariable node) {}
+	public void caseARvalueArrayElement(ARvalueArrayElement node) {
+		defaultIn(node);
+		
+		node.getName().apply(this);
+		for (PArrayBrackets brackets : node.getArrayBrackets()) {
+			brackets.apply(this);
+		}
+	}
 	
-	public VariableReferenceInfo createLvalueVariableInfo(PLvalueVariable node, int referenceLevelOffset, boolean initialised) {
-		ALvalueVariable variableNode = (ALvalueVariable) node;
-		VariableReferenceInfo info = new VariableReferenceInfo(new Variable(variableNode.getName().getText(), variableNode.getDereference().size() + referenceLevelOffset, initialised));
-		info.dereferenceLevel = info.variable.baseReferenceLevel - referenceLevelOffset;
-		return info;
+	// TODO array rvalue
+	@Override
+	public void caseAParRvalueArrayElement(AParRvalueArrayElement node) {
+		defaultIn(node);
+		
+		node.getLPar().apply(this);
+		node.getParRvalueArrayElementInternal().apply(this);
+		node.getRPar().apply(this);
+	}
+	
+	// TODO array rvalue
+	@Override
+	public void caseAParRvalueArrayElementInternal(AParRvalueArrayElementInternal node) {
+		defaultIn(node);
+		
+		for (TDereference dereference : node.getDereference()) {
+			dereference.apply(this);
+		}
+		node.getName().apply(this);
+		for (PArrayBrackets brackets : node.getArrayBrackets()) {
+			brackets.apply(this);
+		}
+	}
+	
+	public VariableReferenceInfo createIntegerVariableInfo(String name, int dereferenceLevel, int referenceLevelOffset, boolean initialised) {
+		return new VariableReferenceInfo(new Variable(name, dereferenceLevel + referenceLevelOffset, initialised), dereferenceLevel);
+	}
+	
+	@Override
+	public void caseALvalueIntegerVariable(ALvalueIntegerVariable node) {}
+	
+	public VariableReferenceInfo createLvalueIntegerVariableInfo(PLvalueIntegerVariable node, int referenceLevelOffset, boolean initialised) {
+		ALvalueIntegerVariable variableNode = (ALvalueIntegerVariable) node;
+		return createIntegerVariableInfo(variableNode.getName().getText(), variableNode.getDereference().size(), referenceLevelOffset, initialised);
+	}
+	
+	// TODO array lvalue
+	@Override
+	public void caseALvalueArrayElement(ALvalueArrayElement node) {
+		defaultIn(node);
+	}
+	
+	// TODO array lvalue
+	@Override
+	public void caseAParLvalueArrayElement(AParLvalueArrayElement node) {
+		defaultIn(node);
+	}
+	
+	// TODO array lvalue
+	@Override
+	public void caseAParLvalueArrayElementInternal(AParLvalueArrayElementInternal node) {
+		defaultIn(node);
+	}
+	
+	@Override
+	public void caseADeclarationVariable(ADeclarationVariable node) {}
+	
+	public VariableReferenceInfo createDeclarationIntegerVariableInfo(PDeclarationVariable node, int referenceLevelOffset, boolean initialised) {
+		ADeclarationVariable variableNode = (ADeclarationVariable) node;
+		return createIntegerVariableInfo(variableNode.getName().getText(), variableNode.getDereference().size(), referenceLevelOffset, initialised);
+	}
+	
+	// TODO array declaration
+	@Override
+	public void caseAArrayBrackets(AArrayBrackets node) {
+		defaultIn(node);
+		
+		node.getLBracket().apply(this);
+		node.getExpression().apply(this);
+		node.getRBracket().apply(this);
+	}
+	
+	// TODO array declaration
+	@Override
+	public void caseAAddressOfImplicitInitialisationArray(AAddressOfImplicitInitialisationArray node) {
+		defaultIn(node);
+		
+		node.getAddressOf().apply(this);
+		node.getName().apply(this);
+		for (PArrayBrackets brackets : node.getArrayBrackets()) {
+			brackets.apply(this);
+		}
+	}
+	
+	// TODO array declaration
+	@Override
+	public void caseADereferenceImplicitInitialisationArray(ADereferenceImplicitInitialisationArray node) {
+		defaultIn(node);
+		
+		for (TDereference dereference : node.getDereference()) {
+			dereference.apply(this);
+		}
+		node.getName().apply(this);
+		for (PArrayBrackets brackets : node.getArrayBrackets()) {
+			brackets.apply(this);
+		}
+	}
+	
+	// TODO array declaration
+	@Override
+	public void caseANestedExplicitInitialisationArray(ANestedExplicitInitialisationArray node) {
+		defaultIn(node);
+		
+		node.getLBrace().apply(this);
+		node.getExplicitInitialisationArrayList().apply(this);
+		node.getRBrace().apply(this);
+	}
+	
+	// TODO array declaration
+	@Override
+	public void caseANonNestedExplicitInitialisationArray(ANonNestedExplicitInitialisationArray node) {
+		defaultIn(node);
+		
+		node.getLBrace().apply(this);
+		if (node.getArgumentList() != null) {
+			node.getArgumentList().apply(this);
+		}
+		node.getRBrace().apply(this);
+	}
+	
+	// TODO array declaration
+	@Override
+	public void caseAExplicitInitialisationArrayList(AExplicitInitialisationArrayList node) {
+		defaultIn(node);
+		
+		node.getExplicitInitialisationArray().apply(this);
+		for (PExplicitInitialisationArrayListTail tail : node.getExplicitInitialisationArrayListTail()) {
+			tail.apply(this);
+		}
+	}
+	
+	// TODO array declaration
+	@Override
+	public void caseAExplicitInitialisationArrayListTail(AExplicitInitialisationArrayListTail node) {
+		defaultIn(node);
+		
+		node.getComma().apply(this);
+		node.getExplicitInitialisationArray().apply(this);
 	}
 	
 	@Override
@@ -613,7 +878,7 @@ public class Interpreter extends DepthFirstAdapter {
 	
 	@Override
 	public void inAParameterList(AParameterList node) {
-		program.addParam(node, createLvalueVariableInfo(node.getLvalueVariable(), 0, true));
+		program.addParam(node, createDeclarationIntegerVariableInfo(node.getDeclarationVariable(), 0, true));
 	}
 	
 	@Override
@@ -621,7 +886,7 @@ public class Interpreter extends DepthFirstAdapter {
 	
 	@Override
 	public void inAParameterListTail(AParameterListTail node) {
-		program.addParam(node, createLvalueVariableInfo(node.getLvalueVariable(), 0, true));
+		program.addParam(node, createDeclarationIntegerVariableInfo(node.getDeclarationVariable(), 0, true));
 	}
 	
 	@Override

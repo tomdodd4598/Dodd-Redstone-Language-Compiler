@@ -8,7 +8,7 @@ import drlc.analysis.*;
 public final class AParameterListTail extends PParameterListTail
 {
     private TComma _comma_;
-    private PLvalueVariable _lvalueVariable_;
+    private PDeclarationVariable _declarationVariable_;
 
     public AParameterListTail()
     {
@@ -17,12 +17,12 @@ public final class AParameterListTail extends PParameterListTail
 
     public AParameterListTail(
         @SuppressWarnings("hiding") TComma _comma_,
-        @SuppressWarnings("hiding") PLvalueVariable _lvalueVariable_)
+        @SuppressWarnings("hiding") PDeclarationVariable _declarationVariable_)
     {
         // Constructor
         setComma(_comma_);
 
-        setLvalueVariable(_lvalueVariable_);
+        setDeclarationVariable(_declarationVariable_);
 
     }
 
@@ -31,7 +31,7 @@ public final class AParameterListTail extends PParameterListTail
     {
         return new AParameterListTail(
             cloneNode(this._comma_),
-            cloneNode(this._lvalueVariable_));
+            cloneNode(this._declarationVariable_));
     }
 
     @Override
@@ -65,16 +65,16 @@ public final class AParameterListTail extends PParameterListTail
         this._comma_ = node;
     }
 
-    public PLvalueVariable getLvalueVariable()
+    public PDeclarationVariable getDeclarationVariable()
     {
-        return this._lvalueVariable_;
+        return this._declarationVariable_;
     }
 
-    public void setLvalueVariable(PLvalueVariable node)
+    public void setDeclarationVariable(PDeclarationVariable node)
     {
-        if(this._lvalueVariable_ != null)
+        if(this._declarationVariable_ != null)
         {
-            this._lvalueVariable_.parent(null);
+            this._declarationVariable_.parent(null);
         }
 
         if(node != null)
@@ -87,7 +87,7 @@ public final class AParameterListTail extends PParameterListTail
             node.parent(this);
         }
 
-        this._lvalueVariable_ = node;
+        this._declarationVariable_ = node;
     }
 
     @Override
@@ -95,7 +95,7 @@ public final class AParameterListTail extends PParameterListTail
     {
         return ""
             + toString(this._comma_)
-            + toString(this._lvalueVariable_);
+            + toString(this._declarationVariable_);
     }
 
     @Override
@@ -108,9 +108,9 @@ public final class AParameterListTail extends PParameterListTail
             return;
         }
 
-        if(this._lvalueVariable_ == child)
+        if(this._declarationVariable_ == child)
         {
-            this._lvalueVariable_ = null;
+            this._declarationVariable_ = null;
             return;
         }
 
@@ -127,9 +127,9 @@ public final class AParameterListTail extends PParameterListTail
             return;
         }
 
-        if(this._lvalueVariable_ == oldChild)
+        if(this._declarationVariable_ == oldChild)
         {
-            setLvalueVariable((PLvalueVariable) newChild);
+            setDeclarationVariable((PDeclarationVariable) newChild);
             return;
         }
 

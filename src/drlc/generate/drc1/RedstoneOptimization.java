@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import drlc.Helper.Pair;
+import drlc.generate.drc1.DataInfo.DataType;
 import drlc.generate.drc1.instruction.*;
 import drlc.generate.drc1.instruction.address.*;
 import drlc.generate.drc1.instruction.immediate.*;
@@ -123,7 +124,7 @@ public class RedstoneOptimization {
 		return flag;
 	}
 	
-	static class InstructionSectionPair extends Pair<Instruction, Short> {
+	private static class InstructionSectionPair extends Pair<Instruction, Short> {
 		
 		public InstructionSectionPair(Instruction instruction, short section) {
 			super(instruction, section);
@@ -243,6 +244,70 @@ public class RedstoneOptimization {
 		return flag;
 	}
 	
+	private static class LoadStoreInfo {
+		
+		@SuppressWarnings("unused")
+		public boolean load = false, store = false;
+	}
+	
+	private static class SectionIndexPair extends Pair<Integer, Integer> {
+		
+		public SectionIndexPair(int section, int index) {
+			super(section, index);
+		}
+	}
+	
+	public static boolean removeUnusedTemporaryData(RedstoneRoutine routine) {
+		boolean flag = false;
+		final Map<DataInfo, LoadStoreInfo> loadStoreMap = new HashMap<>();
+		final Map<DataInfo, Set<SectionIndexPair>> sectionIndexMap = new HashMap<>();
+		Collection<List<Instruction>> sections = routine.textSectionMap.values();
+		List<Instruction>[] sectionArray = sections.toArray(new List[sections.size()]);
+		for (int s = 0; s < sectionArray.length; s++) {
+			List<Instruction> section = sectionArray[s];
+			for (int i = 0; i < section.size(); i++) {
+				Instruction instruction = section.get(i);
+				if (instruction instanceof IInstructionAddress) {
+					IInstructionAddress isa = (IInstructionAddress) instruction;
+					DataInfo info = isa.getDataInfo();
+					if (info.type == DataType.TEMP) {
+						if (!loadStoreMap.containsKey(info)) {
+							loadStoreMap.put(info, new LoadStoreInfo());
+						}
+						if (!sectionIndexMap.containsKey(info)) {
+							sectionIndexMap.put(info, new HashSet<>());
+						}
+						sectionIndexMap.get(info).add(new SectionIndexPair(s, i));
+						
+						if (instruction instanceof IInstructionLoadAddress) {
+							loadStoreMap.get(info).load = true;
+						}
+						else if (instruction instanceof IInstructionStoreAddress) {
+							loadStoreMap.get(info).store = true;
+						}
+					}
+				}
+			}
+		}
+		
+		Set<Integer> sectionSet = new HashSet<>();
+		for (Entry<DataInfo, LoadStoreInfo> entry : loadStoreMap.entrySet()) {
+			if (!entry.getValue().load) {
+				Set<SectionIndexPair> set = sectionIndexMap.get(entry.getKey());
+				for (SectionIndexPair pair : set) {
+					if (!sectionSet.contains(pair.left)) {
+						flag = true;
+						sectionArray[pair.left].remove((int) pair.right);
+						sectionSet.add(pair.left);
+					}
+					break;
+				}
+			}
+		}
+		
+		return flag;
+	}
+	
 	public static boolean removeUnnecessaryJumps(RedstoneRoutine routine) {
 		boolean flag = false;
 		for (Entry<Short, List<Instruction>> entry : routine.textSectionMap.entrySet()) {
@@ -323,21 +388,27 @@ public class RedstoneOptimization {
 	
 	public static boolean compressWithNextInstruction(List<Instruction>[] sectionArray, int s, int i, boolean ignoreSections) {
 		if (ignoreSections && i == sectionArray[s].size() - 1 && s < sectionArray.length - 1 && !sectionArray[s + 1].isEmpty()) {
-			Instruction replacement = sectionArray[s].get(i).getCompressedWithNextInstruction(sectionArray[s + 1].get(0));
-			if (replacement != null) {
-				sectionArray[s].set(i, replacement);
-				sectionArray[s + 1].remove(0);
+			if (compressWithNextInstructionInternal(sectionArray, s, i, s + 1, 0)) {
 				return true;
 			}
 		}
 		else if (i < sectionArray[s].size() - 1) {
-			Instruction replacement = sectionArray[s].get(i).getCompressedWithNextInstruction(sectionArray[s].get(i + 1));
-			if (replacement != null) {
-				sectionArray[s].set(i, replacement);
-				sectionArray[s].remove(i + 1);
+			if (compressWithNextInstructionInternal(sectionArray, s, i, s, i + 1)) {
 				return true;
 			}
 		}
 		return false;
+	}
+	
+	private static boolean compressWithNextInstructionInternal(List<Instruction>[] sectionArray, int s, int i, int t, int j) {
+		Instruction replacement = sectionArray[s].get(i).getCompressedWithNextInstruction(sectionArray[t].get(j));
+		if (replacement != null) {
+			sectionArray[s].set(i, replacement);
+			sectionArray[t].remove(j);
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 }
