@@ -231,7 +231,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAElseIfBlock(AElseIfBlock node)
+    public void caseAElifBlock(AElifBlock node)
     {
         defaultCase(node);
     }
@@ -681,6 +681,12 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseTSetupPrefix(TSetupPrefix node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseTSetArgc(TSetArgc node)
     {
         defaultCase(node);
@@ -736,6 +742,12 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTIf(TIf node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTElif(TElif node)
     {
         defaultCase(node);
     }

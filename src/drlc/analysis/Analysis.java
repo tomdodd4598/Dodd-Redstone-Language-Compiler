@@ -38,7 +38,7 @@ public interface Analysis extends Switch
     void caseABuiltInOutMethodCall(ABuiltInOutMethodCall node);
     void caseADefinedMethodCall(ADefinedMethodCall node);
     void caseAIfBlock(AIfBlock node);
-    void caseAElseIfBlock(AElseIfBlock node);
+    void caseAElifBlock(AElifBlock node);
     void caseAElseBlock(AElseBlock node);
     void caseAIterativeBlock(AIterativeBlock node);
     void caseAReturnStopStatement(AReturnStopStatement node);
@@ -114,6 +114,7 @@ public interface Analysis extends Switch
     void caseAMoreThanPrioritizedBinaryOp(AMoreThanPrioritizedBinaryOp node);
     void caseAMoreOrEqualPrioritizedBinaryOp(AMoreOrEqualPrioritizedBinaryOp node);
 
+    void caseTSetupPrefix(TSetupPrefix node);
     void caseTSetArgc(TSetArgc node);
     void caseTConst(TConst node);
     void caseTVar(TVar node);
@@ -124,6 +125,7 @@ public interface Analysis extends Switch
     void caseTArgv(TArgv node);
     void caseTReturn(TReturn node);
     void caseTIf(TIf node);
+    void caseTElif(TElif node);
     void caseTElse(TElse node);
     void caseTWhile(TWhile node);
     void caseTContinue(TContinue node);

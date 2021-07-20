@@ -64,6 +64,7 @@ public class Interpreter extends DepthFirstAdapter {
 	
 	@Override
 	public void caseAInputSpecification(AInputSpecification node) {
+		node.getSetupPrefix().apply(this);
 		node.getSetArgc().apply(this);
 		node.getLPar().apply(this);
 		// node.getExpression().apply(this);
@@ -119,7 +120,7 @@ public class Interpreter extends DepthFirstAdapter {
 		ConditionalSectionInfo info = new ConditionalSectionInfo();
 		boolean elseBlock = node.getElseBlock() != null;
 		info.setHasElseBlock(node, elseBlock);
-		info.setConditionalSectionLength(node, 1 + (node.getElseIfBlock() == null ? 0 : node.getElseIfBlock().size()) + (elseBlock ? 1 : 0));
+		info.setConditionalSectionLength(node, 1 + (node.getElifBlock() == null ? 0 : node.getElifBlock().size()) + (elseBlock ? 1 : 0));
 		program.currentRoutine().conditionalSectionInfoStack.push(info);
 	}
 	
@@ -364,11 +365,10 @@ public class Interpreter extends DepthFirstAdapter {
 	}
 	
 	@Override
-	public void caseAElseIfBlock(AElseIfBlock node) {
+	public void caseAElifBlock(AElifBlock node) {
 		program.currentRoutine().incrementSectionId();
 		program.currentRoutine().addConditionalSectionElseJumpAction(node, scope);
-		node.getElse().apply(this);
-		node.getIf().apply(this);
+		node.getElif().apply(this);
 		node.getLPar().apply(this);
 		node.getExpression().apply(this);
 		node.getRPar().apply(this);

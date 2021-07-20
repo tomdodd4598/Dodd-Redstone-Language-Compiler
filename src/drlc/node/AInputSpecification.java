@@ -7,6 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AInputSpecification extends PInputSpecification
 {
+    private TSetupPrefix _setupPrefix_;
     private TSetArgc _setArgc_;
     private TLPar _lPar_;
     private PExpression _expression_;
@@ -19,6 +20,7 @@ public final class AInputSpecification extends PInputSpecification
     }
 
     public AInputSpecification(
+        @SuppressWarnings("hiding") TSetupPrefix _setupPrefix_,
         @SuppressWarnings("hiding") TSetArgc _setArgc_,
         @SuppressWarnings("hiding") TLPar _lPar_,
         @SuppressWarnings("hiding") PExpression _expression_,
@@ -26,6 +28,8 @@ public final class AInputSpecification extends PInputSpecification
         @SuppressWarnings("hiding") TSemicolon _semicolon_)
     {
         // Constructor
+        setSetupPrefix(_setupPrefix_);
+
         setSetArgc(_setArgc_);
 
         setLPar(_lPar_);
@@ -42,6 +46,7 @@ public final class AInputSpecification extends PInputSpecification
     public Object clone()
     {
         return new AInputSpecification(
+            cloneNode(this._setupPrefix_),
             cloneNode(this._setArgc_),
             cloneNode(this._lPar_),
             cloneNode(this._expression_),
@@ -53,6 +58,31 @@ public final class AInputSpecification extends PInputSpecification
     public void apply(Switch sw)
     {
         ((Analysis) sw).caseAInputSpecification(this);
+    }
+
+    public TSetupPrefix getSetupPrefix()
+    {
+        return this._setupPrefix_;
+    }
+
+    public void setSetupPrefix(TSetupPrefix node)
+    {
+        if(this._setupPrefix_ != null)
+        {
+            this._setupPrefix_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._setupPrefix_ = node;
     }
 
     public TSetArgc getSetArgc()
@@ -184,6 +214,7 @@ public final class AInputSpecification extends PInputSpecification
     public String toString()
     {
         return ""
+            + toString(this._setupPrefix_)
             + toString(this._setArgc_)
             + toString(this._lPar_)
             + toString(this._expression_)
@@ -195,6 +226,12 @@ public final class AInputSpecification extends PInputSpecification
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
+        if(this._setupPrefix_ == child)
+        {
+            this._setupPrefix_ = null;
+            return;
+        }
+
         if(this._setArgc_ == child)
         {
             this._setArgc_ = null;
@@ -232,6 +269,12 @@ public final class AInputSpecification extends PInputSpecification
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
+        if(this._setupPrefix_ == oldChild)
+        {
+            setSetupPrefix((TSetupPrefix) newChild);
+            return;
+        }
+
         if(this._setArgc_ == oldChild)
         {
             setSetArgc((TSetArgc) newChild);

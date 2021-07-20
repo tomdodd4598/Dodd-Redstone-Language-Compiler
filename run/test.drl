@@ -44,7 +44,7 @@ while (f > 0) {
 // ITERATIVE FIBONACCI
 
 /*
-set_argc(2);
+$set_argc(2);
 
 var f = argv(0);
 var a = argv(1);
@@ -65,7 +65,7 @@ while (f > 0) {
 // RECURSIVE FIBONACCI
 
 /*
-set_argc(2);
+$set_argc(2);
 
 var f = argv(0);
 var i = 0;

@@ -9,7 +9,7 @@ import drlc.analysis.*;
 public final class AConditionalBasicSection extends PBasicSection
 {
     private PIfBlock _ifBlock_;
-    private final LinkedList<PElseIfBlock> _elseIfBlock_ = new LinkedList<PElseIfBlock>();
+    private final LinkedList<PElifBlock> _elifBlock_ = new LinkedList<PElifBlock>();
     private PElseBlock _elseBlock_;
 
     public AConditionalBasicSection()
@@ -19,13 +19,13 @@ public final class AConditionalBasicSection extends PBasicSection
 
     public AConditionalBasicSection(
         @SuppressWarnings("hiding") PIfBlock _ifBlock_,
-        @SuppressWarnings("hiding") List<?> _elseIfBlock_,
+        @SuppressWarnings("hiding") List<?> _elifBlock_,
         @SuppressWarnings("hiding") PElseBlock _elseBlock_)
     {
         // Constructor
         setIfBlock(_ifBlock_);
 
-        setElseIfBlock(_elseIfBlock_);
+        setElifBlock(_elifBlock_);
 
         setElseBlock(_elseBlock_);
 
@@ -36,7 +36,7 @@ public final class AConditionalBasicSection extends PBasicSection
     {
         return new AConditionalBasicSection(
             cloneNode(this._ifBlock_),
-            cloneList(this._elseIfBlock_),
+            cloneList(this._elifBlock_),
             cloneNode(this._elseBlock_));
     }
 
@@ -71,29 +71,29 @@ public final class AConditionalBasicSection extends PBasicSection
         this._ifBlock_ = node;
     }
 
-    public LinkedList<PElseIfBlock> getElseIfBlock()
+    public LinkedList<PElifBlock> getElifBlock()
     {
-        return this._elseIfBlock_;
+        return this._elifBlock_;
     }
 
-    public void setElseIfBlock(List<?> list)
+    public void setElifBlock(List<?> list)
     {
-        for(PElseIfBlock e : this._elseIfBlock_)
+        for(PElifBlock e : this._elifBlock_)
         {
             e.parent(null);
         }
-        this._elseIfBlock_.clear();
+        this._elifBlock_.clear();
 
         for(Object obj_e : list)
         {
-            PElseIfBlock e = (PElseIfBlock) obj_e;
+            PElifBlock e = (PElifBlock) obj_e;
             if(e.parent() != null)
             {
                 e.parent().removeChild(e);
             }
 
             e.parent(this);
-            this._elseIfBlock_.add(e);
+            this._elifBlock_.add(e);
         }
     }
 
@@ -127,7 +127,7 @@ public final class AConditionalBasicSection extends PBasicSection
     {
         return ""
             + toString(this._ifBlock_)
-            + toString(this._elseIfBlock_)
+            + toString(this._elifBlock_)
             + toString(this._elseBlock_);
     }
 
@@ -141,7 +141,7 @@ public final class AConditionalBasicSection extends PBasicSection
             return;
         }
 
-        if(this._elseIfBlock_.remove(child))
+        if(this._elifBlock_.remove(child))
         {
             return;
         }
@@ -165,13 +165,13 @@ public final class AConditionalBasicSection extends PBasicSection
             return;
         }
 
-        for(ListIterator<PElseIfBlock> i = this._elseIfBlock_.listIterator(); i.hasNext();)
+        for(ListIterator<PElifBlock> i = this._elifBlock_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)
             {
                 if(newChild != null)
                 {
-                    i.set((PElseIfBlock) newChild);
+                    i.set((PElifBlock) newChild);
                     newChild.parent(this);
                     oldChild.parent(null);
                     return;

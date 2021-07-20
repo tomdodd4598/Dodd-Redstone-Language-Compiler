@@ -26,6 +26,8 @@ Helpers
 	block_comment = slash_star not_star* '*'+ (not_star_slash not_star* '*'+)* '/';
 
 Tokens
+	setup_prefix = '$';
+	
 	set_argc = 'set_argc';
 	
 	const = 'const';
@@ -40,6 +42,7 @@ Tokens
 	
 	return = 'return';
 	if = 'if';
+	elif = 'elif';
 	else = 'else';
 	while = 'while';
 	continue = 'continue';
@@ -106,7 +109,7 @@ Productions
 		input_specification?;
 	
 	input_specification =
-		set_argc l_par expression r_par semicolon;
+		setup_prefix set_argc l_par expression r_par semicolon;
 	
 	general_section =
 		{method_definition} method_definition |
@@ -118,7 +121,7 @@ Productions
 		{variable_declaration} variable_declaration |
 		{lvalue_modification} lvalue_modification |
 		{method_call} method_call |
-		{conditional} if_block else_if_block* else_block? |
+		{conditional} if_block elif_block* else_block? |
 		{iterative} iterative_block;
 	
 	
@@ -153,8 +156,8 @@ Productions
 	if_block =
 		if l_par expression r_par l_brace basic_section* stop_statement? r_brace;
 	
-	else_if_block =
-		else if l_par expression r_par l_brace basic_section* stop_statement? r_brace;
+	elif_block =
+		elif l_par expression r_par l_brace basic_section* stop_statement? r_brace;
 	
 	else_block =
 		else l_brace basic_section* stop_statement? r_brace;

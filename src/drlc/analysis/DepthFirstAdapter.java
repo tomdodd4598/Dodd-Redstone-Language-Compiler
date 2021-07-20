@@ -99,6 +99,10 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAInputSpecification(AInputSpecification node)
     {
         inAInputSpecification(node);
+        if(node.getSetupPrefix() != null)
+        {
+            node.getSetupPrefix().apply(this);
+        }
         if(node.getSetArgc() != null)
         {
             node.getSetArgc().apply(this);
@@ -288,8 +292,8 @@ public class DepthFirstAdapter extends AnalysisAdapter
             node.getIfBlock().apply(this);
         }
         {
-            List<PElseIfBlock> copy = new ArrayList<PElseIfBlock>(node.getElseIfBlock());
-            for(PElseIfBlock e : copy)
+            List<PElifBlock> copy = new ArrayList<PElifBlock>(node.getElifBlock());
+            for(PElifBlock e : copy)
             {
                 e.apply(this);
             }
@@ -886,27 +890,23 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outAIfBlock(node);
     }
 
-    public void inAElseIfBlock(AElseIfBlock node)
+    public void inAElifBlock(AElifBlock node)
     {
         defaultIn(node);
     }
 
-    public void outAElseIfBlock(AElseIfBlock node)
+    public void outAElifBlock(AElifBlock node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAElseIfBlock(AElseIfBlock node)
+    public void caseAElifBlock(AElifBlock node)
     {
-        inAElseIfBlock(node);
-        if(node.getElse() != null)
+        inAElifBlock(node);
+        if(node.getElif() != null)
         {
-            node.getElse().apply(this);
-        }
-        if(node.getIf() != null)
-        {
-            node.getIf().apply(this);
+            node.getElif().apply(this);
         }
         if(node.getLPar() != null)
         {
@@ -939,7 +939,7 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getRBrace().apply(this);
         }
-        outAElseIfBlock(node);
+        outAElifBlock(node);
     }
 
     public void inAElseBlock(AElseBlock node)

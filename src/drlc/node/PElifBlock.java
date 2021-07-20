@@ -2,7 +2,7 @@
 
 package drlc.node;
 
-public abstract class PElseIfBlock extends Node
+public abstract class PElifBlock extends Node
 {
     // Empty body
 }

@@ -120,6 +120,10 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getSetArgc().apply(this);
         }
+        if(node.getSetupPrefix() != null)
+        {
+            node.getSetupPrefix().apply(this);
+        }
         outAInputSpecification(node);
     }
 
@@ -289,9 +293,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
             node.getElseBlock().apply(this);
         }
         {
-            List<PElseIfBlock> copy = new ArrayList<PElseIfBlock>(node.getElseIfBlock());
+            List<PElifBlock> copy = new ArrayList<PElifBlock>(node.getElifBlock());
             Collections.reverse(copy);
-            for(PElseIfBlock e : copy)
+            for(PElifBlock e : copy)
             {
                 e.apply(this);
             }
@@ -894,20 +898,20 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outAIfBlock(node);
     }
 
-    public void inAElseIfBlock(AElseIfBlock node)
+    public void inAElifBlock(AElifBlock node)
     {
         defaultIn(node);
     }
 
-    public void outAElseIfBlock(AElseIfBlock node)
+    public void outAElifBlock(AElifBlock node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAElseIfBlock(AElseIfBlock node)
+    public void caseAElifBlock(AElifBlock node)
     {
-        inAElseIfBlock(node);
+        inAElifBlock(node);
         if(node.getRBrace() != null)
         {
             node.getRBrace().apply(this);
@@ -940,15 +944,11 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getLPar().apply(this);
         }
-        if(node.getIf() != null)
+        if(node.getElif() != null)
         {
-            node.getIf().apply(this);
+            node.getElif().apply(this);
         }
-        if(node.getElse() != null)
-        {
-            node.getElse().apply(this);
-        }
-        outAElseIfBlock(node);
+        outAElifBlock(node);
     }
 
     public void inAElseBlock(AElseBlock node)

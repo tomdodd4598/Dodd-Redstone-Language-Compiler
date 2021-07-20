@@ -6,10 +6,9 @@ import java.util.*;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AElseIfBlock extends PElseIfBlock
+public final class AElifBlock extends PElifBlock
 {
-    private TElse _else_;
-    private TIf _if_;
+    private TElif _elif_;
     private TLPar _lPar_;
     private PExpression _expression_;
     private TRPar _rPar_;
@@ -18,14 +17,13 @@ public final class AElseIfBlock extends PElseIfBlock
     private PStopStatement _stopStatement_;
     private TRBrace _rBrace_;
 
-    public AElseIfBlock()
+    public AElifBlock()
     {
         // Constructor
     }
 
-    public AElseIfBlock(
-        @SuppressWarnings("hiding") TElse _else_,
-        @SuppressWarnings("hiding") TIf _if_,
+    public AElifBlock(
+        @SuppressWarnings("hiding") TElif _elif_,
         @SuppressWarnings("hiding") TLPar _lPar_,
         @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") TRPar _rPar_,
@@ -35,9 +33,7 @@ public final class AElseIfBlock extends PElseIfBlock
         @SuppressWarnings("hiding") TRBrace _rBrace_)
     {
         // Constructor
-        setElse(_else_);
-
-        setIf(_if_);
+        setElif(_elif_);
 
         setLPar(_lPar_);
 
@@ -58,9 +54,8 @@ public final class AElseIfBlock extends PElseIfBlock
     @Override
     public Object clone()
     {
-        return new AElseIfBlock(
-            cloneNode(this._else_),
-            cloneNode(this._if_),
+        return new AElifBlock(
+            cloneNode(this._elif_),
             cloneNode(this._lPar_),
             cloneNode(this._expression_),
             cloneNode(this._rPar_),
@@ -73,19 +68,19 @@ public final class AElseIfBlock extends PElseIfBlock
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAElseIfBlock(this);
+        ((Analysis) sw).caseAElifBlock(this);
     }
 
-    public TElse getElse()
+    public TElif getElif()
     {
-        return this._else_;
+        return this._elif_;
     }
 
-    public void setElse(TElse node)
+    public void setElif(TElif node)
     {
-        if(this._else_ != null)
+        if(this._elif_ != null)
         {
-            this._else_.parent(null);
+            this._elif_.parent(null);
         }
 
         if(node != null)
@@ -98,32 +93,7 @@ public final class AElseIfBlock extends PElseIfBlock
             node.parent(this);
         }
 
-        this._else_ = node;
-    }
-
-    public TIf getIf()
-    {
-        return this._if_;
-    }
-
-    public void setIf(TIf node)
-    {
-        if(this._if_ != null)
-        {
-            this._if_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._if_ = node;
+        this._elif_ = node;
     }
 
     public TLPar getLPar()
@@ -306,8 +276,7 @@ public final class AElseIfBlock extends PElseIfBlock
     public String toString()
     {
         return ""
-            + toString(this._else_)
-            + toString(this._if_)
+            + toString(this._elif_)
             + toString(this._lPar_)
             + toString(this._expression_)
             + toString(this._rPar_)
@@ -321,15 +290,9 @@ public final class AElseIfBlock extends PElseIfBlock
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._else_ == child)
+        if(this._elif_ == child)
         {
-            this._else_ = null;
-            return;
-        }
-
-        if(this._if_ == child)
-        {
-            this._if_ = null;
+            this._elif_ = null;
             return;
         }
 
@@ -381,15 +344,9 @@ public final class AElseIfBlock extends PElseIfBlock
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._else_ == oldChild)
+        if(this._elif_ == oldChild)
         {
-            setElse((TElse) newChild);
-            return;
-        }
-
-        if(this._if_ == oldChild)
-        {
-            setIf((TIf) newChild);
+            setElif((TElif) newChild);
             return;
         }
 
