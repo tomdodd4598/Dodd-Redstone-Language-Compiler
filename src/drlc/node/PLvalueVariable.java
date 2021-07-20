@@ -2,7 +2,7 @@
 
 package drlc.node;
 
-public abstract class PRvalueArrayElement extends Node
+public abstract class PLvalueVariable extends Node
 {
     // Empty body
 }

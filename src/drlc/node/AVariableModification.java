@@ -5,26 +5,26 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AParArrayElementLvalueModification extends PLvalueModification
+public final class AVariableModification extends PVariableModification
 {
-    private PParLvalueArrayElement _parLvalueArrayElement_;
+    private PLvalueVariable _lvalueVariable_;
     private TEquals _equals_;
     private PExpression _expression_;
     private TSemicolon _semicolon_;
 
-    public AParArrayElementLvalueModification()
+    public AVariableModification()
     {
         // Constructor
     }
 
-    public AParArrayElementLvalueModification(
-        @SuppressWarnings("hiding") PParLvalueArrayElement _parLvalueArrayElement_,
+    public AVariableModification(
+        @SuppressWarnings("hiding") PLvalueVariable _lvalueVariable_,
         @SuppressWarnings("hiding") TEquals _equals_,
         @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") TSemicolon _semicolon_)
     {
         // Constructor
-        setParLvalueArrayElement(_parLvalueArrayElement_);
+        setLvalueVariable(_lvalueVariable_);
 
         setEquals(_equals_);
 
@@ -37,8 +37,8 @@ public final class AParArrayElementLvalueModification extends PLvalueModificatio
     @Override
     public Object clone()
     {
-        return new AParArrayElementLvalueModification(
-            cloneNode(this._parLvalueArrayElement_),
+        return new AVariableModification(
+            cloneNode(this._lvalueVariable_),
             cloneNode(this._equals_),
             cloneNode(this._expression_),
             cloneNode(this._semicolon_));
@@ -47,19 +47,19 @@ public final class AParArrayElementLvalueModification extends PLvalueModificatio
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAParArrayElementLvalueModification(this);
+        ((Analysis) sw).caseAVariableModification(this);
     }
 
-    public PParLvalueArrayElement getParLvalueArrayElement()
+    public PLvalueVariable getLvalueVariable()
     {
-        return this._parLvalueArrayElement_;
+        return this._lvalueVariable_;
     }
 
-    public void setParLvalueArrayElement(PParLvalueArrayElement node)
+    public void setLvalueVariable(PLvalueVariable node)
     {
-        if(this._parLvalueArrayElement_ != null)
+        if(this._lvalueVariable_ != null)
         {
-            this._parLvalueArrayElement_.parent(null);
+            this._lvalueVariable_.parent(null);
         }
 
         if(node != null)
@@ -72,7 +72,7 @@ public final class AParArrayElementLvalueModification extends PLvalueModificatio
             node.parent(this);
         }
 
-        this._parLvalueArrayElement_ = node;
+        this._lvalueVariable_ = node;
     }
 
     public TEquals getEquals()
@@ -154,7 +154,7 @@ public final class AParArrayElementLvalueModification extends PLvalueModificatio
     public String toString()
     {
         return ""
-            + toString(this._parLvalueArrayElement_)
+            + toString(this._lvalueVariable_)
             + toString(this._equals_)
             + toString(this._expression_)
             + toString(this._semicolon_);
@@ -164,9 +164,9 @@ public final class AParArrayElementLvalueModification extends PLvalueModificatio
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._parLvalueArrayElement_ == child)
+        if(this._lvalueVariable_ == child)
         {
-            this._parLvalueArrayElement_ = null;
+            this._lvalueVariable_ = null;
             return;
         }
 
@@ -195,9 +195,9 @@ public final class AParArrayElementLvalueModification extends PLvalueModificatio
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._parLvalueArrayElement_ == oldChild)
+        if(this._lvalueVariable_ == oldChild)
         {
-            setParLvalueArrayElement((PParLvalueArrayElement) newChild);
+            setLvalueVariable((PLvalueVariable) newChild);
             return;
         }
 

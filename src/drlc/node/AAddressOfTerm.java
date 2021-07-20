@@ -7,7 +7,8 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AAddressOfTerm extends PTerm
 {
-    private PAddressOfTerm _addressOfTerm_;
+    private TAddressOf _addressOf_;
+    private PRvalueVariable _rvalueVariable_;
 
     public AAddressOfTerm()
     {
@@ -15,10 +16,13 @@ public final class AAddressOfTerm extends PTerm
     }
 
     public AAddressOfTerm(
-        @SuppressWarnings("hiding") PAddressOfTerm _addressOfTerm_)
+        @SuppressWarnings("hiding") TAddressOf _addressOf_,
+        @SuppressWarnings("hiding") PRvalueVariable _rvalueVariable_)
     {
         // Constructor
-        setAddressOfTerm(_addressOfTerm_);
+        setAddressOf(_addressOf_);
+
+        setRvalueVariable(_rvalueVariable_);
 
     }
 
@@ -26,7 +30,8 @@ public final class AAddressOfTerm extends PTerm
     public Object clone()
     {
         return new AAddressOfTerm(
-            cloneNode(this._addressOfTerm_));
+            cloneNode(this._addressOf_),
+            cloneNode(this._rvalueVariable_));
     }
 
     @Override
@@ -35,16 +40,16 @@ public final class AAddressOfTerm extends PTerm
         ((Analysis) sw).caseAAddressOfTerm(this);
     }
 
-    public PAddressOfTerm getAddressOfTerm()
+    public TAddressOf getAddressOf()
     {
-        return this._addressOfTerm_;
+        return this._addressOf_;
     }
 
-    public void setAddressOfTerm(PAddressOfTerm node)
+    public void setAddressOf(TAddressOf node)
     {
-        if(this._addressOfTerm_ != null)
+        if(this._addressOf_ != null)
         {
-            this._addressOfTerm_.parent(null);
+            this._addressOf_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +62,55 @@ public final class AAddressOfTerm extends PTerm
             node.parent(this);
         }
 
-        this._addressOfTerm_ = node;
+        this._addressOf_ = node;
+    }
+
+    public PRvalueVariable getRvalueVariable()
+    {
+        return this._rvalueVariable_;
+    }
+
+    public void setRvalueVariable(PRvalueVariable node)
+    {
+        if(this._rvalueVariable_ != null)
+        {
+            this._rvalueVariable_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._rvalueVariable_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._addressOfTerm_);
+            + toString(this._addressOf_)
+            + toString(this._rvalueVariable_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._addressOfTerm_ == child)
+        if(this._addressOf_ == child)
         {
-            this._addressOfTerm_ = null;
+            this._addressOf_ = null;
+            return;
+        }
+
+        if(this._rvalueVariable_ == child)
+        {
+            this._rvalueVariable_ = null;
             return;
         }
 
@@ -84,9 +121,15 @@ public final class AAddressOfTerm extends PTerm
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._addressOfTerm_ == oldChild)
+        if(this._addressOf_ == oldChild)
         {
-            setAddressOfTerm((PAddressOfTerm) newChild);
+            setAddressOf((TAddressOf) newChild);
+            return;
+        }
+
+        if(this._rvalueVariable_ == oldChild)
+        {
+            setRvalueVariable((PRvalueVariable) newChild);
             return;
         }
 

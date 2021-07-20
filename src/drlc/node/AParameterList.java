@@ -8,7 +8,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AParameterList extends PParameterList
 {
-    private PDeclarationVariable _declarationVariable_;
+    private PLvalueVariable _lvalueVariable_;
     private final LinkedList<PParameterListTail> _parameterListTail_ = new LinkedList<PParameterListTail>();
 
     public AParameterList()
@@ -17,11 +17,11 @@ public final class AParameterList extends PParameterList
     }
 
     public AParameterList(
-        @SuppressWarnings("hiding") PDeclarationVariable _declarationVariable_,
+        @SuppressWarnings("hiding") PLvalueVariable _lvalueVariable_,
         @SuppressWarnings("hiding") List<?> _parameterListTail_)
     {
         // Constructor
-        setDeclarationVariable(_declarationVariable_);
+        setLvalueVariable(_lvalueVariable_);
 
         setParameterListTail(_parameterListTail_);
 
@@ -31,7 +31,7 @@ public final class AParameterList extends PParameterList
     public Object clone()
     {
         return new AParameterList(
-            cloneNode(this._declarationVariable_),
+            cloneNode(this._lvalueVariable_),
             cloneList(this._parameterListTail_));
     }
 
@@ -41,16 +41,16 @@ public final class AParameterList extends PParameterList
         ((Analysis) sw).caseAParameterList(this);
     }
 
-    public PDeclarationVariable getDeclarationVariable()
+    public PLvalueVariable getLvalueVariable()
     {
-        return this._declarationVariable_;
+        return this._lvalueVariable_;
     }
 
-    public void setDeclarationVariable(PDeclarationVariable node)
+    public void setLvalueVariable(PLvalueVariable node)
     {
-        if(this._declarationVariable_ != null)
+        if(this._lvalueVariable_ != null)
         {
-            this._declarationVariable_.parent(null);
+            this._lvalueVariable_.parent(null);
         }
 
         if(node != null)
@@ -63,7 +63,7 @@ public final class AParameterList extends PParameterList
             node.parent(this);
         }
 
-        this._declarationVariable_ = node;
+        this._lvalueVariable_ = node;
     }
 
     public LinkedList<PParameterListTail> getParameterListTail()
@@ -96,7 +96,7 @@ public final class AParameterList extends PParameterList
     public String toString()
     {
         return ""
-            + toString(this._declarationVariable_)
+            + toString(this._lvalueVariable_)
             + toString(this._parameterListTail_);
     }
 
@@ -104,9 +104,9 @@ public final class AParameterList extends PParameterList
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._declarationVariable_ == child)
+        if(this._lvalueVariable_ == child)
         {
-            this._declarationVariable_ = null;
+            this._lvalueVariable_ = null;
             return;
         }
 
@@ -122,9 +122,9 @@ public final class AParameterList extends PParameterList
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._declarationVariable_ == oldChild)
+        if(this._lvalueVariable_ == oldChild)
         {
-            setDeclarationVariable((PDeclarationVariable) newChild);
+            setLvalueVariable((PLvalueVariable) newChild);
             return;
         }
 

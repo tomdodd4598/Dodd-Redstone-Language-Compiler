@@ -123,7 +123,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseALvalueModificationBasicSection(ALvalueModificationBasicSection node)
+    public void caseAVariableModificationBasicSection(AVariableModificationBasicSection node)
     {
         defaultCase(node);
     }
@@ -165,49 +165,19 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAIntegerNoInitialisationVariableDeclaration(AIntegerNoInitialisationVariableDeclaration node)
+    public void caseANoInitialisationVariableDeclaration(ANoInitialisationVariableDeclaration node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAIntegerWithInitialisationVariableDeclaration(AIntegerWithInitialisationVariableDeclaration node)
+    public void caseAWithInitialisationVariableDeclaration(AWithInitialisationVariableDeclaration node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAArrayNoInitialisationVariableDeclaration(AArrayNoInitialisationVariableDeclaration node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAArrayWithImplicitInitialisationVariableDeclaration(AArrayWithImplicitInitialisationVariableDeclaration node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAArrayWithExplicitInitialisationVariableDeclaration(AArrayWithExplicitInitialisationVariableDeclaration node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAIntegerVariableLvalueModification(AIntegerVariableLvalueModification node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAArrayElementLvalueModification(AArrayElementLvalueModification node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAParArrayElementLvalueModification(AParArrayElementLvalueModification node)
+    public void caseAVariableModification(AVariableModification node)
     {
         defaultCase(node);
     }
@@ -357,55 +327,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAIntegerVariableAddressOfTerm(AIntegerVariableAddressOfTerm node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAArrayElementAddressOfTerm(AArrayElementAddressOfTerm node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAParArrayElementAddressOfTerm(AParArrayElementAddressOfTerm node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAIntegerVariableDereferenceTerm(AIntegerVariableDereferenceTerm node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAArrayElementDereferenceTerm(AArrayElementDereferenceTerm node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAParArrayElementDereferenceTerm(AParArrayElementDereferenceTerm node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
     public void caseAIntegerValue(AIntegerValue node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAIntegerVariableValue(AIntegerVariableValue node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAArrayElementValue(AArrayElementValue node)
+    public void caseAVariableValue(AVariableValue node)
     {
         defaultCase(node);
     }
@@ -435,97 +363,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseARvalueIntegerVariable(ARvalueIntegerVariable node)
+    public void caseARvalueVariable(ARvalueVariable node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseARvalueArrayElement(ARvalueArrayElement node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAParRvalueArrayElement(AParRvalueArrayElement node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAParRvalueArrayElementInternal(AParRvalueArrayElementInternal node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseALvalueIntegerVariable(ALvalueIntegerVariable node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseALvalueArrayElement(ALvalueArrayElement node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAParLvalueArrayElement(AParLvalueArrayElement node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAParLvalueArrayElementInternal(AParLvalueArrayElementInternal node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseADeclarationVariable(ADeclarationVariable node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAArrayBrackets(AArrayBrackets node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAAddressOfImplicitInitialisationArray(AAddressOfImplicitInitialisationArray node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseADereferenceImplicitInitialisationArray(ADereferenceImplicitInitialisationArray node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseANestedExplicitInitialisationArray(ANestedExplicitInitialisationArray node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseANonNestedExplicitInitialisationArray(ANonNestedExplicitInitialisationArray node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAExplicitInitialisationArrayList(AExplicitInitialisationArrayList node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAExplicitInitialisationArrayListTail(AExplicitInitialisationArrayListTail node)
+    public void caseALvalueVariable(ALvalueVariable node)
     {
         defaultCase(node);
     }
@@ -790,18 +634,6 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTRPar(TRPar node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTLBracket(TLBracket node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTRBracket(TRBracket node)
     {
         defaultCase(node);
     }

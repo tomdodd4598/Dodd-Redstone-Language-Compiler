@@ -52,8 +52,6 @@ Tokens
 	
 	l_par = '(';
 	r_par = ')';
-	l_bracket = '[';
-	r_bracket = ']';
 	l_brace = '{';
 	r_brace = '}';
 	comma = ',';
@@ -119,7 +117,7 @@ Productions
 	basic_section =
 		{constant_definition} constant_definition |
 		{variable_declaration} variable_declaration |
-		{lvalue_modification} lvalue_modification |
+		{variable_modification} variable_modification |
 		{method_call} method_call |
 		{conditional} if_block elif_block* else_block? |
 		{iterative} iterative_block;
@@ -138,16 +136,11 @@ Productions
 		const name equals expression semicolon;
 	
 	variable_declaration =
-		{integer_no_initialisation} var declaration_variable semicolon |
-		{integer_with_initialisation} var declaration_variable equals expression semicolon |
-		{array_no_initialisation} var array_brackets+ declaration_variable semicolon |
-		{array_with_implicit_initialisation} var array_brackets+ declaration_variable equals implicit_initialisation_array semicolon |
-		{array_with_explicit_initialisation} var array_brackets+ declaration_variable equals explicit_initialisation_array semicolon;
+		{no_initialisation} var lvalue_variable semicolon |
+		{with_initialisation} var lvalue_variable equals expression semicolon;
 	
-	lvalue_modification =
-		{integer_variable} lvalue_integer_variable equals expression semicolon |
-		{array_element} lvalue_array_element equals expression semicolon |
-		{par_array_element} par_lvalue_array_element equals expression semicolon;
+	variable_modification =
+		lvalue_variable equals expression semicolon;
 	
 	method_call =
 		{built_in_out} out l_par expression r_par semicolon |
@@ -192,25 +185,14 @@ Productions
 	
 	term =
 		{value} value |
-		{address_of} address_of_term |
-		{dereference} dereference_term |
+		{address_of} address_of rvalue_variable |
+		{dereference} dereference+ rvalue_variable |
 		{unary} unary_op term |
 		{par_expression} l_par expression r_par;
 	
-	address_of_term =
-		{integer_variable} address_of rvalue_integer_variable |
-		{array_element} address_of rvalue_array_element |
-		{par_array_element} address_of par_rvalue_array_element;
-	
-	dereference_term =
-		{integer_variable} dereference+ rvalue_integer_variable |
-		{array_element} dereference+ rvalue_array_element |
-		{par_array_element} dereference+ par_rvalue_array_element;
-	
 	value =
 		{integer} integer |
-		{integer_variable} rvalue_integer_variable |
-		{array_element} rvalue_array_element |
+		{variable} rvalue_variable |
 		{function} function;
 	
 	function =
@@ -218,49 +200,11 @@ Productions
 		{built_in_argv} argv l_par expression r_par |
 		{defined} name l_par argument_list? r_par;
 	
-	rvalue_integer_variable =
+	rvalue_variable =
 		name;
 	
-	rvalue_array_element =
-		name array_brackets+;
-	
-	par_rvalue_array_element =
-		l_par par_rvalue_array_element_internal r_par;
-	
-	par_rvalue_array_element_internal =
-		dereference* name array_brackets+;
-	
-	lvalue_integer_variable =
+	lvalue_variable =
 		dereference* name;
-	
-	lvalue_array_element =
-		dereference* name array_brackets+;
-	
-	par_lvalue_array_element =
-		dereference+ l_par par_lvalue_array_element_internal r_par;
-	
-	par_lvalue_array_element_internal =
-		dereference* name array_brackets+;
-	
-	declaration_variable =
-		dereference* name;
-	
-	array_brackets =
-		l_bracket expression r_bracket;
-	
-	implicit_initialisation_array =
-		{address_of} address_of name array_brackets+ |
-		{dereference} dereference* name array_brackets+;
-	
-	explicit_initialisation_array =
-		{nested} l_brace explicit_initialisation_array_list r_brace |
-		{non_nested} l_brace argument_list? r_brace;
-	
-	explicit_initialisation_array_list =
-		explicit_initialisation_array explicit_initialisation_array_list_tail*;
-	
-	explicit_initialisation_array_list_tail =
-		comma explicit_initialisation_array;
 	
 	argument_list =
 		expression argument_list_tail*;
@@ -269,10 +213,10 @@ Productions
 		comma expression;
 	
 	parameter_list =
-		declaration_variable parameter_list_tail*;
+		lvalue_variable parameter_list_tail*;
 	
 	parameter_list_tail =
-		comma declaration_variable;
+		comma lvalue_variable;
 	
 	
 	

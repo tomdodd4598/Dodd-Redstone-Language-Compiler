@@ -1,7 +1,6 @@
-package drlc.interpret.type.info;
+package drlc.interpret.type;
 
 import drlc.*;
-import drlc.interpret.type.Variable;
 
 public class VariableReferenceInfo {
 	
@@ -10,11 +9,6 @@ public class VariableReferenceInfo {
 	
 	public VariableReferenceInfo(Variable variable) {
 		this.variable = variable;
-	}
-	
-	public VariableReferenceInfo(Variable variable, int dereferenceLevel) {
-		this(variable);
-		this.dereferenceLevel = dereferenceLevel;
 	}
 	
 	@Override

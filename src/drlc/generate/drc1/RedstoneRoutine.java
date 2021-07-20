@@ -19,7 +19,6 @@ import drlc.interpret.action.BinaryOpAction.BinaryOpType;
 import drlc.interpret.action.UnaryOpAction.UnaryOpType;
 import drlc.interpret.routine.*;
 import drlc.interpret.type.*;
-import drlc.interpret.type.info.VariableReferenceInfo;
 
 public class RedstoneRoutine {
 	

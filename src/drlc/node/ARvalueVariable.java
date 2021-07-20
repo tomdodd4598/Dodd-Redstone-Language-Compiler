@@ -5,46 +5,46 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class ALvalueModificationBasicSection extends PBasicSection
+public final class ARvalueVariable extends PRvalueVariable
 {
-    private PLvalueModification _lvalueModification_;
+    private TName _name_;
 
-    public ALvalueModificationBasicSection()
+    public ARvalueVariable()
     {
         // Constructor
     }
 
-    public ALvalueModificationBasicSection(
-        @SuppressWarnings("hiding") PLvalueModification _lvalueModification_)
+    public ARvalueVariable(
+        @SuppressWarnings("hiding") TName _name_)
     {
         // Constructor
-        setLvalueModification(_lvalueModification_);
+        setName(_name_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new ALvalueModificationBasicSection(
-            cloneNode(this._lvalueModification_));
+        return new ARvalueVariable(
+            cloneNode(this._name_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseALvalueModificationBasicSection(this);
+        ((Analysis) sw).caseARvalueVariable(this);
     }
 
-    public PLvalueModification getLvalueModification()
+    public TName getName()
     {
-        return this._lvalueModification_;
+        return this._name_;
     }
 
-    public void setLvalueModification(PLvalueModification node)
+    public void setName(TName node)
     {
-        if(this._lvalueModification_ != null)
+        if(this._name_ != null)
         {
-            this._lvalueModification_.parent(null);
+            this._name_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class ALvalueModificationBasicSection extends PBasicSection
             node.parent(this);
         }
 
-        this._lvalueModification_ = node;
+        this._name_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._lvalueModification_);
+            + toString(this._name_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._lvalueModification_ == child)
+        if(this._name_ == child)
         {
-            this._lvalueModification_ = null;
+            this._name_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class ALvalueModificationBasicSection extends PBasicSection
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._lvalueModification_ == oldChild)
+        if(this._name_ == oldChild)
         {
-            setLvalueModification((PLvalueModification) newChild);
+            setName((TName) newChild);
             return;
         }
 

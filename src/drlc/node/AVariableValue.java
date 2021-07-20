@@ -5,46 +5,46 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class ARvalueIntegerVariable extends PRvalueIntegerVariable
+public final class AVariableValue extends PValue
 {
-    private TName _name_;
+    private PRvalueVariable _rvalueVariable_;
 
-    public ARvalueIntegerVariable()
+    public AVariableValue()
     {
         // Constructor
     }
 
-    public ARvalueIntegerVariable(
-        @SuppressWarnings("hiding") TName _name_)
+    public AVariableValue(
+        @SuppressWarnings("hiding") PRvalueVariable _rvalueVariable_)
     {
         // Constructor
-        setName(_name_);
+        setRvalueVariable(_rvalueVariable_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new ARvalueIntegerVariable(
-            cloneNode(this._name_));
+        return new AVariableValue(
+            cloneNode(this._rvalueVariable_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseARvalueIntegerVariable(this);
+        ((Analysis) sw).caseAVariableValue(this);
     }
 
-    public TName getName()
+    public PRvalueVariable getRvalueVariable()
     {
-        return this._name_;
+        return this._rvalueVariable_;
     }
 
-    public void setName(TName node)
+    public void setRvalueVariable(PRvalueVariable node)
     {
-        if(this._name_ != null)
+        if(this._rvalueVariable_ != null)
         {
-            this._name_.parent(null);
+            this._rvalueVariable_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class ARvalueIntegerVariable extends PRvalueIntegerVariable
             node.parent(this);
         }
 
-        this._name_ = node;
+        this._rvalueVariable_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._name_);
+            + toString(this._rvalueVariable_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._name_ == child)
+        if(this._rvalueVariable_ == child)
         {
-            this._name_ = null;
+            this._rvalueVariable_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class ARvalueIntegerVariable extends PRvalueIntegerVariable
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._name_ == oldChild)
+        if(this._rvalueVariable_ == oldChild)
         {
-            setName((TName) newChild);
+            setRvalueVariable((PRvalueVariable) newChild);
             return;
         }
 
