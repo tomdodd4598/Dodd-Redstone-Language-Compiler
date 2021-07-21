@@ -69,6 +69,7 @@ public class RedstoneCode {
 				flag |= RedstoneOptimization.removeUnnecessaryConstants(routine);
 				flag |= RedstoneOptimization.removeUnnecessaryLoads(routine);
 				flag |= RedstoneOptimization.removeUnnecessaryStores(routine);
+				flag |= RedstoneOptimization.removeUnusedTemporaryData(routine);
 				flag |= RedstoneOptimization.removeUnnecessaryJumps(routine);
 				flag |= RedstoneOptimization.simplifyConditionalJumps(routine);
 				flag |= RedstoneOptimization.simplifyALUImmediateInstructions(routine);

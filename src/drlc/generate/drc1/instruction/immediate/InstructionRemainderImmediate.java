@@ -4,9 +4,9 @@ import drlc.*;
 import drlc.generate.drc1.*;
 import drlc.generate.drc1.instruction.Instruction;
 
-public class InstructionModuloLongImmediate extends InstructionALULongImmediate {
+public class InstructionRemainderImmediate extends InstructionALUImmediate {
 	
-	public InstructionModuloLongImmediate(short value) {
+	public InstructionRemainderImmediate(short value) {
 		super(value);
 	}
 	
@@ -17,7 +17,7 @@ public class InstructionModuloLongImmediate extends InstructionALULongImmediate 
 	
 	@Override
 	public Instruction getALUImmediateReplacementInternal() {
-		if (value == 1 || value == -1) {
+		if (value == 1) {
 			return new InstructionLoadImmediate((short) 0);
 		}
 		else {
@@ -27,11 +27,11 @@ public class InstructionModuloLongImmediate extends InstructionALULongImmediate 
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.MODLI).concat(Global.ZERO_8);
+		return RedstoneOpcodes.get(RedstoneMnemonics.REMI).concat(Helper.toBinary(value, 8));
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.MODLI.concat("\t").concat(Global.IMMEDIATE).concat(Helper.toHex(value));
+		return RedstoneMnemonics.REMI.concat("\t").concat(Global.IMMEDIATE).concat(Helper.toHex(value));
 	}
 }

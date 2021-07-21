@@ -283,9 +283,7 @@ public class Interpreter extends DepthFirstAdapter {
 	public void caseAIfBlock(AIfBlock node) {
 		program.currentRoutine().incrementSectionId();
 		node.getIf().apply(this);
-		node.getLPar().apply(this);
 		node.getExpression().apply(this);
-		node.getRPar().apply(this);
 		program.currentRoutine().currentConditionalSectionInfo().setElseJumpConditionalSectionId(node, program.currentRoutine());
 		program.currentRoutine().addConditionalSectionSkipJumpActionAndIncrementSectionId(node);
 		node.getLBrace().apply(this);
@@ -304,9 +302,7 @@ public class Interpreter extends DepthFirstAdapter {
 		program.currentRoutine().incrementSectionId();
 		program.currentRoutine().addConditionalSectionElseJumpAction(node, scope);
 		node.getElif().apply(this);
-		node.getLPar().apply(this);
 		node.getExpression().apply(this);
-		node.getRPar().apply(this);
 		program.currentRoutine().currentConditionalSectionInfo().setElseJumpConditionalSectionId(node, program.currentRoutine());
 		program.currentRoutine().addConditionalSectionSkipJumpActionAndIncrementSectionId(node);
 		node.getLBrace().apply(this);
@@ -345,9 +341,7 @@ public class Interpreter extends DepthFirstAdapter {
 		program.currentRoutine().iterativeSectionInfoStack.push(info);
 		
 		node.getWhile().apply(this);
-		node.getLPar().apply(this);
 		node.getExpression().apply(this);
-		node.getRPar().apply(this);
 		
 		program.currentRoutine().addIterativeSectionJumpActionsAndIncrementSectionId(node, scope);
 		
@@ -718,10 +712,10 @@ public class Interpreter extends DepthFirstAdapter {
 	public void outADividePrioritizedBinaryOp(ADividePrioritizedBinaryOp node) {}
 	
 	@Override
-	public void inAModuloPrioritizedBinaryOp(AModuloPrioritizedBinaryOp node) {}
+	public void inARemainderPrioritizedBinaryOp(ARemainderPrioritizedBinaryOp node) {}
 	
 	@Override
-	public void outAModuloPrioritizedBinaryOp(AModuloPrioritizedBinaryOp node) {}
+	public void outARemainderPrioritizedBinaryOp(ARemainderPrioritizedBinaryOp node) {}
 	
 	@Override
 	public void inANotEqualToPrioritizedBinaryOp(ANotEqualToPrioritizedBinaryOp node) {}

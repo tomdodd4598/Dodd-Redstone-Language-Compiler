@@ -644,8 +644,8 @@ public class RedstoneRoutine {
 						text.add(new InstructionDivideLongImmediate(value));
 						text.add(new InstructionConstant(value));
 						break;
-					case MODULO:
-						text.add(new InstructionModuloLongImmediate(value));
+					case REMAINDER:
+						text.add(new InstructionRemainderLongImmediate(value));
 						text.add(new InstructionConstant(value));
 						break;
 					case NOT_EQUAL_TO:
@@ -710,8 +710,8 @@ public class RedstoneRoutine {
 					case DIVIDE:
 						text.add(new InstructionDivideImmediate(value));
 						break;
-					case MODULO:
-						text.add(new InstructionModuloImmediate(value));
+					case REMAINDER:
+						text.add(new InstructionRemainderImmediate(value));
 						break;
 					case NOT_EQUAL_TO:
 						text.add(new InstructionXorImmediate(value));
@@ -773,8 +773,8 @@ public class RedstoneRoutine {
 					case DIVIDE:
 						text.add(new InstructionDivideOffset(argInfo));
 						break;
-					case MODULO:
-						text.add(new InstructionModuloOffset(argInfo));
+					case REMAINDER:
+						text.add(new InstructionRemainderOffset(argInfo));
 						break;
 					case NOT_EQUAL_TO:
 						text.add(new InstructionXorOffset(argInfo));
@@ -833,8 +833,8 @@ public class RedstoneRoutine {
 					case DIVIDE:
 						text.add(new InstructionDivide(argInfo));
 						break;
-					case MODULO:
-						text.add(new InstructionModulo(argInfo));
+					case REMAINDER:
+						text.add(new InstructionRemainder(argInfo));
 						break;
 					case NOT_EQUAL_TO:
 						text.add(new InstructionXor(argInfo));

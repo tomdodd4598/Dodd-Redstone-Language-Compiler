@@ -4,24 +4,24 @@ import drlc.Helper;
 import drlc.generate.drc1.*;
 import drlc.generate.drc1.instruction.Instruction;
 
-public class InstructionModulo extends InstructionALU {
+public class InstructionRemainder extends InstructionALU {
 	
-	public InstructionModulo(DataInfo info) {
+	public InstructionRemainder(DataInfo info) {
 		super(info);
 	}
 	
 	@Override
 	public Instruction getDataReplacement(RedstoneRoutine routine) {
-		return new InstructionModulo(routine.dataInfo(info.argName));
+		return new InstructionRemainder(routine.dataInfo(info.argName));
 	}
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.MOD).concat(Helper.toBinary(address, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.REM).concat(Helper.toBinary(address, 8));
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.MOD.concat("\t").concat(Helper.toHex(address, 2));
+		return RedstoneMnemonics.REM.concat("\t").concat(Helper.toHex(address, 2));
 	}
 }

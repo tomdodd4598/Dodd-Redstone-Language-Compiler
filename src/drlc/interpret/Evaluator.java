@@ -114,7 +114,7 @@ public class Evaluator {
 						x /= parseFactor(); // divide
 					}
 					else if (eat('%')) {
-						x %= parseFactor(); // modulo
+						x %= parseFactor(); // remainder
 					}
 					else if (eat('!')) {
 						if (!eat('=')) {

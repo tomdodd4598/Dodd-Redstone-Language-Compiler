@@ -5,14 +5,14 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class TModulo extends Token
+public final class TRemainder extends Token
 {
-    public TModulo()
+    public TRemainder()
     {
         super.setText("%");
     }
 
-    public TModulo(int line, int pos)
+    public TRemainder(int line, int pos)
     {
         super.setText("%");
         setLine(line);
@@ -22,18 +22,18 @@ public final class TModulo extends Token
     @Override
     public Object clone()
     {
-      return new TModulo(getLine(), getPos());
+      return new TRemainder(getLine(), getPos());
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseTModulo(this);
+        ((Analysis) sw).caseTRemainder(this);
     }
 
     @Override
     public void setText(@SuppressWarnings("unused") String text)
     {
-        throw new RuntimeException("Cannot change TModulo text.");
+        throw new RuntimeException("Cannot change TRemainder text.");
     }
 }

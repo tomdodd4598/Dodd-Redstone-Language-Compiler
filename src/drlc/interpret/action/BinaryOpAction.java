@@ -163,7 +163,7 @@ public class BinaryOpAction extends Action implements IValueAction {
 		OP_TYPE_MAP.put("*", BinaryOpType.MULTIPLY);
 		OP_TYPE_MAP.put("==", BinaryOpType.EQUAL_TO);
 		OP_TYPE_MAP.put("/", BinaryOpType.DIVIDE);
-		OP_TYPE_MAP.put("%", BinaryOpType.MODULO);
+		OP_TYPE_MAP.put("%", BinaryOpType.REMAINDER);
 		OP_TYPE_MAP.put("!=", BinaryOpType.NOT_EQUAL_TO);
 		OP_TYPE_MAP.put("<", BinaryOpType.LESS_THAN);
 		OP_TYPE_MAP.put("<=", BinaryOpType.LESS_OR_EQUAL);
@@ -180,7 +180,7 @@ public class BinaryOpAction extends Action implements IValueAction {
 		COMMUTATED_TYPE_MAP.put(BinaryOpType.MULTIPLY, BinaryOpType.MULTIPLY);
 		COMMUTATED_TYPE_MAP.put(BinaryOpType.EQUAL_TO, BinaryOpType.EQUAL_TO);
 		COMMUTATED_TYPE_MAP.put(BinaryOpType.DIVIDE, null);
-		COMMUTATED_TYPE_MAP.put(BinaryOpType.MODULO, null);
+		COMMUTATED_TYPE_MAP.put(BinaryOpType.REMAINDER, null);
 		COMMUTATED_TYPE_MAP.put(BinaryOpType.NOT_EQUAL_TO, BinaryOpType.NOT_EQUAL_TO);
 		COMMUTATED_TYPE_MAP.put(BinaryOpType.LESS_THAN, BinaryOpType.MORE_THAN);
 		COMMUTATED_TYPE_MAP.put(BinaryOpType.LESS_OR_EQUAL, BinaryOpType.MORE_OR_EQUAL);
@@ -189,6 +189,7 @@ public class BinaryOpAction extends Action implements IValueAction {
 	}
 	
 	public static enum BinaryOpType {
+		
 		PLUS("+"),
 		AND("&"),
 		OR("|"),
@@ -199,7 +200,7 @@ public class BinaryOpAction extends Action implements IValueAction {
 		MULTIPLY("*"),
 		EQUAL_TO("=="),
 		DIVIDE("/"),
-		MODULO("%"),
+		REMAINDER("%"),
 		NOT_EQUAL_TO("!="),
 		LESS_THAN("<"),
 		LESS_OR_EQUAL("<="),

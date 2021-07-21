@@ -117,11 +117,11 @@ public class RedstoneMnemonics {
 	public static final String DIVPB = format("DIVPB");
 	public static final String DIVNB = format("DIVNB");
 	
-	public static final String MODI = format("MODI");
-	public static final String MODLI = format("MODLI");
-	public static final String MOD = format("MOD");
-	public static final String MODPB = format("MODPB");
-	public static final String MODNB = format("MODNB");
+	public static final String REMI = format("REMI");
+	public static final String REMLI = format("REMLI");
+	public static final String REM = format("REM");
+	public static final String REMPB = format("REMPB");
+	public static final String REMNB = format("REMNB");
 	
 	private static String format(String mnemonic) {
 		return String.format("%-4s", mnemonic);

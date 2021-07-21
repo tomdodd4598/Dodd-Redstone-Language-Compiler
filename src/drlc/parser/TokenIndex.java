@@ -112,7 +112,6 @@ class TokenIndex extends AnalysisAdapter
     }
 
     @Override
-<<<<<<< HEAD
     public void caseTLPar(@SuppressWarnings("unused") TLPar node)
     {
         this.index = 17;
@@ -120,21 +119,6 @@ class TokenIndex extends AnalysisAdapter
 
     @Override
     public void caseTRPar(@SuppressWarnings("unused") TRPar node)
-    {
-        this.index = 18;
-    }
-
-    @Override
-    public void caseTLBracket(@SuppressWarnings("unused") TLBracket node)
-=======
-    public void caseTLBrace(@SuppressWarnings("unused") TLBrace node)
->>>>>>> parent of 543a4da (Added array syntax to language spec and added "all" utility compiler mode)
-    {
-        this.index = 17;
-    }
-
-    @Override
-    public void caseTRBracket(@SuppressWarnings("unused") TRBracket node)
     {
         this.index = 18;
     }
@@ -248,7 +232,7 @@ class TokenIndex extends AnalysisAdapter
     }
 
     @Override
-    public void caseTModulo(@SuppressWarnings("unused") TModulo node)
+    public void caseTRemainder(@SuppressWarnings("unused") TRemainder node)
     {
         this.index = 37;
     }
@@ -298,12 +282,12 @@ class TokenIndex extends AnalysisAdapter
     @Override
     public void caseTInteger(@SuppressWarnings("unused") TInteger node)
     {
-        this.index = 47;
+        this.index = 45;
     }
 
     @Override
     public void caseEOF(@SuppressWarnings("unused") EOF node)
     {
-        this.index = 48;
+        this.index = 46;
     }
 }

@@ -5,46 +5,46 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AModuloPrioritizedBinaryOp extends PPrioritizedBinaryOp
+public final class ARemainderPrioritizedBinaryOp extends PPrioritizedBinaryOp
 {
-    private TModulo _modulo_;
+    private TRemainder _remainder_;
 
-    public AModuloPrioritizedBinaryOp()
+    public ARemainderPrioritizedBinaryOp()
     {
         // Constructor
     }
 
-    public AModuloPrioritizedBinaryOp(
-        @SuppressWarnings("hiding") TModulo _modulo_)
+    public ARemainderPrioritizedBinaryOp(
+        @SuppressWarnings("hiding") TRemainder _remainder_)
     {
         // Constructor
-        setModulo(_modulo_);
+        setRemainder(_remainder_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new AModuloPrioritizedBinaryOp(
-            cloneNode(this._modulo_));
+        return new ARemainderPrioritizedBinaryOp(
+            cloneNode(this._remainder_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAModuloPrioritizedBinaryOp(this);
+        ((Analysis) sw).caseARemainderPrioritizedBinaryOp(this);
     }
 
-    public TModulo getModulo()
+    public TRemainder getRemainder()
     {
-        return this._modulo_;
+        return this._remainder_;
     }
 
-    public void setModulo(TModulo node)
+    public void setRemainder(TRemainder node)
     {
-        if(this._modulo_ != null)
+        if(this._remainder_ != null)
         {
-            this._modulo_.parent(null);
+            this._remainder_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class AModuloPrioritizedBinaryOp extends PPrioritizedBinaryOp
             node.parent(this);
         }
 
-        this._modulo_ = node;
+        this._remainder_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._modulo_);
+            + toString(this._remainder_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._modulo_ == child)
+        if(this._remainder_ == child)
         {
-            this._modulo_ = null;
+            this._remainder_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class AModuloPrioritizedBinaryOp extends PPrioritizedBinaryOp
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._modulo_ == oldChild)
+        if(this._remainder_ == oldChild)
         {
-            setModulo((TModulo) newChild);
+            setRemainder((TRemainder) newChild);
             return;
         }
 

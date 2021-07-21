@@ -81,7 +81,7 @@ public interface Analysis extends Switch
     void caseAMultiplyPrioritizedBinaryOp(AMultiplyPrioritizedBinaryOp node);
     void caseAEqualToPrioritizedBinaryOp(AEqualToPrioritizedBinaryOp node);
     void caseADividePrioritizedBinaryOp(ADividePrioritizedBinaryOp node);
-    void caseAModuloPrioritizedBinaryOp(AModuloPrioritizedBinaryOp node);
+    void caseARemainderPrioritizedBinaryOp(ARemainderPrioritizedBinaryOp node);
     void caseANotEqualToPrioritizedBinaryOp(ANotEqualToPrioritizedBinaryOp node);
     void caseALessThanPrioritizedBinaryOp(ALessThanPrioritizedBinaryOp node);
     void caseALessOrEqualPrioritizedBinaryOp(ALessOrEqualPrioritizedBinaryOp node);
@@ -125,7 +125,7 @@ public interface Analysis extends Switch
     void caseTRightShift(TRightShift node);
     void caseTMultiply(TMultiply node);
     void caseTDivide(TDivide node);
-    void caseTModulo(TModulo node);
+    void caseTRemainder(TRemainder node);
     void caseTEqualTo(TEqualTo node);
     void caseTNotEqualTo(TNotEqualTo node);
     void caseTLessThan(TLessThan node);

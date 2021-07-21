@@ -124,11 +124,11 @@ public class RedstoneOpcodes {
 		put(RedstoneMnemonics.DIVPB, 0xD3);
 		put(RedstoneMnemonics.DIVNB, 0xD4);
 		
-		put(RedstoneMnemonics.MODI, 0xE0);
-		put(RedstoneMnemonics.MODLI, 0xE1);
-		put(RedstoneMnemonics.MOD, 0xE2);
-		put(RedstoneMnemonics.MODPB, 0xE3);
-		put(RedstoneMnemonics.MODNB, 0xE4);
+		put(RedstoneMnemonics.REMI, 0xE0);
+		put(RedstoneMnemonics.REMLI, 0xE1);
+		put(RedstoneMnemonics.REM, 0xE2);
+		put(RedstoneMnemonics.REMPB, 0xE3);
+		put(RedstoneMnemonics.REMNB, 0xE4);
 	}
 	
 	private static void put(String mnemonic, int opcode) {

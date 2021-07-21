@@ -76,7 +76,7 @@ Tokens
 	
 	multiply = '*';
 	divide = '/';
-	modulo = '%';
+	remainder = '%';
 	
 	equal_to = '==';
 	not_equal_to = '!=';
@@ -147,16 +147,16 @@ Productions
 		{defined} name l_par argument_list? r_par semicolon;
 	
 	if_block =
-		if l_par expression r_par l_brace basic_section* stop_statement? r_brace;
+		if expression l_brace basic_section* stop_statement? r_brace;
 	
 	elif_block =
-		elif l_par expression r_par l_brace basic_section* stop_statement? r_brace;
+		elif expression l_brace basic_section* stop_statement? r_brace;
 	
 	else_block =
 		else l_brace basic_section* stop_statement? r_brace;
 	
 	iterative_block =
-		while l_par expression r_par l_brace basic_section* stop_statement? r_brace;
+		while expression l_brace basic_section* stop_statement? r_brace;
 	
 	stop_statement =
 		{return} return semicolon dead_code* |
@@ -242,7 +242,7 @@ Productions
 		{multiply} multiply |
 		{equal_to} equal_to |
 		{divide} divide |
-		{modulo} modulo |
+		{remainder} remainder |
 		{not_equal_to} not_equal_to |
 		{less_than} less_than |
 		{less_or_equal} less_or_equal |

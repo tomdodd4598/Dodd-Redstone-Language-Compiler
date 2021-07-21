@@ -666,17 +666,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getIf().apply(this);
         }
-        if(node.getLPar() != null)
-        {
-            node.getLPar().apply(this);
-        }
         if(node.getExpression() != null)
         {
             node.getExpression().apply(this);
-        }
-        if(node.getRPar() != null)
-        {
-            node.getRPar().apply(this);
         }
         if(node.getLBrace() != null)
         {
@@ -718,17 +710,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getElif().apply(this);
         }
-        if(node.getLPar() != null)
-        {
-            node.getLPar().apply(this);
-        }
         if(node.getExpression() != null)
         {
             node.getExpression().apply(this);
-        }
-        if(node.getRPar() != null)
-        {
-            node.getRPar().apply(this);
         }
         if(node.getLBrace() != null)
         {
@@ -810,17 +794,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getWhile().apply(this);
         }
-        if(node.getLPar() != null)
-        {
-            node.getLPar().apply(this);
-        }
         if(node.getExpression() != null)
         {
             node.getExpression().apply(this);
-        }
-        if(node.getRPar() != null)
-        {
-            node.getRPar().apply(this);
         }
         if(node.getLBrace() != null)
         {
@@ -1957,25 +1933,25 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outADividePrioritizedBinaryOp(node);
     }
 
-    public void inAModuloPrioritizedBinaryOp(AModuloPrioritizedBinaryOp node)
+    public void inARemainderPrioritizedBinaryOp(ARemainderPrioritizedBinaryOp node)
     {
         defaultIn(node);
     }
 
-    public void outAModuloPrioritizedBinaryOp(AModuloPrioritizedBinaryOp node)
+    public void outARemainderPrioritizedBinaryOp(ARemainderPrioritizedBinaryOp node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAModuloPrioritizedBinaryOp(AModuloPrioritizedBinaryOp node)
+    public void caseARemainderPrioritizedBinaryOp(ARemainderPrioritizedBinaryOp node)
     {
-        inAModuloPrioritizedBinaryOp(node);
-        if(node.getModulo() != null)
+        inARemainderPrioritizedBinaryOp(node);
+        if(node.getRemainder() != null)
         {
-            node.getModulo().apply(this);
+            node.getRemainder().apply(this);
         }
-        outAModuloPrioritizedBinaryOp(node);
+        outARemainderPrioritizedBinaryOp(node);
     }
 
     public void inANotEqualToPrioritizedBinaryOp(ANotEqualToPrioritizedBinaryOp node)

@@ -9,9 +9,7 @@ import drlc.analysis.*;
 public final class AIfBlock extends PIfBlock
 {
     private TIf _if_;
-    private TLPar _lPar_;
     private PExpression _expression_;
-    private TRPar _rPar_;
     private TLBrace _lBrace_;
     private final LinkedList<PBasicSection> _basicSection_ = new LinkedList<PBasicSection>();
     private PStopStatement _stopStatement_;
@@ -24,9 +22,7 @@ public final class AIfBlock extends PIfBlock
 
     public AIfBlock(
         @SuppressWarnings("hiding") TIf _if_,
-        @SuppressWarnings("hiding") TLPar _lPar_,
         @SuppressWarnings("hiding") PExpression _expression_,
-        @SuppressWarnings("hiding") TRPar _rPar_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
         @SuppressWarnings("hiding") List<?> _basicSection_,
         @SuppressWarnings("hiding") PStopStatement _stopStatement_,
@@ -35,11 +31,7 @@ public final class AIfBlock extends PIfBlock
         // Constructor
         setIf(_if_);
 
-        setLPar(_lPar_);
-
         setExpression(_expression_);
-
-        setRPar(_rPar_);
 
         setLBrace(_lBrace_);
 
@@ -56,9 +48,7 @@ public final class AIfBlock extends PIfBlock
     {
         return new AIfBlock(
             cloneNode(this._if_),
-            cloneNode(this._lPar_),
             cloneNode(this._expression_),
-            cloneNode(this._rPar_),
             cloneNode(this._lBrace_),
             cloneList(this._basicSection_),
             cloneNode(this._stopStatement_),
@@ -96,31 +86,6 @@ public final class AIfBlock extends PIfBlock
         this._if_ = node;
     }
 
-    public TLPar getLPar()
-    {
-        return this._lPar_;
-    }
-
-    public void setLPar(TLPar node)
-    {
-        if(this._lPar_ != null)
-        {
-            this._lPar_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._lPar_ = node;
-    }
-
     public PExpression getExpression()
     {
         return this._expression_;
@@ -144,31 +109,6 @@ public final class AIfBlock extends PIfBlock
         }
 
         this._expression_ = node;
-    }
-
-    public TRPar getRPar()
-    {
-        return this._rPar_;
-    }
-
-    public void setRPar(TRPar node)
-    {
-        if(this._rPar_ != null)
-        {
-            this._rPar_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._rPar_ = node;
     }
 
     public TLBrace getLBrace()
@@ -277,9 +217,7 @@ public final class AIfBlock extends PIfBlock
     {
         return ""
             + toString(this._if_)
-            + toString(this._lPar_)
             + toString(this._expression_)
-            + toString(this._rPar_)
             + toString(this._lBrace_)
             + toString(this._basicSection_)
             + toString(this._stopStatement_)
@@ -296,21 +234,9 @@ public final class AIfBlock extends PIfBlock
             return;
         }
 
-        if(this._lPar_ == child)
-        {
-            this._lPar_ = null;
-            return;
-        }
-
         if(this._expression_ == child)
         {
             this._expression_ = null;
-            return;
-        }
-
-        if(this._rPar_ == child)
-        {
-            this._rPar_ = null;
             return;
         }
 
@@ -350,21 +276,9 @@ public final class AIfBlock extends PIfBlock
             return;
         }
 
-        if(this._lPar_ == oldChild)
-        {
-            setLPar((TLPar) newChild);
-            return;
-        }
-
         if(this._expression_ == oldChild)
         {
             setExpression((PExpression) newChild);
-            return;
-        }
-
-        if(this._rPar_ == oldChild)
-        {
-            setRPar((TRPar) newChild);
             return;
         }
 

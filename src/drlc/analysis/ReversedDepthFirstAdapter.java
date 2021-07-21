@@ -686,17 +686,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getLBrace().apply(this);
         }
-        if(node.getRPar() != null)
-        {
-            node.getRPar().apply(this);
-        }
         if(node.getExpression() != null)
         {
             node.getExpression().apply(this);
-        }
-        if(node.getLPar() != null)
-        {
-            node.getLPar().apply(this);
         }
         if(node.getIf() != null)
         {
@@ -739,17 +731,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getLBrace().apply(this);
         }
-        if(node.getRPar() != null)
-        {
-            node.getRPar().apply(this);
-        }
         if(node.getExpression() != null)
         {
             node.getExpression().apply(this);
-        }
-        if(node.getLPar() != null)
-        {
-            node.getLPar().apply(this);
         }
         if(node.getElif() != null)
         {
@@ -833,17 +817,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getLBrace().apply(this);
         }
-        if(node.getRPar() != null)
-        {
-            node.getRPar().apply(this);
-        }
         if(node.getExpression() != null)
         {
             node.getExpression().apply(this);
-        }
-        if(node.getLPar() != null)
-        {
-            node.getLPar().apply(this);
         }
         if(node.getWhile() != null)
         {
@@ -1973,25 +1949,25 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outADividePrioritizedBinaryOp(node);
     }
 
-    public void inAModuloPrioritizedBinaryOp(AModuloPrioritizedBinaryOp node)
+    public void inARemainderPrioritizedBinaryOp(ARemainderPrioritizedBinaryOp node)
     {
         defaultIn(node);
     }
 
-    public void outAModuloPrioritizedBinaryOp(AModuloPrioritizedBinaryOp node)
+    public void outARemainderPrioritizedBinaryOp(ARemainderPrioritizedBinaryOp node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAModuloPrioritizedBinaryOp(AModuloPrioritizedBinaryOp node)
+    public void caseARemainderPrioritizedBinaryOp(ARemainderPrioritizedBinaryOp node)
     {
-        inAModuloPrioritizedBinaryOp(node);
-        if(node.getModulo() != null)
+        inARemainderPrioritizedBinaryOp(node);
+        if(node.getRemainder() != null)
         {
-            node.getModulo().apply(this);
+            node.getRemainder().apply(this);
         }
-        outAModuloPrioritizedBinaryOp(node);
+        outARemainderPrioritizedBinaryOp(node);
     }
 
     public void inANotEqualToPrioritizedBinaryOp(ANotEqualToPrioritizedBinaryOp node)

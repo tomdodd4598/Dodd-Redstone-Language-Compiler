@@ -489,7 +489,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAModuloPrioritizedBinaryOp(AModuloPrioritizedBinaryOp node)
+    public void caseARemainderPrioritizedBinaryOp(ARemainderPrioritizedBinaryOp node)
     {
         defaultCase(node);
     }
@@ -747,7 +747,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTModulo(TModulo node)
+    public void caseTRemainder(TRemainder node)
     {
         defaultCase(node);
     }
