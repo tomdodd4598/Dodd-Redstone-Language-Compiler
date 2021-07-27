@@ -4,15 +4,20 @@ public abstract class Instruction {
 	
 	public Instruction() {}
 	
-	public abstract boolean isRegisterModified();
+	public abstract boolean isCurrentRegisterValueModified();
 	
-	public abstract boolean isRegisterExported();
+	public abstract boolean isCurrentRegisterValueUsed();
 	
 	public boolean precedesData() {
 		return false;
 	}
 	
-	public abstract Instruction getCompressedWithNextInstruction(Instruction next);
+	public InstructionConstant succeedingData() {
+		return null;
+	}
+	
+	/** Ignores code sectioning! */
+	public abstract Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection);
 	
 	public abstract String binaryString();
 	

@@ -11,17 +11,17 @@ public class InstructionPush extends Instruction {
 	}
 	
 	@Override
-	public boolean isRegisterModified() {
+	public boolean isCurrentRegisterValueModified() {
 		return false;
 	}
 	
 	@Override
-	public boolean isRegisterExported() {
+	public boolean isCurrentRegisterValueUsed() {
 		return true;
 	}
 	
 	@Override
-	public Instruction getCompressedWithNextInstruction(Instruction next) {
+	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		return null;
 	}
 	

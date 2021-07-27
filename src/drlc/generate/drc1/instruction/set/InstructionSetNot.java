@@ -16,8 +16,8 @@ public class InstructionSetNot extends InstructionSet {
 	}
 	
 	@Override
-	public Instruction getCompressedWithNextInstruction(Instruction next) {
-		if (next instanceof InstructionSetNot) {
+	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
+		if (sameSection && next instanceof InstructionSetNot) {
 			return new InstructionNoOp();
 		}
 		else {

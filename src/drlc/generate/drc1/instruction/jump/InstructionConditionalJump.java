@@ -1,7 +1,6 @@
 package drlc.generate.drc1.instruction.jump;
 
 import drlc.generate.drc1.instruction.Instruction;
-import drlc.generate.drc1.instruction.set.InstructionSet;
 
 public abstract class InstructionConditionalJump extends InstructionJump {
 	
@@ -9,7 +8,15 @@ public abstract class InstructionConditionalJump extends InstructionJump {
 		super(section);
 	}
 	
-	public abstract Instruction getReplacementConditionalJump(InstructionSet instructionSet);
+	@Override
+	public abstract boolean isCurrentRegisterValueUsed();
+	
+	@Override
+	public boolean isDefiniteJump() {
+		return false;
+	}
+	
+	public abstract Instruction getReplacementConditionalJump(Instruction previous);
 	
 	@Override
 	public abstract String binaryString();

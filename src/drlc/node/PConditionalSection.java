@@ -2,7 +2,7 @@
 
 package drlc.node;
 
-public abstract class PElifBlock extends Node
+public abstract class PConditionalSection extends Node
 {
     // Empty body
 }

@@ -14,18 +14,18 @@ public class InstructionLoadStackPointer extends Instruction {
 	}
 	
 	@Override
-	public boolean isRegisterModified() {
+	public boolean isCurrentRegisterValueModified() {
 		return false;
 	}
 	
 	@Override
-	public boolean isRegisterExported() {
+	public boolean isCurrentRegisterValueUsed() {
 		return false;
 	}
 	
 	@Override
-	public Instruction getCompressedWithNextInstruction(Instruction next) {
-		if (next instanceof InstructionLoadStackPointer) {
+	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
+		if (sameSection && next instanceof InstructionLoadStackPointer) {
 			return next;
 		}
 		return null;

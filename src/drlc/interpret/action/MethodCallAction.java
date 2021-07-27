@@ -100,7 +100,7 @@ public class MethodCallAction extends SubroutineCallAction implements IValueActi
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(Global.CALL).append(" ").append(name);
+		builder.append(Global.FUN).append(" ").append(name);
 		for (String arg : args) {
 			builder.append(" ").append(arg);
 		}

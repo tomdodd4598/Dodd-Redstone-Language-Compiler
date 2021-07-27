@@ -16,7 +16,7 @@ public class Scope {
 	private final Map<String, Function> functionMap = new HashMap<>();
 	private final Set<String> nameSet = new HashSet<>();
 	
-	private Boolean expectingFunctionReturn = null;
+	public Boolean expectingFunctionReturn = null;
 	
 	public Scope(Node node, Scope previous) {
 		this.previous = previous;

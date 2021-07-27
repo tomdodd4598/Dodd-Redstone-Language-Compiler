@@ -6,32 +6,34 @@ import java.util.*;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AIterativeBlock extends PIterativeBlock
+public final class ARepeatConditionalIterativeBlock extends PIterativeBlock
 {
-    private TWhile _while_;
-    private PExpression _expression_;
+    private TRepeat _repeat_;
     private TLBrace _lBrace_;
     private final LinkedList<PBasicSection> _basicSection_ = new LinkedList<PBasicSection>();
     private PStopStatement _stopStatement_;
     private TRBrace _rBrace_;
+    private TConditionalIterativeBlockKeyword _conditionalIterativeBlockKeyword_;
+    private PExpression _expression_;
+    private TSemicolon _semicolon_;
 
-    public AIterativeBlock()
+    public ARepeatConditionalIterativeBlock()
     {
         // Constructor
     }
 
-    public AIterativeBlock(
-        @SuppressWarnings("hiding") TWhile _while_,
-        @SuppressWarnings("hiding") PExpression _expression_,
+    public ARepeatConditionalIterativeBlock(
+        @SuppressWarnings("hiding") TRepeat _repeat_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
         @SuppressWarnings("hiding") List<?> _basicSection_,
         @SuppressWarnings("hiding") PStopStatement _stopStatement_,
-        @SuppressWarnings("hiding") TRBrace _rBrace_)
+        @SuppressWarnings("hiding") TRBrace _rBrace_,
+        @SuppressWarnings("hiding") TConditionalIterativeBlockKeyword _conditionalIterativeBlockKeyword_,
+        @SuppressWarnings("hiding") PExpression _expression_,
+        @SuppressWarnings("hiding") TSemicolon _semicolon_)
     {
         // Constructor
-        setWhile(_while_);
-
-        setExpression(_expression_);
+        setRepeat(_repeat_);
 
         setLBrace(_lBrace_);
 
@@ -41,36 +43,44 @@ public final class AIterativeBlock extends PIterativeBlock
 
         setRBrace(_rBrace_);
 
+        setConditionalIterativeBlockKeyword(_conditionalIterativeBlockKeyword_);
+
+        setExpression(_expression_);
+
+        setSemicolon(_semicolon_);
+
     }
 
     @Override
     public Object clone()
     {
-        return new AIterativeBlock(
-            cloneNode(this._while_),
-            cloneNode(this._expression_),
+        return new ARepeatConditionalIterativeBlock(
+            cloneNode(this._repeat_),
             cloneNode(this._lBrace_),
             cloneList(this._basicSection_),
             cloneNode(this._stopStatement_),
-            cloneNode(this._rBrace_));
+            cloneNode(this._rBrace_),
+            cloneNode(this._conditionalIterativeBlockKeyword_),
+            cloneNode(this._expression_),
+            cloneNode(this._semicolon_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAIterativeBlock(this);
+        ((Analysis) sw).caseARepeatConditionalIterativeBlock(this);
     }
 
-    public TWhile getWhile()
+    public TRepeat getRepeat()
     {
-        return this._while_;
+        return this._repeat_;
     }
 
-    public void setWhile(TWhile node)
+    public void setRepeat(TRepeat node)
     {
-        if(this._while_ != null)
+        if(this._repeat_ != null)
         {
-            this._while_.parent(null);
+            this._repeat_.parent(null);
         }
 
         if(node != null)
@@ -83,32 +93,7 @@ public final class AIterativeBlock extends PIterativeBlock
             node.parent(this);
         }
 
-        this._while_ = node;
-    }
-
-    public PExpression getExpression()
-    {
-        return this._expression_;
-    }
-
-    public void setExpression(PExpression node)
-    {
-        if(this._expression_ != null)
-        {
-            this._expression_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._expression_ = node;
+        this._repeat_ = node;
     }
 
     public TLBrace getLBrace()
@@ -212,31 +197,102 @@ public final class AIterativeBlock extends PIterativeBlock
         this._rBrace_ = node;
     }
 
+    public TConditionalIterativeBlockKeyword getConditionalIterativeBlockKeyword()
+    {
+        return this._conditionalIterativeBlockKeyword_;
+    }
+
+    public void setConditionalIterativeBlockKeyword(TConditionalIterativeBlockKeyword node)
+    {
+        if(this._conditionalIterativeBlockKeyword_ != null)
+        {
+            this._conditionalIterativeBlockKeyword_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._conditionalIterativeBlockKeyword_ = node;
+    }
+
+    public PExpression getExpression()
+    {
+        return this._expression_;
+    }
+
+    public void setExpression(PExpression node)
+    {
+        if(this._expression_ != null)
+        {
+            this._expression_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._expression_ = node;
+    }
+
+    public TSemicolon getSemicolon()
+    {
+        return this._semicolon_;
+    }
+
+    public void setSemicolon(TSemicolon node)
+    {
+        if(this._semicolon_ != null)
+        {
+            this._semicolon_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._semicolon_ = node;
+    }
+
     @Override
     public String toString()
     {
         return ""
-            + toString(this._while_)
-            + toString(this._expression_)
+            + toString(this._repeat_)
             + toString(this._lBrace_)
             + toString(this._basicSection_)
             + toString(this._stopStatement_)
-            + toString(this._rBrace_);
+            + toString(this._rBrace_)
+            + toString(this._conditionalIterativeBlockKeyword_)
+            + toString(this._expression_)
+            + toString(this._semicolon_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._while_ == child)
+        if(this._repeat_ == child)
         {
-            this._while_ = null;
-            return;
-        }
-
-        if(this._expression_ == child)
-        {
-            this._expression_ = null;
+            this._repeat_ = null;
             return;
         }
 
@@ -263,6 +319,24 @@ public final class AIterativeBlock extends PIterativeBlock
             return;
         }
 
+        if(this._conditionalIterativeBlockKeyword_ == child)
+        {
+            this._conditionalIterativeBlockKeyword_ = null;
+            return;
+        }
+
+        if(this._expression_ == child)
+        {
+            this._expression_ = null;
+            return;
+        }
+
+        if(this._semicolon_ == child)
+        {
+            this._semicolon_ = null;
+            return;
+        }
+
         throw new RuntimeException("Not a child.");
     }
 
@@ -270,15 +344,9 @@ public final class AIterativeBlock extends PIterativeBlock
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._while_ == oldChild)
+        if(this._repeat_ == oldChild)
         {
-            setWhile((TWhile) newChild);
-            return;
-        }
-
-        if(this._expression_ == oldChild)
-        {
-            setExpression((PExpression) newChild);
+            setRepeat((TRepeat) newChild);
             return;
         }
 
@@ -315,6 +383,24 @@ public final class AIterativeBlock extends PIterativeBlock
         if(this._rBrace_ == oldChild)
         {
             setRBrace((TRBrace) newChild);
+            return;
+        }
+
+        if(this._conditionalIterativeBlockKeyword_ == oldChild)
+        {
+            setConditionalIterativeBlockKeyword((TConditionalIterativeBlockKeyword) newChild);
+            return;
+        }
+
+        if(this._expression_ == oldChild)
+        {
+            setExpression((PExpression) newChild);
+            return;
+        }
+
+        if(this._semicolon_ == oldChild)
+        {
+            setSemicolon((TSemicolon) newChild);
             return;
         }
 

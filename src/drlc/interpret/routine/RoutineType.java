@@ -3,6 +3,7 @@ package drlc.interpret.routine;
 import drlc.Global;
 
 public enum RoutineType {
+	
 	LEAF(Global.LEAF),
 	NESTING(Global.NESTING),
 	RECURSIVE(Global.RECURSIVE);

@@ -65,15 +65,15 @@ public class RedstoneCode {
 			boolean flag = true;
 			while (flag) {
 				flag = RedstoneOptimization.removeNoOps(routine);
-				flag |= RedstoneOptimization.removeUnnecessaryImmediates(routine);
-				flag |= RedstoneOptimization.removeUnnecessaryConstants(routine);
+				flag |= RedstoneOptimization.removeDeadInstructions(routine);
+				flag |= RedstoneOptimization.simplifyImmediateInstructions(routine);
 				flag |= RedstoneOptimization.removeUnnecessaryLoads(routine);
 				flag |= RedstoneOptimization.removeUnnecessaryStores(routine);
 				flag |= RedstoneOptimization.removeUnusedTemporaryData(routine);
 				flag |= RedstoneOptimization.removeUnnecessaryJumps(routine);
 				flag |= RedstoneOptimization.simplifyConditionalJumps(routine);
-				flag |= RedstoneOptimization.simplifyALUImmediateInstructions(routine);
-				flag |= RedstoneOptimization.compressSuccessiveInstruction(routine);
+				flag |= RedstoneOptimization.compressSuccessiveInstructions(routine);
+				flag |= RedstoneOptimization.checkConstants(routine);
 			}
 		}
 	}

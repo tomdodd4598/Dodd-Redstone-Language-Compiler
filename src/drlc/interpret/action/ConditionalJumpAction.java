@@ -6,8 +6,9 @@ import drlc.node.Node;
 public class ConditionalJumpAction extends Action implements IJumpAction<ConditionalJumpAction> {
 	
 	public final String target;
+	public final boolean jumpCondition;
 	
-	public ConditionalJumpAction(Node node, String target) {
+	public ConditionalJumpAction(Node node, String target, boolean jumpCondition) {
 		super(node);
 		if (target == null) {
 			throw new IllegalArgumentException(String.format("Conditional jump action target was null! %s", node));
@@ -15,10 +16,11 @@ public class ConditionalJumpAction extends Action implements IJumpAction<Conditi
 		else {
 			this.target = target;
 		}
+		this.jumpCondition = jumpCondition;
 	}
 	
 	@Override
-	public boolean conditional() {
+	public boolean isConditional() {
 		return true;
 	}
 	
@@ -29,11 +31,11 @@ public class ConditionalJumpAction extends Action implements IJumpAction<Conditi
 	
 	@Override
 	public ConditionalJumpAction copy(String target) {
-		return new ConditionalJumpAction(null, target);
+		return new ConditionalJumpAction(null, target, jumpCondition);
 	}
 	
 	@Override
 	public String toString() {
-		return Global.CONDITIONAL_JUMP.concat(" ").concat(target);
+		return (jumpCondition ? Global.CONDITIONAL_JUMP : Global.CONDITIONAL_NOT_JUMP).concat(" ").concat(target);
 	}
 }

@@ -3,6 +3,7 @@ package drlc.generate.drc1.instruction.immediate;
 import drlc.*;
 import drlc.generate.drc1.*;
 import drlc.generate.drc1.instruction.Instruction;
+import drlc.generate.drc1.instruction.set.InstructionSetNot;
 
 public class InstructionXorLongImmediate extends InstructionALULongImmediate {
 	
@@ -16,8 +17,13 @@ public class InstructionXorLongImmediate extends InstructionALULongImmediate {
 	}
 	
 	@Override
-	public Instruction getALUImmediateReplacementInternal() {
-		return null;
+	public Instruction getImmediateReplacementInternal() {
+		if (value == -1) {
+			return new InstructionSetNot();
+		}
+		else {
+			return null;
+		}
 	}
 	
 	@Override

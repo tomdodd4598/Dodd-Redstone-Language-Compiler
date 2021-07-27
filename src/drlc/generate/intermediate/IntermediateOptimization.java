@@ -10,6 +10,21 @@ import drlc.interpret.routine.Routine;
 
 public class IntermediateOptimization {
 	
+	public static boolean removeNoOps(Routine routine) {
+		boolean flag = false;
+		List<List<Action>> body = routine.getBodyActionLists();
+		for (int i = 0; i < body.size(); i++) {
+			List<Action> list = body.get(i);
+			for (int j = 0; j < list.size(); j++) {
+				if (list.get(j) instanceof NoOpAction) {
+					flag = true;
+					list.remove(j);
+				}
+			}
+		}
+		return flag;
+	}
+	
 	public static boolean removeDeadActions(Routine routine) {
 		boolean flag = false;
 		List<List<Action>> body = routine.getBodyActionLists();
@@ -19,7 +34,7 @@ public class IntermediateOptimization {
 			boolean dead = false;
 			for (j = 0; j < size - 1; j++) {
 				Action action = list.get(j);
-				if (action instanceof IStopAction) {
+				if (action instanceof IDefiniteRedirectAction) {
 					flag = dead = true;
 					break;
 				}
@@ -73,7 +88,6 @@ public class IntermediateOptimization {
 	public static boolean simplifyJumps(Routine routine) {
 		boolean flag = false;
 		List<List<Action>> body = routine.getBodyActionLists();
-		Set<List<Action>> clearSet = new HashSet<>();
 		for (int i = 0; i < body.size(); i++) {
 			List<Action> list = body.get(i);
 			for (int j = 0; j < list.size(); j++) {
@@ -84,17 +98,15 @@ public class IntermediateOptimization {
 					List<Action> section = body.get(target);
 					if (section.size() == 1) {
 						if (section.get(0) instanceof IJumpAction) {
-							flag = true;
-							list.set(j, jump.copy(((IJumpAction<?>) section.get(0)).getTarget()));
-							clearSet.add(section);
+							IJumpAction<?> other = (IJumpAction<?>) section.get(0);
+							if (!other.isConditional()) {
+								flag = true;
+								list.set(j, jump.copy(other.getTarget()));
+							}
 						}
 					}
 				}
 			}
-		}
-		
-		for (List<Action> section : clearSet) {
-			section.clear();
 		}
 		return flag;
 	}
@@ -140,8 +152,8 @@ public class IntermediateOptimization {
 					int target = Helper.parseSectionId(jump.getTarget());
 					List<Action> section = body.get(target);
 					if (section.size() == 1) {
-						if (section.get(0) instanceof IStopAction) {
-							boolean conditional = jump.conditional();
+						if (section.get(0) instanceof IDefiniteRedirectAction) {
+							boolean conditional = jump.isConditional();
 							if (!conditional) {
 								flag = true;
 								list.set(j, section.get(0));
@@ -157,6 +169,41 @@ public class IntermediateOptimization {
 			if (!entry.getValue()) {
 				flag = true;
 				entry.getKey().clear();
+			}
+		}
+		
+		for (int i = 0; i < body.size(); i++) {
+			List<Action> list = body.get(i);
+			for (int j = 1; j < list.size(); j++) {
+				Action action = list.get(j), previous = list.get(j - 1);
+				if (action instanceof ConditionalJumpAction) {
+					if (previous instanceof IValueAction) {
+						IValueAction iva = (IValueAction) previous;
+						if (iva instanceof AssignmentAction || iva instanceof InitialisationAction) {
+							String arg = iva.rValues()[0];
+							if (Helper.isImmediateValue(arg)) {
+								flag = true;
+								ConditionalJumpAction cja = (ConditionalJumpAction) action;
+								list.set(j, (Helper.parseImmediateValue(arg) == 0) ^ !cja.jumpCondition ? new NoOpAction() : new JumpAction(null, cja.target));
+								list.set(j - 1, new NoOpAction());
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		for (int i = 0; i < body.size(); i++) {
+			List<Action> list = body.get(i);
+			if (!list.isEmpty()) {
+				Action action = list.get(list.size() - 1);
+				if (action instanceof IJumpAction) {
+					IJumpAction<?> jump = (IJumpAction<?>) action;
+					if (!jump.isConditional() && Helper.parseSectionId(jump.getTarget()) == i + 1) {
+						flag = true;
+						list.set(list.size() - 1, new NoOpAction());
+					}
+				}
 			}
 		}
 		return flag;
@@ -254,21 +301,6 @@ public class IntermediateOptimization {
 							list.set(otherIndex, replacement);
 						}
 					}
-				}
-			}
-		}
-		return flag;
-	}
-	
-	public static boolean removeNoOps(Routine routine) {
-		boolean flag = false;
-		List<List<Action>> body = routine.getBodyActionLists();
-		for (int i = 0; i < body.size(); i++) {
-			List<Action> list = body.get(i);
-			for (int j = 0; j < list.size(); j++) {
-				if (list.get(j) instanceof NoOpAction) {
-					flag = true;
-					list.remove(j);
 				}
 			}
 		}

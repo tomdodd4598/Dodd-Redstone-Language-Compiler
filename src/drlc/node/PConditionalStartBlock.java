@@ -2,7 +2,7 @@
 
 package drlc.node;
 
-public abstract class PIfBlock extends Node
+public abstract class PConditionalStartBlock extends Node
 {
     // Empty body
 }

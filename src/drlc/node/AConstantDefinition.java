@@ -8,6 +8,7 @@ import drlc.analysis.*;
 public final class AConstantDefinition extends PConstantDefinition
 {
     private TConst _const_;
+    private TInt _int_;
     private TName _name_;
     private TEquals _equals_;
     private PExpression _expression_;
@@ -20,6 +21,7 @@ public final class AConstantDefinition extends PConstantDefinition
 
     public AConstantDefinition(
         @SuppressWarnings("hiding") TConst _const_,
+        @SuppressWarnings("hiding") TInt _int_,
         @SuppressWarnings("hiding") TName _name_,
         @SuppressWarnings("hiding") TEquals _equals_,
         @SuppressWarnings("hiding") PExpression _expression_,
@@ -27,6 +29,8 @@ public final class AConstantDefinition extends PConstantDefinition
     {
         // Constructor
         setConst(_const_);
+
+        setInt(_int_);
 
         setName(_name_);
 
@@ -43,6 +47,7 @@ public final class AConstantDefinition extends PConstantDefinition
     {
         return new AConstantDefinition(
             cloneNode(this._const_),
+            cloneNode(this._int_),
             cloneNode(this._name_),
             cloneNode(this._equals_),
             cloneNode(this._expression_),
@@ -78,6 +83,31 @@ public final class AConstantDefinition extends PConstantDefinition
         }
 
         this._const_ = node;
+    }
+
+    public TInt getInt()
+    {
+        return this._int_;
+    }
+
+    public void setInt(TInt node)
+    {
+        if(this._int_ != null)
+        {
+            this._int_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._int_ = node;
     }
 
     public TName getName()
@@ -185,6 +215,7 @@ public final class AConstantDefinition extends PConstantDefinition
     {
         return ""
             + toString(this._const_)
+            + toString(this._int_)
             + toString(this._name_)
             + toString(this._equals_)
             + toString(this._expression_)
@@ -198,6 +229,12 @@ public final class AConstantDefinition extends PConstantDefinition
         if(this._const_ == child)
         {
             this._const_ = null;
+            return;
+        }
+
+        if(this._int_ == child)
+        {
+            this._int_ = null;
             return;
         }
 
@@ -235,6 +272,12 @@ public final class AConstantDefinition extends PConstantDefinition
         if(this._const_ == oldChild)
         {
             setConst((TConst) newChild);
+            return;
+        }
+
+        if(this._int_ == oldChild)
+        {
+            setInt((TInt) newChild);
             return;
         }
 

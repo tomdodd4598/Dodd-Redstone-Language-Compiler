@@ -16,7 +16,7 @@ public class InstructionMultiplyImmediate extends InstructionALUImmediate {
 	}
 	
 	@Override
-	public Instruction getALUImmediateReplacementInternal() {
+	public Instruction getImmediateReplacementInternal() {
 		if (value == 0) {
 			return new InstructionLoadImmediate((short) 0);
 		}

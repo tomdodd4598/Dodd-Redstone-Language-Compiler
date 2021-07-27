@@ -5,16 +5,16 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class TFun extends Token
+public final class TInt extends Token
 {
-    public TFun()
+    public TInt()
     {
-        super.setText("fun");
+        super.setText("int");
     }
 
-    public TFun(int line, int pos)
+    public TInt(int line, int pos)
     {
-        super.setText("fun");
+        super.setText("int");
         setLine(line);
         setPos(pos);
     }
@@ -22,18 +22,18 @@ public final class TFun extends Token
     @Override
     public Object clone()
     {
-      return new TFun(getLine(), getPos());
+      return new TInt(getLine(), getPos());
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseTFun(this);
+        ((Analysis) sw).caseTInt(this);
     }
 
     @Override
     public void setText(@SuppressWarnings("unused") String text)
     {
-        throw new RuntimeException("Cannot change TFun text.");
+        throw new RuntimeException("Cannot change TInt text.");
     }
 }

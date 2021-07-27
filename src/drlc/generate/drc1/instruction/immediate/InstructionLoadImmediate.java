@@ -11,12 +11,12 @@ public class InstructionLoadImmediate extends InstructionImmediate implements II
 	}
 	
 	@Override
-	public boolean isRegisterModified() {
+	public boolean isCurrentRegisterValueModified() {
 		return true;
 	}
 	
 	@Override
-	public boolean isRegisterExported() {
+	public boolean isCurrentRegisterValueUsed() {
 		return false;
 	}
 	
@@ -26,12 +26,22 @@ public class InstructionLoadImmediate extends InstructionImmediate implements II
 	}
 	
 	@Override
+	public Instruction getImmediateReplacementInternal() {
+		return null;
+	}
+	
+	@Override
+	public Short getRegisterValue() {
+		return value;
+	}
+	
+	@Override
 	public short getLoadedValue() {
 		return value;
 	}
 	
 	@Override
-	public Instruction getCompressedWithNextInstruction(Instruction next) {
+	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		if (next instanceof InstructionLoadImmediate) {
 			return next;
 		}

@@ -12,12 +12,12 @@ public class InstructionLoadAOffset extends InstructionAddressOffset implements 
 	}
 	
 	@Override
-	public boolean isRegisterModified() {
+	public boolean isCurrentRegisterValueModified() {
 		return true;
 	}
 	
 	@Override
-	public boolean isRegisterExported() {
+	public boolean isCurrentRegisterValueUsed() {
 		return false;
 	}
 	

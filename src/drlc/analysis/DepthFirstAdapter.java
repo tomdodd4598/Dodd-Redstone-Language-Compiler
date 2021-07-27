@@ -287,20 +287,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAConditionalBasicSection(AConditionalBasicSection node)
     {
         inAConditionalBasicSection(node);
-        if(node.getIfBlock() != null)
+        if(node.getConditionalSection() != null)
         {
-            node.getIfBlock().apply(this);
-        }
-        {
-            List<PElifBlock> copy = new ArrayList<PElifBlock>(node.getElifBlock());
-            for(PElifBlock e : copy)
-            {
-                e.apply(this);
-            }
-        }
-        if(node.getElseBlock() != null)
-        {
-            node.getElseBlock().apply(this);
+            node.getConditionalSection().apply(this);
         }
         outAConditionalBasicSection(node);
     }
@@ -396,9 +385,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAFunctionDefinition(AFunctionDefinition node)
     {
         inAFunctionDefinition(node);
-        if(node.getFun() != null)
+        if(node.getInt() != null)
         {
-            node.getFun().apply(this);
+            node.getInt().apply(this);
         }
         if(node.getName() != null)
         {
@@ -456,6 +445,10 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getConst().apply(this);
         }
+        if(node.getInt() != null)
+        {
+            node.getInt().apply(this);
+        }
         if(node.getName() != null)
         {
             node.getName().apply(this);
@@ -489,9 +482,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseANoInitialisationVariableDeclaration(ANoInitialisationVariableDeclaration node)
     {
         inANoInitialisationVariableDeclaration(node);
-        if(node.getVar() != null)
+        if(node.getInt() != null)
         {
-            node.getVar().apply(this);
+            node.getInt().apply(this);
         }
         if(node.getLvalueVariable() != null)
         {
@@ -518,9 +511,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAWithInitialisationVariableDeclaration(AWithInitialisationVariableDeclaration node)
     {
         inAWithInitialisationVariableDeclaration(node);
-        if(node.getVar() != null)
+        if(node.getInt() != null)
         {
-            node.getVar().apply(this);
+            node.getInt().apply(this);
         }
         if(node.getLvalueVariable() != null)
         {
@@ -648,23 +641,55 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outADefinedMethodCall(node);
     }
 
-    public void inAIfBlock(AIfBlock node)
+    public void inAConditionalSection(AConditionalSection node)
     {
         defaultIn(node);
     }
 
-    public void outAIfBlock(AIfBlock node)
+    public void outAConditionalSection(AConditionalSection node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAIfBlock(AIfBlock node)
+    public void caseAConditionalSection(AConditionalSection node)
     {
-        inAIfBlock(node);
-        if(node.getIf() != null)
+        inAConditionalSection(node);
+        if(node.getConditionalStartBlock() != null)
         {
-            node.getIf().apply(this);
+            node.getConditionalStartBlock().apply(this);
+        }
+        {
+            List<PConditionalMiddleBlock> copy = new ArrayList<PConditionalMiddleBlock>(node.getConditionalMiddleBlock());
+            for(PConditionalMiddleBlock e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        if(node.getElseBlock() != null)
+        {
+            node.getElseBlock().apply(this);
+        }
+        outAConditionalSection(node);
+    }
+
+    public void inAConditionalStartBlock(AConditionalStartBlock node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAConditionalStartBlock(AConditionalStartBlock node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAConditionalStartBlock(AConditionalStartBlock node)
+    {
+        inAConditionalStartBlock(node);
+        if(node.getConditionalStartBlockKeyword() != null)
+        {
+            node.getConditionalStartBlockKeyword().apply(this);
         }
         if(node.getExpression() != null)
         {
@@ -689,26 +714,26 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getRBrace().apply(this);
         }
-        outAIfBlock(node);
+        outAConditionalStartBlock(node);
     }
 
-    public void inAElifBlock(AElifBlock node)
+    public void inAConditionalMiddleBlock(AConditionalMiddleBlock node)
     {
         defaultIn(node);
     }
 
-    public void outAElifBlock(AElifBlock node)
+    public void outAConditionalMiddleBlock(AConditionalMiddleBlock node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAElifBlock(AElifBlock node)
+    public void caseAConditionalMiddleBlock(AConditionalMiddleBlock node)
     {
-        inAElifBlock(node);
-        if(node.getElif() != null)
+        inAConditionalMiddleBlock(node);
+        if(node.getConditionalMiddleBlockKeyword() != null)
         {
-            node.getElif().apply(this);
+            node.getConditionalMiddleBlockKeyword().apply(this);
         }
         if(node.getExpression() != null)
         {
@@ -733,7 +758,7 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getRBrace().apply(this);
         }
-        outAElifBlock(node);
+        outAConditionalMiddleBlock(node);
     }
 
     public void inAElseBlock(AElseBlock node)
@@ -776,23 +801,63 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outAElseBlock(node);
     }
 
-    public void inAIterativeBlock(AIterativeBlock node)
+    public void inALoopIterativeBlock(ALoopIterativeBlock node)
     {
         defaultIn(node);
     }
 
-    public void outAIterativeBlock(AIterativeBlock node)
+    public void outALoopIterativeBlock(ALoopIterativeBlock node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAIterativeBlock(AIterativeBlock node)
+    public void caseALoopIterativeBlock(ALoopIterativeBlock node)
     {
-        inAIterativeBlock(node);
-        if(node.getWhile() != null)
+        inALoopIterativeBlock(node);
+        if(node.getLoop() != null)
         {
-            node.getWhile().apply(this);
+            node.getLoop().apply(this);
+        }
+        if(node.getLBrace() != null)
+        {
+            node.getLBrace().apply(this);
+        }
+        {
+            List<PBasicSection> copy = new ArrayList<PBasicSection>(node.getBasicSection());
+            for(PBasicSection e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        if(node.getStopStatement() != null)
+        {
+            node.getStopStatement().apply(this);
+        }
+        if(node.getRBrace() != null)
+        {
+            node.getRBrace().apply(this);
+        }
+        outALoopIterativeBlock(node);
+    }
+
+    public void inAConditionalIterativeBlock(AConditionalIterativeBlock node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAConditionalIterativeBlock(AConditionalIterativeBlock node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAConditionalIterativeBlock(AConditionalIterativeBlock node)
+    {
+        inAConditionalIterativeBlock(node);
+        if(node.getConditionalIterativeBlockKeyword() != null)
+        {
+            node.getConditionalIterativeBlockKeyword().apply(this);
         }
         if(node.getExpression() != null)
         {
@@ -817,7 +882,59 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getRBrace().apply(this);
         }
-        outAIterativeBlock(node);
+        outAConditionalIterativeBlock(node);
+    }
+
+    public void inARepeatConditionalIterativeBlock(ARepeatConditionalIterativeBlock node)
+    {
+        defaultIn(node);
+    }
+
+    public void outARepeatConditionalIterativeBlock(ARepeatConditionalIterativeBlock node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseARepeatConditionalIterativeBlock(ARepeatConditionalIterativeBlock node)
+    {
+        inARepeatConditionalIterativeBlock(node);
+        if(node.getRepeat() != null)
+        {
+            node.getRepeat().apply(this);
+        }
+        if(node.getLBrace() != null)
+        {
+            node.getLBrace().apply(this);
+        }
+        {
+            List<PBasicSection> copy = new ArrayList<PBasicSection>(node.getBasicSection());
+            for(PBasicSection e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        if(node.getStopStatement() != null)
+        {
+            node.getStopStatement().apply(this);
+        }
+        if(node.getRBrace() != null)
+        {
+            node.getRBrace().apply(this);
+        }
+        if(node.getConditionalIterativeBlockKeyword() != null)
+        {
+            node.getConditionalIterativeBlockKeyword().apply(this);
+        }
+        if(node.getExpression() != null)
+        {
+            node.getExpression().apply(this);
+        }
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        outARepeatConditionalIterativeBlock(node);
     }
 
     public void inAReturnStopStatement(AReturnStopStatement node)
@@ -1366,6 +1483,35 @@ public class DepthFirstAdapter extends AnalysisAdapter
             node.getFunction().apply(this);
         }
         outAFunctionValue(node);
+    }
+
+    public void inABuiltInInFunction(ABuiltInInFunction node)
+    {
+        defaultIn(node);
+    }
+
+    public void outABuiltInInFunction(ABuiltInInFunction node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseABuiltInInFunction(ABuiltInInFunction node)
+    {
+        inABuiltInInFunction(node);
+        if(node.getIn() != null)
+        {
+            node.getIn().apply(this);
+        }
+        if(node.getLPar() != null)
+        {
+            node.getLPar().apply(this);
+        }
+        if(node.getRPar() != null)
+        {
+            node.getRPar().apply(this);
+        }
+        outABuiltInInFunction(node);
     }
 
     public void inABuiltInArgcFunction(ABuiltInArgcFunction node)

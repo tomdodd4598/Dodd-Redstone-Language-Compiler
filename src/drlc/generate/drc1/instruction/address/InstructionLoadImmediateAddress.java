@@ -11,12 +11,22 @@ public class InstructionLoadImmediateAddress extends InstructionAddress {
 	}
 	
 	@Override
-	public boolean isRegisterModified() {
+	public boolean isCurrentRegisterValueModified() {
 		return true;
 	}
 	
 	@Override
-	public boolean isRegisterExported() {
+	public boolean isCurrentRegisterValueUsed() {
+		return false;
+	}
+	
+	@Override
+	public boolean isDataFromMemory() {
+		return true;
+	}
+	
+	@Override
+	public boolean isDataToMemory() {
 		return false;
 	}
 	

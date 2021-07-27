@@ -135,7 +135,7 @@ public class RedstoneRoutine {
 				
 				else if (action instanceof ConditionalJumpAction) {
 					ConditionalJumpAction cja = (ConditionalJumpAction) action;
-					conditionalJump(text, cja.target);
+					conditionalJump(text, cja.target, cja.jumpCondition);
 				}
 				
 				else if (action instanceof DeclarationAction) {
@@ -215,8 +215,9 @@ public class RedstoneRoutine {
 							}
 						}
 						
-						text.add(new InstructionCallSubroutine(sca.name));
-						text.add(new InstructionConstant());
+						Instruction ics = new InstructionCallSubroutine(sca.name);
+						text.add(ics);
+						text.add(ics.succeedingData());
 						
 						if (subroutine.isRecursive()) {
 							text.add(new InstructionAddToStackPointer((short) sca.args.length));
@@ -283,11 +284,10 @@ public class RedstoneRoutine {
 			boolean flag = true;
 			while (flag) {
 				flag = false;
-				Collection<List<Instruction>> sections = textSectionMap.values();
-				List<Instruction>[] sectionArray = sections.toArray(new List[sections.size()]);
-				for (int s = 0; s < sectionArray.length; s++) {
-					for (int i = 0; i < sectionArray[s].size(); i++) {
-						Instruction instruction = sectionArray[s].get(i);
+				for (Entry<Short, List<Instruction>> entry : textSectionMap.entrySet()) {
+					List<Instruction> section = entry.getValue();
+					for (int i = 0; i < section.size(); i++) {
+						Instruction instruction = section.get(i);
 						boolean asp = instruction instanceof InstructionAddToStackPointer;
 						boolean ssp = instruction instanceof InstructionSubtractFromStackPointer;
 						if (asp || ssp) {
@@ -299,7 +299,7 @@ public class RedstoneRoutine {
 								}
 								if (iatsp.value == 0) {
 									flag = true;
-									sectionArray[s].remove(i);
+									section.remove(i);
 								}
 							}
 							else if (ssp) {
@@ -310,11 +310,11 @@ public class RedstoneRoutine {
 								}
 								if (isfsp.value == 0) {
 									flag = true;
-									sectionArray[s].remove(i);
+									section.remove(i);
 								}
 							}
 							
-							flag |= RedstoneOptimization.compressWithNextInstruction(sectionArray, s, i, true);
+							flag |= RedstoneOptimization.compressWithNextInstruction(textSectionMap, entry.getKey(), i, true);
 						}
 					}
 				}
@@ -570,8 +570,9 @@ public class RedstoneRoutine {
 		if (Helper.isImmediateValue(arg)) {
 			final short value = Helper.parseImmediateValue(arg).shortValue();
 			if (RedstoneCode.isLongImmediate(value)) {
-				text.add(new InstructionLoadLongImmediate(value));
-				text.add(new InstructionConstant(value));
+				Instruction illi = new InstructionLoadLongImmediate(value);
+				text.add(illi);
+				text.add(illi.succeedingData());
 			}
 			else {
 				text.add(new InstructionLoadImmediate(value));
@@ -604,26 +605,27 @@ public class RedstoneRoutine {
 		if (Helper.isImmediateValue(arg)) {
 			final short value = Helper.parseImmediateValue(arg).shortValue();
 			if (RedstoneCode.isLongImmediate(value)) {
+				Instruction li;
 				switch (type) {
 					case PLUS:
-						text.add(new InstructionAddLongImmediate(value));
-						text.add(new InstructionConstant(value));
+						text.add(li = new InstructionAddLongImmediate(value));
+						text.add(li.succeedingData());
 						break;
 					case AND:
-						text.add(new InstructionAndLongImmediate(value));
-						text.add(new InstructionConstant(value));
+						text.add(li = new InstructionAndLongImmediate(value));
+						text.add(li.succeedingData());
 						break;
 					case OR:
-						text.add(new InstructionOrLongImmediate(value));
-						text.add(new InstructionConstant(value));
+						text.add(li = new InstructionOrLongImmediate(value));
+						text.add(li.succeedingData());
 						break;
 					case XOR:
-						text.add(new InstructionXorLongImmediate(value));
-						text.add(new InstructionConstant(value));
+						text.add(li = new InstructionXorLongImmediate(value));
+						text.add(li.succeedingData());
 						break;
 					case MINUS:
-						text.add(new InstructionSubtractLongImmediate(value));
-						text.add(new InstructionConstant(value));
+						text.add(li = new InstructionSubtractLongImmediate(value));
+						text.add(li.succeedingData());
 						break;
 					case LEFT_SHIFT:
 						text.add(new InstructionLeftShiftImmediate(RedstoneCode.lowBits(value)));
@@ -632,45 +634,45 @@ public class RedstoneRoutine {
 						text.add(new InstructionRightShiftImmediate(RedstoneCode.lowBits(value)));
 						break;
 					case MULTIPLY:
-						text.add(new InstructionMultiplyLongImmediate(value));
-						text.add(new InstructionConstant(value));
+						text.add(li = new InstructionMultiplyLongImmediate(value));
+						text.add(li.succeedingData());
 						break;
 					case EQUAL_TO:
-						text.add(new InstructionXorLongImmediate(value));
-						text.add(new InstructionConstant(value));
+						text.add(li = new InstructionXorLongImmediate(value));
+						text.add(li.succeedingData());
 						text.add(new InstructionSetIsZero());
 						break;
 					case DIVIDE:
-						text.add(new InstructionDivideLongImmediate(value));
-						text.add(new InstructionConstant(value));
+						text.add(li = new InstructionDivideLongImmediate(value));
+						text.add(li.succeedingData());
 						break;
 					case REMAINDER:
-						text.add(new InstructionRemainderLongImmediate(value));
-						text.add(new InstructionConstant(value));
+						text.add(li = new InstructionRemainderLongImmediate(value));
+						text.add(li.succeedingData());
 						break;
 					case NOT_EQUAL_TO:
-						text.add(new InstructionXorLongImmediate(value));
-						text.add(new InstructionConstant(value));
+						text.add(li = new InstructionXorLongImmediate(value));
+						text.add(li.succeedingData());
 						text.add(new InstructionSetIsNotZero());
 						break;
 					case LESS_THAN:
-						text.add(new InstructionSubtractLongImmediate(value));
-						text.add(new InstructionConstant(value));
+						text.add(li = new InstructionSubtractLongImmediate(value));
+						text.add(li.succeedingData());
 						text.add(new InstructionSetIsLessThanZero());
 						break;
 					case LESS_OR_EQUAL:
-						text.add(new InstructionSubtractLongImmediate(value));
-						text.add(new InstructionConstant(value));
+						text.add(li = new InstructionSubtractLongImmediate(value));
+						text.add(li.succeedingData());
 						text.add(new InstructionSetIsLessThanOrEqualToZero());
 						break;
 					case MORE_THAN:
-						text.add(new InstructionSubtractLongImmediate(value));
-						text.add(new InstructionConstant(value));
+						text.add(li = new InstructionSubtractLongImmediate(value));
+						text.add(li.succeedingData());
 						text.add(new InstructionSetIsMoreThanZero());
 						break;
 					case MORE_OR_EQUAL:
-						text.add(new InstructionSubtractLongImmediate(value));
-						text.add(new InstructionConstant(value));
+						text.add(li = new InstructionSubtractLongImmediate(value));
+						text.add(li.succeedingData());
 						text.add(new InstructionSetIsMoreThanOrEqualToZero());
 						break;
 					default:
@@ -863,8 +865,14 @@ public class RedstoneRoutine {
 		}
 	}
 	
-	protected void conditionalJump(List<Instruction> text, String section) {
-		text.add(new InstructionConditionalJumpIfNotZero(Helper.parseSectionId(section).shortValue()));
+	protected void conditionalJump(List<Instruction> text, String section, boolean jumpCondition) {
+		short sect = Helper.parseSectionId(section).shortValue();
+		if (jumpCondition) {
+			text.add(new InstructionConditionalJumpIfNotZero(sect));
+		}
+		else {
+			text.add(new InstructionConditionalJumpIfZero(sect));
+		}
 	}
 	
 	protected void jump(List<Instruction> text, String section) {
@@ -899,33 +907,34 @@ public class RedstoneRoutine {
 	protected void unaryOp(List<Instruction> text, UnaryOpType type, String arg) {
 		if (Helper.isImmediateValue(arg)) {
 			final short value = Helper.parseImmediateValue(arg).shortValue();
+			Instruction li;
 			if (RedstoneCode.isLongImmediate(value)) {
 				switch (type) {
 					case PLUS:
-						text.add(new InstructionLoadLongImmediate(value));
-						text.add(new InstructionConstant(value));
+						text.add(li = new InstructionLoadLongImmediate(value));
+						text.add(li.succeedingData());
 						break;
 					case MINUS:
 						if (RedstoneCode.isLongImmediate((short) (-value))) {
-							text.add(new InstructionLoadLongImmediate((short) (-value)));
-							text.add(new InstructionConstant((short) (-value)));
+							text.add(li = new InstructionLoadLongImmediate((short) (-value)));
+							text.add(li.succeedingData());
 						}
 						else {
 							text.add(new InstructionLoadImmediate((short) (-value)));
 						}
 						break;
 					case COMPLEMENT:
-						text.add(new InstructionNotLongImmediate(value));
-						text.add(new InstructionConstant(value));
+						text.add(li = new InstructionNotLongImmediate(value));
+						text.add(li.succeedingData());
 						break;
 					case TO_BOOL:
-						text.add(new InstructionLoadLongImmediate(value));
-						text.add(new InstructionConstant(value));
+						text.add(li = new InstructionLoadLongImmediate(value));
+						text.add(li.succeedingData());
 						text.add(new InstructionSetIsNotZero());
 						break;
 					case NOT:
-						text.add(new InstructionLoadLongImmediate(value));
-						text.add(new InstructionConstant(value));
+						text.add(li = new InstructionLoadLongImmediate(value));
+						text.add(li.succeedingData());
 						text.add(new InstructionSetIsZero());
 						break;
 					default:
@@ -939,8 +948,8 @@ public class RedstoneRoutine {
 						break;
 					case MINUS:
 						if (RedstoneCode.isLongImmediate((short) (-value))) {
-							text.add(new InstructionLoadLongImmediate((short) (-value)));
-							text.add(new InstructionConstant((short) (-value)));
+							text.add(li = new InstructionLoadLongImmediate((short) (-value)));
+							text.add(li.succeedingData());
 						}
 						else {
 							text.add(new InstructionLoadImmediate((short) (-value)));
@@ -1018,13 +1027,22 @@ public class RedstoneRoutine {
 	}
 	
 	protected void builtInFunction(List<Instruction> text, BuiltInFunctionCallAction action) {
-		if (action.name.equals(Global.ARGV)) {
+		if (action.name.equals(Global.IN)) {
+			throw new IllegalArgumentException(String.format("Built-in function action \"%s\" is not supported!", Global.IN));
+		}
+		else if (action.name.equals(Global.ARGV)) {
 			String arg = action.args[0];
 			if (Helper.isImmediateValue(arg)) {
 				load(text, getRootParam(Helper.parseImmediateValue(arg).shortValue()));
 			}
 			else {
-				text.add(new InstructionLoadA(dataInfo(arg)));
+				final DataInfo argInfo = dataInfo(arg);
+				if (isStackData(argInfo)) {
+					text.add(new InstructionLoadAOffset(argInfo));
+				}
+				else {
+					text.add(new InstructionLoadA(argInfo));
+				}
 				text.add(new InstructionSetNot());
 				text.add(new InstructionDereferenceA());
 				

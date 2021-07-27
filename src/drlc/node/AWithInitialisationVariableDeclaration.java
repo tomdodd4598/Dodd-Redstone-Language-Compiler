@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AWithInitialisationVariableDeclaration extends PVariableDeclaration
 {
-    private TVar _var_;
+    private TInt _int_;
     private PLvalueVariable _lvalueVariable_;
     private TEquals _equals_;
     private PExpression _expression_;
@@ -19,14 +19,14 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
     }
 
     public AWithInitialisationVariableDeclaration(
-        @SuppressWarnings("hiding") TVar _var_,
+        @SuppressWarnings("hiding") TInt _int_,
         @SuppressWarnings("hiding") PLvalueVariable _lvalueVariable_,
         @SuppressWarnings("hiding") TEquals _equals_,
         @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") TSemicolon _semicolon_)
     {
         // Constructor
-        setVar(_var_);
+        setInt(_int_);
 
         setLvalueVariable(_lvalueVariable_);
 
@@ -42,7 +42,7 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
     public Object clone()
     {
         return new AWithInitialisationVariableDeclaration(
-            cloneNode(this._var_),
+            cloneNode(this._int_),
             cloneNode(this._lvalueVariable_),
             cloneNode(this._equals_),
             cloneNode(this._expression_),
@@ -55,16 +55,16 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
         ((Analysis) sw).caseAWithInitialisationVariableDeclaration(this);
     }
 
-    public TVar getVar()
+    public TInt getInt()
     {
-        return this._var_;
+        return this._int_;
     }
 
-    public void setVar(TVar node)
+    public void setInt(TInt node)
     {
-        if(this._var_ != null)
+        if(this._int_ != null)
         {
-            this._var_.parent(null);
+            this._int_.parent(null);
         }
 
         if(node != null)
@@ -77,7 +77,7 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
             node.parent(this);
         }
 
-        this._var_ = node;
+        this._int_ = node;
     }
 
     public PLvalueVariable getLvalueVariable()
@@ -184,7 +184,7 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
     public String toString()
     {
         return ""
-            + toString(this._var_)
+            + toString(this._int_)
             + toString(this._lvalueVariable_)
             + toString(this._equals_)
             + toString(this._expression_)
@@ -195,9 +195,9 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._var_ == child)
+        if(this._int_ == child)
         {
-            this._var_ = null;
+            this._int_ = null;
             return;
         }
 
@@ -232,9 +232,9 @@ public final class AWithInitialisationVariableDeclaration extends PVariableDecla
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._var_ == oldChild)
+        if(this._int_ == oldChild)
         {
-            setVar((TVar) newChild);
+            setInt((TInt) newChild);
             return;
         }
 

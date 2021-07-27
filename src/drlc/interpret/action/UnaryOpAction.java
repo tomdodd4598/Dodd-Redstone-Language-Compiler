@@ -132,6 +132,7 @@ public class UnaryOpAction extends Action implements IValueAction {
 	}
 	
 	public static enum UnaryOpType {
+		
 		PLUS("+"),
 		MINUS("-"),
 		COMPLEMENT("~"),

@@ -1,0 +1,5 @@
+Fix weird jump into other method
+0x17	JMP 	0x26
+
+Introduce types to language to avoid needing multiple cases of similar syntax
+Allow non-void function calls without attaching to lvalue

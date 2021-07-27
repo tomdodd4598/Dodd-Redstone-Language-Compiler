@@ -3,7 +3,7 @@ package drlc.interpret.action;
 import drlc.Global;
 import drlc.node.Node;
 
-public class JumpAction extends Action implements IJumpAction<JumpAction>, IStopAction {
+public class JumpAction extends Action implements IJumpAction<JumpAction>, IDefiniteRedirectAction {
 	
 	public final String target;
 	
@@ -18,7 +18,7 @@ public class JumpAction extends Action implements IJumpAction<JumpAction>, IStop
 	}
 	
 	@Override
-	public boolean conditional() {
+	public boolean isConditional() {
 		return false;
 	}
 	

@@ -19,18 +19,18 @@ public class InstructionSubtractFromStackPointer extends Instruction {
 	}
 	
 	@Override
-	public boolean isRegisterModified() {
+	public boolean isCurrentRegisterValueModified() {
 		return false;
 	}
 	
 	@Override
-	public boolean isRegisterExported() {
+	public boolean isCurrentRegisterValueUsed() {
 		return false;
 	}
 	
 	@Override
-	public Instruction getCompressedWithNextInstruction(Instruction next) {
-		if (value != null) {
+	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
+		if (sameSection && value != null) {
 			if (next instanceof InstructionAddToStackPointer) {
 				InstructionAddToStackPointer add = (InstructionAddToStackPointer) next;
 				if (add.value != null) {

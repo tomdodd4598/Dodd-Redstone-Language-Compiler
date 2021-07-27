@@ -16,8 +16,8 @@ public class InstructionSetNegative extends InstructionSet {
 	}
 	
 	@Override
-	public Instruction getCompressedWithNextInstruction(Instruction next) {
-		if (next instanceof InstructionSetNegative) {
+	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
+		if (sameSection && next instanceof InstructionSetNegative) {
 			return new InstructionNoOp();
 		}
 		else {

@@ -2,15 +2,12 @@
 
 package drlc.node;
 
-import java.util.*;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
 public final class AConditionalBasicSection extends PBasicSection
 {
-    private PIfBlock _ifBlock_;
-    private final LinkedList<PElifBlock> _elifBlock_ = new LinkedList<PElifBlock>();
-    private PElseBlock _elseBlock_;
+    private PConditionalSection _conditionalSection_;
 
     public AConditionalBasicSection()
     {
@@ -18,16 +15,10 @@ public final class AConditionalBasicSection extends PBasicSection
     }
 
     public AConditionalBasicSection(
-        @SuppressWarnings("hiding") PIfBlock _ifBlock_,
-        @SuppressWarnings("hiding") List<?> _elifBlock_,
-        @SuppressWarnings("hiding") PElseBlock _elseBlock_)
+        @SuppressWarnings("hiding") PConditionalSection _conditionalSection_)
     {
         // Constructor
-        setIfBlock(_ifBlock_);
-
-        setElifBlock(_elifBlock_);
-
-        setElseBlock(_elseBlock_);
+        setConditionalSection(_conditionalSection_);
 
     }
 
@@ -35,9 +26,7 @@ public final class AConditionalBasicSection extends PBasicSection
     public Object clone()
     {
         return new AConditionalBasicSection(
-            cloneNode(this._ifBlock_),
-            cloneList(this._elifBlock_),
-            cloneNode(this._elseBlock_));
+            cloneNode(this._conditionalSection_));
     }
 
     @Override
@@ -46,16 +35,16 @@ public final class AConditionalBasicSection extends PBasicSection
         ((Analysis) sw).caseAConditionalBasicSection(this);
     }
 
-    public PIfBlock getIfBlock()
+    public PConditionalSection getConditionalSection()
     {
-        return this._ifBlock_;
+        return this._conditionalSection_;
     }
 
-    public void setIfBlock(PIfBlock node)
+    public void setConditionalSection(PConditionalSection node)
     {
-        if(this._ifBlock_ != null)
+        if(this._conditionalSection_ != null)
         {
-            this._ifBlock_.parent(null);
+            this._conditionalSection_.parent(null);
         }
 
         if(node != null)
@@ -68,87 +57,23 @@ public final class AConditionalBasicSection extends PBasicSection
             node.parent(this);
         }
 
-        this._ifBlock_ = node;
-    }
-
-    public LinkedList<PElifBlock> getElifBlock()
-    {
-        return this._elifBlock_;
-    }
-
-    public void setElifBlock(List<?> list)
-    {
-        for(PElifBlock e : this._elifBlock_)
-        {
-            e.parent(null);
-        }
-        this._elifBlock_.clear();
-
-        for(Object obj_e : list)
-        {
-            PElifBlock e = (PElifBlock) obj_e;
-            if(e.parent() != null)
-            {
-                e.parent().removeChild(e);
-            }
-
-            e.parent(this);
-            this._elifBlock_.add(e);
-        }
-    }
-
-    public PElseBlock getElseBlock()
-    {
-        return this._elseBlock_;
-    }
-
-    public void setElseBlock(PElseBlock node)
-    {
-        if(this._elseBlock_ != null)
-        {
-            this._elseBlock_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._elseBlock_ = node;
+        this._conditionalSection_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._ifBlock_)
-            + toString(this._elifBlock_)
-            + toString(this._elseBlock_);
+            + toString(this._conditionalSection_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._ifBlock_ == child)
+        if(this._conditionalSection_ == child)
         {
-            this._ifBlock_ = null;
-            return;
-        }
-
-        if(this._elifBlock_.remove(child))
-        {
-            return;
-        }
-
-        if(this._elseBlock_ == child)
-        {
-            this._elseBlock_ = null;
+            this._conditionalSection_ = null;
             return;
         }
 
@@ -159,33 +84,9 @@ public final class AConditionalBasicSection extends PBasicSection
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._ifBlock_ == oldChild)
+        if(this._conditionalSection_ == oldChild)
         {
-            setIfBlock((PIfBlock) newChild);
-            return;
-        }
-
-        for(ListIterator<PElifBlock> i = this._elifBlock_.listIterator(); i.hasNext();)
-        {
-            if(i.next() == oldChild)
-            {
-                if(newChild != null)
-                {
-                    i.set((PElifBlock) newChild);
-                    newChild.parent(this);
-                    oldChild.parent(null);
-                    return;
-                }
-
-                i.remove();
-                oldChild.parent(null);
-                return;
-            }
-        }
-
-        if(this._elseBlock_ == oldChild)
-        {
-            setElseBlock((PElseBlock) newChild);
+            setConditionalSection((PConditionalSection) newChild);
             return;
         }
 

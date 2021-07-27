@@ -11,18 +11,18 @@ public class InstructionOutput extends Instruction {
 	}
 	
 	@Override
-	public boolean isRegisterModified() {
+	public boolean isCurrentRegisterValueModified() {
 		return false;
 	}
 	
 	@Override
-	public boolean isRegisterExported() {
+	public boolean isCurrentRegisterValueUsed() {
 		return true;
 	}
 	
 	@Override
-	public Instruction getCompressedWithNextInstruction(Instruction next) {
-		if (next instanceof InstructionOutput) {
+	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
+		if (sameSection && next instanceof InstructionOutput) {
 			return this;
 		}
 		else {

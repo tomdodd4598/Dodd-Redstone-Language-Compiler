@@ -16,7 +16,7 @@ public class InstructionAndLongImmediate extends InstructionALULongImmediate {
 	}
 	
 	@Override
-	public Instruction getALUImmediateReplacementInternal() {
+	public Instruction getImmediateReplacementInternal() {
 		return null;
 	}
 	

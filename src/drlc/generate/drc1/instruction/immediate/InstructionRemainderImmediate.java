@@ -16,7 +16,7 @@ public class InstructionRemainderImmediate extends InstructionALUImmediate {
 	}
 	
 	@Override
-	public Instruction getALUImmediateReplacementInternal() {
+	public Instruction getImmediateReplacementInternal() {
 		if (value == 1) {
 			return new InstructionLoadImmediate((short) 0);
 		}

@@ -17,7 +17,7 @@ public class InstructionDivideLongImmediate extends InstructionALULongImmediate 
 	}
 	
 	@Override
-	public Instruction getALUImmediateReplacementInternal() {
+	public Instruction getImmediateReplacementInternal() {
 		if (value == -1) {
 			return new InstructionSetNegative();
 		}

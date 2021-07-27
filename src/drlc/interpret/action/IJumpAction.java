@@ -2,7 +2,7 @@ package drlc.interpret.action;
 
 public interface IJumpAction<T extends Action & IJumpAction<T>> {
 	
-	public boolean conditional();
+	public boolean isConditional();
 	
 	public String getTarget();
 	

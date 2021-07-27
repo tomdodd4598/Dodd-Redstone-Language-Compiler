@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class ANoInitialisationVariableDeclaration extends PVariableDeclaration
 {
-    private TVar _var_;
+    private TInt _int_;
     private PLvalueVariable _lvalueVariable_;
     private TSemicolon _semicolon_;
 
@@ -17,12 +17,12 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
     }
 
     public ANoInitialisationVariableDeclaration(
-        @SuppressWarnings("hiding") TVar _var_,
+        @SuppressWarnings("hiding") TInt _int_,
         @SuppressWarnings("hiding") PLvalueVariable _lvalueVariable_,
         @SuppressWarnings("hiding") TSemicolon _semicolon_)
     {
         // Constructor
-        setVar(_var_);
+        setInt(_int_);
 
         setLvalueVariable(_lvalueVariable_);
 
@@ -34,7 +34,7 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
     public Object clone()
     {
         return new ANoInitialisationVariableDeclaration(
-            cloneNode(this._var_),
+            cloneNode(this._int_),
             cloneNode(this._lvalueVariable_),
             cloneNode(this._semicolon_));
     }
@@ -45,16 +45,16 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
         ((Analysis) sw).caseANoInitialisationVariableDeclaration(this);
     }
 
-    public TVar getVar()
+    public TInt getInt()
     {
-        return this._var_;
+        return this._int_;
     }
 
-    public void setVar(TVar node)
+    public void setInt(TInt node)
     {
-        if(this._var_ != null)
+        if(this._int_ != null)
         {
-            this._var_.parent(null);
+            this._int_.parent(null);
         }
 
         if(node != null)
@@ -67,7 +67,7 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
             node.parent(this);
         }
 
-        this._var_ = node;
+        this._int_ = node;
     }
 
     public PLvalueVariable getLvalueVariable()
@@ -124,7 +124,7 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
     public String toString()
     {
         return ""
-            + toString(this._var_)
+            + toString(this._int_)
             + toString(this._lvalueVariable_)
             + toString(this._semicolon_);
     }
@@ -133,9 +133,9 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._var_ == child)
+        if(this._int_ == child)
         {
-            this._var_ = null;
+            this._int_ = null;
             return;
         }
 
@@ -158,9 +158,9 @@ public final class ANoInitialisationVariableDeclaration extends PVariableDeclara
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._var_ == oldChild)
+        if(this._int_ == oldChild)
         {
-            setVar((TVar) newChild);
+            setInt((TInt) newChild);
             return;
         }
 

@@ -2,6 +2,7 @@ package drlc.generate.drc1.instruction.immediate;
 
 import drlc.*;
 import drlc.generate.drc1.*;
+import drlc.generate.drc1.instruction.Instruction;
 
 public class InstructionLoadLongImmediate extends InstructionLongImmediate implements IInstructionLoadImmediate {
 	
@@ -10,18 +11,34 @@ public class InstructionLoadLongImmediate extends InstructionLongImmediate imple
 	}
 	
 	@Override
-	public boolean isRegisterModified() {
+	public boolean isCurrentRegisterValueModified() {
 		return true;
 	}
 	
 	@Override
-	public boolean isRegisterExported() {
+	public boolean isCurrentRegisterValueUsed() {
 		return false;
 	}
 	
 	@Override
 	public boolean isUnnecessaryImmediate() {
 		return false;
+	}
+	
+	@Override
+	public Instruction getImmediateReplacementInternal() {
+		short complement = (short) ~value;
+		if (!RedstoneCode.isLongImmediate(complement)) {
+			return new InstructionNotImmediate(complement);
+		}
+		else {
+			return null;
+		}
+	}
+	
+	@Override
+	public Short getRegisterValue() {
+		return value;
 	}
 	
 	@Override

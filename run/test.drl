@@ -1,9 +1,9 @@
 // ITERATIVE FACTORIAL
 
 /*
-var f = 1;
-var a = 1;
-var b = 1;
+int f = 1;
+int a = 1;
+int b = 1;
 
 void update() {
 	f = a * b;
@@ -20,10 +20,10 @@ while f > 0 {
 // RECURSIVE FACTORIAL
 
 /*
-var f = 1;
-var i = 1;
+int f = 1;
+int i = 1;
 
-fun fact(n) {
+int fact(n) {
 	if n <= 1 {
 		return 1;
 	}
@@ -46,9 +46,9 @@ while f > 0 {
 /*
 $set_argc(2);
 
-var f = argv(0);
-var a = argv(1);
-var b = 0;
+int f = argv(0);
+int a = argv(1);
+int b = 0;
 
 void update() {
 	f = a + b;
@@ -67,10 +67,10 @@ while f > 0 {
 /*
 $set_argc(2);
 
-var f = argv(0);
-var i = 0;
+int f = argv(0);
+int i = 0;
 
-fun fib(n) {
+int fib(n) {
 	if n <= 1 {
 		return argv(n);
 	}
@@ -91,13 +91,13 @@ while f > 0 {
 // PRIME NUMBER SIEVE
 
 ///*
-const max = 100;
-const fail = max + 1;
-var n = 1;
+const int max = 100;
+const int fail = max + 1;
+int n = 1;
 
-fun high_approx_sqrt(m) {
-    var a = (m + 1) >> 1;
-    var b;
+int high_approx_sqrt(m) {
+    int a = (m + 1) >> 1;
+    int b;
     
     b = m / a; a = (a + b) >> 1;
     b = m / a; a = (a + b) >> 1;
@@ -108,8 +108,8 @@ fun high_approx_sqrt(m) {
 
 while n < max {
 	n = n + 1;
-	var i = 2;
-	var j = high_approx_sqrt(n);
+	int i = 2;
+	int j = high_approx_sqrt(n);
 	while i < j {
 		if n % i {
 			i = i + 1;
@@ -124,20 +124,56 @@ while n < max {
 }
 //*/
 
+// TESTING BRANCHES
+
+/*
+int a = 0;
+
+unless a == 0 {
+	int b = 9;
+}
+elsunless a == 1 {
+	int b = 10;
+}
+else {
+	int b = 11;
+}
+
+loop {
+	if a == 2 {
+		int b = 12;
+	}
+	else {
+		break;
+	}
+}
+
+until a == 3 {
+	int b = 13;
+}
+
+repeat {
+	int b = 14;
+}
+until a == 4;
+
+a = 1;
+*/
+
 // TESTING POINTERS
 
 /*
-var a = 1;
-var #b = 2;
-var ##c = 3;
+int a = 1;
+int #b = 2;
+int ##c = 3;
 
 out(@a); out(a);
 out(@b); out(b); out(#b);
 out(@c); out(c); out(#c); out(##c);
 
-var d = @a;
-var #e = @b;
-var ##f = @c;
+int d = @a;
+int #e = @b;
+int ##f = @c;
 
 void update(##x, ###y, ####z) {
 	##x = 1001;
@@ -145,7 +181,8 @@ void update(##x, ###y, ####z) {
 	####z = 1003;
 	
 	// Force recursive definition
-	if 0 {
+	int zero = 0;
+	if zero {
 		update(0, 0, 0);
 	}
 }
@@ -160,9 +197,9 @@ out(@f); out(f); out(#f); out(##f); out(###f);
 // TESTING ARRAYS
 
 /*
-var x = 0;
-var #y = 1;
-var ##z = 2;
+int x = 0;
+int #y = 1;
+int ##z = 2;
 
 var[2][3] a = {{1, 2, 3}, {4, 5, 6}};
 var[4] b;

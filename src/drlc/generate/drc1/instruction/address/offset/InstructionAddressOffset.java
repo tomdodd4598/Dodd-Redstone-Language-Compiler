@@ -20,7 +20,7 @@ public abstract class InstructionAddressOffset extends Instruction implements II
 	}
 	
 	@Override
-	public Instruction getCompressedWithNextInstruction(Instruction next) {
+	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		return null;
 	}
 }

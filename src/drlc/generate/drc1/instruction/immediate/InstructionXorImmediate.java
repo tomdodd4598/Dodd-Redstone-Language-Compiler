@@ -16,12 +16,12 @@ public class InstructionXorImmediate extends InstructionALUImmediate {
 	}
 	
 	@Override
-	public Instruction getALUImmediateReplacementInternal() {
+	public Instruction getImmediateReplacementInternal() {
 		return null;
 	}
 	
 	@Override
-	public Instruction getCompressedWithNextInstruction(Instruction next) {
+	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		/*if (next instanceof InstructionXorImmediate) {
 			InstructionXorImmediate xor = (InstructionXorImmediate) next;
 			return new InstructionXorImmediate((short) (value ^ xor.value));

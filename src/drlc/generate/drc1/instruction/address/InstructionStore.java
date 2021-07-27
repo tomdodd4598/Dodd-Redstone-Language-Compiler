@@ -11,12 +11,12 @@ public class InstructionStore extends InstructionAddress implements IInstruction
 	}
 	
 	@Override
-	public boolean isRegisterModified() {
+	public boolean isCurrentRegisterValueModified() {
 		return false;
 	}
 	
 	@Override
-	public boolean isRegisterExported() {
+	public boolean isCurrentRegisterValueUsed() {
 		return true;
 	}
 	

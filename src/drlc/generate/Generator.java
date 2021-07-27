@@ -50,7 +50,8 @@ public abstract class Generator {
 		for (Routine routine : map.values()) {
 			boolean flag = true;
 			while (flag) {
-				flag = IntermediateOptimization.removeDeadActions(routine);
+				flag = IntermediateOptimization.removeNoOps(routine);
+				flag |= IntermediateOptimization.removeDeadActions(routine);
 				flag |= IntermediateOptimization.simplifySections(routine);
 				flag |= IntermediateOptimization.simplifyJumps(routine);
 				flag |= IntermediateOptimization.shiftActions(routine);
@@ -58,7 +59,6 @@ public abstract class Generator {
 				flag |= IntermediateOptimization.compressRValueRegisters(routine);
 				flag |= IntermediateOptimization.compressLValueRegisters(routine);
 				flag |= IntermediateOptimization.reorderRValues(routine);
-				flag |= IntermediateOptimization.removeNoOps(routine);
 				flag |= IntermediateOptimization.orderRegisters(routine);
 			}
 		}

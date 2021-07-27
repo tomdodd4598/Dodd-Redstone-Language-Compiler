@@ -16,8 +16,13 @@ public class InstructionOrLongImmediate extends InstructionALULongImmediate {
 	}
 	
 	@Override
-	public Instruction getALUImmediateReplacementInternal() {
-		return null;
+	public Instruction getImmediateReplacementInternal() {
+		if (value == -1) {
+			return new InstructionLoadLongImmediate((short) -1);
+		}
+		else {
+			return null;
+		}
 	}
 	
 	@Override

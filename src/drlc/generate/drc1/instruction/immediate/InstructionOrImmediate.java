@@ -16,12 +16,12 @@ public class InstructionOrImmediate extends InstructionALUImmediate {
 	}
 	
 	@Override
-	public Instruction getALUImmediateReplacementInternal() {
+	public Instruction getImmediateReplacementInternal() {
 		return null;
 	}
 	
 	@Override
-	public Instruction getCompressedWithNextInstruction(Instruction next) {
+	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		/*if (next instanceof InstructionOrImmediate) {
 			InstructionOrImmediate or = (InstructionOrImmediate) next;
 			return new InstructionOrImmediate((short) (value | or.value));

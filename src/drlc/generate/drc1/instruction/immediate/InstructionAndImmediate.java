@@ -16,7 +16,7 @@ public class InstructionAndImmediate extends InstructionALUImmediate {
 	}
 	
 	@Override
-	public Instruction getALUImmediateReplacementInternal() {
+	public Instruction getImmediateReplacementInternal() {
 		if (value == 0) {
 			return new InstructionLoadImmediate((short) 0);
 		}
@@ -26,7 +26,7 @@ public class InstructionAndImmediate extends InstructionALUImmediate {
 	}
 	
 	@Override
-	public Instruction getCompressedWithNextInstruction(Instruction next) {
+	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		/*if (next instanceof InstructionAndImmediate) {
 			InstructionAndImmediate and = (InstructionAndImmediate) next;
 			return new InstructionAndImmediate((short) (value & and.value));

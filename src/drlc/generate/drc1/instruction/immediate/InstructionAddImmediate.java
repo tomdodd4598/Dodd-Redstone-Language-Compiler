@@ -16,12 +16,12 @@ public class InstructionAddImmediate extends InstructionALUImmediate {
 	}
 	
 	@Override
-	public Instruction getALUImmediateReplacementInternal() {
+	public Instruction getImmediateReplacementInternal() {
 		return null;
 	}
 	
 	@Override
-	public Instruction getCompressedWithNextInstruction(Instruction next) {
+	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		/*if (next instanceof InstructionAddImmediate) {
 			InstructionAddImmediate add = (InstructionAddImmediate) next;
 			int sum = value + add.value;

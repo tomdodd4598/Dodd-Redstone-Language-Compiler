@@ -16,7 +16,7 @@ public class InstructionDivideImmediate extends InstructionALUImmediate {
 	}
 	
 	@Override
-	public Instruction getALUImmediateReplacementInternal() {
+	public Instruction getImmediateReplacementInternal() {
 		return null;
 	}
 	

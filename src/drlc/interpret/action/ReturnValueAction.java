@@ -5,7 +5,7 @@ import java.util.Map;
 import drlc.*;
 import drlc.node.Node;
 
-public class ReturnValueAction extends Action implements IStopAction, IValueAction {
+public class ReturnValueAction extends Action implements IDefiniteRedirectAction, IValueAction {
 	
 	public final String arg;
 	

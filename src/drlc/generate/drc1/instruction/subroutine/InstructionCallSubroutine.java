@@ -2,7 +2,7 @@ package drlc.generate.drc1.instruction.subroutine;
 
 import drlc.Helper;
 import drlc.generate.drc1.*;
-import drlc.generate.drc1.instruction.Instruction;
+import drlc.generate.drc1.instruction.*;
 
 public class InstructionCallSubroutine extends Instruction {
 	
@@ -15,12 +15,12 @@ public class InstructionCallSubroutine extends Instruction {
 	}
 	
 	@Override
-	public boolean isRegisterModified() {
+	public boolean isCurrentRegisterValueModified() {
 		return false;
 	}
 	
 	@Override
-	public boolean isRegisterExported() {
+	public boolean isCurrentRegisterValueUsed() {
 		return false;
 	}
 	
@@ -30,7 +30,17 @@ public class InstructionCallSubroutine extends Instruction {
 	}
 	
 	@Override
-	public Instruction getCompressedWithNextInstruction(Instruction next) {
+	public InstructionConstant succeedingData() {
+		if (callAddress == null) {
+			return new InstructionConstant();
+		}
+		else {
+			return new InstructionConstant(callAddress);
+		}
+	}
+	
+	@Override
+	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		return null;
 	}
 	

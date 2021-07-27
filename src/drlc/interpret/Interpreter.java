@@ -46,6 +46,7 @@ public class Interpreter extends DepthFirstAdapter {
 	@Override
 	public void inAUnit(AUnit node) {
 		scope = new Scope(node, scope);
+		scope.setExpectingFunctionReturn(false);
 		program.addBuiltInMethods(node, scope);
 		program.addBuiltInFunctions(node, scope);
 	}
@@ -115,23 +116,10 @@ public class Interpreter extends DepthFirstAdapter {
 	public void outAMethodCallBasicSection(AMethodCallBasicSection node) {}
 	
 	@Override
-	public void inAConditionalBasicSection(AConditionalBasicSection node) {
-		ConditionalSectionInfo info = new ConditionalSectionInfo();
-		boolean elseBlock = node.getElseBlock() != null;
-		info.setHasElseBlock(node, elseBlock);
-		info.setConditionalSectionLength(node, 1 + (node.getElifBlock() == null ? 0 : node.getElifBlock().size()) + (elseBlock ? 1 : 0));
-		program.currentRoutine().conditionalSectionInfoStack.push(info);
-	}
+	public void inAConditionalBasicSection(AConditionalBasicSection node) {}
 	
 	@Override
-	public void outAConditionalBasicSection(AConditionalBasicSection node) {
-		program.currentRoutine().incrementSectionId();
-		if (!program.currentRoutine().currentConditionalSectionInfo().getHasElseBlock(node)) {
-			program.currentRoutine().addConditionalSectionElseJumpAction(node, scope);
-		}
-		program.currentRoutine().addConditionalSectionExitJumpActions(node, scope);
-		program.currentRoutine().conditionalSectionInfoStack.pop();
-	}
+	public void outAConditionalBasicSection(AConditionalBasicSection node) {}
 	
 	@Override
 	public void inAIterativeBasicSection(AIterativeBasicSection node) {}
@@ -157,10 +145,12 @@ public class Interpreter extends DepthFirstAdapter {
 			scope.addVariable(node, param.variable);
 		}
 		program.createAndSetMethodRoutine(node, scope);
+		scope.setExpectingFunctionReturn(false);
 		for (PBasicSection section : node.getBasicSection()) {
 			section.apply(this);
 		}
 		if (node.getStopStatement() != null) {
+			scope.setExpectingFunctionReturn(false);
 			node.getStopStatement().apply(this);
 		}
 		node.getRBrace().apply(this);
@@ -174,7 +164,7 @@ public class Interpreter extends DepthFirstAdapter {
 		PParameterList params = node.getParameterList();
 		scope.functionArgs = params == null ? 0 : 1 + ((AParameterList) params).getParameterListTail().size();
 		
-		node.getFun().apply(this);
+		node.getInt().apply(this);
 		node.getName().apply(this);
 		node.getLPar().apply(this);
 		if (node.getParameterList() != null) {
@@ -203,6 +193,7 @@ public class Interpreter extends DepthFirstAdapter {
 	@Override
 	public void caseAConstantDefinition(AConstantDefinition node) {
 		node.getConst().apply(this);
+		node.getInt().apply(this);
 		node.getName().apply(this);
 		String name = node.getName().getText();
 		node.getEquals().apply(this);
@@ -233,7 +224,7 @@ public class Interpreter extends DepthFirstAdapter {
 				isValidAddress = true;
 			}
 		}
-		node.getVar().apply(this);
+		node.getInt().apply(this);
 		VariableReferenceInfo info = createLvalueVariableInfo(node.getLvalueVariable(), isValidAddress ? 1 : 0, true);
 		node.getEquals().apply(this);
 		if (isValidAddress) {
@@ -280,12 +271,35 @@ public class Interpreter extends DepthFirstAdapter {
 	}
 	
 	@Override
-	public void caseAIfBlock(AIfBlock node) {
+	public void inAConditionalSection(AConditionalSection node) {
+		ConditionalSectionInfo info = new ConditionalSectionInfo();
+		boolean elseBlock = node.getElseBlock() != null;
+		info.setHasElseBlock(node, elseBlock);
+		info.setSectionLength(node, 1 + (node.getConditionalMiddleBlock() == null ? 0 : node.getConditionalMiddleBlock().size()) + (elseBlock ? 1 : 0));
+		program.currentRoutine().conditionalSectionInfoStack.push(info);
+	}
+	
+	@Override
+	public void outAConditionalSection(AConditionalSection node) {
 		program.currentRoutine().incrementSectionId();
-		node.getIf().apply(this);
+		if (!program.currentRoutine().currentConditionalSectionInfo(node).getHasElseBlock(node)) {
+			program.currentRoutine().addConditionalSectionElseJumpAction(node, scope);
+		}
+		program.currentRoutine().addConditionalSectionExitJumpActions(node, scope);
+		program.currentRoutine().conditionalSectionInfoStack.pop();
+	}
+	
+	@Override
+	public void caseAConditionalStartBlock(AConditionalStartBlock node) {
+		program.currentRoutine().incrementSectionId();
+		
+		node.getConditionalStartBlockKeyword().apply(this);
+		program.currentRoutine().currentConditionalSectionInfo(node).setExecuteIfCondition(node, node.getConditionalStartBlockKeyword().toString().trim().equals(Global.IF));
 		node.getExpression().apply(this);
-		program.currentRoutine().currentConditionalSectionInfo().setElseJumpConditionalSectionId(node, program.currentRoutine());
-		program.currentRoutine().addConditionalSectionSkipJumpActionAndIncrementSectionId(node);
+		
+		program.currentRoutine().currentConditionalSectionInfo(node).setElseJumpSectionId(node, program.currentRoutine());
+		program.currentRoutine().incrementSectionId();
+		
 		node.getLBrace().apply(this);
 		for (PBasicSection section : node.getBasicSection()) {
 			section.apply(this);
@@ -293,18 +307,22 @@ public class Interpreter extends DepthFirstAdapter {
 		if (node.getStopStatement() != null) {
 			node.getStopStatement().apply(this);
 		}
-		program.currentRoutine().currentConditionalSectionInfo().addExitJumpConditionalSection(node, program.currentRoutine());
+		program.currentRoutine().currentConditionalSectionInfo(node).addExitJumpSection(node, program.currentRoutine());
 		node.getRBrace().apply(this);
 	}
 	
 	@Override
-	public void caseAElifBlock(AElifBlock node) {
+	public void caseAConditionalMiddleBlock(AConditionalMiddleBlock node) {
 		program.currentRoutine().incrementSectionId();
 		program.currentRoutine().addConditionalSectionElseJumpAction(node, scope);
-		node.getElif().apply(this);
+		
+		node.getConditionalMiddleBlockKeyword().apply(this);
+		program.currentRoutine().currentConditionalSectionInfo(node).setExecuteIfCondition(node, node.getConditionalMiddleBlockKeyword().toString().trim().equals(Global.ELSIF));
 		node.getExpression().apply(this);
-		program.currentRoutine().currentConditionalSectionInfo().setElseJumpConditionalSectionId(node, program.currentRoutine());
-		program.currentRoutine().addConditionalSectionSkipJumpActionAndIncrementSectionId(node);
+		
+		program.currentRoutine().currentConditionalSectionInfo(node).setElseJumpSectionId(node, program.currentRoutine());
+		program.currentRoutine().incrementSectionId();
+		
 		node.getLBrace().apply(this);
 		for (PBasicSection section : node.getBasicSection()) {
 			section.apply(this);
@@ -312,7 +330,7 @@ public class Interpreter extends DepthFirstAdapter {
 		if (node.getStopStatement() != null) {
 			node.getStopStatement().apply(this);
 		}
-		program.currentRoutine().currentConditionalSectionInfo().addExitJumpConditionalSection(node, program.currentRoutine());
+		program.currentRoutine().currentConditionalSectionInfo(node).addExitJumpSection(node, program.currentRoutine());
 		node.getRBrace().apply(this);
 	}
 	
@@ -320,30 +338,28 @@ public class Interpreter extends DepthFirstAdapter {
 	public void caseAElseBlock(AElseBlock node) {
 		program.currentRoutine().incrementSectionId();
 		program.currentRoutine().addConditionalSectionElseJumpAction(node, scope);
+		
 		node.getElse().apply(this);
 		node.getLBrace().apply(this);
 		for (PBasicSection section : node.getBasicSection()) {
 			section.apply(this);
 		}
 		if (node.getStopStatement() != null) {
-			scope.previous.checkExpectingFunctionReturn(node, true);
+			scope.previous.expectingFunctionReturn = false;
 			node.getStopStatement().apply(this);
 		}
-		program.currentRoutine().currentConditionalSectionInfo().addExitJumpConditionalSection(node, program.currentRoutine());
+		program.currentRoutine().currentConditionalSectionInfo(node).addExitJumpSection(node, program.currentRoutine());
 		node.getRBrace().apply(this);
 	}
 	
 	@Override
-	public void caseAIterativeBlock(AIterativeBlock node) {
+	public void caseALoopIterativeBlock(ALoopIterativeBlock node) {
 		program.currentRoutine().incrementSectionId();
 		IterativeSectionInfo info = new IterativeSectionInfo();
-		info.setIterativeContinueJumpSectionId(node, program.currentRoutine().currentSectionId());
+		info.setContinueJumpTargetSectionId(node, program.currentRoutine().currentSectionId());
 		program.currentRoutine().iterativeSectionInfoStack.push(info);
 		
-		node.getWhile().apply(this);
-		node.getExpression().apply(this);
-		
-		program.currentRoutine().addIterativeSectionJumpActionsAndIncrementSectionId(node, scope);
+		node.getLoop().apply(this);
 		
 		node.getLBrace().apply(this);
 		for (PBasicSection section : node.getBasicSection()) {
@@ -354,9 +370,73 @@ public class Interpreter extends DepthFirstAdapter {
 		}
 		node.getRBrace().apply(this);
 		
-		program.currentRoutine().addIterativeSectionContinueAction(node, scope);
+		program.currentRoutine().addIterativeSectionContinueJumpAction(node, scope);
 		program.currentRoutine().incrementSectionId();
-		program.currentRoutine().addIterativeSectionExitJumpActions(node, scope);
+		info.setBreakJumpTargetSectionId(node, program.currentRoutine().currentSectionId());
+		program.currentRoutine().finalizeIterativeSectionJumpActions(node, scope);
+		program.currentRoutine().iterativeSectionInfoStack.pop();
+	}
+	
+	@Override
+	public void caseAConditionalIterativeBlock(AConditionalIterativeBlock node) {
+		IterativeSectionInfo info = new IterativeSectionInfo();
+		program.currentRoutine().iterativeSectionInfoStack.push(info);
+		
+		program.currentRoutine().addIterativeSectionContinueJumpAction(node, scope);
+		program.currentRoutine().incrementSectionId();
+		info.setBodyJumpTargetSectionId(node, program.currentRoutine().currentSectionId());
+		
+		node.getLBrace().apply(this);
+		for (PBasicSection section : node.getBasicSection()) {
+			section.apply(this);
+		}
+		if (node.getStopStatement() != null) {
+			node.getStopStatement().apply(this);
+		}
+		node.getRBrace().apply(this);
+		
+		program.currentRoutine().incrementSectionId();
+		info.setContinueJumpTargetSectionId(node, program.currentRoutine().currentSectionId());
+		
+		node.getConditionalIterativeBlockKeyword().apply(this);
+		node.getExpression().apply(this);
+		
+		program.currentRoutine().addIterativeSectionConditionalBodyJumpAction(node, scope, node.getConditionalIterativeBlockKeyword().toString().trim().equals(Global.WHILE));
+		program.currentRoutine().incrementSectionId();
+		info.setBreakJumpTargetSectionId(node, program.currentRoutine().currentSectionId());
+		program.currentRoutine().finalizeIterativeSectionJumpActions(node, scope);
+		program.currentRoutine().iterativeSectionInfoStack.pop();
+	}
+	
+	@Override
+	public void caseARepeatConditionalIterativeBlock(ARepeatConditionalIterativeBlock node) {
+		IterativeSectionInfo info = new IterativeSectionInfo();
+		program.currentRoutine().iterativeSectionInfoStack.push(info);
+		
+		program.currentRoutine().incrementSectionId();
+		info.setBodyJumpTargetSectionId(node, program.currentRoutine().currentSectionId());
+		
+		node.getRepeat().apply(this);
+		node.getLBrace().apply(this);
+		for (PBasicSection section : node.getBasicSection()) {
+			section.apply(this);
+		}
+		if (node.getStopStatement() != null) {
+			node.getStopStatement().apply(this);
+		}
+		node.getRBrace().apply(this);
+		
+		program.currentRoutine().incrementSectionId();
+		info.setContinueJumpTargetSectionId(node, program.currentRoutine().currentSectionId());
+		
+		node.getConditionalIterativeBlockKeyword().apply(this);
+		node.getExpression().apply(this);
+		node.getSemicolon().apply(this);
+		
+		program.currentRoutine().addIterativeSectionConditionalBodyJumpAction(node, scope, node.getConditionalIterativeBlockKeyword().toString().trim().equals(Global.WHILE));
+		program.currentRoutine().incrementSectionId();
+		info.setBreakJumpTargetSectionId(node, program.currentRoutine().currentSectionId());
+		program.currentRoutine().finalizeIterativeSectionJumpActions(node, scope);
 		program.currentRoutine().iterativeSectionInfoStack.pop();
 	}
 	
@@ -373,7 +453,7 @@ public class Interpreter extends DepthFirstAdapter {
 	
 	@Override
 	public void outAContinueStopStatement(AContinueStopStatement node) {
-		program.currentRoutine().addIterativeSectionContinueAction(node, scope);
+		program.currentRoutine().addIterativeSectionContinueJumpAction(node, scope);
 	}
 	
 	@Override
@@ -381,7 +461,7 @@ public class Interpreter extends DepthFirstAdapter {
 	
 	@Override
 	public void outABreakStopStatement(ABreakStopStatement node) {
-		program.currentRoutine().addIterativeSectionBreakAction(scope);
+		program.currentRoutine().addIterativeSectionBreakJumpAction(node, scope);
 	}
 	
 	@Override
@@ -534,6 +614,16 @@ public class Interpreter extends DepthFirstAdapter {
 	@Override
 	public void outAFunctionValue(AFunctionValue node) {}
 	
+	@Override
+	public void caseABuiltInInFunction(ABuiltInInFunction node) {
+		node.getIn().apply(this);
+		node.getLPar().apply(this);
+		node.getRPar().apply(this);
+		program.currentRoutine().incrementRegId();
+		program.currentRoutine().addBuiltInFunctionCallAction(node, scope, node.getIn().getText());
+	}
+	
+	// TODO
 	@Override
 	public void caseABuiltInArgcFunction(ABuiltInArgcFunction node) {
 		node.getArgc().apply(this);

@@ -102,7 +102,7 @@ public abstract class Routine {
 	// General actions
 	
 	protected void addAction(Action action) {
-		body.get(sectionId).add(action);
+		currentSection().add(action);
 	}
 	
 	protected void checkConstantExists(Node node, Scope scope, String name, boolean expected, String error) {
@@ -162,8 +162,8 @@ public abstract class Routine {
 		addAction(new JumpAction(node, target));
 	}
 	
-	public void addConditionalJumpAction(Node node, String target) {
-		addAction(new ConditionalJumpAction(node, target));
+	public void addConditionalJumpAction(Node node, String target, boolean jumpCondition) {
+		addAction(new ConditionalJumpAction(node, target, jumpCondition));
 	}
 	
 	public void addBuiltInMethodCallAction(Node node, Scope scope, String name) {
@@ -211,60 +211,122 @@ public abstract class Routine {
 	
 	// Special conditional and iterative section actions
 	
-	public ConditionalSectionInfo currentConditionalSectionInfo() {
-		return conditionalSectionInfoStack.peek();
-	}
-	
-	public void addConditionalSectionSkipJumpActionAndIncrementSectionId(Node node) {
-		List<Action> previous = body.get(sectionId);
-		incrementSectionId();
-		previous.add(new ConditionalJumpAction(node, sectionIdString));
+	public ConditionalSectionInfo currentConditionalSectionInfo(Node node) {
+		if (conditionalSectionInfoStack.empty()) {
+			throw new IllegalArgumentException(String.format("Unexpectedly attempted to get conditional section info! %s", node));
+		}
+		else {
+			return conditionalSectionInfoStack.peek();
+		}
 	}
 	
 	public void addConditionalSectionElseJumpAction(Node node, Scope scope) {
-		body.get(currentConditionalSectionInfo().getElseJumpConditionalSectionId(node)).add(new JumpAction(node, sectionIdString));
+		ConditionalSectionInfo info = currentConditionalSectionInfo(node);
+		body.get(info.getElseJumpSectionId(node)).add(new ConditionalJumpAction(node, sectionIdString, !info.getExecuteIfCondition(node)));
 	}
 	
 	public void addConditionalSectionExitJumpActions(Node node, Scope scope) {
-		for (int sectionId : currentConditionalSectionInfo().getExitJumpConditionalSectionIds(node)) {
+		for (int sectionId : currentConditionalSectionInfo(node).getExitJumpSectionIds(node)) {
 			body.get(sectionId).add(new JumpAction(node, sectionIdString));
 		}
 	}
 	
-	public IterativeSectionInfo currentIterativeSectionInfo() {
-		return iterativeSectionInfoStack.peek();
+	public IterativeSectionInfo currentIterativeSectionInfo(Node node) {
+		if (iterativeSectionInfoStack.empty()) {
+			throw new IllegalArgumentException(String.format("Unexpectedly attempted to get iterative section info! %s", node));
+		}
+		else {
+			return iterativeSectionInfoStack.peek();
+		}
 	}
 	
-	public void addIterativeSectionContinueAction(Node node, Scope scope) {
-		addJumpAction(node, currentIterativeSectionInfo().getIterativeContinueJumpSectionId(node));
+	public void addIterativeSectionContinueJumpAction(Node node, Scope scope) {
+		currentIterativeSectionInfo(node).continueJumpIterativeSectionIds.add(sectionId);
+		addAction(Global.ITERATION_CONTINUE_PLACEHOLDER);
 	}
 	
-	public void addIterativeSectionBreakAction(Scope scope) {
-		currentIterativeSectionInfo().exitJumpIterativeSectionIds.add(sectionId);
-		addAction(Global.ITERATOR_BREAK_PLACEHOLDER);
+	public void addIterativeSectionConditionalContinueJumpAction(Node node, Scope scope, boolean continueIfCondition) {
+		currentIterativeSectionInfo(node).continueJumpIterativeSectionIds.add(sectionId);
+		addAction(continueIfCondition ? Global.ITERATION_CONDITIONAL_CONTINUE_PLACEHOLDER : Global.ITERATION_CONDITIONAL_NOT_CONTINUE_PLACEHOLDER);
 	}
 	
-	public void addIterativeSectionJumpActionsAndIncrementSectionId(Node node, Scope scope) {
-		currentIterativeSectionInfo().exitJumpIterativeSectionIds.add(sectionId);
-		List<Action> previous = body.get(sectionId);
-		incrementSectionId();
-		previous.add(new ConditionalJumpAction(node, sectionIdString));
-		previous.add(Global.ITERATOR_BREAK_PLACEHOLDER);
+	public void addIterativeSectionBodyJumpAction(Node node, Scope scope) {
+		currentIterativeSectionInfo(node).bodyJumpIterativeSectionIds.add(sectionId);
+		addAction(Global.ITERATION_BODY_JUMP_PLACEHOLDER);
 	}
 	
-	public void addIterativeSectionExitJumpActions(Node node, Scope scope) {
-		for (int sectionId : currentIterativeSectionInfo().getExitJumpIterativeSectionIds(node)) {
+	public void addIterativeSectionConditionalBodyJumpAction(Node node, Scope scope, boolean jumpIfCondition) {
+		currentIterativeSectionInfo(node).bodyJumpIterativeSectionIds.add(sectionId);
+		addAction(jumpIfCondition ? Global.ITERATION_CONDITIONAL_BODY_JUMP_PLACEHOLDER : Global.ITERATION_CONDITIONAL_NOT_BODY_JUMP_PLACEHOLDER);
+	}
+	
+	public void addIterativeSectionBreakJumpAction(Node node, Scope scope) {
+		currentIterativeSectionInfo(node).breakJumpIterativeSectionIds.add(sectionId);
+		addAction(Global.ITERATION_BREAK_PLACEHOLDER);
+	}
+	
+	public void addIterativeSectionConditionalBreakJumpAction(Node node, Scope scope, boolean breakIfCondition) {
+		currentIterativeSectionInfo(node).breakJumpIterativeSectionIds.add(sectionId);
+		addAction(breakIfCondition ? Global.ITERATION_CONDITIONAL_BREAK_PLACEHOLDER : Global.ITERATION_CONDITIONAL_NOT_BREAK_PLACEHOLDER);
+	}
+	
+	public void finalizeIterativeSectionJumpActions(Node node, Scope scope) {
+		IterativeSectionInfo info = currentIterativeSectionInfo(node);
+		
+		for (int sectionId : info.getContinueJumpIterativeSectionIds(node)) {
 			List<Action> list = body.get(sectionId);
 			for (int i = 0; i < list.size(); i++) {
 				Action action = list.get(i);
-				if (Global.ITERATOR_BREAK_PLACEHOLDER.equals(action)) {
-					list.set(i, new JumpAction(node, sectionIdString));
+				if (Global.ITERATION_CONTINUE_PLACEHOLDER.equals(action)) {
+					list.set(i, new JumpAction(node, info.getContinueJumpTargetSectionId(node)));
+				}
+				else if (Global.ITERATION_CONDITIONAL_CONTINUE_PLACEHOLDER.equals(action)) {
+					list.set(i, new ConditionalJumpAction(node, info.getContinueJumpTargetSectionId(node), true));
+				}
+				else if (Global.ITERATION_CONDITIONAL_NOT_CONTINUE_PLACEHOLDER.equals(action)) {
+					list.set(i, new ConditionalJumpAction(node, info.getContinueJumpTargetSectionId(node), false));
+				}
+			}
+		}
+		
+		for (int sectionId : info.getBodyJumpIterativeSectionIds(node)) {
+			List<Action> list = body.get(sectionId);
+			for (int i = 0; i < list.size(); i++) {
+				Action action = list.get(i);
+				if (Global.ITERATION_BODY_JUMP_PLACEHOLDER.equals(action)) {
+					list.set(i, new JumpAction(node, info.getBodyJumpTargetSectionId(node)));
+				}
+				else if (Global.ITERATION_CONDITIONAL_BODY_JUMP_PLACEHOLDER.equals(action)) {
+					list.set(i, new ConditionalJumpAction(node, info.getBodyJumpTargetSectionId(node), true));
+				}
+				else if (Global.ITERATION_CONDITIONAL_NOT_BODY_JUMP_PLACEHOLDER.equals(action)) {
+					list.set(i, new ConditionalJumpAction(node, info.getBodyJumpTargetSectionId(node), false));
+				}
+			}
+		}
+		
+		for (int sectionId : info.getBreakJumpIterativeSectionIds(node)) {
+			List<Action> list = body.get(sectionId);
+			for (int i = 0; i < list.size(); i++) {
+				Action action = list.get(i);
+				if (Global.ITERATION_BREAK_PLACEHOLDER.equals(action)) {
+					list.set(i, new JumpAction(node, info.getBreakJumpTargetSectionId(node)));
+				}
+				else if (Global.ITERATION_CONDITIONAL_BREAK_PLACEHOLDER.equals(action)) {
+					list.set(i, new ConditionalJumpAction(node, info.getBreakJumpTargetSectionId(node), true));
+				}
+				else if (Global.ITERATION_CONDITIONAL_NOT_BREAK_PLACEHOLDER.equals(action)) {
+					list.set(i, new ConditionalJumpAction(node, info.getBreakJumpTargetSectionId(node), false));
 				}
 			}
 		}
 	}
 	
 	// Sections and registers
+	
+	public List<Action> currentSection() {
+		return body.get(sectionId);
+	}
 	
 	public void incrementSectionId() {
 		++sectionId;

@@ -19,7 +19,7 @@ public abstract class InstructionAddress extends Instruction implements IInstruc
 	}
 	
 	@Override
-	public Instruction getCompressedWithNextInstruction(Instruction next) {
+	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		return null;
 	}
 }

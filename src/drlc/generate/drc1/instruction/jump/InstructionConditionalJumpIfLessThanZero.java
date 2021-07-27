@@ -3,6 +3,7 @@ package drlc.generate.drc1.instruction.jump;
 import drlc.Helper;
 import drlc.generate.drc1.*;
 import drlc.generate.drc1.instruction.*;
+import drlc.generate.drc1.instruction.immediate.IInstructionImmediate;
 import drlc.generate.drc1.instruction.set.*;
 
 public class InstructionConditionalJumpIfLessThanZero extends InstructionConditionalJump {
@@ -12,34 +13,44 @@ public class InstructionConditionalJumpIfLessThanZero extends InstructionConditi
 	}
 	
 	@Override
-	public Instruction getReplacementConditionalJump(InstructionSet instructionSet) {
-		if (instructionSet instanceof InstructionSetIsLessThanOrEqualToZero) {
+	public boolean isCurrentRegisterValueUsed() {
+		return true;
+	}
+	
+	@Override
+	public Instruction getReplacementConditionalJump(Instruction previous) {
+		if (previous instanceof InstructionSetIsLessThanOrEqualToZero) {
 			return new InstructionNoOp();
 		}
-		else if (instructionSet instanceof InstructionSetIsLessThanZero) {
+		else if (previous instanceof InstructionSetIsLessThanZero) {
 			return new InstructionNoOp();
 		}
-		else if (instructionSet instanceof InstructionSetIsMoreThanOrEqualToZero) {
+		else if (previous instanceof InstructionSetIsMoreThanOrEqualToZero) {
 			return new InstructionNoOp();
 		}
-		else if (instructionSet instanceof InstructionSetIsMoreThanZero) {
+		else if (previous instanceof InstructionSetIsMoreThanZero) {
 			return new InstructionNoOp();
 		}
-		else if (instructionSet instanceof InstructionSetIsNotZero) {
+		else if (previous instanceof InstructionSetIsNotZero) {
 			return new InstructionNoOp();
 		}
-		else if (instructionSet instanceof InstructionSetIsZero) {
+		else if (previous instanceof InstructionSetIsZero) {
 			return new InstructionNoOp();
 		}
-		else if (instructionSet instanceof InstructionSetNegative) {
+		else if (previous instanceof InstructionSetNegative) {
 			return new InstructionConditionalJumpIfMoreThanZero(section);
 		}
-		else if (instructionSet instanceof InstructionSetNot) {
+		else if (previous instanceof InstructionSetNot) {
 			return new InstructionConditionalJumpIfMoreThanOrEqualToZero(section);
 		}
-		else {
-			return null;
+		else if (previous instanceof IInstructionImmediate) {
+			IInstructionImmediate immediate = (IInstructionImmediate) previous;
+			Short value = immediate.getRegisterValue();
+			if (value != null) {
+				return value < 0 ? new InstructionJump(section) : new InstructionNoOp();
+			}
 		}
+		return null;
 	}
 	
 	@Override

@@ -31,22 +31,25 @@ Tokens
 	set_argc = 'set_argc';
 	
 	const = 'const';
-	var = 'var';
+	int = 'int';
 	void = 'void';
-	fun = 'fun';
 	
+	in = 'in';
 	out = 'out';
 	
 	argc = 'argc';
 	argv = 'argv';
 	
 	return = 'return';
-	if = 'if';
-	elif = 'elif';
 	else = 'else';
-	while = 'while';
+	loop = 'loop';
+	repeat = 'repeat';
 	continue = 'continue';
 	break = 'break';
+	
+	conditional_start_block_keyword = 'if' | 'unless';
+	conditional_middle_block_keyword = 'elsif' | 'elsunless';
+	conditional_iterative_block_keyword = 'while' | 'until';
 	
 	equals = '=';
 	
@@ -119,7 +122,7 @@ Productions
 		{variable_declaration} variable_declaration |
 		{variable_modification} variable_modification |
 		{method_call} method_call |
-		{conditional} if_block elif_block* else_block? |
+		{conditional} conditional_section |
 		{iterative} iterative_block;
 	
 	
@@ -130,14 +133,14 @@ Productions
 		void name l_par parameter_list? r_par l_brace basic_section* stop_statement? r_brace;
 	
 	function_definition =
-		fun name l_par parameter_list? r_par l_brace basic_section* stop_statement? r_brace;
+		int name l_par parameter_list? r_par l_brace basic_section* stop_statement? r_brace;
 	
 	constant_definition =
-		const name equals expression semicolon;
+		const int name equals expression semicolon;
 	
 	variable_declaration =
-		{no_initialisation} var lvalue_variable semicolon |
-		{with_initialisation} var lvalue_variable equals expression semicolon;
+		{no_initialisation} int lvalue_variable semicolon |
+		{with_initialisation} int lvalue_variable equals expression semicolon;
 	
 	variable_modification =
 		lvalue_variable equals expression semicolon;
@@ -146,17 +149,22 @@ Productions
 		{built_in_out} out l_par expression r_par semicolon |
 		{defined} name l_par argument_list? r_par semicolon;
 	
-	if_block =
-		if expression l_brace basic_section* stop_statement? r_brace;
+	conditional_section =
+		conditional_start_block conditional_middle_block* else_block?;
 	
-	elif_block =
-		elif expression l_brace basic_section* stop_statement? r_brace;
+	conditional_start_block =
+		conditional_start_block_keyword expression l_brace basic_section* stop_statement? r_brace;
+	
+	conditional_middle_block =
+		conditional_middle_block_keyword expression l_brace basic_section* stop_statement? r_brace;
 	
 	else_block =
 		else l_brace basic_section* stop_statement? r_brace;
 	
 	iterative_block =
-		while expression l_brace basic_section* stop_statement? r_brace;
+		{loop} loop l_brace basic_section* stop_statement? r_brace |
+		{conditional} conditional_iterative_block_keyword expression l_brace basic_section* stop_statement? r_brace |
+		{repeat_conditional} repeat l_brace basic_section* stop_statement? r_brace conditional_iterative_block_keyword expression semicolon;
 	
 	stop_statement =
 		{return} return semicolon dead_code* |
@@ -196,6 +204,7 @@ Productions
 		{function} function;
 	
 	function =
+		{built_in_in} in l_par r_par |
 		{built_in_argc} argc l_par r_par |
 		{built_in_argv} argv l_par expression r_par |
 		{defined} name l_par argument_list? r_par;

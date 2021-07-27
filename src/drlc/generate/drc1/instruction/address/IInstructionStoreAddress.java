@@ -10,5 +10,15 @@ public interface IInstructionStoreAddress extends IInstructionStore, IInstructio
 		return getStoredData();
 	}
 	
+	@Override
+	public default boolean isDataFromMemory() {
+		return false;
+	}
+	
+	@Override
+	public default boolean isDataToMemory() {
+		return true;
+	}
+	
 	public DataInfo getStoredData();
 }

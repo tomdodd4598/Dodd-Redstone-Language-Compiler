@@ -7,5 +7,9 @@ public interface IInstructionAddress {
 	
 	public DataInfo getDataInfo();
 	
+	public boolean isDataFromMemory();
+	
+	public boolean isDataToMemory();
+	
 	public Instruction getDataReplacement(RedstoneRoutine routine);
 }

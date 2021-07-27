@@ -195,13 +195,19 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAIfBlock(AIfBlock node)
+    public void caseAConditionalSection(AConditionalSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAElifBlock(AElifBlock node)
+    public void caseAConditionalStartBlock(AConditionalStartBlock node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAConditionalMiddleBlock(AConditionalMiddleBlock node)
     {
         defaultCase(node);
     }
@@ -213,7 +219,19 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAIterativeBlock(AIterativeBlock node)
+    public void caseALoopIterativeBlock(ALoopIterativeBlock node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAConditionalIterativeBlock(AConditionalIterativeBlock node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseARepeatConditionalIterativeBlock(ARepeatConditionalIterativeBlock node)
     {
         defaultCase(node);
     }
@@ -340,6 +358,12 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseAFunctionValue(AFunctionValue node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABuiltInInFunction(ABuiltInInFunction node)
     {
         defaultCase(node);
     }
@@ -543,7 +567,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTVar(TVar node)
+    public void caseTInt(TInt node)
     {
         defaultCase(node);
     }
@@ -555,7 +579,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTFun(TFun node)
+    public void caseTIn(TIn node)
     {
         defaultCase(node);
     }
@@ -585,25 +609,19 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTIf(TIf node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTElif(TElif node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
     public void caseTElse(TElse node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTWhile(TWhile node)
+    public void caseTLoop(TLoop node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTRepeat(TRepeat node)
     {
         defaultCase(node);
     }
@@ -616,6 +634,24 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTBreak(TBreak node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTConditionalStartBlockKeyword(TConditionalStartBlockKeyword node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTConditionalMiddleBlockKeyword(TConditionalMiddleBlockKeyword node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTConditionalIterativeBlockKeyword(TConditionalIterativeBlockKeyword node)
     {
         defaultCase(node);
     }

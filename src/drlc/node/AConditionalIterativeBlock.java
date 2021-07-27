@@ -6,22 +6,22 @@ import java.util.*;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AElifBlock extends PElifBlock
+public final class AConditionalIterativeBlock extends PIterativeBlock
 {
-    private TElif _elif_;
+    private TConditionalIterativeBlockKeyword _conditionalIterativeBlockKeyword_;
     private PExpression _expression_;
     private TLBrace _lBrace_;
     private final LinkedList<PBasicSection> _basicSection_ = new LinkedList<PBasicSection>();
     private PStopStatement _stopStatement_;
     private TRBrace _rBrace_;
 
-    public AElifBlock()
+    public AConditionalIterativeBlock()
     {
         // Constructor
     }
 
-    public AElifBlock(
-        @SuppressWarnings("hiding") TElif _elif_,
+    public AConditionalIterativeBlock(
+        @SuppressWarnings("hiding") TConditionalIterativeBlockKeyword _conditionalIterativeBlockKeyword_,
         @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
         @SuppressWarnings("hiding") List<?> _basicSection_,
@@ -29,7 +29,7 @@ public final class AElifBlock extends PElifBlock
         @SuppressWarnings("hiding") TRBrace _rBrace_)
     {
         // Constructor
-        setElif(_elif_);
+        setConditionalIterativeBlockKeyword(_conditionalIterativeBlockKeyword_);
 
         setExpression(_expression_);
 
@@ -46,8 +46,8 @@ public final class AElifBlock extends PElifBlock
     @Override
     public Object clone()
     {
-        return new AElifBlock(
-            cloneNode(this._elif_),
+        return new AConditionalIterativeBlock(
+            cloneNode(this._conditionalIterativeBlockKeyword_),
             cloneNode(this._expression_),
             cloneNode(this._lBrace_),
             cloneList(this._basicSection_),
@@ -58,19 +58,19 @@ public final class AElifBlock extends PElifBlock
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAElifBlock(this);
+        ((Analysis) sw).caseAConditionalIterativeBlock(this);
     }
 
-    public TElif getElif()
+    public TConditionalIterativeBlockKeyword getConditionalIterativeBlockKeyword()
     {
-        return this._elif_;
+        return this._conditionalIterativeBlockKeyword_;
     }
 
-    public void setElif(TElif node)
+    public void setConditionalIterativeBlockKeyword(TConditionalIterativeBlockKeyword node)
     {
-        if(this._elif_ != null)
+        if(this._conditionalIterativeBlockKeyword_ != null)
         {
-            this._elif_.parent(null);
+            this._conditionalIterativeBlockKeyword_.parent(null);
         }
 
         if(node != null)
@@ -83,7 +83,7 @@ public final class AElifBlock extends PElifBlock
             node.parent(this);
         }
 
-        this._elif_ = node;
+        this._conditionalIterativeBlockKeyword_ = node;
     }
 
     public PExpression getExpression()
@@ -216,7 +216,7 @@ public final class AElifBlock extends PElifBlock
     public String toString()
     {
         return ""
-            + toString(this._elif_)
+            + toString(this._conditionalIterativeBlockKeyword_)
             + toString(this._expression_)
             + toString(this._lBrace_)
             + toString(this._basicSection_)
@@ -228,9 +228,9 @@ public final class AElifBlock extends PElifBlock
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._elif_ == child)
+        if(this._conditionalIterativeBlockKeyword_ == child)
         {
-            this._elif_ = null;
+            this._conditionalIterativeBlockKeyword_ = null;
             return;
         }
 
@@ -270,9 +270,9 @@ public final class AElifBlock extends PElifBlock
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._elif_ == oldChild)
+        if(this._conditionalIterativeBlockKeyword_ == oldChild)
         {
-            setElif((TElif) newChild);
+            setConditionalIterativeBlockKeyword((TConditionalIterativeBlockKeyword) newChild);
             return;
         }
 

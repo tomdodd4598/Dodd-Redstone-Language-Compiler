@@ -16,7 +16,7 @@ public class InstructionLeftShiftImmediate extends InstructionALUImmediate {
 	}
 	
 	@Override
-	public Instruction getALUImmediateReplacementInternal() {
+	public Instruction getImmediateReplacementInternal() {
 		short shift = RedstoneCode.shiftBits(value);
 		if (value != shift) {
 			return new InstructionLeftShiftImmediate(shift);
@@ -27,7 +27,7 @@ public class InstructionLeftShiftImmediate extends InstructionALUImmediate {
 	}
 	
 	@Override
-	public Instruction getCompressedWithNextInstruction(Instruction next) {
+	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		/*if (next instanceof InstructionLeftShiftImmediate) {
 			InstructionLeftShiftImmediate lsh = (InstructionLeftShiftImmediate) next;
 			return new InstructionLeftShiftImmediate((short) (value + lsh.value));

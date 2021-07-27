@@ -1,7 +1,5 @@
 package drlc.generate.drc1.instruction.immediate;
 
-import drlc.generate.drc1.instruction.*;
-
 public abstract class InstructionALUImmediate extends InstructionImmediate {
 	
 	public InstructionALUImmediate(short value) {
@@ -9,23 +7,17 @@ public abstract class InstructionALUImmediate extends InstructionImmediate {
 	}
 	
 	@Override
-	public boolean isRegisterModified() {
+	public boolean isCurrentRegisterValueModified() {
 		return true;
 	}
 	
 	@Override
-	public boolean isRegisterExported() {
+	public boolean isCurrentRegisterValueUsed() {
 		return false;
 	}
 	
-	public final Instruction getALUImmediateReplacement() {
-		if (isUnnecessaryImmediate()) {
-			return new InstructionNoOp();
-		}
-		else {
-			return getALUImmediateReplacementInternal();
-		}
+	@Override
+	public Short getRegisterValue() {
+		return null;
 	}
-	
-	protected abstract Instruction getALUImmediateReplacementInternal();
 }

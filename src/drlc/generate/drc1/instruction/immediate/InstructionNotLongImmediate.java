@@ -16,14 +16,19 @@ public class InstructionNotLongImmediate extends InstructionALULongImmediate {
 	}
 	
 	@Override
-	public Instruction getALUImmediateReplacementInternal() {
-		short complement = (short) (~((short) value));
+	public Instruction getImmediateReplacementInternal() {
+		short complement = (short) ~value;
 		if (!RedstoneCode.isLongImmediate(complement)) {
 			return new InstructionLoadImmediate(complement);
 		}
 		else {
 			return null;
 		}
+	}
+	
+	@Override
+	public Short getRegisterValue() {
+		return (short) ~value;
 	}
 	
 	@Override

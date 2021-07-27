@@ -5,16 +5,16 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class TVar extends Token
+public final class TIn extends Token
 {
-    public TVar()
+    public TIn()
     {
-        super.setText("var");
+        super.setText("in");
     }
 
-    public TVar(int line, int pos)
+    public TIn(int line, int pos)
     {
-        super.setText("var");
+        super.setText("in");
         setLine(line);
         setPos(pos);
     }
@@ -22,18 +22,18 @@ public final class TVar extends Token
     @Override
     public Object clone()
     {
-      return new TVar(getLine(), getPos());
+      return new TIn(getLine(), getPos());
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseTVar(this);
+        ((Analysis) sw).caseTIn(this);
     }
 
     @Override
     public void setText(@SuppressWarnings("unused") String text)
     {
-        throw new RuntimeException("Cannot change TVar text.");
+        throw new RuntimeException("Cannot change TIn text.");
     }
 }

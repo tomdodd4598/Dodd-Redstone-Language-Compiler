@@ -10,5 +10,15 @@ public interface IInstructionLoadAddress extends IInstructionLoad, IInstructionA
 		return getLoadedData();
 	}
 	
+	@Override
+	public default boolean isDataFromMemory() {
+		return true;
+	}
+	
+	@Override
+	public default boolean isDataToMemory() {
+		return false;
+	}
+	
 	public DataInfo getLoadedData();
 }

@@ -38,6 +38,7 @@ public class DataInfo {
 	}
 	
 	public static enum DataType {
+		
 		DATA,
 		TEMP,
 		STATIC;
@@ -47,10 +48,10 @@ public class DataInfo {
 			switch (this) {
 				case DATA:
 					return "DATA";
-				case STATIC:
-					return "STATIC";
 				case TEMP:
 					return "TEMP";
+				case STATIC:
+					return "STATIC";
 				default:
 					return null;
 			}

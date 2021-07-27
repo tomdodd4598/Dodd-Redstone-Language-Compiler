@@ -5,16 +5,16 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class TWhile extends Token
+public final class TLoop extends Token
 {
-    public TWhile()
+    public TLoop()
     {
-        super.setText("while");
+        super.setText("loop");
     }
 
-    public TWhile(int line, int pos)
+    public TLoop(int line, int pos)
     {
-        super.setText("while");
+        super.setText("loop");
         setLine(line);
         setPos(pos);
     }
@@ -22,18 +22,18 @@ public final class TWhile extends Token
     @Override
     public Object clone()
     {
-      return new TWhile(getLine(), getPos());
+      return new TLoop(getLine(), getPos());
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseTWhile(this);
+        ((Analysis) sw).caseTLoop(this);
     }
 
     @Override
     public void setText(@SuppressWarnings("unused") String text)
     {
-        throw new RuntimeException("Cannot change TWhile text.");
+        throw new RuntimeException("Cannot change TLoop text.");
     }
 }

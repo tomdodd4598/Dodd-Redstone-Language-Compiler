@@ -16,7 +16,7 @@ public class InstructionAddLongImmediate extends InstructionALULongImmediate {
 	}
 	
 	@Override
-	public Instruction getALUImmediateReplacementInternal() {
+	public Instruction getImmediateReplacementInternal() {
 		if (!RedstoneCode.isLongImmediate((short) (-value))) {
 			return new InstructionSubtractImmediate((short) (-value));
 		}

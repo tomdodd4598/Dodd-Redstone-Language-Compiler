@@ -6,22 +6,22 @@ import java.util.*;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AIfBlock extends PIfBlock
+public final class AConditionalMiddleBlock extends PConditionalMiddleBlock
 {
-    private TIf _if_;
+    private TConditionalMiddleBlockKeyword _conditionalMiddleBlockKeyword_;
     private PExpression _expression_;
     private TLBrace _lBrace_;
     private final LinkedList<PBasicSection> _basicSection_ = new LinkedList<PBasicSection>();
     private PStopStatement _stopStatement_;
     private TRBrace _rBrace_;
 
-    public AIfBlock()
+    public AConditionalMiddleBlock()
     {
         // Constructor
     }
 
-    public AIfBlock(
-        @SuppressWarnings("hiding") TIf _if_,
+    public AConditionalMiddleBlock(
+        @SuppressWarnings("hiding") TConditionalMiddleBlockKeyword _conditionalMiddleBlockKeyword_,
         @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
         @SuppressWarnings("hiding") List<?> _basicSection_,
@@ -29,7 +29,7 @@ public final class AIfBlock extends PIfBlock
         @SuppressWarnings("hiding") TRBrace _rBrace_)
     {
         // Constructor
-        setIf(_if_);
+        setConditionalMiddleBlockKeyword(_conditionalMiddleBlockKeyword_);
 
         setExpression(_expression_);
 
@@ -46,8 +46,8 @@ public final class AIfBlock extends PIfBlock
     @Override
     public Object clone()
     {
-        return new AIfBlock(
-            cloneNode(this._if_),
+        return new AConditionalMiddleBlock(
+            cloneNode(this._conditionalMiddleBlockKeyword_),
             cloneNode(this._expression_),
             cloneNode(this._lBrace_),
             cloneList(this._basicSection_),
@@ -58,19 +58,19 @@ public final class AIfBlock extends PIfBlock
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAIfBlock(this);
+        ((Analysis) sw).caseAConditionalMiddleBlock(this);
     }
 
-    public TIf getIf()
+    public TConditionalMiddleBlockKeyword getConditionalMiddleBlockKeyword()
     {
-        return this._if_;
+        return this._conditionalMiddleBlockKeyword_;
     }
 
-    public void setIf(TIf node)
+    public void setConditionalMiddleBlockKeyword(TConditionalMiddleBlockKeyword node)
     {
-        if(this._if_ != null)
+        if(this._conditionalMiddleBlockKeyword_ != null)
         {
-            this._if_.parent(null);
+            this._conditionalMiddleBlockKeyword_.parent(null);
         }
 
         if(node != null)
@@ -83,7 +83,7 @@ public final class AIfBlock extends PIfBlock
             node.parent(this);
         }
 
-        this._if_ = node;
+        this._conditionalMiddleBlockKeyword_ = node;
     }
 
     public PExpression getExpression()
@@ -216,7 +216,7 @@ public final class AIfBlock extends PIfBlock
     public String toString()
     {
         return ""
-            + toString(this._if_)
+            + toString(this._conditionalMiddleBlockKeyword_)
             + toString(this._expression_)
             + toString(this._lBrace_)
             + toString(this._basicSection_)
@@ -228,9 +228,9 @@ public final class AIfBlock extends PIfBlock
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._if_ == child)
+        if(this._conditionalMiddleBlockKeyword_ == child)
         {
-            this._if_ = null;
+            this._conditionalMiddleBlockKeyword_ = null;
             return;
         }
 
@@ -270,9 +270,9 @@ public final class AIfBlock extends PIfBlock
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._if_ == oldChild)
+        if(this._conditionalMiddleBlockKeyword_ == oldChild)
         {
-            setIf((TIf) newChild);
+            setConditionalMiddleBlockKeyword((TConditionalMiddleBlockKeyword) newChild);
             return;
         }
 

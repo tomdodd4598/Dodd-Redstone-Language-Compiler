@@ -8,7 +8,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AFunctionDefinition extends PFunctionDefinition
 {
-    private TFun _fun_;
+    private TInt _int_;
     private TName _name_;
     private TLPar _lPar_;
     private PParameterList _parameterList_;
@@ -24,7 +24,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
     }
 
     public AFunctionDefinition(
-        @SuppressWarnings("hiding") TFun _fun_,
+        @SuppressWarnings("hiding") TInt _int_,
         @SuppressWarnings("hiding") TName _name_,
         @SuppressWarnings("hiding") TLPar _lPar_,
         @SuppressWarnings("hiding") PParameterList _parameterList_,
@@ -35,7 +35,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
         @SuppressWarnings("hiding") TRBrace _rBrace_)
     {
         // Constructor
-        setFun(_fun_);
+        setInt(_int_);
 
         setName(_name_);
 
@@ -59,7 +59,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
     public Object clone()
     {
         return new AFunctionDefinition(
-            cloneNode(this._fun_),
+            cloneNode(this._int_),
             cloneNode(this._name_),
             cloneNode(this._lPar_),
             cloneNode(this._parameterList_),
@@ -76,16 +76,16 @@ public final class AFunctionDefinition extends PFunctionDefinition
         ((Analysis) sw).caseAFunctionDefinition(this);
     }
 
-    public TFun getFun()
+    public TInt getInt()
     {
-        return this._fun_;
+        return this._int_;
     }
 
-    public void setFun(TFun node)
+    public void setInt(TInt node)
     {
-        if(this._fun_ != null)
+        if(this._int_ != null)
         {
-            this._fun_.parent(null);
+            this._int_.parent(null);
         }
 
         if(node != null)
@@ -98,7 +98,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
             node.parent(this);
         }
 
-        this._fun_ = node;
+        this._int_ = node;
     }
 
     public TName getName()
@@ -306,7 +306,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
     public String toString()
     {
         return ""
-            + toString(this._fun_)
+            + toString(this._int_)
             + toString(this._name_)
             + toString(this._lPar_)
             + toString(this._parameterList_)
@@ -321,9 +321,9 @@ public final class AFunctionDefinition extends PFunctionDefinition
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._fun_ == child)
+        if(this._int_ == child)
         {
-            this._fun_ = null;
+            this._int_ = null;
             return;
         }
 
@@ -381,9 +381,9 @@ public final class AFunctionDefinition extends PFunctionDefinition
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._fun_ == oldChild)
+        if(this._int_ == oldChild)
         {
-            setFun((TFun) newChild);
+            setInt((TInt) newChild);
             return;
         }
 

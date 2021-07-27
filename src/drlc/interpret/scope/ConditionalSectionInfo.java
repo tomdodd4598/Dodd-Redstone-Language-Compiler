@@ -7,10 +7,9 @@ import drlc.node.Node;
 
 public class ConditionalSectionInfo {
 	
-	Boolean hasElseBlock = null;
-	Integer conditionalSectionLength = null;
-	Integer elseJumpConditionalSectionId = null;
-	final Set<Integer> exitJumpConditionalSectionIds = new HashSet<>();
+	Boolean hasElseBlock = null, executeIfCondition = null;
+	Integer sectionLength = null, elseJumpSectionId = null;
+	final Set<Integer> exitJumpSectionIds = new HashSet<>();
 	
 	public ConditionalSectionInfo() {}
 	
@@ -34,66 +33,86 @@ public class ConditionalSectionInfo {
 		}
 	}
 	
-	public void setConditionalSectionLength(Node node, int length) {
-		if (conditionalSectionLength != null) {
+	public void setExecuteIfCondition(Node node, boolean ifCondition) {
+		if (executeIfCondition != null) {
+			throw new IllegalArgumentException(String.format("Execute if condition boolean can not be overwritten! %s", node));
+		}
+		else {
+			executeIfCondition = ifCondition;
+		}
+	}
+	
+	public boolean getExecuteIfCondition(Node node) {
+		if (executeIfCondition == null) {
+			throw new IllegalArgumentException(String.format("Execute if condition boolean is null! %s", node));
+		}
+		else {
+			boolean elseBlock = executeIfCondition.booleanValue();
+			executeIfCondition = null;
+			return elseBlock;
+		}
+	}
+	
+	public void setSectionLength(Node node, int length) {
+		if (sectionLength != null) {
 			throw new IllegalArgumentException(String.format("Conditional section length can not be overwritten! %s", node));
 		}
 		else {
-			conditionalSectionLength = length;
+			sectionLength = length;
 		}
 	}
 	
-	void decrementConditionalSectionLength(Node node) {
-		if (conditionalSectionLength == null) {
+	void decrementSectionLength(Node node) {
+		if (sectionLength == null) {
 			throw new IllegalArgumentException(String.format("Conditional section length is null! %s", node));
 		}
-		else if (conditionalSectionLength <= 0) {
+		else if (sectionLength <= 0) {
 			throw new IllegalArgumentException(String.format("Conditional section length was decremented too much! %s", node));
 		}
 		else {
-			conditionalSectionLength = new Integer(conditionalSectionLength.intValue() - 1);
+			sectionLength = new Integer(sectionLength.intValue() - 1);
 		}
 	}
 	
-	public int getElseJumpConditionalSectionId(Node node) {
-		if (elseJumpConditionalSectionId == null) {
+	public int getElseJumpSectionId(Node node) {
+		if (elseJumpSectionId == null) {
 			throw new IllegalArgumentException(String.format("Conditional section for else jump not defined! %s", node));
 		}
 		else {
-			int sectionId = elseJumpConditionalSectionId;
-			elseJumpConditionalSectionId = null;
+			int sectionId = elseJumpSectionId;
+			elseJumpSectionId = null;
 			return sectionId;
 		}
 	}
 	
-	public void setElseJumpConditionalSectionId(Node node, Routine routine) {
-		if (elseJumpConditionalSectionId != null) {
+	public void setElseJumpSectionId(Node node, Routine routine) {
+		if (elseJumpSectionId != null) {
 			throw new IllegalArgumentException(String.format("Conditional section for else jump can not be overwritten! %s", node));
 		}
 		else {
-			elseJumpConditionalSectionId = routine.sectionId;
+			elseJumpSectionId = routine.sectionId;
 		}
 	}
 	
-	public Integer[] getExitJumpConditionalSectionIds(Node node) {
-		if (exitJumpConditionalSectionIds.isEmpty()) {
+	public Integer[] getExitJumpSectionIds(Node node) {
+		if (exitJumpSectionIds.isEmpty()) {
 			throw new IllegalArgumentException(String.format("Attempted to get empty array of conditional sections for exit jump! %s", node));
 		}
 		else {
-			Integer[] sections = exitJumpConditionalSectionIds.toArray(new Integer[exitJumpConditionalSectionIds.size()]);
-			exitJumpConditionalSectionIds.clear();
+			Integer[] sections = exitJumpSectionIds.toArray(new Integer[exitJumpSectionIds.size()]);
+			exitJumpSectionIds.clear();
 			return sections;
 		}
 	}
 	
-	public void addExitJumpConditionalSection(Node node, Routine routine) {
-		decrementConditionalSectionLength(node);
-		if (exitJumpConditionalSectionIds.contains(routine.sectionId)) {
+	public void addExitJumpSection(Node node, Routine routine) {
+		decrementSectionLength(node);
+		if (exitJumpSectionIds.contains(routine.sectionId)) {
 			throw new IllegalArgumentException(String.format("Attempted to add conditional section for exit jump more than once! %s", node));
 		}
-		else if (conditionalSectionLength == 0) {
-			conditionalSectionLength = null;
+		else if (sectionLength == 0) {
+			sectionLength = null;
 		}
-		exitJumpConditionalSectionIds.add(routine.sectionId);
+		exitJumpSectionIds.add(routine.sectionId);
 	}
 }
