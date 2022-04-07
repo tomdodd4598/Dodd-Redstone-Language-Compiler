@@ -30,11 +30,11 @@ public class InstructionMultiplyImmediate extends InstructionALUImmediate {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.MULI).concat(Helper.toBinary(value, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.MULI).concat(Helpers.toBinary(value, 8));
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.MULI.concat("\t").concat(Global.IMMEDIATE).concat(Helper.toHex(value));
+		return RedstoneMnemonics.MULI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
 	}
 }

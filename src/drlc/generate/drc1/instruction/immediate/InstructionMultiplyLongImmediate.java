@@ -36,6 +36,6 @@ public class InstructionMultiplyLongImmediate extends InstructionALULongImmediat
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.MULLI.concat("\t").concat(Global.IMMEDIATE).concat(Helper.toHex(value));
+		return RedstoneMnemonics.MULLI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
 	}
 }

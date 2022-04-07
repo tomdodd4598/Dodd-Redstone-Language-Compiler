@@ -1,10 +1,10 @@
 package drlc.generate.drc1.instruction.address;
 
-import drlc.generate.drc1.DataInfo;
+import drlc.generate.drc1.RedstoneDataInfo;
 
 public abstract class InstructionALU extends InstructionAddress {
 	
-	public InstructionALU(DataInfo info) {
+	public InstructionALU(RedstoneDataInfo info) {
 		super(info);
 	}
 	

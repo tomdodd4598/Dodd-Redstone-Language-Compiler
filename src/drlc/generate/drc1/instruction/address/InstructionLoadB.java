@@ -1,12 +1,12 @@
 package drlc.generate.drc1.instruction.address;
 
-import drlc.Helper;
+import drlc.Helpers;
 import drlc.generate.drc1.*;
 import drlc.generate.drc1.instruction.Instruction;
 
 public class InstructionLoadB extends InstructionAddress {
 	
-	public InstructionLoadB(DataInfo info) {
+	public InstructionLoadB(RedstoneDataInfo info) {
 		super(info);
 	}
 	
@@ -31,17 +31,17 @@ public class InstructionLoadB extends InstructionAddress {
 	}
 	
 	@Override
-	public Instruction getDataReplacement(RedstoneRoutine routine) {
-		return new InstructionLoadB(routine.dataInfo(info.argName));
+	public Instruction getDataReplacement(RedstoneCode code) {
+		return new InstructionLoadB(getDataInfoReplacement(code));
 	}
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.LDB).concat(Helper.toBinary(address, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.LDB).concat(Helpers.toBinary(address, 8));
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.LDB.concat("\t").concat(Helper.toHex(address, 2));
+		return RedstoneMnemonics.LDB.concat("\t").concat(Helpers.toHex(address, 2));
 	}
 }

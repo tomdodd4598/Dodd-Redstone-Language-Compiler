@@ -10,5 +10,4 @@ public class NoOpAction extends Action {
 	public String toString() {
 		throw new UnsupportedOperationException(String.format("No op action not correctly removed!"));
 	}
-	
 }

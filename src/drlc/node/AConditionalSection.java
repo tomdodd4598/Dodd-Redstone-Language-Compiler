@@ -8,9 +8,9 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AConditionalSection extends PConditionalSection
 {
-    private PConditionalStartBlock _conditionalStartBlock_;
-    private final LinkedList<PConditionalMiddleBlock> _conditionalMiddleBlock_ = new LinkedList<PConditionalMiddleBlock>();
-    private PElseBlock _elseBlock_;
+    private PConditionalStartSection _conditionalStartSection_;
+    private final LinkedList<PConditionalMiddleSection> _conditionalMiddleSection_ = new LinkedList<PConditionalMiddleSection>();
+    private PElseSection _elseSection_;
 
     public AConditionalSection()
     {
@@ -18,16 +18,16 @@ public final class AConditionalSection extends PConditionalSection
     }
 
     public AConditionalSection(
-        @SuppressWarnings("hiding") PConditionalStartBlock _conditionalStartBlock_,
-        @SuppressWarnings("hiding") List<?> _conditionalMiddleBlock_,
-        @SuppressWarnings("hiding") PElseBlock _elseBlock_)
+        @SuppressWarnings("hiding") PConditionalStartSection _conditionalStartSection_,
+        @SuppressWarnings("hiding") List<?> _conditionalMiddleSection_,
+        @SuppressWarnings("hiding") PElseSection _elseSection_)
     {
         // Constructor
-        setConditionalStartBlock(_conditionalStartBlock_);
+        setConditionalStartSection(_conditionalStartSection_);
 
-        setConditionalMiddleBlock(_conditionalMiddleBlock_);
+        setConditionalMiddleSection(_conditionalMiddleSection_);
 
-        setElseBlock(_elseBlock_);
+        setElseSection(_elseSection_);
 
     }
 
@@ -35,9 +35,9 @@ public final class AConditionalSection extends PConditionalSection
     public Object clone()
     {
         return new AConditionalSection(
-            cloneNode(this._conditionalStartBlock_),
-            cloneList(this._conditionalMiddleBlock_),
-            cloneNode(this._elseBlock_));
+            cloneNode(this._conditionalStartSection_),
+            cloneList(this._conditionalMiddleSection_),
+            cloneNode(this._elseSection_));
     }
 
     @Override
@@ -46,16 +46,16 @@ public final class AConditionalSection extends PConditionalSection
         ((Analysis) sw).caseAConditionalSection(this);
     }
 
-    public PConditionalStartBlock getConditionalStartBlock()
+    public PConditionalStartSection getConditionalStartSection()
     {
-        return this._conditionalStartBlock_;
+        return this._conditionalStartSection_;
     }
 
-    public void setConditionalStartBlock(PConditionalStartBlock node)
+    public void setConditionalStartSection(PConditionalStartSection node)
     {
-        if(this._conditionalStartBlock_ != null)
+        if(this._conditionalStartSection_ != null)
         {
-            this._conditionalStartBlock_.parent(null);
+            this._conditionalStartSection_.parent(null);
         }
 
         if(node != null)
@@ -68,45 +68,45 @@ public final class AConditionalSection extends PConditionalSection
             node.parent(this);
         }
 
-        this._conditionalStartBlock_ = node;
+        this._conditionalStartSection_ = node;
     }
 
-    public LinkedList<PConditionalMiddleBlock> getConditionalMiddleBlock()
+    public LinkedList<PConditionalMiddleSection> getConditionalMiddleSection()
     {
-        return this._conditionalMiddleBlock_;
+        return this._conditionalMiddleSection_;
     }
 
-    public void setConditionalMiddleBlock(List<?> list)
+    public void setConditionalMiddleSection(List<?> list)
     {
-        for(PConditionalMiddleBlock e : this._conditionalMiddleBlock_)
+        for(PConditionalMiddleSection e : this._conditionalMiddleSection_)
         {
             e.parent(null);
         }
-        this._conditionalMiddleBlock_.clear();
+        this._conditionalMiddleSection_.clear();
 
         for(Object obj_e : list)
         {
-            PConditionalMiddleBlock e = (PConditionalMiddleBlock) obj_e;
+            PConditionalMiddleSection e = (PConditionalMiddleSection) obj_e;
             if(e.parent() != null)
             {
                 e.parent().removeChild(e);
             }
 
             e.parent(this);
-            this._conditionalMiddleBlock_.add(e);
+            this._conditionalMiddleSection_.add(e);
         }
     }
 
-    public PElseBlock getElseBlock()
+    public PElseSection getElseSection()
     {
-        return this._elseBlock_;
+        return this._elseSection_;
     }
 
-    public void setElseBlock(PElseBlock node)
+    public void setElseSection(PElseSection node)
     {
-        if(this._elseBlock_ != null)
+        if(this._elseSection_ != null)
         {
-            this._elseBlock_.parent(null);
+            this._elseSection_.parent(null);
         }
 
         if(node != null)
@@ -119,36 +119,36 @@ public final class AConditionalSection extends PConditionalSection
             node.parent(this);
         }
 
-        this._elseBlock_ = node;
+        this._elseSection_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._conditionalStartBlock_)
-            + toString(this._conditionalMiddleBlock_)
-            + toString(this._elseBlock_);
+            + toString(this._conditionalStartSection_)
+            + toString(this._conditionalMiddleSection_)
+            + toString(this._elseSection_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._conditionalStartBlock_ == child)
+        if(this._conditionalStartSection_ == child)
         {
-            this._conditionalStartBlock_ = null;
+            this._conditionalStartSection_ = null;
             return;
         }
 
-        if(this._conditionalMiddleBlock_.remove(child))
+        if(this._conditionalMiddleSection_.remove(child))
         {
             return;
         }
 
-        if(this._elseBlock_ == child)
+        if(this._elseSection_ == child)
         {
-            this._elseBlock_ = null;
+            this._elseSection_ = null;
             return;
         }
 
@@ -159,19 +159,19 @@ public final class AConditionalSection extends PConditionalSection
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._conditionalStartBlock_ == oldChild)
+        if(this._conditionalStartSection_ == oldChild)
         {
-            setConditionalStartBlock((PConditionalStartBlock) newChild);
+            setConditionalStartSection((PConditionalStartSection) newChild);
             return;
         }
 
-        for(ListIterator<PConditionalMiddleBlock> i = this._conditionalMiddleBlock_.listIterator(); i.hasNext();)
+        for(ListIterator<PConditionalMiddleSection> i = this._conditionalMiddleSection_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)
             {
                 if(newChild != null)
                 {
-                    i.set((PConditionalMiddleBlock) newChild);
+                    i.set((PConditionalMiddleSection) newChild);
                     newChild.parent(this);
                     oldChild.parent(null);
                     return;
@@ -183,9 +183,9 @@ public final class AConditionalSection extends PConditionalSection
             }
         }
 
-        if(this._elseBlock_ == oldChild)
+        if(this._elseSection_ == oldChild)
         {
-            setElseBlock((PElseBlock) newChild);
+            setElseSection((PElseSection) newChild);
             return;
         }
 

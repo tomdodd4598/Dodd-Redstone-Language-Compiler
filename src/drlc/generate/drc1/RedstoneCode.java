@@ -3,46 +3,72 @@ package drlc.generate.drc1;
 import java.util.*;
 import java.util.Map.Entry;
 
+import drlc.Global;
+import drlc.generate.drc1.builtin.*;
 import drlc.generate.drc1.instruction.Instruction;
+import drlc.generate.drc1.instruction.immediate.InstructionLoadLongImmediate;
 import drlc.interpret.Program;
-import drlc.interpret.routine.Routine;
+import drlc.interpret.component.*;
+import drlc.interpret.routine.*;
 
 public class RedstoneCode {
 	
 	public final Program program;
 	public boolean requiresStack = false;
 	
-	public final Map<Integer, Instruction> argDataMap = new TreeMap<>();
-	public final Map<String, RedstoneRoutine> routineMap = new LinkedHashMap<>();
+	private final Map<String, RedstoneRoutine> routineMap = new LinkedHashMap<>();
 	
-	public final Map<String, Integer> staticIdMap = new LinkedHashMap<>();
+	public final Set<String> unusedBuiltInRoutineSet;
+	
+	public final Map<DataId, Long> rootIdMap = new LinkedHashMap<>();
 	
 	public short addressOffset = 0;
+	public final Map<RedstoneAddressKey, Short> rootAddressMap = new HashMap<>();
+	
 	public final Map<String, Short> textAddressMap = new HashMap<>();
-	public final Map<Integer, Short> staticAddressMap = new HashMap<>();
 	
 	public RedstoneCode(Program program) {
 		this.program = program;
+		unusedBuiltInRoutineSet = new HashSet<>(program.getBuiltInRoutineMap().keySet());
 	}
 	
-	public void generate(boolean optimize) {
-		for (Entry<String, Routine> entry : program.routineMap.entrySet()) {
-			RedstoneRoutine routine = new RedstoneRoutine(this, entry.getValue());
-			routineMap.put(entry.getKey(), routine);
-			if (routine.isRecursive()) {
+	public Map<String, RedstoneRoutine> getRoutineMap() {
+		return routineMap;
+	}
+	
+	public RedstoneRoutine getRoutine(String name) {
+		return routineMap.get(name);
+	}
+	
+	public boolean routineExists(String name) {
+		return routineMap.containsKey(name);
+	}
+	
+	public void generate() {
+		for (Entry<String, Routine> entry : program.getRoutineMap().entrySet()) {
+			String routineName = entry.getKey();
+			Routine intermediateRoutine = entry.getValue();
+			RedstoneRoutine routine = new RedstoneRoutine(this, intermediateRoutine);
+			if (!intermediateRoutine.isBuiltInFunctionRoutine()) {
+				routineMap.put(routineName, routine);
+			}
+			if (routine.isStackRoutine()) {
 				requiresStack = true;
 			}
 		}
+		
+		addBuiltInRoutines();
 		
 		for (RedstoneRoutine routine : routineMap.values()) {
 			routine.generateInstructions();
 		}
 		
-		if (optimize) {
-			optimize();
+		optimize();
+		
+		for (RedstoneRoutine routine : routineMap.values()) {
+			routine.prepareDataIdRegeneration();
 		}
 		
-		staticIdMap.clear();
 		for (RedstoneRoutine routine : routineMap.values()) {
 			routine.regenerateDataIds();
 		}
@@ -60,11 +86,45 @@ public class RedstoneCode {
 		}
 	}
 	
-	public void optimize() {
+	private void addBuiltInRoutines() {
+		routineMap.put(Global.OUTCHAR, new OutCharRedstoneRoutine(this, Global.OUTCHAR));
+		routineMap.put(Global.OUTINT, new OutIntRedstoneRoutine(this, Global.OUTINT));
+		routineMap.put(Global.ARGV, new ArgvRedstoneRoutine(this, Global.ARGV));
+		
+		int lrs = program.getBinaryOpCount(BinaryOpType.LOGICAL_RIGHT_SHIFT);
+		int cls = program.getBinaryOpCount(BinaryOpType.CIRCULAR_LEFT_SHIFT);
+		int crs = program.getBinaryOpCount(BinaryOpType.CIRCULAR_RIGHT_SHIFT);
+		
+		boolean lrsRoutine = lrs + cls + crs > 4;
+		RoutineType csType = lrsRoutine ? RoutineType.NESTING : RoutineType.LEAF;
+		
+		if (lrsRoutine) {
+			routineMap.put(Global.LOGICAL_RIGHT_SHIFT, new LogicalRightShiftRedstoneRoutine(this, Global.LOGICAL_RIGHT_SHIFT));
+		}
+		if (cls > 1) {
+			routineMap.put(Global.CIRCULAR_LEFT_SHIFT, new CircularLeftShiftRedstoneRoutine(this, Global.CIRCULAR_LEFT_SHIFT, csType));
+		}
+		if (crs > 1) {
+			routineMap.put(Global.CIRCULAR_RIGHT_SHIFT, new CircularRightShiftRedstoneRoutine(this, Global.CIRCULAR_RIGHT_SHIFT, csType));
+		}
+		
+		for (String name : program.getBuiltInRoutineMap().keySet()) {
+			if (!routineMap.containsKey(name)) {
+				throw new IllegalArgumentException(String.format("Unexpectedly encountered unimplemented built-in function \"%s\"!", name));
+			}
+		}
+	}
+	
+	private void optimize() {
+		for (String builtInRoutine : unusedBuiltInRoutineSet) {
+			routineMap.remove(builtInRoutine);
+		}
+		
 		for (RedstoneRoutine routine : routineMap.values()) {
 			boolean flag = true;
 			while (flag) {
 				flag = RedstoneOptimization.removeNoOps(routine);
+				flag |= RedstoneOptimization.checkConstants(routine);
 				flag |= RedstoneOptimization.removeDeadInstructions(routine);
 				flag |= RedstoneOptimization.simplifyImmediateInstructions(routine);
 				flag |= RedstoneOptimization.removeUnnecessaryLoads(routine);
@@ -73,12 +133,16 @@ public class RedstoneCode {
 				flag |= RedstoneOptimization.removeUnnecessaryJumps(routine);
 				flag |= RedstoneOptimization.simplifyConditionalJumps(routine);
 				flag |= RedstoneOptimization.compressSuccessiveInstructions(routine);
-				flag |= RedstoneOptimization.checkConstants(routine);
 			}
 		}
 	}
 	
 	// Static helpers
+	
+	public static final short MAX_ADDRESS = 0xFF;
+	
+	public static final Instruction LOAD_MIN_VALUE = new InstructionLoadLongImmediate(Short.MIN_VALUE);
+	public static final Instruction LOAD_MIN_VALUE_SUCCEEDING = LOAD_MIN_VALUE.succeedingData();
 	
 	public static boolean isLongImmediate(short value) {
 		return value < 0 || value > 0xFF;

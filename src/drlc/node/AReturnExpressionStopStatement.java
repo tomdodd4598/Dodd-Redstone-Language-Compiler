@@ -9,9 +9,9 @@ import drlc.analysis.*;
 public final class AReturnExpressionStopStatement extends PStopStatement
 {
     private TReturn _return_;
-    private PExpression _expression_;
-    private TSemicolon _semicolon_;
-    private final LinkedList<PDeadCode> _deadCode_ = new LinkedList<PDeadCode>();
+    private PExpressionRvalue _expressionRvalue_;
+    private PSeparator _separator_;
+    private final LinkedList<PDeadSection> _deadSection_ = new LinkedList<PDeadSection>();
 
     public AReturnExpressionStopStatement()
     {
@@ -20,18 +20,18 @@ public final class AReturnExpressionStopStatement extends PStopStatement
 
     public AReturnExpressionStopStatement(
         @SuppressWarnings("hiding") TReturn _return_,
-        @SuppressWarnings("hiding") PExpression _expression_,
-        @SuppressWarnings("hiding") TSemicolon _semicolon_,
-        @SuppressWarnings("hiding") List<?> _deadCode_)
+        @SuppressWarnings("hiding") PExpressionRvalue _expressionRvalue_,
+        @SuppressWarnings("hiding") PSeparator _separator_,
+        @SuppressWarnings("hiding") List<?> _deadSection_)
     {
         // Constructor
         setReturn(_return_);
 
-        setExpression(_expression_);
+        setExpressionRvalue(_expressionRvalue_);
 
-        setSemicolon(_semicolon_);
+        setSeparator(_separator_);
 
-        setDeadCode(_deadCode_);
+        setDeadSection(_deadSection_);
 
     }
 
@@ -40,9 +40,9 @@ public final class AReturnExpressionStopStatement extends PStopStatement
     {
         return new AReturnExpressionStopStatement(
             cloneNode(this._return_),
-            cloneNode(this._expression_),
-            cloneNode(this._semicolon_),
-            cloneList(this._deadCode_));
+            cloneNode(this._expressionRvalue_),
+            cloneNode(this._separator_),
+            cloneList(this._deadSection_));
     }
 
     @Override
@@ -76,16 +76,16 @@ public final class AReturnExpressionStopStatement extends PStopStatement
         this._return_ = node;
     }
 
-    public PExpression getExpression()
+    public PExpressionRvalue getExpressionRvalue()
     {
-        return this._expression_;
+        return this._expressionRvalue_;
     }
 
-    public void setExpression(PExpression node)
+    public void setExpressionRvalue(PExpressionRvalue node)
     {
-        if(this._expression_ != null)
+        if(this._expressionRvalue_ != null)
         {
-            this._expression_.parent(null);
+            this._expressionRvalue_.parent(null);
         }
 
         if(node != null)
@@ -98,19 +98,19 @@ public final class AReturnExpressionStopStatement extends PStopStatement
             node.parent(this);
         }
 
-        this._expression_ = node;
+        this._expressionRvalue_ = node;
     }
 
-    public TSemicolon getSemicolon()
+    public PSeparator getSeparator()
     {
-        return this._semicolon_;
+        return this._separator_;
     }
 
-    public void setSemicolon(TSemicolon node)
+    public void setSeparator(PSeparator node)
     {
-        if(this._semicolon_ != null)
+        if(this._separator_ != null)
         {
-            this._semicolon_.parent(null);
+            this._separator_.parent(null);
         }
 
         if(node != null)
@@ -123,32 +123,32 @@ public final class AReturnExpressionStopStatement extends PStopStatement
             node.parent(this);
         }
 
-        this._semicolon_ = node;
+        this._separator_ = node;
     }
 
-    public LinkedList<PDeadCode> getDeadCode()
+    public LinkedList<PDeadSection> getDeadSection()
     {
-        return this._deadCode_;
+        return this._deadSection_;
     }
 
-    public void setDeadCode(List<?> list)
+    public void setDeadSection(List<?> list)
     {
-        for(PDeadCode e : this._deadCode_)
+        for(PDeadSection e : this._deadSection_)
         {
             e.parent(null);
         }
-        this._deadCode_.clear();
+        this._deadSection_.clear();
 
         for(Object obj_e : list)
         {
-            PDeadCode e = (PDeadCode) obj_e;
+            PDeadSection e = (PDeadSection) obj_e;
             if(e.parent() != null)
             {
                 e.parent().removeChild(e);
             }
 
             e.parent(this);
-            this._deadCode_.add(e);
+            this._deadSection_.add(e);
         }
     }
 
@@ -157,9 +157,9 @@ public final class AReturnExpressionStopStatement extends PStopStatement
     {
         return ""
             + toString(this._return_)
-            + toString(this._expression_)
-            + toString(this._semicolon_)
-            + toString(this._deadCode_);
+            + toString(this._expressionRvalue_)
+            + toString(this._separator_)
+            + toString(this._deadSection_);
     }
 
     @Override
@@ -172,19 +172,19 @@ public final class AReturnExpressionStopStatement extends PStopStatement
             return;
         }
 
-        if(this._expression_ == child)
+        if(this._expressionRvalue_ == child)
         {
-            this._expression_ = null;
+            this._expressionRvalue_ = null;
             return;
         }
 
-        if(this._semicolon_ == child)
+        if(this._separator_ == child)
         {
-            this._semicolon_ = null;
+            this._separator_ = null;
             return;
         }
 
-        if(this._deadCode_.remove(child))
+        if(this._deadSection_.remove(child))
         {
             return;
         }
@@ -202,25 +202,25 @@ public final class AReturnExpressionStopStatement extends PStopStatement
             return;
         }
 
-        if(this._expression_ == oldChild)
+        if(this._expressionRvalue_ == oldChild)
         {
-            setExpression((PExpression) newChild);
+            setExpressionRvalue((PExpressionRvalue) newChild);
             return;
         }
 
-        if(this._semicolon_ == oldChild)
+        if(this._separator_ == oldChild)
         {
-            setSemicolon((TSemicolon) newChild);
+            setSeparator((PSeparator) newChild);
             return;
         }
 
-        for(ListIterator<PDeadCode> i = this._deadCode_.listIterator(); i.hasNext();)
+        for(ListIterator<PDeadSection> i = this._deadSection_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)
             {
                 if(newChild != null)
                 {
-                    i.set((PDeadCode) newChild);
+                    i.set((PDeadSection) newChild);
                     newChild.parent(this);
                     oldChild.parent(null);
                     return;

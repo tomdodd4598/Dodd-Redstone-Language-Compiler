@@ -33,6 +33,6 @@ public class InstructionDivideLongImmediate extends InstructionALULongImmediate 
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.DIVLI.concat("\t").concat(Global.IMMEDIATE).concat(Helper.toHex(value));
+		return RedstoneMnemonics.DIVLI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
 	}
 }

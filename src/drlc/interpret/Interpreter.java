@@ -1,10 +1,16 @@
 package drlc.interpret;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 import drlc.*;
 import drlc.analysis.DepthFirstAdapter;
 import drlc.generate.Generator;
-import drlc.interpret.scope.*;
-import drlc.interpret.type.*;
+import drlc.interpret.component.Variable;
+import drlc.interpret.component.info.*;
+import drlc.interpret.component.info.expression.*;
+import drlc.interpret.component.info.type.*;
+import drlc.interpret.routine.Routine;
 import drlc.node.*;
 
 public class Interpreter extends DepthFirstAdapter {
@@ -21,6 +27,24 @@ public class Interpreter extends DepthFirstAdapter {
 		generator.generate(program, new StringBuilder());
 	}
 	
+	public Routine routine() {
+		return program.currentRoutine();
+	}
+	
+	public void checkLastExpressionCast(Node node, TypeInfo targetTypeInfo, String error) {
+		TypeInfo expressionTypeInfo = routine().getLastExpressionInfo(node).getTypeInfo();
+		if (!expressionTypeInfo.canCastTo(node, generator, targetTypeInfo)) {
+			throw new IllegalArgumentException(String.format(error, expressionTypeInfo, targetTypeInfo, node));
+		}
+	}
+	
+	public void checkLastExpressionIsInt(Node node, String error) {
+		TypeInfo expressionTypeInfo = routine().getLastExpressionInfo(node).getTypeInfo();
+		if (!expressionTypeInfo.equals(Global.INT_TYPE_INFO)) {
+			throw new IllegalArgumentException(String.format(error, expressionTypeInfo, Global.INT_TYPE_INFO, node));
+		}
+	}
+	
 	@Override
 	public void defaultIn(Node node) {
 		System.out.println(node.getClass().getSimpleName().concat(" node in logic not supported!"));
@@ -35,20 +59,24 @@ public class Interpreter extends DepthFirstAdapter {
 	
 	@Override
 	public void inStart(Start node) {
-		program = new Program();
+		program = new Program(generator);
 	}
 	
 	@Override
 	public void outStart(Start node) {
-		program.trim();
+		program.fixUp();
 	}
 	
 	@Override
 	public void inAUnit(AUnit node) {
-		scope = new Scope(node, scope);
+		scope = new Scope(node, program, scope);
 		scope.setExpectingFunctionReturn(false);
-		program.addBuiltInMethods(node, scope);
-		program.addBuiltInFunctions(node, scope);
+		program.rootScope = scope;
+		
+		generator.addBuiltInTypes(node, program);
+		generator.addBuiltInConstants(node, program);
+		generator.addBuiltInVariables(node, program);
+		generator.addBuiltInFunctions(node, program);
 	}
 	
 	@Override
@@ -57,45 +85,45 @@ public class Interpreter extends DepthFirstAdapter {
 	}
 	
 	@Override
-	public void inASetupSection(ASetupSection node) {}
+	public void inASetup(ASetup node) {}
 	
 	@Override
-	public void outASetupSection(ASetupSection node) {}
+	public void outASetup(ASetup node) {}
 	
 	@Override
-	public void caseAInputSpecification(AInputSpecification node) {
-		node.getSetupPrefix().apply(this);
-		node.getSetArgc().apply(this);
-		node.getLPar().apply(this);
-		// node.getExpression().apply(this);
-		program.rootRoutine.argc = Evaluator.tryEvaluate(node, generator, scope, node.getExpression().toString());
-		node.getRPar().apply(this);
-		node.getSemicolon().apply(this);
+	public void inAProgram(AProgram node) {}
+	
+	@Override
+	public void outAProgram(AProgram node) {}
+	
+	@Override
+	public void caseADirectiveFunctionSetupSection(ADirectiveFunctionSetupSection node) {
+		generator.handleDirectiveCall(node, program, node.getName().getText(), getArgumentEvaluationInfoList(node.getExpressionList()));
 	}
 	
 	@Override
-	public void inAMethodDefinitionGeneralSection(AMethodDefinitionGeneralSection node) {}
+	public void inAFunctionDeclarationProgramSection(AFunctionDeclarationProgramSection node) {}
 	
 	@Override
-	public void outAMethodDefinitionGeneralSection(AMethodDefinitionGeneralSection node) {}
+	public void outAFunctionDeclarationProgramSection(AFunctionDeclarationProgramSection node) {}
 	
 	@Override
-	public void inAFunctionDefinitionGeneralSection(AFunctionDefinitionGeneralSection node) {}
+	public void inAFunctionDefinitionProgramSection(AFunctionDefinitionProgramSection node) {}
 	
 	@Override
-	public void outAFunctionDefinitionGeneralSection(AFunctionDefinitionGeneralSection node) {}
+	public void outAFunctionDefinitionProgramSection(AFunctionDefinitionProgramSection node) {}
 	
 	@Override
-	public void inABasicGeneralSection(ABasicGeneralSection node) {}
+	public void inABasicSectionProgramSection(ABasicSectionProgramSection node) {}
 	
 	@Override
-	public void outABasicGeneralSection(ABasicGeneralSection node) {}
+	public void outABasicSectionProgramSection(ABasicSectionProgramSection node) {}
 	
 	@Override
-	public void inAConstantDefinitionBasicSection(AConstantDefinitionBasicSection node) {}
+	public void inAEmptyStatementBasicSection(AEmptyStatementBasicSection node) {}
 	
 	@Override
-	public void outAConstantDefinitionBasicSection(AConstantDefinitionBasicSection node) {}
+	public void outAEmptyStatementBasicSection(AEmptyStatementBasicSection node) {}
 	
 	@Override
 	public void inAVariableDeclarationBasicSection(AVariableDeclarationBasicSection node) {}
@@ -104,201 +132,221 @@ public class Interpreter extends DepthFirstAdapter {
 	public void outAVariableDeclarationBasicSection(AVariableDeclarationBasicSection node) {}
 	
 	@Override
-	public void inAVariableModificationBasicSection(AVariableModificationBasicSection node) {}
+	public void inAExpressionStatementBasicSection(AExpressionStatementBasicSection node) {}
 	
 	@Override
-	public void outAVariableModificationBasicSection(AVariableModificationBasicSection node) {}
+	public void outAExpressionStatementBasicSection(AExpressionStatementBasicSection node) {}
 	
 	@Override
-	public void inAMethodCallBasicSection(AMethodCallBasicSection node) {}
+	public void inAConditionalSectionBasicSection(AConditionalSectionBasicSection node) {}
 	
 	@Override
-	public void outAMethodCallBasicSection(AMethodCallBasicSection node) {}
+	public void outAConditionalSectionBasicSection(AConditionalSectionBasicSection node) {}
 	
 	@Override
-	public void inAConditionalBasicSection(AConditionalBasicSection node) {}
+	public void inAIterativeSectionBasicSection(AIterativeSectionBasicSection node) {}
 	
 	@Override
-	public void outAConditionalBasicSection(AConditionalBasicSection node) {}
+	public void outAIterativeSectionBasicSection(AIterativeSectionBasicSection node) {}
 	
 	@Override
-	public void inAIterativeBasicSection(AIterativeBasicSection node) {}
+	public void inAGotoStatementBasicSection(AGotoStatementBasicSection node) {}
 	
 	@Override
-	public void outAIterativeBasicSection(AIterativeBasicSection node) {}
+	public void outAGotoStatementBasicSection(AGotoStatementBasicSection node) {}
 	
 	@Override
-	public void caseAMethodDefinition(AMethodDefinition node) {
-		scope.methodName = node.getName().getText();
-		PParameterList params = node.getParameterList();
-		scope.methodArgs = params == null ? 0 : 1 + ((AParameterList) params).getParameterListTail().size();
-		
-		node.getVoid().apply(this);
+	public void inASectionLabelBasicSection(ASectionLabelBasicSection node) {}
+	
+	@Override
+	public void outASectionLabelBasicSection(ASectionLabelBasicSection node) {}
+	
+	@Override
+	public void caseAFunctionDeclaration(AFunctionDeclaration node) {
+		node.getFun().apply(this);
 		node.getName().apply(this);
-		node.getLPar().apply(this);
-		if (node.getParameterList() != null) {
-			node.getParameterList().apply(this);
-		}
-		node.getRPar().apply(this);
-		node.getLBrace().apply(this);
-		for (VariableReferenceInfo param : program.getParamArray(node, scope.previous.methodArgs, false)) {
-			scope.addVariable(node, param.variable);
-		}
-		program.createAndSetMethodRoutine(node, scope);
-		scope.setExpectingFunctionReturn(false);
-		for (PBasicSection section : node.getBasicSection()) {
-			section.apply(this);
-		}
-		if (node.getStopStatement() != null) {
-			scope.setExpectingFunctionReturn(false);
-			node.getStopStatement().apply(this);
-		}
-		node.getRBrace().apply(this);
+		node.getParParameterList().apply(this);
+		int argc = getParameterListLength(node.getParParameterList());
 		
-		program.returnToRootRoutine();
+		if (node.getReturnType() != null) {
+			node.getReturnType().apply(this);
+		}
+		TypeInfo returnTypeInfo = createReturnTypeInfo(node, scope, node.getReturnType(), 0);
+		program.declareFunction(node, scope, node.getName().getText(), argc, returnTypeInfo);
+		
+		node.getSeparator().apply(this);
 	}
 	
 	@Override
 	public void caseAFunctionDefinition(AFunctionDefinition node) {
-		scope.functionName = node.getName().getText();
-		PParameterList params = node.getParameterList();
-		scope.functionArgs = params == null ? 0 : 1 + ((AParameterList) params).getParameterListTail().size();
-		
-		node.getInt().apply(this);
-		node.getName().apply(this);
-		node.getLPar().apply(this);
-		if (node.getParameterList() != null) {
-			node.getParameterList().apply(this);
+		for (TModifier modifier : node.getModifier()) {
+			modifier.apply(this);
 		}
-		node.getRPar().apply(this);
+		FunctionModifierInfo modifierInfo = getFunctionModifierInfo(node.getModifier());
+		
+		node.getFun().apply(this);
+		node.getName().apply(this);
+		node.getParParameterList().apply(this);
+		int argc = getParameterListLength(node.getParParameterList());
+		
+		if (node.getReturnType() != null) {
+			node.getReturnType().apply(this);
+		}
+		TypeInfo returnTypeInfo = createReturnTypeInfo(node, scope, node.getReturnType(), 0);
+		boolean isVoid = returnTypeInfo.isVoid(node, generator);
+		
 		node.getLBrace().apply(this);
-		for (VariableReferenceInfo param : program.getParamArray(node, scope.previous.functionArgs, false)) {
+		for (DeclaratorInfo param : program.getParamArray(node, argc, false)) {
 			scope.addVariable(node, param.variable);
 		}
-		program.createAndSetFunctionRoutine(node, scope);
-		scope.setExpectingFunctionReturn(true);
+		program.createAndSetFunctionRoutine(node, scope, node.getName().getText(), modifierInfo, argc, returnTypeInfo);
+		scope.setExpectingFunctionReturn(!isVoid);
 		for (PBasicSection section : node.getBasicSection()) {
 			section.apply(this);
 		}
 		if (node.getStopStatement() != null) {
-			scope.setExpectingFunctionReturn(true);
+			scope.setExpectingFunctionReturn(!isVoid);
 			node.getStopStatement().apply(this);
 		}
 		scope.checkExpectingFunctionReturn(node, false);
-		node.getRBrace().apply(this);
 		
+		node.getRBrace().apply(this);
 		program.returnToRootRoutine();
 	}
 	
-	@Override
-	public void caseAConstantDefinition(AConstantDefinition node) {
-		node.getConst().apply(this);
-		node.getInt().apply(this);
-		node.getName().apply(this);
-		String name = node.getName().getText();
-		node.getEquals().apply(this);
-		// node.getNumericalExpression().apply(this);
-		int value = Evaluator.evaluate(node, generator, scope, node.getExpression().toString());
-		generator.checkInteger(node, value);
-		scope.addConstant(node, name, value);
-		node.getSemicolon().apply(this);
+	public FunctionModifierInfo getFunctionModifierInfo(List<TModifier> tModifierList) {
+		Set<String> modifiers = tModifierList.stream().map(modifier -> modifier.getText()).collect(Collectors.toSet());
+		return new FunctionModifierInfo(modifiers.contains(Global.STACK), modifiers.contains(Global.STATIC));
 	}
 	
 	@Override
-	public void inANoInitialisationVariableDeclaration(ANoInitialisationVariableDeclaration node) {
-		VariableReferenceInfo info = createLvalueVariableInfo(node.getLvalueVariable(), 0, false);
-		scope.addVariable(node, info.variable);
-		program.currentRoutine().addStackDeclarationAction(node, scope, info.toString());
-	}
+	public void inAEmptyStatement(AEmptyStatement node) {}
 	
 	@Override
-	public void outANoInitialisationVariableDeclaration(ANoInitialisationVariableDeclaration node) {}
+	public void outAEmptyStatement(AEmptyStatement node) {}
 	
 	@Override
-	public void caseAWithInitialisationVariableDeclaration(AWithInitialisationVariableDeclaration node) {
-		String expression = node.getExpression().toString();
-		boolean hasAddressPrefix = Helper.hasAddressPrefix(expression), isValidAddress = false;
-		if (hasAddressPrefix) {
-			String removedAddressPrefix = Helper.removeAddressPrefix(expression);
-			if (scope.variableExists(removedAddressPrefix)) {
-				isValidAddress = true;
-			}
+	public void caseAExcludingInitializationVariableDeclaration(AExcludingInitializationVariableDeclaration node) {
+		for (TModifier modifier : node.getModifier()) {
+			modifier.apply(this);
 		}
-		node.getInt().apply(this);
-		VariableReferenceInfo info = createLvalueVariableInfo(node.getLvalueVariable(), isValidAddress ? 1 : 0, true);
+		VariableModifierInfo modifierInfo = getVariableModifierInfo(node.getModifier());
+		
+		// TODO: Allow size > 1 for arrays/structs
+		node.getVar().apply(this);
+		DeclaratorInfo info = createDeclaratorInfo(node, node.getDeclarator(), modifierInfo, node.getType(), 1);
+		scope.addVariable(node, info.variable);
+		
+		node.getType().apply(this);
+		routine().addStackDeclarationAction(node, scope, info);
+		
+		node.getSeparator().apply(this);
+	}
+	
+	@Override
+	public void caseAIncludingInitializationVariableDeclaration(AIncludingInitializationVariableDeclaration node) {
+		for (TModifier modifier : node.getModifier()) {
+			modifier.apply(this);
+		}
+		VariableModifierInfo modifierInfo = getVariableModifierInfo(node.getModifier());
+		modifierInfo.init_ = true;
+		
+		// TODO: Allow size > 1 for arrays/structs
+		node.getVar().apply(this);
+		DeclaratorInfo info = createDeclaratorInfo(node, node.getDeclarator(), modifierInfo, node.getType(), 1);
+		scope.addVariable(node, info.variable);
+		
+		node.getType().apply(this);
 		node.getEquals().apply(this);
-		if (isValidAddress) {
-			program.currentRoutine().incrementRegId();
-			program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.removeWhitespace(expression));
+		node.getExpressionRvalue().apply(this);
+		checkLastExpressionCast(node, info.typeInfo, "Attempted to use expression of type \"%s\" to initialize variable of incompatible type \"%s\"! %s");
+		
+		routine().pushCurrentRegIdToStack(node);
+		routine().addStackInitializationAction(node, scope, info);
+		
+		node.getSeparator().apply(this);
+	}
+	
+	public VariableModifierInfo getVariableModifierInfo(List<TModifier> tModifierList) {
+		Set<String> modifiers = tModifierList.stream().map(modifier -> modifier.getText()).collect(Collectors.toSet());
+		return new VariableModifierInfo(modifiers.contains(Global.INIT), modifiers.contains(Global.STACK), modifiers.contains(Global.STATIC));
+	}
+	
+	@Override
+	public void caseABasicExpressionStatement(ABasicExpressionStatement node) {
+		node.getExpressionRvalue().apply(this);
+		
+		routine().pushCurrentRegIdToStack(node);
+		routine().incrementRegId();
+		routine().addStackAssignmentAction(node, scope);
+		
+		node.getSeparator().apply(this);
+	}
+	
+	@Override
+	public void caseAAssignmentExpressionStatement(AAssignmentExpressionStatement node) {
+		node.getAssignmentOp().apply(this);
+		String op = node.getAssignmentOp().toString().trim();
+		
+		node.getExpressionRvalue().apply(this);
+		routine().pushCurrentRegIdToStack(node);
+		ExpressionInfo<?> prevInfo = routine().getLastExpressionInfo(node);
+		
+		node.getExpressionLvalue().apply(this);
+		LvalueParseInfo lvalueParseInfo = routine().getCurrentLvalueParseInfo(node, true);
+		lvalueParseInfo.checkIsValid();
+		
+		ExpressionInfo<?> currentInfo = routine().getLastExpressionInfo(node);
+		TypeInfo currentTypeInfo = currentInfo.getTypeInfo();
+		currentInfo.setTypeInfo(node, currentTypeInfo.copy(node, currentTypeInfo.referenceLevel - lvalueParseInfo.dereferenceLevel));
+		if (currentInfo.getTypeInfo().isNonAddressable()) {
+			String lvalueString = Helpers.removeWhitespace(node.getExpressionLvalue().toString());
+			throw new IllegalArgumentException(String.format("Attempted to assign expression to non-modifiable lvalue \"%s\"! %s", lvalueString, node));
+		}
+		checkLastExpressionCast(node, prevInfo.getTypeInfo(), "Attempted to assign expression of type \"%s\" to lvalue of incompatible type \"%s\"! %s");
+		
+		if (op.equals(Global.EQUALS)) {
+			routine().addStackLvalueAssignmentAction(node, scope, lvalueParseInfo);
 		}
 		else {
-			node.getExpression().apply(this);
+			op = op.substring(0, op.length() - Global.EQUALS.length());
+			routine().addStackLvalueAssignmentOperationAction(node, scope, op, lvalueParseInfo);
 		}
-		program.currentRoutine().pushCurrentRegIdToStack(node);
-		program.currentRoutine().addStackInitialisationAction(node, scope, info.toString());
-		scope.addVariable(node, info.variable);
-		node.getSemicolon().apply(this);
-	}
-	
-	@Override
-	public void caseAVariableModification(AVariableModification node) {
-		VariableReferenceInfo info = createLvalueVariableInfo(node.getLvalueVariable(), 0, true);
-		node.getEquals().apply(this);
-		node.getExpression().apply(this);
-		program.currentRoutine().pushCurrentRegIdToStack(node);
-		program.currentRoutine().addStackVariableAssignmentAction(node, scope, info.toString());
-		node.getSemicolon().apply(this);
-	}
-	
-	@Override
-	public void caseABuiltInOutMethodCall(ABuiltInOutMethodCall node) {
-		node.getOut().apply(this);
-		node.getLPar().apply(this);
-		node.getExpression().apply(this);
-		program.currentRoutine().pushCurrentRegIdToStack(node);
-		node.getRPar().apply(this);
-		node.getSemicolon().apply(this);
-		String name = node.getOut().getText();
-		program.currentRoutine().addBuiltInMethodCallAction(node, scope, name);
-	}
-	
-	@Override
-	public void inADefinedMethodCall(ADefinedMethodCall node) {}
-	
-	@Override
-	public void outADefinedMethodCall(ADefinedMethodCall node) {
-		program.currentRoutine().addMethodSubroutineCallAction(node, scope, node.getName().getText());
+		
+		node.getSeparator().apply(this);
 	}
 	
 	@Override
 	public void inAConditionalSection(AConditionalSection node) {
 		ConditionalSectionInfo info = new ConditionalSectionInfo();
-		boolean elseBlock = node.getElseBlock() != null;
-		info.setHasElseBlock(node, elseBlock);
-		info.setSectionLength(node, 1 + (node.getConditionalMiddleBlock() == null ? 0 : node.getConditionalMiddleBlock().size()) + (elseBlock ? 1 : 0));
-		program.currentRoutine().conditionalSectionInfoStack.push(info);
+		boolean elseSection = node.getElseSection() != null;
+		info.setHasElseSection(node, elseSection);
+		int sectionLength = 1 + (node.getConditionalMiddleSection() == null ? 0 : node.getConditionalMiddleSection().size()) + (elseSection ? 1 : 0);
+		info.setSectionLength(node, sectionLength);
+		routine().conditionalSectionInfoStack.push(info);
 	}
 	
 	@Override
 	public void outAConditionalSection(AConditionalSection node) {
-		program.currentRoutine().incrementSectionId();
-		if (!program.currentRoutine().currentConditionalSectionInfo(node).getHasElseBlock(node)) {
-			program.currentRoutine().addConditionalSectionElseJumpAction(node, scope);
+		routine().incrementSectionId();
+		if (!routine().currentConditionalSectionInfo(node).getHasElseSection(node)) {
+			routine().addConditionalSectionElseJumpAction(node);
 		}
-		program.currentRoutine().addConditionalSectionExitJumpActions(node, scope);
-		program.currentRoutine().conditionalSectionInfoStack.pop();
+		routine().addConditionalSectionExitJumpActions(node);
+		routine().conditionalSectionInfoStack.pop();
 	}
 	
 	@Override
-	public void caseAConditionalStartBlock(AConditionalStartBlock node) {
-		program.currentRoutine().incrementSectionId();
+	public void caseAConditionalStartSection(AConditionalStartSection node) {
+		routine().incrementSectionId();
 		
-		node.getConditionalStartBlockKeyword().apply(this);
-		program.currentRoutine().currentConditionalSectionInfo(node).setExecuteIfCondition(node, node.getConditionalStartBlockKeyword().toString().trim().equals(Global.IF));
-		node.getExpression().apply(this);
+		node.getConditionalStartSectionKeyword().apply(this);
+		routine().currentConditionalSectionInfo(node).setExecuteIfCondition(node, node.getConditionalStartSectionKeyword().toString().trim().equals(Global.IF));
+		node.getExpressionRvalue().apply(this);
+		checkLastExpressionIsInt(node, "Attempted to use expression of type \"%s\" as conditional expression of incompatible type \"%s\"! %s");
 		
-		program.currentRoutine().currentConditionalSectionInfo(node).setElseJumpSectionId(node, program.currentRoutine());
-		program.currentRoutine().incrementSectionId();
+		routine().currentConditionalSectionInfo(node).setElseJumpSectionId(node, routine());
+		routine().incrementSectionId();
 		
 		node.getLBrace().apply(this);
 		for (PBasicSection section : node.getBasicSection()) {
@@ -307,21 +355,22 @@ public class Interpreter extends DepthFirstAdapter {
 		if (node.getStopStatement() != null) {
 			node.getStopStatement().apply(this);
 		}
-		program.currentRoutine().currentConditionalSectionInfo(node).addExitJumpSection(node, program.currentRoutine());
+		routine().currentConditionalSectionInfo(node).addExitJumpSection(node, routine());
 		node.getRBrace().apply(this);
 	}
 	
 	@Override
-	public void caseAConditionalMiddleBlock(AConditionalMiddleBlock node) {
-		program.currentRoutine().incrementSectionId();
-		program.currentRoutine().addConditionalSectionElseJumpAction(node, scope);
+	public void caseAConditionalMiddleSection(AConditionalMiddleSection node) {
+		routine().incrementSectionId();
+		routine().addConditionalSectionElseJumpAction(node);
 		
-		node.getConditionalMiddleBlockKeyword().apply(this);
-		program.currentRoutine().currentConditionalSectionInfo(node).setExecuteIfCondition(node, node.getConditionalMiddleBlockKeyword().toString().trim().equals(Global.ELSIF));
-		node.getExpression().apply(this);
+		node.getConditionalMiddleSectionKeyword().apply(this);
+		routine().currentConditionalSectionInfo(node).setExecuteIfCondition(node, node.getConditionalMiddleSectionKeyword().toString().trim().equals(Global.ELIF));
+		node.getExpressionRvalue().apply(this);
+		checkLastExpressionIsInt(node, "Attempted to use expression of type \"%s\" as conditional expression of incompatible type \"%s\"! %s");
 		
-		program.currentRoutine().currentConditionalSectionInfo(node).setElseJumpSectionId(node, program.currentRoutine());
-		program.currentRoutine().incrementSectionId();
+		routine().currentConditionalSectionInfo(node).setElseJumpSectionId(node, routine());
+		routine().incrementSectionId();
 		
 		node.getLBrace().apply(this);
 		for (PBasicSection section : node.getBasicSection()) {
@@ -330,14 +379,14 @@ public class Interpreter extends DepthFirstAdapter {
 		if (node.getStopStatement() != null) {
 			node.getStopStatement().apply(this);
 		}
-		program.currentRoutine().currentConditionalSectionInfo(node).addExitJumpSection(node, program.currentRoutine());
+		routine().currentConditionalSectionInfo(node).addExitJumpSection(node, routine());
 		node.getRBrace().apply(this);
 	}
 	
 	@Override
-	public void caseAElseBlock(AElseBlock node) {
-		program.currentRoutine().incrementSectionId();
-		program.currentRoutine().addConditionalSectionElseJumpAction(node, scope);
+	public void caseAElseSection(AElseSection node) {
+		routine().incrementSectionId();
+		routine().addConditionalSectionElseJumpAction(node);
 		
 		node.getElse().apply(this);
 		node.getLBrace().apply(this);
@@ -348,16 +397,16 @@ public class Interpreter extends DepthFirstAdapter {
 			scope.previous.expectingFunctionReturn = false;
 			node.getStopStatement().apply(this);
 		}
-		program.currentRoutine().currentConditionalSectionInfo(node).addExitJumpSection(node, program.currentRoutine());
+		routine().currentConditionalSectionInfo(node).addExitJumpSection(node, routine());
 		node.getRBrace().apply(this);
 	}
 	
 	@Override
-	public void caseALoopIterativeBlock(ALoopIterativeBlock node) {
-		program.currentRoutine().incrementSectionId();
+	public void caseALoopIterativeSection(ALoopIterativeSection node) {
+		routine().incrementSectionId();
 		IterativeSectionInfo info = new IterativeSectionInfo();
-		info.setContinueJumpTargetSectionId(node, program.currentRoutine().currentSectionId());
-		program.currentRoutine().iterativeSectionInfoStack.push(info);
+		info.setContinueJumpTargetSectionId(node, routine().currentSectionId());
+		routine().iterativeSectionInfoStack.push(info);
 		
 		node.getLoop().apply(this);
 		
@@ -370,21 +419,21 @@ public class Interpreter extends DepthFirstAdapter {
 		}
 		node.getRBrace().apply(this);
 		
-		program.currentRoutine().addIterativeSectionContinueJumpAction(node, scope);
-		program.currentRoutine().incrementSectionId();
-		info.setBreakJumpTargetSectionId(node, program.currentRoutine().currentSectionId());
-		program.currentRoutine().finalizeIterativeSectionJumpActions(node, scope);
-		program.currentRoutine().iterativeSectionInfoStack.pop();
+		routine().addIterativeSectionContinueJumpAction(node);
+		routine().incrementSectionId();
+		info.setBreakJumpTargetSectionId(node, routine().currentSectionId());
+		routine().finalizeIterativeSectionJumpActions(node);
+		routine().iterativeSectionInfoStack.pop();
 	}
 	
 	@Override
-	public void caseAConditionalIterativeBlock(AConditionalIterativeBlock node) {
+	public void caseAConditionalIterativeSection(AConditionalIterativeSection node) {
 		IterativeSectionInfo info = new IterativeSectionInfo();
-		program.currentRoutine().iterativeSectionInfoStack.push(info);
+		routine().iterativeSectionInfoStack.push(info);
 		
-		program.currentRoutine().addIterativeSectionContinueJumpAction(node, scope);
-		program.currentRoutine().incrementSectionId();
-		info.setBodyJumpTargetSectionId(node, program.currentRoutine().currentSectionId());
+		routine().addIterativeSectionContinueJumpAction(node);
+		routine().incrementSectionId();
+		info.setBodyJumpTargetSectionId(node, routine().currentSectionId());
 		
 		node.getLBrace().apply(this);
 		for (PBasicSection section : node.getBasicSection()) {
@@ -395,28 +444,29 @@ public class Interpreter extends DepthFirstAdapter {
 		}
 		node.getRBrace().apply(this);
 		
-		program.currentRoutine().incrementSectionId();
-		info.setContinueJumpTargetSectionId(node, program.currentRoutine().currentSectionId());
+		routine().incrementSectionId();
+		info.setContinueJumpTargetSectionId(node, routine().currentSectionId());
 		
-		node.getConditionalIterativeBlockKeyword().apply(this);
-		node.getExpression().apply(this);
+		node.getConditionalIterativeSectionKeyword().apply(this);
+		node.getExpressionRvalue().apply(this);
+		checkLastExpressionIsInt(node, "Attempted to use expression of type \"%s\" as conditional expression of incompatible type \"%s\"! %s");
 		
-		program.currentRoutine().addIterativeSectionConditionalBodyJumpAction(node, scope, node.getConditionalIterativeBlockKeyword().toString().trim().equals(Global.WHILE));
-		program.currentRoutine().incrementSectionId();
-		info.setBreakJumpTargetSectionId(node, program.currentRoutine().currentSectionId());
-		program.currentRoutine().finalizeIterativeSectionJumpActions(node, scope);
-		program.currentRoutine().iterativeSectionInfoStack.pop();
+		routine().addIterativeSectionConditionalBodyJumpAction(node, node.getConditionalIterativeSectionKeyword().toString().trim().equals(Global.WHILE));
+		routine().incrementSectionId();
+		info.setBreakJumpTargetSectionId(node, routine().currentSectionId());
+		routine().finalizeIterativeSectionJumpActions(node);
+		routine().iterativeSectionInfoStack.pop();
 	}
 	
 	@Override
-	public void caseARepeatConditionalIterativeBlock(ARepeatConditionalIterativeBlock node) {
+	public void caseADoConditionalIterativeSection(ADoConditionalIterativeSection node) {
 		IterativeSectionInfo info = new IterativeSectionInfo();
-		program.currentRoutine().iterativeSectionInfoStack.push(info);
+		routine().iterativeSectionInfoStack.push(info);
 		
-		program.currentRoutine().incrementSectionId();
-		info.setBodyJumpTargetSectionId(node, program.currentRoutine().currentSectionId());
+		routine().incrementSectionId();
+		info.setBodyJumpTargetSectionId(node, routine().currentSectionId());
 		
-		node.getRepeat().apply(this);
+		node.getDo().apply(this);
 		node.getLBrace().apply(this);
 		for (PBasicSection section : node.getBasicSection()) {
 			section.apply(this);
@@ -426,278 +476,173 @@ public class Interpreter extends DepthFirstAdapter {
 		}
 		node.getRBrace().apply(this);
 		
-		program.currentRoutine().incrementSectionId();
-		info.setContinueJumpTargetSectionId(node, program.currentRoutine().currentSectionId());
+		routine().incrementSectionId();
+		info.setContinueJumpTargetSectionId(node, routine().currentSectionId());
 		
-		node.getConditionalIterativeBlockKeyword().apply(this);
-		node.getExpression().apply(this);
-		node.getSemicolon().apply(this);
+		node.getConditionalIterativeSectionKeyword().apply(this);
+		node.getExpressionRvalue().apply(this);
+		checkLastExpressionIsInt(node, "Attempted to use expression of type \"%s\" as conditional expression of incompatible type \"%s\"! %s");
+		node.getSeparator().apply(this);
 		
-		program.currentRoutine().addIterativeSectionConditionalBodyJumpAction(node, scope, node.getConditionalIterativeBlockKeyword().toString().trim().equals(Global.WHILE));
-		program.currentRoutine().incrementSectionId();
-		info.setBreakJumpTargetSectionId(node, program.currentRoutine().currentSectionId());
-		program.currentRoutine().finalizeIterativeSectionJumpActions(node, scope);
-		program.currentRoutine().iterativeSectionInfoStack.pop();
+		routine().addIterativeSectionConditionalBodyJumpAction(node, node.getConditionalIterativeSectionKeyword().toString().trim().equals(Global.WHILE));
+		routine().incrementSectionId();
+		info.setBreakJumpTargetSectionId(node, routine().currentSectionId());
+		routine().finalizeIterativeSectionJumpActions(node);
+		routine().iterativeSectionInfoStack.pop();
 	}
 	
 	@Override
-	public void inAReturnStopStatement(AReturnStopStatement node) {}
-	
-	@Override
-	public void outAReturnStopStatement(AReturnStopStatement node) {
-		program.currentRoutine().addJumpAction(node, Global.DESTRUCTOR);
-	}
-	
-	@Override
-	public void inAContinueStopStatement(AContinueStopStatement node) {}
-	
-	@Override
-	public void outAContinueStopStatement(AContinueStopStatement node) {
-		program.currentRoutine().addIterativeSectionContinueJumpAction(node, scope);
-	}
-	
-	@Override
-	public void inABreakStopStatement(ABreakStopStatement node) {}
-	
-	@Override
-	public void outABreakStopStatement(ABreakStopStatement node) {
-		program.currentRoutine().addIterativeSectionBreakJumpAction(node, scope);
-	}
-	
-	@Override
-	public void inAReturnExpressionStopStatement(AReturnExpressionStopStatement node) {}
-	
-	@Override
-	public void outAReturnExpressionStopStatement(AReturnExpressionStopStatement node) {
-		program.currentRoutine().addFunctionReturnAction(node, scope);
-	}
-	
-	@Override
-	public void caseADead1DeadCode(ADead1DeadCode node) {}
-	
-	@Override
-	public void caseADead2DeadCode(ADead2DeadCode node) {}
-	
-	@Override
-	public void caseADead3DeadCode(ADead3DeadCode node) {}
-	
-	@Override
-	public void caseADead4DeadCode(ADead4DeadCode node) {}
-	
-	@Override
-	public void caseADead5DeadCode(ADead5DeadCode node) {}
-	
-	@Override
-	public void inAPrioritizedExpression(APrioritizedExpression node) {}
-	
-	@Override
-	public void outAPrioritizedExpression(APrioritizedExpression node) {}
-	
-	@Override
-	public void caseABinaryExpression(ABinaryExpression node) {
-		Integer value = Evaluator.tryEvaluate(node, generator, scope, node.toString());
-		if (value != null) {
-			generator.checkInteger(node, value);
-			program.currentRoutine().incrementRegId();
-			program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.immediateValueString(value));
-		}
-		else {
-			node.getExpression().apply(this);
-			program.currentRoutine().pushCurrentRegIdToStack(node);
-			node.getBinaryOp().apply(this);
-			node.getPrioritizedExpression().apply(this);
-			program.currentRoutine().pushCurrentRegIdToStack(node);
-			program.currentRoutine().incrementRegId();
-			program.currentRoutine().addBinaryOpAction(node, scope, node.getBinaryOp().toString().trim());
-		}
-	}
-	
-	@Override
-	public void inATermPrioritizedExpression(ATermPrioritizedExpression node) {}
-	
-	@Override
-	public void outATermPrioritizedExpression(ATermPrioritizedExpression node) {}
-	
-	@Override
-	public void caseAAddressOfTerm(AAddressOfTerm node) {
-		node.getAddressOf().apply(this);
-		scope.getVariable(node, node.getRvalueVariable().toString().trim());
-		program.currentRoutine().incrementRegId();
-		program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.removeWhitespace(node.toString()));
-	}
-	
-	@Override
-	public void caseADereferenceTerm(ADereferenceTerm node) {
-		Integer value = Evaluator.tryEvaluate(node, generator, scope, node.toString());
-		if (value != null) {
-			generator.checkInteger(node, value);
-			program.currentRoutine().incrementRegId();
-			program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.immediateValueString(value));
-		}
-		else {
-			for (TDereference dereference : node.getDereference()) {
-				dereference.apply(this);
-			}
-			node.getRvalueVariable().apply(this);
-			program.currentRoutine().pushCurrentRegIdToStack(node);
-			program.currentRoutine().incrementRegId();
-			program.currentRoutine().addDereferenceAction(node, scope, node.getDereference().size());
-		}
-	}
-	
-	@Override
-	public void caseAUnaryTerm(AUnaryTerm node) {
-		Integer value = Evaluator.tryEvaluate(node, generator, scope, node.toString());
-		if (value != null) {
-			generator.checkInteger(node, value);
-			program.currentRoutine().incrementRegId();
-			program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.immediateValueString(value));
-		}
-		else {
-			node.getUnaryOp().apply(this);
-			node.getTerm().apply(this);
-			program.currentRoutine().pushCurrentRegIdToStack(node);
-			program.currentRoutine().incrementRegId();
-			program.currentRoutine().addUnaryOpAction(node, scope, node.getUnaryOp().toString().trim());
-		}
-	}
-	
-	@Override
-	public void caseABinaryPrioritizedExpression(ABinaryPrioritizedExpression node) {
-		Integer value = Evaluator.tryEvaluate(node, generator, scope, node.toString());
-		if (value != null) {
-			generator.checkInteger(node, value);
-			program.currentRoutine().incrementRegId();
-			program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.immediateValueString(value));
-		}
-		else {
-			node.getPrioritizedExpression().apply(this);
-			program.currentRoutine().pushCurrentRegIdToStack(node);
-			node.getPrioritizedBinaryOp().apply(this);
-			node.getTerm().apply(this);
-			program.currentRoutine().pushCurrentRegIdToStack(node);
-			program.currentRoutine().incrementRegId();
-			program.currentRoutine().addBinaryOpAction(node, scope, node.getPrioritizedBinaryOp().toString().trim());
-		}
-	}
-	
-	@Override
-	public void inAValueTerm(AValueTerm node) {}
-	
-	@Override
-	public void outAValueTerm(AValueTerm node) {}
-	
-	@Override
-	public void inAParExpressionTerm(AParExpressionTerm node) {}
-	
-	@Override
-	public void outAParExpressionTerm(AParExpressionTerm node) {}
-	
-	@Override
-	public void caseAIntegerValue(AIntegerValue node) {
-		node.getInteger().apply(this);
-		program.currentRoutine().incrementRegId();
-		int value = Evaluator.evaluate(node, generator, scope, node.toString());
-		generator.checkInteger(node, value);
-		program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.immediateValueString(value));
-	}
-	
-	@Override
-	public void inAVariableValue(AVariableValue node) {}
-	
-	@Override
-	public void outAVariableValue(AVariableValue node) {}
-	
-	@Override
-	public void inAFunctionValue(AFunctionValue node) {}
-	
-	@Override
-	public void outAFunctionValue(AFunctionValue node) {}
-	
-	@Override
-	public void caseABuiltInInFunction(ABuiltInInFunction node) {
-		node.getIn().apply(this);
-		node.getLPar().apply(this);
-		node.getRPar().apply(this);
-		program.currentRoutine().incrementRegId();
-		program.currentRoutine().addBuiltInFunctionCallAction(node, scope, node.getIn().getText());
-	}
-	
-	// TODO
-	@Override
-	public void caseABuiltInArgcFunction(ABuiltInArgcFunction node) {
-		node.getArgc().apply(this);
-		node.getLPar().apply(this);
-		node.getRPar().apply(this);
-		program.currentRoutine().incrementRegId();
-		int argc = program.rootRoutine.argc;
-		generator.checkInteger(node, argc);
-		program.currentRoutine().addRegisterAssignmentAction(node, scope, Helper.immediateValueString(argc));
-	}
-	
-	// TODO
-	@Override
-	public void caseABuiltInArgvFunction(ABuiltInArgvFunction node) {
-		node.getArgv().apply(this);
-		node.getLPar().apply(this);
-		node.getExpression().apply(this);
-		program.currentRoutine().pushCurrentRegIdToStack(node);
-		node.getRPar().apply(this);
-		program.currentRoutine().incrementRegId();
-		program.currentRoutine().addBuiltInFunctionCallAction(node, scope, node.getArgv().getText());
-	}
-	
-	@Override
-	public void inADefinedFunction(ADefinedFunction node) {}
-	
-	@Override
-	public void outADefinedFunction(ADefinedFunction node) {
-		program.currentRoutine().incrementRegId();
-		program.currentRoutine().addFunctionSubroutineCallAction(node, scope, node.getName().getText());
-	}
-	
-	@Override
-	public void caseARvalueVariable(ARvalueVariable node) {
+	public void caseAGotoStatement(AGotoStatement node) {
+		node.getGoto().apply(this);
 		node.getName().apply(this);
-		program.currentRoutine().incrementRegId();
-		String name = node.getName().getText();
-		Integer value = Evaluator.tryEvaluate(node, generator, scope, name);
-		if (value != null) {
-			generator.checkInteger(node, value);
-			name = Helper.immediateValueString(value);
+		routine().addGotoAction(node, node.getName().getText());
+		node.getSeparator().apply(this);
+	}
+	
+	@Override
+	public void caseASectionLabel(ASectionLabel node) {
+		node.getName().apply(this);
+		routine().incrementSectionId();
+		routine().mapStatementLabel(node, node.getName().getText());
+		node.getColon().apply(this);
+	}
+	
+	@Override
+	public void caseAExitStopStatement(AExitStopStatement node) {
+		node.getExit().apply(this);
+		routine().addExitAction(node);
+		node.getSeparator().apply(this);
+	}
+	
+	@Override
+	public void caseAReturnStopStatement(AReturnStopStatement node) {
+		node.getReturn().apply(this);
+		routine().addReturnAction(node, Global.DESTRUCTOR);
+		node.getSeparator().apply(this);
+	}
+	
+	@Override
+	public void caseAContinueStopStatement(AContinueStopStatement node) {
+		node.getContinue().apply(this);
+		routine().addIterativeSectionContinueJumpAction(node);
+		node.getSeparator().apply(this);
+	}
+	
+	@Override
+	public void caseABreakStopStatement(ABreakStopStatement node) {
+		node.getBreak().apply(this);
+		routine().addIterativeSectionBreakJumpAction(node);
+		node.getSeparator().apply(this);
+	}
+	
+	@Override
+	public void inAExitExpressionStopStatement(AExitExpressionStopStatement node) {}
+	
+	@Override
+	public void outAExitExpressionStopStatement(AExitExpressionStopStatement node) {
+		routine().addExitValueAction(node);
+	}
+	
+	@Override
+	public void caseAReturnExpressionStopStatement(AReturnExpressionStopStatement node) {
+		if (routine().isRootRoutine()) {
+			throw new IllegalArgumentException(String.format("Root routine can not return a value! Use an exit value statement!"));
 		}
-		program.currentRoutine().addRegisterAssignmentAction(node, scope, name);
-	}
-	
-	@Override
-	public void caseALvalueVariable(ALvalueVariable node) {}
-	
-	public VariableReferenceInfo createLvalueVariableInfo(PLvalueVariable node, int referenceLevelOffset, boolean initialised) {
-		ALvalueVariable variableNode = (ALvalueVariable) node;
-		VariableReferenceInfo info = new VariableReferenceInfo(new Variable(variableNode.getName().getText(), variableNode.getDereference().size() + referenceLevelOffset, initialised));
-		info.dereferenceLevel = info.variable.baseReferenceLevel - referenceLevelOffset;
-		return info;
-	}
-	
-	@Override
-	public void caseAArgumentList(AArgumentList node) {
-		node.getExpression().apply(this);
-		program.currentRoutine().pushCurrentRegIdToStack(node);
-		for (PArgumentListTail tail : node.getArgumentListTail()) {
-			tail.apply(this);
+		else {
+			node.getReturn().apply(this);
+			node.getExpressionRvalue().apply(this);
+			checkLastExpressionCast(node, routine().getReturnTypeInfo(), "Attempted to use expression of type \"%s\" as return value for function of incompatible type \"%s\"! %s");
+			routine().addFunctionReturnValueAction(node, scope);
+			node.getSeparator().apply(this);
 		}
 	}
 	
 	@Override
-	public void caseAArgumentListTail(AArgumentListTail node) {
-		node.getComma().apply(this);
-		node.getExpression().apply(this);
-		program.currentRoutine().pushCurrentRegIdToStack(node);
+	public void caseADead0DeadSection(ADead0DeadSection node) {}
+	
+	@Override
+	public void caseADead1DeadSection(ADead1DeadSection node) {}
+	
+	@Override
+	public void caseADead2DeadSection(ADead2DeadSection node) {}
+	
+	@Override
+	public void caseADead3DeadSection(ADead3DeadSection node) {}
+	
+	@Override
+	public void caseADead4DeadSection(ADead4DeadSection node) {}
+	
+	@Override
+	public void caseADead5DeadSection(ADead5DeadSection node) {}
+	
+	@Override
+	public void caseADead6DeadSection(ADead6DeadSection node) {}
+	
+	@Override
+	public void caseASemicolonSeparator(ASemicolonSeparator node) {}
+	
+	@Override
+	public void caseAEolSeparator(AEolSeparator node) {}
+	
+	@Override
+	public void caseAType(AType node) {}
+	
+	@Override
+	public void caseABasicRawType(ABasicRawType node) {}
+	
+	@Override
+	public void caseAArrayRawType(AArrayRawType node) {}
+	
+	@Override
+	public void caseAFunctionRawType(AFunctionRawType node) {}
+	
+	@Override
+	public void caseAArrayTypeTail(AArrayTypeTail node) {}
+	
+	@Override
+	public void caseAReturnType(AReturnType node) {}
+	
+	public TypeInfo createReturnTypeInfo(Node node, Scope scope, PReturnType pReturnType, int baseReferenceLevel) {
+		return createTypeInfo(node, scope, pReturnType == null ? null : ((AReturnType) pReturnType).getType(), baseReferenceLevel);
 	}
+	
+	public TypeInfo createTypeInfo(Node node, Scope scope, PType pType, int baseReferenceLevel) {
+		if (pType == null) {
+			return new BasicTypeInfo(node, scope.getType(node, Global.VOID), baseReferenceLevel);
+		}
+		
+		PRawType pRawType = ((AType) pType).getRawType();
+		baseReferenceLevel += ((AType) pType).getAnd().size();
+		
+		if (pRawType instanceof ABasicRawType) {
+			ABasicRawType aBasicType = (ABasicRawType) pRawType;
+			return new BasicTypeInfo(node, scope.getType(node, aBasicType.getName().getText()), baseReferenceLevel);
+		}
+		else if (pRawType instanceof AArrayRawType) {
+			// TODO
+			return null;
+		}
+		else {
+			AFunctionRawType aFunctionType = (AFunctionRawType) pRawType;
+			aFunctionType.getParParameterList().apply(this);
+			TypeInfo[] paramTypeInfos = Helpers.paramTypeInfoArray(program.getParamArray(node, getParameterListLength(aFunctionType.getParParameterList()), true));
+			return new FunctionTypeInfo(node, baseReferenceLevel, createReturnTypeInfo(node, scope, aFunctionType.getReturnType(), 0), paramTypeInfos);
+		}
+	}
+	
+	@Override
+	public void inAParParameterList(AParParameterList node) {
+		program.pushParamList(node);
+	}
+	
+	@Override
+	public void outAParParameterList(AParParameterList node) {}
 	
 	@Override
 	public void inAParameterList(AParameterList node) {
-		program.addParam(node, createLvalueVariableInfo(node.getLvalueVariable(), 0, true));
+		VariableModifierInfo modifierInfo = getVariableModifierInfo(node.getModifier());
+		modifierInfo.init_ = true;
+		program.addParam(node, createDeclaratorInfo(node, node.getDeclarator(), modifierInfo, node.getType(), null));
 	}
 	
 	@Override
@@ -705,11 +650,580 @@ public class Interpreter extends DepthFirstAdapter {
 	
 	@Override
 	public void inAParameterListTail(AParameterListTail node) {
-		program.addParam(node, createLvalueVariableInfo(node.getLvalueVariable(), 0, true));
+		VariableModifierInfo modifierInfo = getVariableModifierInfo(node.getModifier());
+		modifierInfo.init_ = true;
+		program.addParam(node, createDeclaratorInfo(node, node.getDeclarator(), modifierInfo, node.getType(), null));
 	}
 	
 	@Override
 	public void outAParameterListTail(AParameterListTail node) {}
+	
+	public int getParameterListLength(PParParameterList parList) {
+		AParameterList list = (AParameterList) ((AParParameterList) parList).getParameterList();
+		return list == null ? 0 : 1 + list.getParameterListTail().size();
+	}
+	
+	@Override
+	public void caseADeclarator(ADeclarator node) {}
+	
+	public DeclaratorInfo createDeclaratorInfo(Node node, PDeclarator pDeclarator, VariableModifierInfo modifierInfo, PType ptype, Integer expectSize) {
+		ADeclarator aDeclarator = (ADeclarator) pDeclarator;
+		String variableName = aDeclarator == null ? Global.DISCARD_PARAM_PREFIX.concat(Integer.toString(program.currentParamListSize(node))) : aDeclarator.getName().getText();
+		int baseReferenceLevel = aDeclarator == null ? 0 : aDeclarator.getMultiply().size();
+		Variable variable = new Variable(variableName, modifierInfo, createTypeInfo(node, scope, ptype, baseReferenceLevel));
+		return createDeclaratorInfoInternal(node, variable, baseReferenceLevel, true, expectSize);
+	}
+	
+	public DeclaratorInfo createDeclaratorInfoInternal(Node node, Variable variable, int dereferenceLevel, boolean declaration, Integer expectSize) {
+		// TODO: Handle array/struct declaration
+		TypeInfo typeInfo = variable.baseTypeInfo;
+		if (declaration) {
+			for (int i = 0; i <= dereferenceLevel; ++i) {
+				int j = typeInfo.referenceLevel - i;
+				TypeInfo info = typeInfo.copy(node, j);
+				if (info.isVoid(node, generator)) {
+					throw new IllegalArgumentException(String.format("Implicit declarator \"%s\" dereferenced %d time(s) can not be void! %s", variable.name, j, node));
+				}
+			}
+		}
+		else {
+			if (typeInfo.isVoid(node, generator)) {
+				throw new IllegalArgumentException(String.format("Declarator \"%s\" dereferenced %d time(s) can not be void! %s", variable.name, dereferenceLevel, node));
+			}
+		}
+		
+		if (expectSize != null) {
+			int size = typeInfo.getSize(node, generator);
+			if (expectSize != size) {
+				throw new IllegalArgumentException(String.format("Declarator \"%s\" requires having a size %s, but has a size %s! %s", variable.name, expectSize, size, node));
+			}
+		}
+		return new DeclaratorInfo(node, variable, dereferenceLevel);
+	}
+	
+	@Override
+	public void inAExpressionLvalue(AExpressionLvalue node) {
+		routine().setCurrentLvalueParseInfo(node, new LvalueParseInfo(node.getExpression6()));
+		routine().expressionInfoStack.push(new LvalueExpressionInfo(generator));
+	}
+	
+	@Override
+	public void outAExpressionLvalue(AExpressionLvalue node) {
+		routine().setLastExpressionInfo(node, routine().expressionInfoStack.pop());
+	}
+	
+	@Override
+	public void inAExpressionRvalue(AExpressionRvalue node) {
+		routine().expressionInfoStack.push(new RvalueExpressionInfo(generator));
+	}
+	
+	@Override
+	public void outAExpressionRvalue(AExpressionRvalue node) {
+		routine().setLastExpressionInfo(node, routine().expressionInfoStack.pop());
+	}
+	
+	@Override
+	public void inAPrioritizedExpression0(APrioritizedExpression0 node) {}
+	
+	@Override
+	public void outAPrioritizedExpression0(APrioritizedExpression0 node) {}
+	
+	@Override
+	public void caseABinaryExpression0(ABinaryExpression0 node) {
+		binaryExpression(node, node.getExpression0(), node.getLogicalBinaryOp().toString(), node.getExpression1());
+	}
+	
+	@Override
+	public void inAPrioritizedExpression1(APrioritizedExpression1 node) {}
+	
+	@Override
+	public void outAPrioritizedExpression1(APrioritizedExpression1 node) {}
+	
+	@Override
+	public void caseABinaryExpression1(ABinaryExpression1 node) {
+		binaryExpression(node, node.getExpression1(), node.getEqualityBinaryOp().toString(), node.getExpression2());
+	}
+	
+	@Override
+	public void inAPrioritizedExpression2(APrioritizedExpression2 node) {}
+	
+	@Override
+	public void outAPrioritizedExpression2(APrioritizedExpression2 node) {}
+	
+	@Override
+	public void caseABinaryExpression2(ABinaryExpression2 node) {
+		binaryExpression(node, node.getExpression2(), node.getComparativeBinaryOp().toString(), node.getExpression3());
+	}
+	
+	@Override
+	public void inAPrioritizedExpression3(APrioritizedExpression3 node) {}
+	
+	@Override
+	public void outAPrioritizedExpression3(APrioritizedExpression3 node) {}
+	
+	@Override
+	public void caseABinaryExpression3(ABinaryExpression3 node) {
+		binaryExpression(node, node.getExpression3(), node.getAdditiveBinaryOp().toString(), node.getExpression4());
+	}
+	
+	@Override
+	public void inAPrioritizedExpression4(APrioritizedExpression4 node) {}
+	
+	@Override
+	public void outAPrioritizedExpression4(APrioritizedExpression4 node) {}
+	
+	@Override
+	public void caseABinaryExpression4(ABinaryExpression4 node) {
+		binaryExpression(node, node.getExpression4(), node.getShiftBinaryOp().toString(), node.getExpression5());
+	}
+	
+	@Override
+	public void inAPrioritizedExpression5(APrioritizedExpression5 node) {}
+	
+	@Override
+	public void outAPrioritizedExpression5(APrioritizedExpression5 node) {}
+	
+	@Override
+	public void caseABinaryExpression5(ABinaryExpression5 node) {
+		binaryExpression(node, node.getExpression5(), node.getMultiplicativeBinaryOp().toString(), node.getExpression6());
+	}
+	
+	public void binaryExpression(Node node, Node left, String op, Node right) {
+		if (!tryIntegerRegisterAssignment(node)) {
+			left.apply(this);
+			routine().pushCurrentRegIdToStack(node);
+			ExpressionInfo<?> prevInfo = routine().currentExpressionInfo(node).copy(node);
+			right.apply(this);
+			routine().pushCurrentRegIdToStack(node);
+			routine().incrementRegId();
+			routine().addBinaryOpAction(node, scope, op.trim(), prevInfo);
+		}
+	}
+	
+	@Override
+	public void inAPrioritizedExpression6(APrioritizedExpression6 node) {}
+	
+	@Override
+	public void outAPrioritizedExpression6(APrioritizedExpression6 node) {}
+	
+	@Override
+	public void caseAUnaryExpression6(AUnaryExpression6 node) {
+		if (!tryIntegerRegisterAssignment(node)) {
+			node.getUnaryOp().apply(this);
+			node.getExpression6().apply(this);
+			routine().pushCurrentRegIdToStack(node);
+			routine().incrementRegId();
+			routine().addUnaryOpAction(node, scope, node.getUnaryOp().toString().trim());
+		}
+	}
+	
+	@Override
+	public void caseADereferenceExpression6(ADereferenceExpression6 node) {
+		if (!tryIntegerRegisterAssignment(node)) {
+			node.getMultiply().apply(this);
+			node.getExpression6().apply(this);
+			if (routine().getCurrentLvalueParseInfo(node, false) == null) {
+				routine().currentExpressionInfo(node).decrementReferenceLevel(node);
+				routine().pushCurrentRegIdToStack(node);
+				routine().incrementRegId();
+				routine().addDereferenceAction(node, scope);
+			}
+			else {
+				++routine().getCurrentLvalueParseInfo(node, false).dereferenceLevel;
+			}
+		}
+	}
+	
+	@Override
+	public void caseAAddressOfExpression6(AAddressOfExpression6 node) {
+		node.getAnd().apply(this);
+		String variableName = node.getName().getText();
+		Variable variable = scope.getVariable(node, variableName);
+		TypeInfo typeInfo = variable.baseTypeInfo;
+		if (typeInfo.isNonAddressable()) {
+			throw new IllegalArgumentException(String.format("Can not get address of non-addressable variable \"%s\"! %s", variableName, node));
+		}
+		routine().currentExpressionInfo(node).setTypeInfo(node, typeInfo);
+		routine().currentExpressionInfo(node).incrementReferenceLevel(node);
+		routine().incrementRegId();
+		routine().addAddressOfRegisterAssignmentAction(node, scope, variable);
+	}
+	
+	@Override
+	public void inAPrioritizedExpression7(APrioritizedExpression7 node) {}
+	
+	@Override
+	public void outAPrioritizedExpression7(APrioritizedExpression7 node) {}
+	
+	@Override
+	public void caseAFunctionExpression7(AFunctionExpression7 node) {
+		routine().pushFunctionCallToStack(node);
+		
+		TypeInfo typeInfo = tryGetDirectFunctionTypeInfo(node.getExpression7());
+		if (typeInfo == null) {
+			node.getExpression7().apply(this);
+			typeInfo = routine().currentExpressionInfo(node).getTypeInfo();
+			if (!typeInfo.isFunction()) {
+				throw new IllegalArgumentException(String.format("Attempted to use expression of incompatible type \"%s\" as a function type! %s", typeInfo, node));
+			}
+		}
+		routine().currentFunctionCallInfo(node).typeInfo = (FunctionTypeInfo) typeInfo;
+		routine().pushCurrentRegIdToStack(node);
+		
+		node.getParExpressionList().apply(this);
+		
+		routine().incrementRegId();
+		routine().addFunctionAction(node, scope);
+	}
+	
+	public TypeInfo tryGetDirectFunctionTypeInfo(PExpression7 expression) {
+		String name = Helpers.removeParentheses(expression.toString());
+		if (scope.functionExists(name)) {
+			Variable variable = scope.getVariable(expression, name);
+			TypeInfo typeInfo = variable.baseTypeInfo;
+			if (typeInfo.isFunction()) {
+				routine().currentExpressionInfo(expression).setTypeInfo(expression, typeInfo);
+				routine().incrementRegId();
+				routine().addDirectFunctionRegisterAssignmentAction(expression, scope, variable);
+				routine().currentExpressionInfo(expression).isDirectFunction = true;
+				return typeInfo;
+			}
+		}
+		return null;
+	}
+	
+	@Override
+	public void caseAArgumentList(AArgumentList node) {
+		FunctionCallInfo info = routine().currentFunctionCallInfo(node);
+		node.getExpressionRvalue().apply(this);
+		checkLastExpressionCast(node, info.getNextParamType(node), "Attempted to use expression of type \"%s\" as function argument of incompatible type \"%s\"! %s");
+		routine().pushCurrentRegIdToStack(node);
+		for (PArgumentListTail tail : node.getArgumentListTail()) {
+			tail.apply(this);
+		}
+	}
+	
+	@Override
+	public void caseAArgumentListTail(AArgumentListTail node) {
+		FunctionCallInfo info = routine().currentFunctionCallInfo(node);
+		node.getComma().apply(this);
+		node.getExpressionRvalue().apply(this);
+		checkLastExpressionCast(node, info.getNextParamType(node), "Attempted to use expression of type \"%s\" as function argument of incompatible type \"%s\"! %s");
+		routine().pushCurrentRegIdToStack(node);
+	}
+	
+	public List<EvaluationInfo> getArgumentEvaluationInfoList(PExpressionList pExpressionList) {
+		List<EvaluationInfo> infoList = new ArrayList<>();
+		if (pExpressionList != null) {
+			AExpressionList expressionList = (AExpressionList) pExpressionList;
+			PExpressionRvalue pExpressionRvalue = expressionList.getExpressionRvalue();
+			infoList.add(Evaluator.evaluate(pExpressionRvalue, generator, scope, pExpressionRvalue.toString()));
+			for (PExpressionListTail tail : expressionList.getExpressionListTail()) {
+				pExpressionRvalue = ((AExpressionListTail) tail).getExpressionRvalue();
+				infoList.add(Evaluator.evaluate(pExpressionRvalue, generator, scope, pExpressionRvalue.toString()));
+			}
+		}
+		return infoList;
+	}
+	
+	@Override
+	public void caseAValueExpression8(AValueExpression8 node) {
+		if (routine().getCurrentLvalueParseInfo(node, false) != null) {
+			routine().getCurrentLvalueParseInfo(node, false).error();
+		}
+		node.getValue().apply(this);
+		EvaluationInfo evalInfo = Evaluator.evaluate(node, generator, scope, node.toString());
+		routine().setLastExpressionInfo(node, evalInfo.expressionInfo);
+		routine().currentExpressionInfo(node).setTypeInfo(node, evalInfo.expressionInfo.getTypeInfo());
+		routine().incrementRegId();
+		routine().addImmediateRegisterAssignmentAction(node, scope, evalInfo.value);
+	}
+	
+	public boolean tryIntegerRegisterAssignment(Node node) {
+		EvaluationInfo evalInfo = Evaluator.tryEvaluate(node, generator, scope, node.toString());
+		if (evalInfo != null) {
+			if (routine().getCurrentLvalueParseInfo(node, false) != null) {
+				routine().getCurrentLvalueParseInfo(node, false).error();
+			}
+			routine().setLastExpressionInfo(node, evalInfo.expressionInfo);
+			routine().currentExpressionInfo(node).setTypeInfo(node, evalInfo.expressionInfo.getTypeInfo());
+			routine().incrementRegId();
+			routine().addImmediateRegisterAssignmentAction(node, scope, evalInfo.value);
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	@Override
+	public void caseAVariableExpression8(AVariableExpression8 node) {
+		if (!tryIntegerRegisterAssignment(node)) {
+			node.getName().apply(this);
+			String variableName = node.getName().getText();
+			Variable variable = scope.getVariable(node, variableName);
+			routine().currentExpressionInfo(node).setTypeInfo(node, variable.baseTypeInfo);
+			if (routine().getCurrentLvalueParseInfo(node, false) == null) {
+				routine().incrementRegId();
+				routine().addRegisterAssignmentAction(node, scope, variable);
+			}
+			else {
+				routine().getCurrentLvalueParseInfo(node, false).variable = variable;
+			}
+		}
+	}
+	
+	@Override
+	public void inAParenthesesExpression8(AParenthesesExpression8 node) {}
+	
+	@Override
+	public void outAParenthesesExpression8(AParenthesesExpression8 node) {}
+	
+	@Override
+	public void caseAIntegerValue(AIntegerValue node) {}
+	
+	@Override
+	public void caseACharacterValue(ACharacterValue node) {}
+	
+	@Override
+	public void caseASizeofBasicTypeValue(ASizeofBasicTypeValue node) {}
+	
+	@Override
+	public void caseASizeofFunctionTypeValue(ASizeofFunctionTypeValue node) {}
+	
+	@Override
+	public void inAEqualsAssignmentOp(AEqualsAssignmentOp node) {}
+	
+	@Override
+	public void outAEqualsAssignmentOp(AEqualsAssignmentOp node) {}
+	
+	@Override
+	public void inALogicalAndAssignmentOp(ALogicalAndAssignmentOp node) {}
+	
+	@Override
+	public void outALogicalAndAssignmentOp(ALogicalAndAssignmentOp node) {}
+	
+	@Override
+	public void inALogicalOrAssignmentOp(ALogicalOrAssignmentOp node) {}
+	
+	@Override
+	public void outALogicalOrAssignmentOp(ALogicalOrAssignmentOp node) {}
+	
+	@Override
+	public void inALogicalXorAssignmentOp(ALogicalXorAssignmentOp node) {}
+	
+	@Override
+	public void outALogicalXorAssignmentOp(ALogicalXorAssignmentOp node) {}
+	
+	@Override
+	public void inAPlusAssignmentOp(APlusAssignmentOp node) {}
+	
+	@Override
+	public void outAPlusAssignmentOp(APlusAssignmentOp node) {}
+	
+	@Override
+	public void inAAndAssignmentOp(AAndAssignmentOp node) {}
+	
+	@Override
+	public void outAAndAssignmentOp(AAndAssignmentOp node) {}
+	
+	@Override
+	public void inAOrAssignmentOp(AOrAssignmentOp node) {}
+	
+	@Override
+	public void outAOrAssignmentOp(AOrAssignmentOp node) {}
+	
+	@Override
+	public void inAXorAssignmentOp(AXorAssignmentOp node) {}
+	
+	@Override
+	public void outAXorAssignmentOp(AXorAssignmentOp node) {}
+	
+	@Override
+	public void inAMinusAssignmentOp(AMinusAssignmentOp node) {}
+	
+	@Override
+	public void outAMinusAssignmentOp(AMinusAssignmentOp node) {}
+	
+	@Override
+	public void inAArithmeticLeftShiftAssignmentOp(AArithmeticLeftShiftAssignmentOp node) {}
+	
+	@Override
+	public void outAArithmeticLeftShiftAssignmentOp(AArithmeticLeftShiftAssignmentOp node) {}
+	
+	@Override
+	public void inAArithmeticRightShiftAssignmentOp(AArithmeticRightShiftAssignmentOp node) {}
+	
+	@Override
+	public void outAArithmeticRightShiftAssignmentOp(AArithmeticRightShiftAssignmentOp node) {}
+	
+	@Override
+	public void inALogicalRightShiftAssignmentOp(ALogicalRightShiftAssignmentOp node) {}
+	
+	@Override
+	public void outALogicalRightShiftAssignmentOp(ALogicalRightShiftAssignmentOp node) {}
+	
+	@Override
+	public void inACircularLeftShiftAssignmentOp(ACircularLeftShiftAssignmentOp node) {}
+	
+	@Override
+	public void outACircularLeftShiftAssignmentOp(ACircularLeftShiftAssignmentOp node) {}
+	
+	@Override
+	public void inACircularRightShiftAssignmentOp(ACircularRightShiftAssignmentOp node) {}
+	
+	@Override
+	public void outACircularRightShiftAssignmentOp(ACircularRightShiftAssignmentOp node) {}
+	
+	@Override
+	public void inAMultiplyAssignmentOp(AMultiplyAssignmentOp node) {}
+	
+	@Override
+	public void outAMultiplyAssignmentOp(AMultiplyAssignmentOp node) {}
+	
+	@Override
+	public void inADivideAssignmentOp(ADivideAssignmentOp node) {}
+	
+	@Override
+	public void outADivideAssignmentOp(ADivideAssignmentOp node) {}
+	
+	@Override
+	public void inARemainderAssignmentOp(ARemainderAssignmentOp node) {}
+	
+	@Override
+	public void outARemainderAssignmentOp(ARemainderAssignmentOp node) {}
+	
+	@Override
+	public void inALogicalAndLogicalBinaryOp(ALogicalAndLogicalBinaryOp node) {}
+	
+	@Override
+	public void outALogicalAndLogicalBinaryOp(ALogicalAndLogicalBinaryOp node) {}
+	
+	@Override
+	public void inALogicalOrLogicalBinaryOp(ALogicalOrLogicalBinaryOp node) {}
+	
+	@Override
+	public void outALogicalOrLogicalBinaryOp(ALogicalOrLogicalBinaryOp node) {}
+	
+	@Override
+	public void inALogicalXorLogicalBinaryOp(ALogicalXorLogicalBinaryOp node) {}
+	
+	@Override
+	public void outALogicalXorLogicalBinaryOp(ALogicalXorLogicalBinaryOp node) {}
+	
+	@Override
+	public void inAEqualToEqualityBinaryOp(AEqualToEqualityBinaryOp node) {}
+	
+	@Override
+	public void outAEqualToEqualityBinaryOp(AEqualToEqualityBinaryOp node) {}
+	
+	@Override
+	public void inANotEqualToEqualityBinaryOp(ANotEqualToEqualityBinaryOp node) {}
+	
+	@Override
+	public void outANotEqualToEqualityBinaryOp(ANotEqualToEqualityBinaryOp node) {}
+	
+	@Override
+	public void inALessThanComparativeBinaryOp(ALessThanComparativeBinaryOp node) {}
+	
+	@Override
+	public void outALessThanComparativeBinaryOp(ALessThanComparativeBinaryOp node) {}
+	
+	@Override
+	public void inALessOrEqualComparativeBinaryOp(ALessOrEqualComparativeBinaryOp node) {}
+	
+	@Override
+	public void outALessOrEqualComparativeBinaryOp(ALessOrEqualComparativeBinaryOp node) {}
+	
+	@Override
+	public void inAMoreThanComparativeBinaryOp(AMoreThanComparativeBinaryOp node) {}
+	
+	@Override
+	public void outAMoreThanComparativeBinaryOp(AMoreThanComparativeBinaryOp node) {}
+	
+	@Override
+	public void inAMoreOrEqualComparativeBinaryOp(AMoreOrEqualComparativeBinaryOp node) {}
+	
+	@Override
+	public void outAMoreOrEqualComparativeBinaryOp(AMoreOrEqualComparativeBinaryOp node) {}
+	
+	@Override
+	public void inAPlusAdditiveBinaryOp(APlusAdditiveBinaryOp node) {}
+	
+	@Override
+	public void outAPlusAdditiveBinaryOp(APlusAdditiveBinaryOp node) {}
+	
+	@Override
+	public void inAAndAdditiveBinaryOp(AAndAdditiveBinaryOp node) {}
+	
+	@Override
+	public void outAAndAdditiveBinaryOp(AAndAdditiveBinaryOp node) {}
+	
+	@Override
+	public void inAOrAdditiveBinaryOp(AOrAdditiveBinaryOp node) {}
+	
+	@Override
+	public void outAOrAdditiveBinaryOp(AOrAdditiveBinaryOp node) {}
+	
+	@Override
+	public void inAXorAdditiveBinaryOp(AXorAdditiveBinaryOp node) {}
+	
+	@Override
+	public void outAXorAdditiveBinaryOp(AXorAdditiveBinaryOp node) {}
+	
+	@Override
+	public void inAMinusAdditiveBinaryOp(AMinusAdditiveBinaryOp node) {}
+	
+	@Override
+	public void outAMinusAdditiveBinaryOp(AMinusAdditiveBinaryOp node) {}
+	
+	@Override
+	public void inAArithmeticLeftShiftShiftBinaryOp(AArithmeticLeftShiftShiftBinaryOp node) {}
+	
+	@Override
+	public void outAArithmeticLeftShiftShiftBinaryOp(AArithmeticLeftShiftShiftBinaryOp node) {}
+	
+	@Override
+	public void inAArithmeticRightShiftShiftBinaryOp(AArithmeticRightShiftShiftBinaryOp node) {}
+	
+	@Override
+	public void outAArithmeticRightShiftShiftBinaryOp(AArithmeticRightShiftShiftBinaryOp node) {}
+	
+	@Override
+	public void inALogicalRightShiftShiftBinaryOp(ALogicalRightShiftShiftBinaryOp node) {}
+	
+	@Override
+	public void outALogicalRightShiftShiftBinaryOp(ALogicalRightShiftShiftBinaryOp node) {}
+	
+	@Override
+	public void inACircularLeftShiftShiftBinaryOp(ACircularLeftShiftShiftBinaryOp node) {}
+	
+	@Override
+	public void outACircularLeftShiftShiftBinaryOp(ACircularLeftShiftShiftBinaryOp node) {}
+	
+	@Override
+	public void inACircularRightShiftShiftBinaryOp(ACircularRightShiftShiftBinaryOp node) {}
+	
+	@Override
+	public void outACircularRightShiftShiftBinaryOp(ACircularRightShiftShiftBinaryOp node) {}
+	
+	@Override
+	public void inAMultiplyMultiplicativeBinaryOp(AMultiplyMultiplicativeBinaryOp node) {}
+	
+	@Override
+	public void outAMultiplyMultiplicativeBinaryOp(AMultiplyMultiplicativeBinaryOp node) {}
+	
+	@Override
+	public void inADivideMultiplicativeBinaryOp(ADivideMultiplicativeBinaryOp node) {}
+	
+	@Override
+	public void outADivideMultiplicativeBinaryOp(ADivideMultiplicativeBinaryOp node) {}
+	
+	@Override
+	public void inARemainderMultiplicativeBinaryOp(ARemainderMultiplicativeBinaryOp node) {}
+	
+	@Override
+	public void outARemainderMultiplicativeBinaryOp(ARemainderMultiplicativeBinaryOp node) {}
 	
 	@Override
 	public void inAPlusUnaryOp(APlusUnaryOp node) {}
@@ -741,107 +1255,11 @@ public class Interpreter extends DepthFirstAdapter {
 	@Override
 	public void outANotUnaryOp(ANotUnaryOp node) {}
 	
-	@Override
-	public void inAPlusBinaryOp(APlusBinaryOp node) {}
-	
-	@Override
-	public void outAPlusBinaryOp(APlusBinaryOp node) {}
-	
-	@Override
-	public void inAAndBinaryOp(AAndBinaryOp node) {}
-	
-	@Override
-	public void outAAndBinaryOp(AAndBinaryOp node) {}
-	
-	@Override
-	public void inAOrBinaryOp(AOrBinaryOp node) {}
-	
-	@Override
-	public void outAOrBinaryOp(AOrBinaryOp node) {}
-	
-	@Override
-	public void inAXorBinaryOp(AXorBinaryOp node) {}
-	
-	@Override
-	public void outAXorBinaryOp(AXorBinaryOp node) {}
-	
-	@Override
-	public void inAMinusBinaryOp(AMinusBinaryOp node) {}
-	
-	@Override
-	public void outAMinusBinaryOp(AMinusBinaryOp node) {}
-	
-	@Override
-	public void inALeftShiftPrioritizedBinaryOp(ALeftShiftPrioritizedBinaryOp node) {}
-	
-	@Override
-	public void outALeftShiftPrioritizedBinaryOp(ALeftShiftPrioritizedBinaryOp node) {}
-	
-	@Override
-	public void inARightShiftPrioritizedBinaryOp(ARightShiftPrioritizedBinaryOp node) {}
-	
-	@Override
-	public void outARightShiftPrioritizedBinaryOp(ARightShiftPrioritizedBinaryOp node) {}
-	
-	@Override
-	public void inAMultiplyPrioritizedBinaryOp(AMultiplyPrioritizedBinaryOp node) {}
-	
-	@Override
-	public void outAMultiplyPrioritizedBinaryOp(AMultiplyPrioritizedBinaryOp node) {}
-	
-	@Override
-	public void inAEqualToPrioritizedBinaryOp(AEqualToPrioritizedBinaryOp node) {}
-	
-	@Override
-	public void outAEqualToPrioritizedBinaryOp(AEqualToPrioritizedBinaryOp node) {}
-	
-	@Override
-	public void inADividePrioritizedBinaryOp(ADividePrioritizedBinaryOp node) {}
-	
-	@Override
-	public void outADividePrioritizedBinaryOp(ADividePrioritizedBinaryOp node) {}
-	
-	@Override
-	public void inARemainderPrioritizedBinaryOp(ARemainderPrioritizedBinaryOp node) {}
-	
-	@Override
-	public void outARemainderPrioritizedBinaryOp(ARemainderPrioritizedBinaryOp node) {}
-	
-	@Override
-	public void inANotEqualToPrioritizedBinaryOp(ANotEqualToPrioritizedBinaryOp node) {}
-	
-	@Override
-	public void outANotEqualToPrioritizedBinaryOp(ANotEqualToPrioritizedBinaryOp node) {}
-	
-	@Override
-	public void inALessThanPrioritizedBinaryOp(ALessThanPrioritizedBinaryOp node) {}
-	
-	@Override
-	public void outALessThanPrioritizedBinaryOp(ALessThanPrioritizedBinaryOp node) {}
-	
-	@Override
-	public void inALessOrEqualPrioritizedBinaryOp(ALessOrEqualPrioritizedBinaryOp node) {}
-	
-	@Override
-	public void outALessOrEqualPrioritizedBinaryOp(ALessOrEqualPrioritizedBinaryOp node) {}
-	
-	@Override
-	public void inAMoreThanPrioritizedBinaryOp(AMoreThanPrioritizedBinaryOp node) {}
-	
-	@Override
-	public void outAMoreThanPrioritizedBinaryOp(AMoreThanPrioritizedBinaryOp node) {}
-	
-	@Override
-	public void inAMoreOrEqualPrioritizedBinaryOp(AMoreOrEqualPrioritizedBinaryOp node) {}
-	
-	@Override
-	public void outAMoreOrEqualPrioritizedBinaryOp(AMoreOrEqualPrioritizedBinaryOp node) {}
-	
 	// Tokens
 	
 	@Override
 	public void caseTLBrace(TLBrace node) {
-		scope = new Scope(node, scope);
+		scope = new Scope(node, program, scope);
 	}
 	
 	@Override

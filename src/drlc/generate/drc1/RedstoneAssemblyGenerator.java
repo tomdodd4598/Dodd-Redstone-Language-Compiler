@@ -3,27 +3,25 @@ package drlc.generate.drc1;
 import java.io.PrintWriter;
 import java.util.List;
 
-import drlc.Helper;
+import drlc.Helpers;
 import drlc.generate.drc1.instruction.*;
 import drlc.interpret.Program;
 
 public class RedstoneAssemblyGenerator extends RedstoneGenerator {
 	
-	public RedstoneAssemblyGenerator(Boolean intermediateOptimization, Boolean machineOptimization, String outputFile) {
-		super(intermediateOptimization, machineOptimization, outputFile);
+	public RedstoneAssemblyGenerator(String outputFile) {
+		super(outputFile);
 	}
 	
 	@Override
 	public void generate(Program program, StringBuilder builder) {
-		if (intermediateOptimization) {
-			optimizeIntermediate(program);
-		}
+		optimizeIntermediate(program);
 		program.finalizeRoutines();
 		
 		RedstoneCode code = generateCode(program);
 		
-		int i = code.argDataMap.size() - 1;
-		for (RedstoneRoutine routine : code.routineMap.values()) {
+		int i = -1;
+		for (RedstoneRoutine routine : code.getRoutineMap().values()) {
 			builder.append("\n").append(routine.name).append(":\n");
 			for (List<Instruction> section : routine.textSectionMap.values()) {
 				for (Instruction instruction : section) {
@@ -44,7 +42,7 @@ public class RedstoneAssemblyGenerator extends RedstoneGenerator {
 	
 	protected void appendInstruction(StringBuilder builder, Instruction instruction, int address) {
 		if (!(instruction instanceof InstructionConstant)) {
-			builder.append(String.format("%-4s", Helper.toHex(address, 2))).append("\t").append(instruction.toString()).append("\n");
+			builder.append(String.format("%-4s", Helpers.toHex(address, 2))).append("\t").append(instruction.toString()).append("\n");
 		}
 	}
 }

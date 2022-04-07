@@ -1,27 +1,27 @@
 package drlc.generate.drc1.instruction.address;
 
-import drlc.Helper;
+import drlc.Helpers;
 import drlc.generate.drc1.*;
 import drlc.generate.drc1.instruction.Instruction;
 
 public class InstructionLeftShift extends InstructionALU {
 	
-	public InstructionLeftShift(DataInfo info) {
+	public InstructionLeftShift(RedstoneDataInfo info) {
 		super(info);
 	}
 	
 	@Override
-	public Instruction getDataReplacement(RedstoneRoutine routine) {
-		return new InstructionLeftShift(routine.dataInfo(info.argName));
+	public Instruction getDataReplacement(RedstoneCode code) {
+		return new InstructionLeftShift(getDataInfoReplacement(code));
 	}
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.LSH).concat(Helper.toBinary(address, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.LSH).concat(Helpers.toBinary(address, 8));
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.LSH.concat("\t").concat(Helper.toHex(address, 2));
+		return RedstoneMnemonics.LSH.concat("\t").concat(Helpers.toHex(address, 2));
 	}
 }

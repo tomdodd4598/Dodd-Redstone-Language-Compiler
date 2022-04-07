@@ -1,10 +1,10 @@
 package drlc.generate.drc1.instruction.address.offset;
 
-import drlc.generate.drc1.DataInfo;
+import drlc.generate.drc1.RedstoneDataInfo;
 
 public abstract class InstructionALUOffset extends InstructionAddressOffset {
 	
-	public InstructionALUOffset(DataInfo info) {
+	public InstructionALUOffset(RedstoneDataInfo info) {
 		super(info);
 	}
 	

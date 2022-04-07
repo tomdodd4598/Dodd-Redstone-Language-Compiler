@@ -3,16 +3,17 @@ package drlc.interpret.action;
 import java.util.Map;
 
 import drlc.*;
+import drlc.interpret.component.DataId;
 import drlc.node.Node;
 
 public class ReturnValueAction extends Action implements IDefiniteRedirectAction, IValueAction {
 	
-	public final String arg;
+	public final DataId arg;
 	
-	public ReturnValueAction(Node node, String arg) {
+	public ReturnValueAction(Node node, DataId arg) {
 		super(node);
 		if (arg == null) {
-			throw new IllegalArgumentException(String.format("Return action argument was null! %s", node));
+			throw new IllegalArgumentException(String.format("Return value action argument was null! %s", node));
 		}
 		else {
 			this.arg = arg;
@@ -20,13 +21,13 @@ public class ReturnValueAction extends Action implements IDefiniteRedirectAction
 	}
 	
 	@Override
-	public String[] lValues() {
-		return new String[] {};
+	public DataId[] lvalues() {
+		return new DataId[] {};
 	}
 	
 	@Override
-	public String[] rValues() {
-		return new String[] {arg};
+	public DataId[] rvalues() {
+		return new DataId[] {arg};
 	}
 	
 	@Override
@@ -35,54 +36,54 @@ public class ReturnValueAction extends Action implements IDefiniteRedirectAction
 	}
 	
 	@Override
-	public boolean canReplaceRValue() {
+	public boolean canReplaceRvalue() {
 		return true;
 	}
 	
 	@Override
-	public String getRValueReplacer() {
+	public DataId getRvalueReplacer() {
 		return null;
 	}
 	
 	@Override
-	public Action replaceRValue(String replaceTarget, String rValueReplacer) {
-		return new ReturnValueAction(null, rValueReplacer);
+	public Action replaceRvalue(DataId replaceTarget, DataId rvalueReplacer) {
+		return new ReturnValueAction(null, rvalueReplacer);
 	}
 	
 	@Override
-	public boolean canReplaceLValue() {
+	public boolean canReplaceLvalue() {
 		return false;
 	}
 	
 	@Override
-	public String getLValueReplacer() {
+	public DataId getLvalueReplacer() {
 		return null;
 	}
 	
 	@Override
-	public Action replaceLValue(String replaceTarget, String lValueReplacer) {
+	public Action replaceLvalue(DataId replaceTarget, DataId lvalueReplacer) {
 		return null;
 	}
 	
 	@Override
-	public boolean canReorderRValues() {
+	public boolean canReorderRvalues() {
 		return false;
 	}
 	
 	@Override
-	public Action swapRValues(int i, int j) {
+	public Action swapRvalues(int i, int j) {
 		return null;
 	}
 	
 	@Override
-	public Action replaceRegIds(Map<String, String> regIdMap) {
-		String arg = this.arg;
-		if (Helper.isRegId(arg) && regIdMap.containsKey(arg)) {
+	public Action replaceRegIds(Map<DataId, DataId> regIdMap) {
+		DataId arg = this.arg.removeAllDereferences();
+		if (Helpers.isRegId(arg.raw) && regIdMap.containsKey(arg)) {
 			arg = regIdMap.get(arg);
 		}
 		
-		if (!arg.equals(this.arg)) {
-			return new ReturnValueAction(null, arg);
+		if (!arg.equalsOther(this.arg, true)) {
+			return new ReturnValueAction(null, arg.addDereferences(this.arg.dereferenceLevel));
 		}
 		else {
 			return null;
@@ -91,6 +92,6 @@ public class ReturnValueAction extends Action implements IDefiniteRedirectAction
 	
 	@Override
 	public String toString() {
-		return Global.RETURN.concat(" ").concat(arg);
+		return Global.RETURN.concat(" ").concat(arg.raw);
 	}
 }

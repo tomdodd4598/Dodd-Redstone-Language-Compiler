@@ -1,20 +1,20 @@
 package drlc.generate.drc1.instruction.address;
 
-import drlc.generate.drc1.DataInfo;
+import drlc.generate.drc1.RedstoneDataInfo;
 import drlc.generate.drc1.instruction.Instruction;
 
 public abstract class InstructionAddress extends Instruction implements IInstructionAddress {
 	
-	public final DataInfo info;
+	public final RedstoneDataInfo info;
 	public Short address;
 	
-	public InstructionAddress(DataInfo info) {
+	public InstructionAddress(RedstoneDataInfo info) {
 		super();
 		this.info = info;
 	}
 	
 	@Override
-	public DataInfo getDataInfo() {
+	public RedstoneDataInfo getDataInfo() {
 		return info;
 	}
 	

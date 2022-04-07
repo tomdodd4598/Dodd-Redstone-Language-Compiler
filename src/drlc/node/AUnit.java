@@ -2,14 +2,13 @@
 
 package drlc.node;
 
-import java.util.*;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
 public final class AUnit extends PUnit
 {
-    private PSetupSection _setupSection_;
-    private final LinkedList<PGeneralSection> _generalSection_ = new LinkedList<PGeneralSection>();
+    private PSetup _setup_;
+    private PProgram _program_;
 
     public AUnit()
     {
@@ -17,13 +16,13 @@ public final class AUnit extends PUnit
     }
 
     public AUnit(
-        @SuppressWarnings("hiding") PSetupSection _setupSection_,
-        @SuppressWarnings("hiding") List<?> _generalSection_)
+        @SuppressWarnings("hiding") PSetup _setup_,
+        @SuppressWarnings("hiding") PProgram _program_)
     {
         // Constructor
-        setSetupSection(_setupSection_);
+        setSetup(_setup_);
 
-        setGeneralSection(_generalSection_);
+        setProgram(_program_);
 
     }
 
@@ -31,8 +30,8 @@ public final class AUnit extends PUnit
     public Object clone()
     {
         return new AUnit(
-            cloneNode(this._setupSection_),
-            cloneList(this._generalSection_));
+            cloneNode(this._setup_),
+            cloneNode(this._program_));
     }
 
     @Override
@@ -41,16 +40,16 @@ public final class AUnit extends PUnit
         ((Analysis) sw).caseAUnit(this);
     }
 
-    public PSetupSection getSetupSection()
+    public PSetup getSetup()
     {
-        return this._setupSection_;
+        return this._setup_;
     }
 
-    public void setSetupSection(PSetupSection node)
+    public void setSetup(PSetup node)
     {
-        if(this._setupSection_ != null)
+        if(this._setup_ != null)
         {
-            this._setupSection_.parent(null);
+            this._setup_.parent(null);
         }
 
         if(node != null)
@@ -63,55 +62,55 @@ public final class AUnit extends PUnit
             node.parent(this);
         }
 
-        this._setupSection_ = node;
+        this._setup_ = node;
     }
 
-    public LinkedList<PGeneralSection> getGeneralSection()
+    public PProgram getProgram()
     {
-        return this._generalSection_;
+        return this._program_;
     }
 
-    public void setGeneralSection(List<?> list)
+    public void setProgram(PProgram node)
     {
-        for(PGeneralSection e : this._generalSection_)
+        if(this._program_ != null)
         {
-            e.parent(null);
+            this._program_.parent(null);
         }
-        this._generalSection_.clear();
 
-        for(Object obj_e : list)
+        if(node != null)
         {
-            PGeneralSection e = (PGeneralSection) obj_e;
-            if(e.parent() != null)
+            if(node.parent() != null)
             {
-                e.parent().removeChild(e);
+                node.parent().removeChild(node);
             }
 
-            e.parent(this);
-            this._generalSection_.add(e);
+            node.parent(this);
         }
+
+        this._program_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._setupSection_)
-            + toString(this._generalSection_);
+            + toString(this._setup_)
+            + toString(this._program_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._setupSection_ == child)
+        if(this._setup_ == child)
         {
-            this._setupSection_ = null;
+            this._setup_ = null;
             return;
         }
 
-        if(this._generalSection_.remove(child))
+        if(this._program_ == child)
         {
+            this._program_ = null;
             return;
         }
 
@@ -122,28 +121,16 @@ public final class AUnit extends PUnit
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._setupSection_ == oldChild)
+        if(this._setup_ == oldChild)
         {
-            setSetupSection((PSetupSection) newChild);
+            setSetup((PSetup) newChild);
             return;
         }
 
-        for(ListIterator<PGeneralSection> i = this._generalSection_.listIterator(); i.hasNext();)
+        if(this._program_ == oldChild)
         {
-            if(i.next() == oldChild)
-            {
-                if(newChild != null)
-                {
-                    i.set((PGeneralSection) newChild);
-                    newChild.parent(this);
-                    oldChild.parent(null);
-                    return;
-                }
-
-                i.remove();
-                oldChild.parent(null);
-                return;
-            }
+            setProgram((PProgram) newChild);
+            return;
         }
 
         throw new RuntimeException("Not a child.");

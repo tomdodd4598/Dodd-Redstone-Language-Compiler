@@ -8,11 +8,11 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AFunctionDefinition extends PFunctionDefinition
 {
-    private TInt _int_;
+    private final LinkedList<TModifier> _modifier_ = new LinkedList<TModifier>();
+    private TFun _fun_;
     private TName _name_;
-    private TLPar _lPar_;
-    private PParameterList _parameterList_;
-    private TRPar _rPar_;
+    private PParParameterList _parParameterList_;
+    private PReturnType _returnType_;
     private TLBrace _lBrace_;
     private final LinkedList<PBasicSection> _basicSection_ = new LinkedList<PBasicSection>();
     private PStopStatement _stopStatement_;
@@ -24,26 +24,26 @@ public final class AFunctionDefinition extends PFunctionDefinition
     }
 
     public AFunctionDefinition(
-        @SuppressWarnings("hiding") TInt _int_,
+        @SuppressWarnings("hiding") List<?> _modifier_,
+        @SuppressWarnings("hiding") TFun _fun_,
         @SuppressWarnings("hiding") TName _name_,
-        @SuppressWarnings("hiding") TLPar _lPar_,
-        @SuppressWarnings("hiding") PParameterList _parameterList_,
-        @SuppressWarnings("hiding") TRPar _rPar_,
+        @SuppressWarnings("hiding") PParParameterList _parParameterList_,
+        @SuppressWarnings("hiding") PReturnType _returnType_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
         @SuppressWarnings("hiding") List<?> _basicSection_,
         @SuppressWarnings("hiding") PStopStatement _stopStatement_,
         @SuppressWarnings("hiding") TRBrace _rBrace_)
     {
         // Constructor
-        setInt(_int_);
+        setModifier(_modifier_);
+
+        setFun(_fun_);
 
         setName(_name_);
 
-        setLPar(_lPar_);
+        setParParameterList(_parParameterList_);
 
-        setParameterList(_parameterList_);
-
-        setRPar(_rPar_);
+        setReturnType(_returnType_);
 
         setLBrace(_lBrace_);
 
@@ -59,11 +59,11 @@ public final class AFunctionDefinition extends PFunctionDefinition
     public Object clone()
     {
         return new AFunctionDefinition(
-            cloneNode(this._int_),
+            cloneList(this._modifier_),
+            cloneNode(this._fun_),
             cloneNode(this._name_),
-            cloneNode(this._lPar_),
-            cloneNode(this._parameterList_),
-            cloneNode(this._rPar_),
+            cloneNode(this._parParameterList_),
+            cloneNode(this._returnType_),
             cloneNode(this._lBrace_),
             cloneList(this._basicSection_),
             cloneNode(this._stopStatement_),
@@ -76,16 +76,42 @@ public final class AFunctionDefinition extends PFunctionDefinition
         ((Analysis) sw).caseAFunctionDefinition(this);
     }
 
-    public TInt getInt()
+    public LinkedList<TModifier> getModifier()
     {
-        return this._int_;
+        return this._modifier_;
     }
 
-    public void setInt(TInt node)
+    public void setModifier(List<?> list)
     {
-        if(this._int_ != null)
+        for(TModifier e : this._modifier_)
         {
-            this._int_.parent(null);
+            e.parent(null);
+        }
+        this._modifier_.clear();
+
+        for(Object obj_e : list)
+        {
+            TModifier e = (TModifier) obj_e;
+            if(e.parent() != null)
+            {
+                e.parent().removeChild(e);
+            }
+
+            e.parent(this);
+            this._modifier_.add(e);
+        }
+    }
+
+    public TFun getFun()
+    {
+        return this._fun_;
+    }
+
+    public void setFun(TFun node)
+    {
+        if(this._fun_ != null)
+        {
+            this._fun_.parent(null);
         }
 
         if(node != null)
@@ -98,7 +124,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
             node.parent(this);
         }
 
-        this._int_ = node;
+        this._fun_ = node;
     }
 
     public TName getName()
@@ -126,16 +152,16 @@ public final class AFunctionDefinition extends PFunctionDefinition
         this._name_ = node;
     }
 
-    public TLPar getLPar()
+    public PParParameterList getParParameterList()
     {
-        return this._lPar_;
+        return this._parParameterList_;
     }
 
-    public void setLPar(TLPar node)
+    public void setParParameterList(PParParameterList node)
     {
-        if(this._lPar_ != null)
+        if(this._parParameterList_ != null)
         {
-            this._lPar_.parent(null);
+            this._parParameterList_.parent(null);
         }
 
         if(node != null)
@@ -148,19 +174,19 @@ public final class AFunctionDefinition extends PFunctionDefinition
             node.parent(this);
         }
 
-        this._lPar_ = node;
+        this._parParameterList_ = node;
     }
 
-    public PParameterList getParameterList()
+    public PReturnType getReturnType()
     {
-        return this._parameterList_;
+        return this._returnType_;
     }
 
-    public void setParameterList(PParameterList node)
+    public void setReturnType(PReturnType node)
     {
-        if(this._parameterList_ != null)
+        if(this._returnType_ != null)
         {
-            this._parameterList_.parent(null);
+            this._returnType_.parent(null);
         }
 
         if(node != null)
@@ -173,32 +199,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
             node.parent(this);
         }
 
-        this._parameterList_ = node;
-    }
-
-    public TRPar getRPar()
-    {
-        return this._rPar_;
-    }
-
-    public void setRPar(TRPar node)
-    {
-        if(this._rPar_ != null)
-        {
-            this._rPar_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._rPar_ = node;
+        this._returnType_ = node;
     }
 
     public TLBrace getLBrace()
@@ -306,11 +307,11 @@ public final class AFunctionDefinition extends PFunctionDefinition
     public String toString()
     {
         return ""
-            + toString(this._int_)
+            + toString(this._modifier_)
+            + toString(this._fun_)
             + toString(this._name_)
-            + toString(this._lPar_)
-            + toString(this._parameterList_)
-            + toString(this._rPar_)
+            + toString(this._parParameterList_)
+            + toString(this._returnType_)
             + toString(this._lBrace_)
             + toString(this._basicSection_)
             + toString(this._stopStatement_)
@@ -321,9 +322,14 @@ public final class AFunctionDefinition extends PFunctionDefinition
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._int_ == child)
+        if(this._modifier_.remove(child))
         {
-            this._int_ = null;
+            return;
+        }
+
+        if(this._fun_ == child)
+        {
+            this._fun_ = null;
             return;
         }
 
@@ -333,21 +339,15 @@ public final class AFunctionDefinition extends PFunctionDefinition
             return;
         }
 
-        if(this._lPar_ == child)
+        if(this._parParameterList_ == child)
         {
-            this._lPar_ = null;
+            this._parParameterList_ = null;
             return;
         }
 
-        if(this._parameterList_ == child)
+        if(this._returnType_ == child)
         {
-            this._parameterList_ = null;
-            return;
-        }
-
-        if(this._rPar_ == child)
-        {
-            this._rPar_ = null;
+            this._returnType_ = null;
             return;
         }
 
@@ -381,9 +381,27 @@ public final class AFunctionDefinition extends PFunctionDefinition
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._int_ == oldChild)
+        for(ListIterator<TModifier> i = this._modifier_.listIterator(); i.hasNext();)
         {
-            setInt((TInt) newChild);
+            if(i.next() == oldChild)
+            {
+                if(newChild != null)
+                {
+                    i.set((TModifier) newChild);
+                    newChild.parent(this);
+                    oldChild.parent(null);
+                    return;
+                }
+
+                i.remove();
+                oldChild.parent(null);
+                return;
+            }
+        }
+
+        if(this._fun_ == oldChild)
+        {
+            setFun((TFun) newChild);
             return;
         }
 
@@ -393,21 +411,15 @@ public final class AFunctionDefinition extends PFunctionDefinition
             return;
         }
 
-        if(this._lPar_ == oldChild)
+        if(this._parParameterList_ == oldChild)
         {
-            setLPar((TLPar) newChild);
+            setParParameterList((PParParameterList) newChild);
             return;
         }
 
-        if(this._parameterList_ == oldChild)
+        if(this._returnType_ == oldChild)
         {
-            setParameterList((PParameterList) newChild);
-            return;
-        }
-
-        if(this._rPar_ == oldChild)
-        {
-            setRPar((TRPar) newChild);
+            setReturnType((PReturnType) newChild);
             return;
         }
 

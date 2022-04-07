@@ -32,6 +32,6 @@ public class InstructionAddLongImmediate extends InstructionALULongImmediate {
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.ADDLI.concat("\t").concat(Global.IMMEDIATE).concat(Helper.toHex(value));
+		return RedstoneMnemonics.ADDLI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
 	}
 }

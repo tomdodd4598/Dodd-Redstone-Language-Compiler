@@ -33,6 +33,6 @@ public class InstructionXorLongImmediate extends InstructionALULongImmediate {
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.XORLI.concat("\t").concat(Global.IMMEDIATE).concat(Helper.toHex(value));
+		return RedstoneMnemonics.XORLI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
 	}
 }

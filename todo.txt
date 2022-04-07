@@ -1,5 +1,52 @@
-Fix weird jump into other method
-0x17	JMP 	0x26
+Allow optional comma at end of parameter or expression list
 
-Introduce types to language to avoid needing multiple cases of similar syntax
-Allow non-void function calls without attaching to lvalue
+Switch '#def name ... #enddef' for 'macro name { ... }' syntax
+
+Force capitalised type names (switch 'int' for 'Int' and 'void' for 'Void')
+
+Switch 'sizeof(T)' syntax for '||Int||' syntax
+
+Enable pointer arithmetic
+
+Arrays
+
+Use 'main' function as entry point
+
+Remove 'static' keyword for functions
+Remove 'stack' keyword for functions and variables
+Add 'static' keyword for variables
+
+Use StringReader with Lexer to improve Evaluator
+Add '||x||' for variables and array types
+
+Add unsigned integer type 'Nat'
+Add boolean type 'Bool', require conditionals to be booleans
+Make operators depend on operand types, remove logical and/or/xor, remove logical right shift, use '<<<' and '>>>' for circular shift
+
+String literals
+
+For loops
+
+Immutable variables with 'let' keyword, parameters immutable by default (require 'var' to be mutable)
+
+Tuples (use 'a, b, c, ...' syntax, replace Void with Unit having one instance '()', auto-unpack when used)
+
+Structs (nominal typing)
+
+Enums (nominal typing, pattern matching)
+
+Universal Function Call Syntax
+
+Closures
+
+Variable type inference
+
+Generics (use lowercase type parameters)
+
+Add 'import' for importing globals and declarations
+
+Namespaces?
+
+'extern { ... }' blocks (for transpilation to C)
+
+Standard library

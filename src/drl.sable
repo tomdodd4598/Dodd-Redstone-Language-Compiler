@@ -1,235 +1,400 @@
 Package drlc;
 
 Helpers
-	all = [0 .. 0xFFFF];
+	all = [0 .. 127];
 	digit = ['0' .. '9'];
 	letter = [['a' .. 'z'] + ['A' .. 'Z']];
-	nondigit = ['_' + letter];
-	char = digit | nondigit;
-	sign = '-' | '+';
+	name_part = digit | letter | '_';
+	
+	decimal_int = digit+;
+	binary_digit = '0' | '1';
+	binary_int_prefix = '0b' | '0B';
+	binary_int = binary_int_prefix binary_digit+;
+	octal_digit = ['0' .. '7'];
+	octal_int_prefix = '0o' | '0O';
+	octal_int = octal_int_prefix octal_digit+;
+	hexadecimal_digit = [digit + [['a' .. 'f'] + ['A' .. 'F']]];
+	hexadecimal_int_prefix = '0x' | '0X';
+	hexadecimal_int = hexadecimal_int_prefix hexadecimal_digit+;
 	
 	tab = 9;
 	lf = 10;
 	cr = 13;
-	eol = lf | cr | cr lf;
-	separator = ' ' | tab | eol;
-	
-	double_slash = '//';
-	slash_star = '/*';
-	star_slash = '*/';
-	
 	not_eol = [all - [cr + lf]];
-	not_star = [all - '*'];
-	not_star_slash = [not_star - '/'];
+	escape_char = '\' not_eol;
 	
-	line_comment = double_slash not_eol* eol;
-	block_comment = slash_star not_star* '*'+ (not_star_slash not_star* '*'+)* '/';
+	apostrophe = 39;
+	c_char = [all - [apostrophe + ['\' + [lf + cr]]]] | escape_char;
+	c_char_sequence = c_char+;
+	
+	quote = 34;
+	s_char = [all - [quote + ['\' + [lf + cr]]]] | escape_char;
+	s_char_sequence = s_char*;
 
 Tokens
-	setup_prefix = '$';
+	hash = '#';
+	end = 'end';
 	
-	set_argc = 'set_argc';
+	modifier = 'init' | 'static';
 	
-	const = 'const';
-	int = 'int';
-	void = 'void';
+	fun = 'fun';
+	var = 'var';
 	
-	in = 'in';
-	out = 'out';
+	arrow = '->';
 	
-	argc = 'argc';
-	argv = 'argv';
-	
-	return = 'return';
+	conditional_start_section_keyword = 'if' | 'unless';
+	conditional_middle_section_keyword = 'elif' | 'elunless';
 	else = 'else';
+	
 	loop = 'loop';
-	repeat = 'repeat';
+	conditional_iterative_section_keyword = 'while' | 'until';
+	do = 'do';
+	
+	goto = 'goto';
+	
+	exit = 'exit';
+	return = 'return';
 	continue = 'continue';
 	break = 'break';
 	
-	conditional_start_block_keyword = 'if' | 'unless';
-	conditional_middle_block_keyword = 'elsif' | 'elsunless';
-	conditional_iterative_block_keyword = 'while' | 'until';
-	
-	equals = '=';
+	sizeof = 'sizeof';
 	
 	l_par = '(';
 	r_par = ')';
+	l_bracket = '[';
+	r_bracket = ']';
 	l_brace = '{';
 	r_brace = '}';
 	comma = ',';
+	colon = ':';
 	semicolon = ';';
 	
-	address_of = '@';
-	dereference = '#';
+	equals = '=';
 	
-	plus = '+';
-	minus = '-';
+	logical_and_equals = '&?=';
+	logical_or_equals = '|?=';
+	logical_xor_equals = '^?=';
 	
-	complement = '~';
-	to_bool = '?';
-	not = '!';
+	plus_equals = '+=';
+	and_equals = '&=';
+	or_equals = '|=';
+	xor_equals = '^=';
+	minus_equals = '-=';
 	
-	and = '&';
-	or = '|';
-	xor = '^';
+	arithmetic_left_shift_equals = '<<=';
+	arithmetic_right_shift_equals = '>>=';
+	logical_right_shift_equals = '>>>=';
+	circular_left_shift_equals = '<</=';
+	circular_right_shift_equals = '>>/=';
 	
-	left_shift = '<<';
-	right_shift = '>>';
+	multiply_equals = '*=';
+	divide_equals = '/=';
+	remainder_equals = '%=';
 	
-	multiply = '*';
-	divide = '/';
-	remainder = '%';
+	logical_and = '&?';
+	logical_or = '|?';
+	logical_xor = '^?';
 	
 	equal_to = '==';
 	not_equal_to = '!=';
+	
 	less_than = '<';
 	less_or_equal = '<=';
 	more_than = '>';
 	more_or_equal = '>=';
 	
-	name = nondigit char*;
-	integer = sign? digit+;
+	plus = '+';
+	and = '&';
+	or = '|';
+	xor = '^';
+	minus = '-';
 	
-	blank = separator+;
-	comment = line_comment | block_comment;
+	arithmetic_left_shift = '<<';
+	arithmetic_right_shift = '>>';
+	logical_right_shift = '>>>';
+	circular_left_shift = '<</';
+	circular_right_shift = '>>/';
+	
+	multiply = '*';
+	divide = '/';
+	remainder = '%';
+	
+	complement = '~';
+	to_bool = '?';
+	not = '!';
+	
+	name = letter name_part*;
+	
+	int_value = decimal_int | binary_int | octal_int | hexadecimal_int;
+	char_value = apostrophe c_char_sequence apostrophe;
+	
+	eol = cr | lf | cr lf;
+	blank = (' ' | tab)+;
 
 Ignored Tokens
-	blank,
-	comment;
+	blank;
 
 Productions
 	unit =
-		setup_section general_section*;
+		setup program;
+	
+	setup =
+		setup_section*;
+	
+	program =
+		program_section*;
 	
 	
 	
 	/* UNIT SPECIFICATION */
 	
 	setup_section =
-		input_specification?;
+		{directive_function} hash name expression_list? eol directive_end;
 	
-	input_specification =
-		setup_prefix set_argc l_par expression r_par semicolon;
+	directive_end =
+		hash end;
 	
-	general_section =
-		{method_definition} method_definition |
+	program_section =
+		{function_declaration} function_declaration |
 		{function_definition} function_definition |
-		{basic} basic_section;
+		{basic_section} basic_section;
 	
 	basic_section =
-		{constant_definition} constant_definition |
+		{empty_statement} empty_statement |
 		{variable_declaration} variable_declaration |
-		{variable_modification} variable_modification |
-		{method_call} method_call |
-		{conditional} conditional_section |
-		{iterative} iterative_block;
+		{expression_statement} expression_statement |
+		{conditional_section} conditional_section |
+		{iterative_section} iterative_section |
+		{goto_statement} goto_statement |
+		{section_label} section_label;
 	
 	
 	
 	/* SECTION SPECIFICATIONS */
 	
-	method_definition =
-		void name l_par parameter_list? r_par l_brace basic_section* stop_statement? r_brace;
+	function_declaration =
+		fun name par_parameter_list return_type? separator;
 	
 	function_definition =
-		int name l_par parameter_list? r_par l_brace basic_section* stop_statement? r_brace;
+		modifier* fun name par_parameter_list return_type? l_brace basic_section* stop_statement? r_brace;
 	
-	constant_definition =
-		const int name equals expression semicolon;
+	empty_statement =
+		separator;
 	
 	variable_declaration =
-		{no_initialisation} int lvalue_variable semicolon |
-		{with_initialisation} int lvalue_variable equals expression semicolon;
+		{excluding_initialization} modifier* var declarator separator |
+		{including_initialization} modifier* var declarator equals initialization_expression separator;
 	
-	variable_modification =
-		lvalue_variable equals expression semicolon;
+	initialization_expression =
+		{basic} expression_rvalue |
+		{array} bracket_expression_list |
+		{array_fill} l_bracket expression_rvalue array_type_tail r_bracket;
 	
-	method_call =
-		{built_in_out} out l_par expression r_par semicolon |
-		{defined} name l_par argument_list? r_par semicolon;
+	expression_statement =
+		{basic} expression_rvalue separator |
+		{assignment} expression_lvalue assignment_op expression_rvalue separator;
 	
 	conditional_section =
-		conditional_start_block conditional_middle_block* else_block?;
+		conditional_start_section conditional_middle_section* else_section?;
 	
-	conditional_start_block =
-		conditional_start_block_keyword expression l_brace basic_section* stop_statement? r_brace;
+	conditional_start_section =
+		conditional_start_section_keyword expression_rvalue l_brace basic_section* stop_statement? r_brace;
 	
-	conditional_middle_block =
-		conditional_middle_block_keyword expression l_brace basic_section* stop_statement? r_brace;
+	conditional_middle_section =
+		conditional_middle_section_keyword expression_rvalue l_brace basic_section* stop_statement? r_brace;
 	
-	else_block =
+	else_section =
 		else l_brace basic_section* stop_statement? r_brace;
 	
-	iterative_block =
+	iterative_section =
 		{loop} loop l_brace basic_section* stop_statement? r_brace |
-		{conditional} conditional_iterative_block_keyword expression l_brace basic_section* stop_statement? r_brace |
-		{repeat_conditional} repeat l_brace basic_section* stop_statement? r_brace conditional_iterative_block_keyword expression semicolon;
+		{conditional} conditional_iterative_section_keyword expression_rvalue l_brace basic_section* stop_statement? r_brace |
+		{do_conditional} do l_brace basic_section* stop_statement? r_brace conditional_iterative_section_keyword expression_rvalue separator;
+	
+	goto_statement =
+		goto name separator;
+	
+	section_label =
+		name colon;
 	
 	stop_statement =
-		{return} return semicolon dead_code* |
-		{continue} continue semicolon dead_code* |
-		{break} break semicolon dead_code* |
-		{return_expression} return expression semicolon dead_code*;
+		{exit} exit separator dead_section* |
+		{return} return separator dead_section* |
+		{continue} continue separator dead_section* |
+		{break} break separator dead_section* |
+		{exit_expression} exit expression_rvalue separator dead_section* |
+		{return_expression} return expression_rvalue separator dead_section*;
 	
-	dead_code =
-		{dead1} basic_section |
-		{dead2} return semicolon |
-		{dead3} continue semicolon |
-		{dead4} break semicolon |
-		{dead5} return expression semicolon;
+	dead_section =
+		{dead0} basic_section |
+		{dead1} exit separator |
+		{dead2} return separator |
+		{dead3} continue separator |
+		{dead4} break separator |
+		{dead5} exit expression_rvalue separator |
+		{dead6} return expression_rvalue separator;
+	
+	separator =
+		{semicolon} semicolon |
+		{eol} eol;
 	
 	
 	
 	/* COMPONENT SPECIFICATIONS */
 	
-	expression =
-		{prioritized} prioritized_expression |
-		{binary} expression binary_op prioritized_expression;
+	type =
+		and* raw_type;
 	
-	prioritized_expression =
-		{term} term |
-		{binary} prioritized_expression prioritized_binary_op term;
+	raw_type =
+		{basic} name |
+		{array} l_bracket type array_type_tail r_bracket |
+		{function} par_parameter_list return_type;
 	
-	term =
-		{value} value |
-		{address_of} address_of rvalue_variable |
-		{dereference} dereference+ rvalue_variable |
-		{unary} unary_op term |
-		{par_expression} l_par expression r_par;
+	array_type_tail =
+		semicolon expression_rvalue;
 	
-	value =
-		{integer} integer |
-		{variable} rvalue_variable |
-		{function} function;
+	return_type =
+		arrow type;
 	
-	function =
-		{built_in_in} in l_par r_par |
-		{built_in_argc} argc l_par r_par |
-		{built_in_argv} argv l_par expression r_par |
-		{defined} name l_par argument_list? r_par;
-	
-	rvalue_variable =
-		name;
-	
-	lvalue_variable =
-		dereference* name;
-	
-	argument_list =
-		expression argument_list_tail*;
-	
-	argument_list_tail =
-		comma expression;
+	par_parameter_list =
+		l_par parameter_list? r_par;
 	
 	parameter_list =
-		lvalue_variable parameter_list_tail*;
+		modifier* parameter? type parameter_list_tail* comma?;
 	
 	parameter_list_tail =
-		comma lvalue_variable;
+		comma modifier* parameter? type;
+	
+	parameter =
+		{excluding_name} type |
+		{including_name} multiply* name colon type;
+	
+	declarator =
+		multiply* name colon type;
+	
+	expression_lvalue =
+		expression6;
+	
+	expression_rvalue =
+		expression0;
+	
+	expression0 =
+		{prioritized} expression1 |
+		{binary} expression0 logical_binary_op expression1;
+	
+	expression1 =
+		{prioritized} expression2 |
+		{binary} expression1 equality_binary_op expression2;
+	
+	expression2 =
+		{prioritized} expression3 |
+		{binary} expression2 comparative_binary_op expression3;
+	
+	expression3 =
+		{prioritized} expression4 |
+		{binary} expression3 additive_binary_op expression4;
+	
+	expression4 =
+		{prioritized} expression5 |
+		{binary} expression4 shift_binary_op expression5;
+	
+	expression5 =
+		{prioritized} expression6 |
+		{binary} expression5 multiplicative_binary_op expression6;
+	
+	expression6 =
+		{prioritized} expression7 |
+		{unary} unary_op expression6 |
+		{dereference} multiply expression6 |
+		{address_of} and name;
+	
+	expression7 =
+		{prioritized} expression8 |
+		{index} expression7 bracket_expression |
+		{function} expression7 par_expression_list;
+	
+	bracket_expression =
+		l_bracket expression_rvalue? r_bracket;
+	
+	bracket_expression_list =
+		l_bracket expression_list? r_bracket;
+	
+	par_expression_list =
+		l_par expression_list? r_par;
+	
+	expression_list =
+		expression_rvalue expression_list_tail* comma?;
+	
+	expression_list_tail =
+		comma expression_rvalue;
+	
+	expression8 =
+		{value} value |
+		{variable} name |
+		{parentheses} l_par expression0 r_par;
+	
+	value =
+		{int} int_value |
+		{char} char_value |
+		{sizeof_basic_type} sizeof l_par and* name r_par |
+		{sizeof_function_type} sizeof l_par and* fun r_par;
 	
 	
 	
-	/* OPERATION SPECIFICATIONS */
+		/* OPERATION SPECIFICATIONS */
+	
+	assignment_op =
+		{equals} equals |
+		{logical_and} logical_and_equals |
+		{logical_or} logical_or_equals |
+		{logical_xor} logical_xor_equals |
+		{plus} plus_equals |
+		{and} and_equals |
+		{or} or_equals |
+		{xor} xor_equals |
+		{minus} minus_equals |
+		{arithmetic_left_shift} arithmetic_left_shift_equals |
+		{arithmetic_right_shift} arithmetic_right_shift_equals |
+		{logical_right_shift} logical_right_shift_equals |
+		{circular_left_shift} circular_left_shift_equals |
+		{circular_right_shift} circular_right_shift_equals |
+		{multiply} multiply_equals |
+		{divide} divide_equals |
+		{remainder} remainder_equals;
+	
+	logical_binary_op =
+		{logical_and} logical_and |
+		{logical_or} logical_or |
+		{logical_xor} logical_xor;
+	
+	equality_binary_op =
+		{equal_to} equal_to |
+		{not_equal_to} not_equal_to;
+	
+	comparative_binary_op =
+		{less_than} less_than |
+		{less_or_equal} less_or_equal |
+		{more_than} more_than |
+		{more_or_equal} more_or_equal;
+	
+	additive_binary_op =
+		{plus} plus |
+		{and} and |
+		{or} or |
+		{xor} xor |
+		{minus} minus;
+	
+	shift_binary_op =
+		{arithmetic_left_shift} arithmetic_left_shift |
+		{arithmetic_right_shift} arithmetic_right_shift |
+		{logical_right_shift} logical_right_shift |
+		{circular_left_shift} circular_left_shift |
+		{circular_right_shift} circular_right_shift;
+	
+	multiplicative_binary_op =
+		{multiply} multiply |
+		{divide} divide |
+		{remainder} remainder;
 	
 	unary_op =
 		{plus} plus |
@@ -237,23 +402,3 @@ Productions
 		{complement} complement |
 		{to_bool} to_bool |
 		{not} not;
-	
-	binary_op =
-		{plus} plus |
-		{and} and |
-		{or} or |
-		{xor} xor |
-		{minus} minus;
-	
-	prioritized_binary_op =
-		{left_shift} left_shift |
-		{right_shift} right_shift |
-		{multiply} multiply |
-		{equal_to} equal_to |
-		{divide} divide |
-		{remainder} remainder |
-		{not_equal_to} not_equal_to |
-		{less_than} less_than |
-		{less_or_equal} less_or_equal |
-		{more_than} more_than |
-		{more_or_equal} more_or_equal;

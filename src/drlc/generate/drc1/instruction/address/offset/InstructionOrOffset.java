@@ -1,37 +1,37 @@
 package drlc.generate.drc1.instruction.address.offset;
 
-import drlc.Helper;
+import drlc.Helpers;
 import drlc.generate.drc1.*;
 import drlc.generate.drc1.instruction.Instruction;
 
 public class InstructionOrOffset extends InstructionALUOffset {
 	
-	public InstructionOrOffset(DataInfo info) {
+	public InstructionOrOffset(RedstoneDataInfo info) {
 		super(info);
 	}
 	
 	@Override
-	public Instruction getDataReplacement(RedstoneRoutine routine) {
-		return new InstructionOrOffset(routine.dataInfo(info.argName));
+	public Instruction getDataReplacement(RedstoneCode code) {
+		return new InstructionOrOffset(getDataInfoReplacement(code));
 	}
 	
 	@Override
 	public String binaryString() {
 		if (offset < 0) {
-			return RedstoneOpcodes.get(RedstoneMnemonics.ORNB).concat(Helper.toBinary(-offset, 8));
+			return RedstoneOpcodes.get(RedstoneMnemonics.ORNB).concat(Helpers.toBinary(-offset, 8));
 		}
 		else {
-			return RedstoneOpcodes.get(RedstoneMnemonics.ORPB).concat(Helper.toBinary(offset, 8));
+			return RedstoneOpcodes.get(RedstoneMnemonics.ORPB).concat(Helpers.toBinary(offset, 8));
 		}
 	}
 	
 	@Override
 	public String toString() {
 		if (offset < 0) {
-			return RedstoneMnemonics.ORNB.concat("\t").concat(Helper.toHex(-offset, 2));
+			return RedstoneMnemonics.ORNB.concat("\t").concat(Helpers.toHex(-offset, 2));
 		}
 		else {
-			return RedstoneMnemonics.ORPB.concat("\t").concat(Helper.toHex(offset, 2));
+			return RedstoneMnemonics.ORPB.concat("\t").concat(Helpers.toHex(offset, 2));
 		}
 	}
 }

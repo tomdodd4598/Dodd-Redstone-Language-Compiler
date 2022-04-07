@@ -1,12 +1,12 @@
 package drlc.generate.drc1.instruction.address;
 
-import drlc.generate.drc1.DataInfo;
+import drlc.generate.drc1.RedstoneDataInfo;
 import drlc.generate.drc1.instruction.IInstructionStore;
 
 public interface IInstructionStoreAddress extends IInstructionStore, IInstructionAddress {
 	
 	@Override
-	public default DataInfo getDataInfo() {
+	public default RedstoneDataInfo getDataInfo() {
 		return getStoredData();
 	}
 	
@@ -20,5 +20,5 @@ public interface IInstructionStoreAddress extends IInstructionStore, IInstructio
 		return true;
 	}
 	
-	public DataInfo getStoredData();
+	public RedstoneDataInfo getStoredData();
 }

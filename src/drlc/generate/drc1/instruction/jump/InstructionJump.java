@@ -1,6 +1,6 @@
 package drlc.generate.drc1.instruction.jump;
 
-import drlc.Helper;
+import drlc.Helpers;
 import drlc.generate.drc1.*;
 import drlc.generate.drc1.instruction.Instruction;
 
@@ -35,11 +35,11 @@ public class InstructionJump extends Instruction {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.JMP).concat(Helper.toBinary(address, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.JMP).concat(Helpers.toBinary(address, 8));
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.JMP.concat("\t").concat(Helper.toHex(address, 2));
+		return RedstoneMnemonics.JMP.concat("\t").concat(Helpers.toHex(address, 2));
 	}
 }

@@ -1,27 +1,27 @@
 package drlc.generate.drc1.instruction.address;
 
-import drlc.Helper;
+import drlc.Helpers;
 import drlc.generate.drc1.*;
 import drlc.generate.drc1.instruction.Instruction;
 
 public class InstructionNot extends InstructionALU {
 	
-	public InstructionNot(DataInfo info) {
+	public InstructionNot(RedstoneDataInfo info) {
 		super(info);
 	}
 	
 	@Override
-	public Instruction getDataReplacement(RedstoneRoutine routine) {
-		return new InstructionNot(routine.dataInfo(info.argName));
+	public Instruction getDataReplacement(RedstoneCode code) {
+		return new InstructionNot(getDataInfoReplacement(code));
 	}
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.NOT).concat(Helper.toBinary(address, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.NOT).concat(Helpers.toBinary(address, 8));
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.NOT.concat("\t").concat(Helper.toHex(address, 2));
+		return RedstoneMnemonics.NOT.concat("\t").concat(Helpers.toHex(address, 2));
 	}
 }

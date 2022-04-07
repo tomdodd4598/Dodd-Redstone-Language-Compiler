@@ -38,6 +38,6 @@ public class InstructionNotLongImmediate extends InstructionALULongImmediate {
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.NOTLI.concat("\t").concat(Global.IMMEDIATE).concat(Helper.toHex(value));
+		return RedstoneMnemonics.NOTLI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
 	}
 }

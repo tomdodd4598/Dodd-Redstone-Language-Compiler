@@ -8,8 +8,11 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AParameterList extends PParameterList
 {
-    private PLvalueVariable _lvalueVariable_;
+    private final LinkedList<TModifier> _modifier_ = new LinkedList<TModifier>();
+    private PParameter _parameter_;
+    private PType _type_;
     private final LinkedList<PParameterListTail> _parameterListTail_ = new LinkedList<PParameterListTail>();
+    private TComma _comma_;
 
     public AParameterList()
     {
@@ -17,13 +20,22 @@ public final class AParameterList extends PParameterList
     }
 
     public AParameterList(
-        @SuppressWarnings("hiding") PLvalueVariable _lvalueVariable_,
-        @SuppressWarnings("hiding") List<?> _parameterListTail_)
+        @SuppressWarnings("hiding") List<?> _modifier_,
+        @SuppressWarnings("hiding") PParameter _parameter_,
+        @SuppressWarnings("hiding") PType _type_,
+        @SuppressWarnings("hiding") List<?> _parameterListTail_,
+        @SuppressWarnings("hiding") TComma _comma_)
     {
         // Constructor
-        setLvalueVariable(_lvalueVariable_);
+        setModifier(_modifier_);
+
+        setParameter(_parameter_);
+
+        setType(_type_);
 
         setParameterListTail(_parameterListTail_);
+
+        setComma(_comma_);
 
     }
 
@@ -31,8 +43,11 @@ public final class AParameterList extends PParameterList
     public Object clone()
     {
         return new AParameterList(
-            cloneNode(this._lvalueVariable_),
-            cloneList(this._parameterListTail_));
+            cloneList(this._modifier_),
+            cloneNode(this._parameter_),
+            cloneNode(this._type_),
+            cloneList(this._parameterListTail_),
+            cloneNode(this._comma_));
     }
 
     @Override
@@ -41,16 +56,42 @@ public final class AParameterList extends PParameterList
         ((Analysis) sw).caseAParameterList(this);
     }
 
-    public PLvalueVariable getLvalueVariable()
+    public LinkedList<TModifier> getModifier()
     {
-        return this._lvalueVariable_;
+        return this._modifier_;
     }
 
-    public void setLvalueVariable(PLvalueVariable node)
+    public void setModifier(List<?> list)
     {
-        if(this._lvalueVariable_ != null)
+        for(TModifier e : this._modifier_)
         {
-            this._lvalueVariable_.parent(null);
+            e.parent(null);
+        }
+        this._modifier_.clear();
+
+        for(Object obj_e : list)
+        {
+            TModifier e = (TModifier) obj_e;
+            if(e.parent() != null)
+            {
+                e.parent().removeChild(e);
+            }
+
+            e.parent(this);
+            this._modifier_.add(e);
+        }
+    }
+
+    public PParameter getParameter()
+    {
+        return this._parameter_;
+    }
+
+    public void setParameter(PParameter node)
+    {
+        if(this._parameter_ != null)
+        {
+            this._parameter_.parent(null);
         }
 
         if(node != null)
@@ -63,7 +104,32 @@ public final class AParameterList extends PParameterList
             node.parent(this);
         }
 
-        this._lvalueVariable_ = node;
+        this._parameter_ = node;
+    }
+
+    public PType getType()
+    {
+        return this._type_;
+    }
+
+    public void setType(PType node)
+    {
+        if(this._type_ != null)
+        {
+            this._type_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._type_ = node;
     }
 
     public LinkedList<PParameterListTail> getParameterListTail()
@@ -92,26 +158,71 @@ public final class AParameterList extends PParameterList
         }
     }
 
+    public TComma getComma()
+    {
+        return this._comma_;
+    }
+
+    public void setComma(TComma node)
+    {
+        if(this._comma_ != null)
+        {
+            this._comma_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._comma_ = node;
+    }
+
     @Override
     public String toString()
     {
         return ""
-            + toString(this._lvalueVariable_)
-            + toString(this._parameterListTail_);
+            + toString(this._modifier_)
+            + toString(this._parameter_)
+            + toString(this._type_)
+            + toString(this._parameterListTail_)
+            + toString(this._comma_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._lvalueVariable_ == child)
+        if(this._modifier_.remove(child))
         {
-            this._lvalueVariable_ = null;
+            return;
+        }
+
+        if(this._parameter_ == child)
+        {
+            this._parameter_ = null;
+            return;
+        }
+
+        if(this._type_ == child)
+        {
+            this._type_ = null;
             return;
         }
 
         if(this._parameterListTail_.remove(child))
         {
+            return;
+        }
+
+        if(this._comma_ == child)
+        {
+            this._comma_ = null;
             return;
         }
 
@@ -122,9 +233,33 @@ public final class AParameterList extends PParameterList
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._lvalueVariable_ == oldChild)
+        for(ListIterator<TModifier> i = this._modifier_.listIterator(); i.hasNext();)
         {
-            setLvalueVariable((PLvalueVariable) newChild);
+            if(i.next() == oldChild)
+            {
+                if(newChild != null)
+                {
+                    i.set((TModifier) newChild);
+                    newChild.parent(this);
+                    oldChild.parent(null);
+                    return;
+                }
+
+                i.remove();
+                oldChild.parent(null);
+                return;
+            }
+        }
+
+        if(this._parameter_ == oldChild)
+        {
+            setParameter((PParameter) newChild);
+            return;
+        }
+
+        if(this._type_ == oldChild)
+        {
+            setType((PType) newChild);
             return;
         }
 
@@ -144,6 +279,12 @@ public final class AParameterList extends PParameterList
                 oldChild.parent(null);
                 return;
             }
+        }
+
+        if(this._comma_ == oldChild)
+        {
+            setComma((TComma) newChild);
+            return;
         }
 
         throw new RuntimeException("Not a child.");

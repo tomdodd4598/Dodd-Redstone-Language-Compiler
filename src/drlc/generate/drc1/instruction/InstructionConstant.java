@@ -19,7 +19,7 @@ public class InstructionConstant extends Instruction {
 	public void setValue(short value) {
 		if (this.value == null) {
 			this.value = value;
-			valueString = Helper.toBinary(value, 16);
+			valueString = Helpers.toBinary(value, 16);
 		}
 		else {
 			throw new UnsupportedOperationException(String.format("Attempted to modify non-null constant value!"));
@@ -48,6 +48,6 @@ public class InstructionConstant extends Instruction {
 	
 	@Override
 	public String toString() {
-		return Global.IMMEDIATE.concat(Helper.toHex(value));
+		return Global.IMMEDIATE.concat(Helpers.toHex(value));
 	}
 }

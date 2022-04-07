@@ -60,11 +60,11 @@ public class InstructionAddToStackPointer extends Instruction {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.ADDSP).concat(Helper.toBinary(value, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.ADDSP).concat(Helpers.toBinary(value, 8));
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.ADDSP.concat("\t").concat(Global.IMMEDIATE).concat(Helper.toHex(value));
+		return RedstoneMnemonics.ADDSP.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
 	}
 }

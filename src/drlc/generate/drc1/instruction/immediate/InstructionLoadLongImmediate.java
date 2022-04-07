@@ -53,6 +53,6 @@ public class InstructionLoadLongImmediate extends InstructionLongImmediate imple
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.LDALI.concat("\t").concat(Global.IMMEDIATE).concat(Helper.toHex(value));
+		return RedstoneMnemonics.LDALI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
 	}
 }

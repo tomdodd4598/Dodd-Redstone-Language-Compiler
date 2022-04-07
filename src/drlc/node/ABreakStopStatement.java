@@ -9,8 +9,8 @@ import drlc.analysis.*;
 public final class ABreakStopStatement extends PStopStatement
 {
     private TBreak _break_;
-    private TSemicolon _semicolon_;
-    private final LinkedList<PDeadCode> _deadCode_ = new LinkedList<PDeadCode>();
+    private PSeparator _separator_;
+    private final LinkedList<PDeadSection> _deadSection_ = new LinkedList<PDeadSection>();
 
     public ABreakStopStatement()
     {
@@ -19,15 +19,15 @@ public final class ABreakStopStatement extends PStopStatement
 
     public ABreakStopStatement(
         @SuppressWarnings("hiding") TBreak _break_,
-        @SuppressWarnings("hiding") TSemicolon _semicolon_,
-        @SuppressWarnings("hiding") List<?> _deadCode_)
+        @SuppressWarnings("hiding") PSeparator _separator_,
+        @SuppressWarnings("hiding") List<?> _deadSection_)
     {
         // Constructor
         setBreak(_break_);
 
-        setSemicolon(_semicolon_);
+        setSeparator(_separator_);
 
-        setDeadCode(_deadCode_);
+        setDeadSection(_deadSection_);
 
     }
 
@@ -36,8 +36,8 @@ public final class ABreakStopStatement extends PStopStatement
     {
         return new ABreakStopStatement(
             cloneNode(this._break_),
-            cloneNode(this._semicolon_),
-            cloneList(this._deadCode_));
+            cloneNode(this._separator_),
+            cloneList(this._deadSection_));
     }
 
     @Override
@@ -71,16 +71,16 @@ public final class ABreakStopStatement extends PStopStatement
         this._break_ = node;
     }
 
-    public TSemicolon getSemicolon()
+    public PSeparator getSeparator()
     {
-        return this._semicolon_;
+        return this._separator_;
     }
 
-    public void setSemicolon(TSemicolon node)
+    public void setSeparator(PSeparator node)
     {
-        if(this._semicolon_ != null)
+        if(this._separator_ != null)
         {
-            this._semicolon_.parent(null);
+            this._separator_.parent(null);
         }
 
         if(node != null)
@@ -93,32 +93,32 @@ public final class ABreakStopStatement extends PStopStatement
             node.parent(this);
         }
 
-        this._semicolon_ = node;
+        this._separator_ = node;
     }
 
-    public LinkedList<PDeadCode> getDeadCode()
+    public LinkedList<PDeadSection> getDeadSection()
     {
-        return this._deadCode_;
+        return this._deadSection_;
     }
 
-    public void setDeadCode(List<?> list)
+    public void setDeadSection(List<?> list)
     {
-        for(PDeadCode e : this._deadCode_)
+        for(PDeadSection e : this._deadSection_)
         {
             e.parent(null);
         }
-        this._deadCode_.clear();
+        this._deadSection_.clear();
 
         for(Object obj_e : list)
         {
-            PDeadCode e = (PDeadCode) obj_e;
+            PDeadSection e = (PDeadSection) obj_e;
             if(e.parent() != null)
             {
                 e.parent().removeChild(e);
             }
 
             e.parent(this);
-            this._deadCode_.add(e);
+            this._deadSection_.add(e);
         }
     }
 
@@ -127,8 +127,8 @@ public final class ABreakStopStatement extends PStopStatement
     {
         return ""
             + toString(this._break_)
-            + toString(this._semicolon_)
-            + toString(this._deadCode_);
+            + toString(this._separator_)
+            + toString(this._deadSection_);
     }
 
     @Override
@@ -141,13 +141,13 @@ public final class ABreakStopStatement extends PStopStatement
             return;
         }
 
-        if(this._semicolon_ == child)
+        if(this._separator_ == child)
         {
-            this._semicolon_ = null;
+            this._separator_ = null;
             return;
         }
 
-        if(this._deadCode_.remove(child))
+        if(this._deadSection_.remove(child))
         {
             return;
         }
@@ -165,19 +165,19 @@ public final class ABreakStopStatement extends PStopStatement
             return;
         }
 
-        if(this._semicolon_ == oldChild)
+        if(this._separator_ == oldChild)
         {
-            setSemicolon((TSemicolon) newChild);
+            setSeparator((PSeparator) newChild);
             return;
         }
 
-        for(ListIterator<PDeadCode> i = this._deadCode_.listIterator(); i.hasNext();)
+        for(ListIterator<PDeadSection> i = this._deadSection_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)
             {
                 if(newChild != null)
                 {
-                    i.set((PDeadCode) newChild);
+                    i.set((PDeadSection) newChild);
                     newChild.parent(this);
                     oldChild.parent(null);
                     return;

@@ -1,16 +1,32 @@
 package drlc.interpret.action;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import drlc.*;
+import drlc.interpret.component.DataId;
 import drlc.node.Node;
 
-public class FunctionCallAction extends SubroutineCallAction implements IValueAction {
+public class FunctionCallAction extends Action implements IValueAction {
 	
-	public final String target;
+	public final DataId target;
+	public final DataId[] rvalues;
 	
-	public FunctionCallAction(Node node, String target, String name, String... args) {
-		super(node, name, args);
+	public FunctionCallAction(Node node, DataId target, DataId name, DataId[] args) {
+		super(node);
+		if (name == null) {
+			throw new IllegalArgumentException(String.format("Function call action name was null! %s", node));
+		}
+		else if (args == null) {
+			throw new IllegalArgumentException(String.format("Function call action arguments were null! %s", node));
+		}
+		else {
+			rvalues = new DataId[1 + args.length];
+			rvalues[0] = name;
+			for (int i = 0; i < args.length; ++i) {
+				rvalues[i + 1] = args[i];
+			}
+		}
 		if (target == null) {
 			throw new IllegalArgumentException(String.format("Function call action target was null! %s", node));
 		}
@@ -19,18 +35,30 @@ public class FunctionCallAction extends SubroutineCallAction implements IValueAc
 		}
 	}
 	
-	protected FunctionCallAction copy(Node node, String target, String name, String... args) {
-		return new FunctionCallAction(node, target, name, args);
+	public DataId getCallId() {
+		return rvalues[0];
+	}
+	
+	public DataId[] getArgs() {
+		return Arrays.copyOfRange(rvalues, 1, rvalues.length);
+	}
+	
+	public DataId getArg(int i) {
+		return rvalues[1 + i];
+	}
+	
+	protected FunctionCallAction copy(Node node, DataId target, DataId[] rvalues) {
+		return new FunctionCallAction(node, target, rvalues[0], Arrays.copyOfRange(rvalues, 1, rvalues.length));
 	}
 	
 	@Override
-	public String[] lValues() {
-		return new String[] {target};
+	public DataId[] lvalues() {
+		return new DataId[] {target};
 	}
 	
 	@Override
-	public String[] rValues() {
-		return args;
+	public DataId[] rvalues() {
+		return rvalues;
 	}
 	
 	@Override
@@ -39,41 +67,41 @@ public class FunctionCallAction extends SubroutineCallAction implements IValueAc
 	}
 	
 	@Override
-	public boolean canReplaceRValue() {
+	public boolean canReplaceRvalue() {
 		return true;
 	}
 	
 	@Override
-	public String getRValueReplacer() {
+	public DataId getRvalueReplacer() {
 		return null;
 	}
 	
 	@Override
-	public Action replaceRValue(String replaceTarget, String rValueReplacer) {
-		String[] replaceArgs = Arrays.copyOf(args, args.length);
-		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals(replaceTarget)) {
-				replaceArgs[i] = rValueReplacer;
-				return copy(null, target, name, replaceArgs);
+	public Action replaceRvalue(DataId replaceTarget, DataId rvalueReplacer) {
+		DataId[] replaceRvalues = Arrays.copyOf(rvalues, rvalues.length);
+		for (int i = 0; i < rvalues.length; i++) {
+			if (rvalues[i].equals(replaceTarget)) {
+				replaceRvalues[i] = rvalueReplacer;
+				return copy(null, target, replaceRvalues);
 			}
 		}
-		throw new IllegalArgumentException(String.format("No function call action argument %s matched replacement target %s!", Arrays.toString(args), replaceTarget));
+		throw new IllegalArgumentException(String.format("No function call action argument %s matched replacement target %s!", Arrays.toString(rvalues), replaceTarget));
 	}
 	
 	@Override
-	public boolean canReplaceLValue() {
+	public boolean canReplaceLvalue() {
 		return true;
 	}
 	
 	@Override
-	public String getLValueReplacer() {
+	public DataId getLvalueReplacer() {
 		return null;
 	}
 	
 	@Override
-	public Action replaceLValue(String replaceTarget, String lValueReplacer) {
+	public Action replaceLvalue(DataId replaceTarget, DataId lvalueReplacer) {
 		if (target.equals(replaceTarget)) {
-			return copy(null, lValueReplacer, name, args);
+			return copy(null, lvalueReplacer, rvalues);
 		}
 		else {
 			throw new IllegalArgumentException(String.format("Function call action target %s doesn't match replacement target %s!", target, replaceTarget));
@@ -81,37 +109,42 @@ public class FunctionCallAction extends SubroutineCallAction implements IValueAc
 	}
 	
 	@Override
-	public boolean canReorderRValues() {
+	public boolean canReorderRvalues() {
 		return false;
 	}
 	
 	@Override
-	public Action swapRValues(int i, int j) {
-		String[] swapArgs = Arrays.copyOf(args, args.length);
-		swapArgs[i] = args[j];
-		swapArgs[j] = args[i];
-		return new FunctionCallAction(null, target, name, swapArgs);
+	public Action swapRvalues(int i, int j) {
+		DataId[] swapRvalues = Arrays.copyOf(rvalues, rvalues.length);
+		swapRvalues[i] = rvalues[j];
+		swapRvalues[j] = rvalues[i];
+		return copy(null, target, swapRvalues);
 	}
 	
 	@Override
-	public Action replaceRegIds(Map<String, String> regIdMap) {
-		String target = this.target;
-		String[] args = this.args;
-		if (Helper.isRegId(target) && regIdMap.containsKey(target)) {
-			target = regIdMap.get(target);
+	public Action replaceRegIds(Map<DataId, DataId> regIdMap) {
+		DataId replaceTarget = target.removeAllDereferences();
+		DataId[] replaceRvalues = Stream.of(rvalues).map(DataId::removeAllDereferences).toArray(DataId[]::new);
+		if (Helpers.isRegId(replaceTarget.raw) && regIdMap.containsKey(replaceTarget)) {
+			replaceTarget = regIdMap.get(replaceTarget);
 		}
-		for (int i = 0; i < args.length; i++) {
-			if (Helper.isRegId(args[i]) && regIdMap.containsKey(args[i])) {
-				args[i] = regIdMap.get(args[i]);
+		for (int i = 0; i < replaceRvalues.length; i++) {
+			if (Helpers.isRegId(replaceRvalues[i].raw) && regIdMap.containsKey(replaceRvalues[i])) {
+				replaceRvalues[i] = regIdMap.get(replaceRvalues[i]);
 			}
 		}
 		
-		if (!target.equals(this.target)) {
-			return copy(null, target, name, args);
+		replaceTarget = replaceTarget.addDereferences(target.dereferenceLevel);
+		for (int i = 0; i < replaceRvalues.length; i++) {
+			replaceRvalues[i] = replaceRvalues[i].addDereferences(rvalues[i].dereferenceLevel);
 		}
-		for (int i = 0; i < args.length; i++) {
-			if (!args[i].equals(this.args[i])) {
-				return copy(null, target, name, args);
+		
+		if (!replaceTarget.equalsOther(target, true)) {
+			return copy(null, replaceTarget, replaceRvalues);
+		}
+		for (int i = 0; i < replaceRvalues.length; i++) {
+			if (!replaceRvalues[i].equalsOther(rvalues[i], true)) {
+				return copy(null, replaceTarget, replaceRvalues);
 			}
 		}
 		return null;
@@ -120,10 +153,8 @@ public class FunctionCallAction extends SubroutineCallAction implements IValueAc
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(target).append(" = ").append(Global.FUN).append(" ").append(name);
-		for (String arg : args) {
-			builder.append(" ").append(arg);
-		}
+		builder.append(target.raw).append(" = ").append(Global.CALL).append(' ').append(getCallId().raw);
+		Helpers.appendArgs(builder, getArgs());
 		return builder.toString();
 	}
 }

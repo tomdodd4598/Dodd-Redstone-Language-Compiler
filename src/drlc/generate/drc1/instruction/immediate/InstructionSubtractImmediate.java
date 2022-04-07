@@ -47,11 +47,11 @@ public class InstructionSubtractImmediate extends InstructionALUImmediate {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.SUBI).concat(Helper.toBinary(value, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.SUBI).concat(Helpers.toBinary(value, 8));
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.SUBI.concat("\t").concat(Global.IMMEDIATE).concat(Helper.toHex(value));
+		return RedstoneMnemonics.SUBI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
 	}
 }

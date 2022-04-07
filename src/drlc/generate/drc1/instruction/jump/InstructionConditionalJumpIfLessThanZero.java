@@ -1,6 +1,6 @@
 package drlc.generate.drc1.instruction.jump;
 
-import drlc.Helper;
+import drlc.Helpers;
 import drlc.generate.drc1.*;
 import drlc.generate.drc1.instruction.*;
 import drlc.generate.drc1.instruction.immediate.IInstructionImmediate;
@@ -55,11 +55,11 @@ public class InstructionConditionalJumpIfLessThanZero extends InstructionConditi
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.JLZ).concat(Helper.toBinary(address, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.JLZ).concat(Helpers.toBinary(address, 8));
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.JLZ.concat("\t").concat(Helper.toHex(address, 2));
+		return RedstoneMnemonics.JLZ.concat("\t").concat(Helpers.toHex(address, 2));
 	}
 }

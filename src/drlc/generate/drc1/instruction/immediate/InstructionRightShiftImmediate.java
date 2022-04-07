@@ -37,11 +37,11 @@ public class InstructionRightShiftImmediate extends InstructionALUImmediate {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.RSHI).concat(Helper.toBinary(value, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.RSHI).concat(Helpers.toBinary(value, 8));
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.RSHI.concat("\t").concat(Global.IMMEDIATE).concat(Helper.toHex(value));
+		return RedstoneMnemonics.RSHI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
 	}
 }

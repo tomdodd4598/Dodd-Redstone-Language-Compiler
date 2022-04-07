@@ -81,37 +81,49 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseASetupSection(ASetupSection node)
+    public void caseASetup(ASetup node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAInputSpecification(AInputSpecification node)
+    public void caseAProgram(AProgram node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAMethodDefinitionGeneralSection(AMethodDefinitionGeneralSection node)
+    public void caseADirectiveFunctionSetupSection(ADirectiveFunctionSetupSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAFunctionDefinitionGeneralSection(AFunctionDefinitionGeneralSection node)
+    public void caseADirectiveEnd(ADirectiveEnd node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseABasicGeneralSection(ABasicGeneralSection node)
+    public void caseAFunctionDeclarationProgramSection(AFunctionDeclarationProgramSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAConstantDefinitionBasicSection(AConstantDefinitionBasicSection node)
+    public void caseAFunctionDefinitionProgramSection(AFunctionDefinitionProgramSection node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABasicSectionProgramSection(ABasicSectionProgramSection node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAEmptyStatementBasicSection(AEmptyStatementBasicSection node)
     {
         defaultCase(node);
     }
@@ -123,31 +135,37 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAVariableModificationBasicSection(AVariableModificationBasicSection node)
+    public void caseAExpressionStatementBasicSection(AExpressionStatementBasicSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAMethodCallBasicSection(AMethodCallBasicSection node)
+    public void caseAConditionalSectionBasicSection(AConditionalSectionBasicSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAConditionalBasicSection(AConditionalBasicSection node)
+    public void caseAIterativeSectionBasicSection(AIterativeSectionBasicSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAIterativeBasicSection(AIterativeBasicSection node)
+    public void caseAGotoStatementBasicSection(AGotoStatementBasicSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAMethodDefinition(AMethodDefinition node)
+    public void caseASectionLabelBasicSection(ASectionLabelBasicSection node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAFunctionDeclaration(AFunctionDeclaration node)
     {
         defaultCase(node);
     }
@@ -159,37 +177,49 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAConstantDefinition(AConstantDefinition node)
+    public void caseAEmptyStatement(AEmptyStatement node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseANoInitialisationVariableDeclaration(ANoInitialisationVariableDeclaration node)
+    public void caseAExcludingInitializationVariableDeclaration(AExcludingInitializationVariableDeclaration node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAWithInitialisationVariableDeclaration(AWithInitialisationVariableDeclaration node)
+    public void caseAIncludingInitializationVariableDeclaration(AIncludingInitializationVariableDeclaration node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAVariableModification(AVariableModification node)
+    public void caseABasicInitializationExpression(ABasicInitializationExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseABuiltInOutMethodCall(ABuiltInOutMethodCall node)
+    public void caseAArrayInitializationExpression(AArrayInitializationExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseADefinedMethodCall(ADefinedMethodCall node)
+    public void caseAArrayFillInitializationExpression(AArrayFillInitializationExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABasicExpressionStatement(ABasicExpressionStatement node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAAssignmentExpressionStatement(AAssignmentExpressionStatement node)
     {
         defaultCase(node);
     }
@@ -201,37 +231,55 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAConditionalStartBlock(AConditionalStartBlock node)
+    public void caseAConditionalStartSection(AConditionalStartSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAConditionalMiddleBlock(AConditionalMiddleBlock node)
+    public void caseAConditionalMiddleSection(AConditionalMiddleSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAElseBlock(AElseBlock node)
+    public void caseAElseSection(AElseSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseALoopIterativeBlock(ALoopIterativeBlock node)
+    public void caseALoopIterativeSection(ALoopIterativeSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAConditionalIterativeBlock(AConditionalIterativeBlock node)
+    public void caseAConditionalIterativeSection(AConditionalIterativeSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseARepeatConditionalIterativeBlock(ARepeatConditionalIterativeBlock node)
+    public void caseADoConditionalIterativeSection(ADoConditionalIterativeSection node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAGotoStatement(AGotoStatement node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseASectionLabel(ASectionLabel node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAExitStopStatement(AExitStopStatement node)
     {
         defaultCase(node);
     }
@@ -255,157 +303,109 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseAExitExpressionStopStatement(AExitExpressionStopStatement node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseAReturnExpressionStopStatement(AReturnExpressionStopStatement node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseADead1DeadCode(ADead1DeadCode node)
+    public void caseADead0DeadSection(ADead0DeadSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseADead2DeadCode(ADead2DeadCode node)
+    public void caseADead1DeadSection(ADead1DeadSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseADead3DeadCode(ADead3DeadCode node)
+    public void caseADead2DeadSection(ADead2DeadSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseADead4DeadCode(ADead4DeadCode node)
+    public void caseADead3DeadSection(ADead3DeadSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseADead5DeadCode(ADead5DeadCode node)
+    public void caseADead4DeadSection(ADead4DeadSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAPrioritizedExpression(APrioritizedExpression node)
+    public void caseADead5DeadSection(ADead5DeadSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseABinaryExpression(ABinaryExpression node)
+    public void caseADead6DeadSection(ADead6DeadSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseATermPrioritizedExpression(ATermPrioritizedExpression node)
+    public void caseASemicolonSeparator(ASemicolonSeparator node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseABinaryPrioritizedExpression(ABinaryPrioritizedExpression node)
+    public void caseAEolSeparator(AEolSeparator node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAValueTerm(AValueTerm node)
+    public void caseAType(AType node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAAddressOfTerm(AAddressOfTerm node)
+    public void caseABasicRawType(ABasicRawType node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseADereferenceTerm(ADereferenceTerm node)
+    public void caseAArrayRawType(AArrayRawType node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAUnaryTerm(AUnaryTerm node)
+    public void caseAFunctionRawType(AFunctionRawType node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAParExpressionTerm(AParExpressionTerm node)
+    public void caseAArrayTypeTail(AArrayTypeTail node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAIntegerValue(AIntegerValue node)
+    public void caseAReturnType(AReturnType node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAVariableValue(AVariableValue node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAFunctionValue(AFunctionValue node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseABuiltInInFunction(ABuiltInInFunction node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseABuiltInArgcFunction(ABuiltInArgcFunction node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseABuiltInArgvFunction(ABuiltInArgvFunction node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseADefinedFunction(ADefinedFunction node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseARvalueVariable(ARvalueVariable node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseALvalueVariable(ALvalueVariable node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAArgumentList(AArgumentList node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAArgumentListTail(AArgumentListTail node)
+    public void caseAParParameterList(AParParameterList node)
     {
         defaultCase(node);
     }
@@ -418,6 +418,456 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseAParameterListTail(AParameterListTail node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAExcludingNameParameter(AExcludingNameParameter node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAIncludingNameParameter(AIncludingNameParameter node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseADeclarator(ADeclarator node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAExpressionLvalue(AExpressionLvalue node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAExpressionRvalue(AExpressionRvalue node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPrioritizedExpression0(APrioritizedExpression0 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABinaryExpression0(ABinaryExpression0 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPrioritizedExpression1(APrioritizedExpression1 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABinaryExpression1(ABinaryExpression1 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPrioritizedExpression2(APrioritizedExpression2 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABinaryExpression2(ABinaryExpression2 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPrioritizedExpression3(APrioritizedExpression3 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABinaryExpression3(ABinaryExpression3 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPrioritizedExpression4(APrioritizedExpression4 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABinaryExpression4(ABinaryExpression4 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPrioritizedExpression5(APrioritizedExpression5 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABinaryExpression5(ABinaryExpression5 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPrioritizedExpression6(APrioritizedExpression6 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAUnaryExpression6(AUnaryExpression6 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseADereferenceExpression6(ADereferenceExpression6 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAAddressOfExpression6(AAddressOfExpression6 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPrioritizedExpression7(APrioritizedExpression7 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAIndexExpression7(AIndexExpression7 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAFunctionExpression7(AFunctionExpression7 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABracketExpression(ABracketExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABracketExpressionList(ABracketExpressionList node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAParExpressionList(AParExpressionList node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAExpressionList(AExpressionList node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAExpressionListTail(AExpressionListTail node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAValueExpression8(AValueExpression8 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAVariableExpression8(AVariableExpression8 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAParenthesesExpression8(AParenthesesExpression8 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAIntValue(AIntValue node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseACharValue(ACharValue node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseASizeofBasicTypeValue(ASizeofBasicTypeValue node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseASizeofFunctionTypeValue(ASizeofFunctionTypeValue node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAEqualsAssignmentOp(AEqualsAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALogicalAndAssignmentOp(ALogicalAndAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALogicalOrAssignmentOp(ALogicalOrAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALogicalXorAssignmentOp(ALogicalXorAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPlusAssignmentOp(APlusAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAAndAssignmentOp(AAndAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAOrAssignmentOp(AOrAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAXorAssignmentOp(AXorAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAMinusAssignmentOp(AMinusAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAArithmeticLeftShiftAssignmentOp(AArithmeticLeftShiftAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAArithmeticRightShiftAssignmentOp(AArithmeticRightShiftAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALogicalRightShiftAssignmentOp(ALogicalRightShiftAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseACircularLeftShiftAssignmentOp(ACircularLeftShiftAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseACircularRightShiftAssignmentOp(ACircularRightShiftAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAMultiplyAssignmentOp(AMultiplyAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseADivideAssignmentOp(ADivideAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseARemainderAssignmentOp(ARemainderAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALogicalAndLogicalBinaryOp(ALogicalAndLogicalBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALogicalOrLogicalBinaryOp(ALogicalOrLogicalBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALogicalXorLogicalBinaryOp(ALogicalXorLogicalBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAEqualToEqualityBinaryOp(AEqualToEqualityBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseANotEqualToEqualityBinaryOp(ANotEqualToEqualityBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALessThanComparativeBinaryOp(ALessThanComparativeBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALessOrEqualComparativeBinaryOp(ALessOrEqualComparativeBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAMoreThanComparativeBinaryOp(AMoreThanComparativeBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAMoreOrEqualComparativeBinaryOp(AMoreOrEqualComparativeBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPlusAdditiveBinaryOp(APlusAdditiveBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAAndAdditiveBinaryOp(AAndAdditiveBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAOrAdditiveBinaryOp(AOrAdditiveBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAXorAdditiveBinaryOp(AXorAdditiveBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAMinusAdditiveBinaryOp(AMinusAdditiveBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAArithmeticLeftShiftShiftBinaryOp(AArithmeticLeftShiftShiftBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAArithmeticRightShiftShiftBinaryOp(AArithmeticRightShiftShiftBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALogicalRightShiftShiftBinaryOp(ALogicalRightShiftShiftBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseACircularLeftShiftShiftBinaryOp(ACircularLeftShiftShiftBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseACircularRightShiftShiftBinaryOp(ACircularRightShiftShiftBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAMultiplyMultiplicativeBinaryOp(AMultiplyMultiplicativeBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseADivideMultiplicativeBinaryOp(ADivideMultiplicativeBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseARemainderMultiplicativeBinaryOp(ARemainderMultiplicativeBinaryOp node)
     {
         defaultCase(node);
     }
@@ -453,157 +903,49 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAPlusBinaryOp(APlusBinaryOp node)
+    public void caseTHash(THash node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAAndBinaryOp(AAndBinaryOp node)
+    public void caseTEnd(TEnd node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAOrBinaryOp(AOrBinaryOp node)
+    public void caseTModifier(TModifier node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAXorBinaryOp(AXorBinaryOp node)
+    public void caseTFun(TFun node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAMinusBinaryOp(AMinusBinaryOp node)
+    public void caseTVar(TVar node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseALeftShiftPrioritizedBinaryOp(ALeftShiftPrioritizedBinaryOp node)
+    public void caseTArrow(TArrow node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseARightShiftPrioritizedBinaryOp(ARightShiftPrioritizedBinaryOp node)
+    public void caseTConditionalStartSectionKeyword(TConditionalStartSectionKeyword node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAMultiplyPrioritizedBinaryOp(AMultiplyPrioritizedBinaryOp node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAEqualToPrioritizedBinaryOp(AEqualToPrioritizedBinaryOp node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseADividePrioritizedBinaryOp(ADividePrioritizedBinaryOp node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseARemainderPrioritizedBinaryOp(ARemainderPrioritizedBinaryOp node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseANotEqualToPrioritizedBinaryOp(ANotEqualToPrioritizedBinaryOp node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseALessThanPrioritizedBinaryOp(ALessThanPrioritizedBinaryOp node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseALessOrEqualPrioritizedBinaryOp(ALessOrEqualPrioritizedBinaryOp node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAMoreThanPrioritizedBinaryOp(AMoreThanPrioritizedBinaryOp node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAMoreOrEqualPrioritizedBinaryOp(AMoreOrEqualPrioritizedBinaryOp node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTSetupPrefix(TSetupPrefix node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTSetArgc(TSetArgc node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTConst(TConst node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTInt(TInt node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTVoid(TVoid node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTIn(TIn node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTOut(TOut node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTArgc(TArgc node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTArgv(TArgv node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTReturn(TReturn node)
+    public void caseTConditionalMiddleSectionKeyword(TConditionalMiddleSectionKeyword node)
     {
         defaultCase(node);
     }
@@ -621,7 +963,31 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTRepeat(TRepeat node)
+    public void caseTConditionalIterativeSectionKeyword(TConditionalIterativeSectionKeyword node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTDo(TDo node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTGoto(TGoto node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTExit(TExit node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTReturn(TReturn node)
     {
         defaultCase(node);
     }
@@ -639,25 +1005,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTConditionalStartBlockKeyword(TConditionalStartBlockKeyword node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTConditionalMiddleBlockKeyword(TConditionalMiddleBlockKeyword node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTConditionalIterativeBlockKeyword(TConditionalIterativeBlockKeyword node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTEquals(TEquals node)
+    public void caseTSizeof(TSizeof node)
     {
         defaultCase(node);
     }
@@ -670,6 +1018,18 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTRPar(TRPar node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTLBracket(TLBracket node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTRBracket(TRBracket node)
     {
         defaultCase(node);
     }
@@ -693,97 +1053,133 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseTColon(TColon node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseTSemicolon(TSemicolon node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTAddressOf(TAddressOf node)
+    public void caseTEquals(TEquals node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTDereference(TDereference node)
+    public void caseTLogicalAndEquals(TLogicalAndEquals node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTPlus(TPlus node)
+    public void caseTLogicalOrEquals(TLogicalOrEquals node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTMinus(TMinus node)
+    public void caseTLogicalXorEquals(TLogicalXorEquals node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTComplement(TComplement node)
+    public void caseTPlusEquals(TPlusEquals node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTToBool(TToBool node)
+    public void caseTAndEquals(TAndEquals node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTNot(TNot node)
+    public void caseTOrEquals(TOrEquals node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTAnd(TAnd node)
+    public void caseTXorEquals(TXorEquals node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTOr(TOr node)
+    public void caseTMinusEquals(TMinusEquals node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTXor(TXor node)
+    public void caseTArithmeticLeftShiftEquals(TArithmeticLeftShiftEquals node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTLeftShift(TLeftShift node)
+    public void caseTArithmeticRightShiftEquals(TArithmeticRightShiftEquals node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTRightShift(TRightShift node)
+    public void caseTLogicalRightShiftEquals(TLogicalRightShiftEquals node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTMultiply(TMultiply node)
+    public void caseTCircularLeftShiftEquals(TCircularLeftShiftEquals node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTDivide(TDivide node)
+    public void caseTCircularRightShiftEquals(TCircularRightShiftEquals node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTRemainder(TRemainder node)
+    public void caseTMultiplyEquals(TMultiplyEquals node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTDivideEquals(TDivideEquals node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTRemainderEquals(TRemainderEquals node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTLogicalAnd(TLogicalAnd node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTLogicalOr(TLogicalOr node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTLogicalXor(TLogicalXor node)
     {
         defaultCase(node);
     }
@@ -825,25 +1221,127 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseTPlus(TPlus node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTAnd(TAnd node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTOr(TOr node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTXor(TXor node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTMinus(TMinus node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTArithmeticLeftShift(TArithmeticLeftShift node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTArithmeticRightShift(TArithmeticRightShift node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTLogicalRightShift(TLogicalRightShift node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTCircularLeftShift(TCircularLeftShift node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTCircularRightShift(TCircularRightShift node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTMultiply(TMultiply node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTDivide(TDivide node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTRemainder(TRemainder node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTComplement(TComplement node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTToBool(TToBool node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTNot(TNot node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseTName(TName node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseTInteger(TInteger node)
+    public void caseTIntValue(TIntValue node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTCharValue(TCharValue node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTEol(TEol node)
     {
         defaultCase(node);
     }
 
     @Override
     public void caseTBlank(TBlank node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTComment(TComment node)
     {
         defaultCase(node);
     }

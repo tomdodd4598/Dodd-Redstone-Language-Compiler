@@ -2,7 +2,7 @@ package drlc.generate.drc1;
 
 import java.util.*;
 
-import drlc.Helper;
+import drlc.Helpers;
 
 public class RedstoneOpcodes {
 	
@@ -132,7 +132,7 @@ public class RedstoneOpcodes {
 	}
 	
 	private static void put(String mnemonic, int opcode) {
-		MAP.put(mnemonic, Helper.toBinary(opcode, 8));
+		MAP.put(mnemonic, Helpers.toBinary(opcode, 8));
 	}
 	
 	public static String get(String mnemonic) {

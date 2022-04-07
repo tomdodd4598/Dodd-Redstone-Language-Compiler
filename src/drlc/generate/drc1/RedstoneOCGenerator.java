@@ -8,23 +8,21 @@ import drlc.interpret.Program;
 
 public class RedstoneOCGenerator extends RedstoneGenerator {
 	
-	public RedstoneOCGenerator(Boolean intermediateOptimization, Boolean machineOptimization, String outputFile) {
-		super(intermediateOptimization, machineOptimization, outputFile);
+	public RedstoneOCGenerator(String outputFile) {
+		super(outputFile);
 	}
 	
 	@Override
 	public void generate(Program program, StringBuilder builder) {
-		if (intermediateOptimization) {
-			optimizeIntermediate(program);
-		}
+		optimizeIntermediate(program);
 		program.finalizeRoutines();
 		
 		RedstoneCode code = generateCode(program);
 		
-		for (RedstoneRoutine routine : code.routineMap.values()) {
+		for (RedstoneRoutine routine : code.getRoutineMap().values()) {
 			for (List<Instruction> section : routine.textSectionMap.values()) {
 				for (Instruction instruction : section) {
-					builder.append(" ").append(Integer.parseUnsignedInt(instruction.binaryString(), 2));
+					builder.append(' ').append(Integer.parseUnsignedInt(instruction.binaryString(), 2));
 				}
 			}
 		}

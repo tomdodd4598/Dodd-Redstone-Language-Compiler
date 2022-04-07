@@ -33,11 +33,11 @@ public class InstructionLoadStackPointer extends Instruction {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.LDSP).concat(Helper.toBinary(value, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.LDSP).concat(Helpers.toBinary(value, 8));
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.LDSP.concat("\t").concat(Global.IMMEDIATE).concat(Helper.toHex(value));
+		return RedstoneMnemonics.LDSP.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
 	}
 }

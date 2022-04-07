@@ -1,42 +1,27 @@
 package drlc.generate.drc1.instruction.subroutine;
 
-import drlc.Helper;
+import drlc.Helpers;
 import drlc.generate.drc1.*;
-import drlc.generate.drc1.instruction.*;
+import drlc.generate.drc1.instruction.Instruction;
 
 public class InstructionCallSubroutine extends Instruction {
 	
-	public final String subroutine;
-	public Short returnAddress, callAddress;
+	public final boolean indirectCall;
+	public Short returnAddress;
 	
-	public InstructionCallSubroutine(String subroutine) {
+	public InstructionCallSubroutine(boolean indirectCall) {
 		super();
-		this.subroutine = subroutine;
+		this.indirectCall = indirectCall;
 	}
 	
 	@Override
 	public boolean isCurrentRegisterValueModified() {
-		return false;
-	}
-	
-	@Override
-	public boolean isCurrentRegisterValueUsed() {
-		return false;
-	}
-	
-	@Override
-	public boolean precedesData() {
 		return true;
 	}
 	
 	@Override
-	public InstructionConstant succeedingData() {
-		if (callAddress == null) {
-			return new InstructionConstant();
-		}
-		else {
-			return new InstructionConstant(callAddress);
-		}
+	public boolean isCurrentRegisterValueUsed() {
+		return true;
 	}
 	
 	@Override
@@ -46,11 +31,11 @@ public class InstructionCallSubroutine extends Instruction {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.CALL).concat(Helper.toBinary(returnAddress, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.CALL).concat(Helpers.toBinary(returnAddress, 8));
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.CALL.concat("\t").concat(Helper.toHex(callAddress, 2));
+		return RedstoneMnemonics.CALL;
 	}
 }

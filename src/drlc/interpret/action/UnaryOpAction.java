@@ -1,20 +1,21 @@
 package drlc.interpret.action;
 
-import java.util.*;
+import java.util.Map;
 
-import drlc.Helper;
+import drlc.Helpers;
+import drlc.interpret.component.*;
 import drlc.node.Node;
 
 public class UnaryOpAction extends Action implements IValueAction {
 	
-	public final String target, arg;
+	public final DataId target, arg;
 	public final UnaryOpType opType;
 	
-	public UnaryOpAction(Node node, String target, UnaryOpType opType, String arg) {
+	public UnaryOpAction(Node node, DataId target, UnaryOpType opType, DataId arg) {
 		this(node, target, opType.toString(), arg);
 	}
 	
-	public UnaryOpAction(Node node, String target, String operation, String arg) {
+	public UnaryOpAction(Node node, DataId target, String operation, DataId arg) {
 		super(node);
 		if (target == null) {
 			throw new IllegalArgumentException(String.format("Unary op action target was null! %s", node));
@@ -26,11 +27,11 @@ public class UnaryOpAction extends Action implements IValueAction {
 		if (operation == null) {
 			throw new IllegalArgumentException(String.format("Unary op action operation type was null! %s", node));
 		}
-		else if (!OP_TYPE_MAP.containsKey(operation)) {
+		else if (!UnaryOpType.NAME_MAP.containsKey(operation)) {
 			throw new IllegalArgumentException(String.format("Unary op action operation type was not recognized! %s", node));
 		}
 		else {
-			opType = OP_TYPE_MAP.get(operation);
+			opType = UnaryOpType.NAME_MAP.get(operation);
 		}
 		
 		if (arg == null) {
@@ -42,13 +43,13 @@ public class UnaryOpAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public String[] lValues() {
-		return new String[] {target};
+	public DataId[] lvalues() {
+		return new DataId[] {target};
 	}
 	
 	@Override
-	public String[] rValues() {
-		return new String[] {arg};
+	public DataId[] rvalues() {
+		return new DataId[] {arg};
 	}
 	
 	@Override
@@ -57,57 +58,57 @@ public class UnaryOpAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public boolean canReplaceRValue() {
+	public boolean canReplaceRvalue() {
 		return true;
 	}
 	
 	@Override
-	public String getRValueReplacer() {
+	public DataId getRvalueReplacer() {
 		return null;
 	}
 	
 	@Override
-	public Action replaceRValue(String replaceTarget, String rValueReplacer) {
-		return new UnaryOpAction(null, target, opType, rValueReplacer);
+	public Action replaceRvalue(DataId replaceTarget, DataId rvalueReplacer) {
+		return new UnaryOpAction(null, target, opType, rvalueReplacer);
 	}
 	
 	@Override
-	public boolean canReplaceLValue() {
+	public boolean canReplaceLvalue() {
 		return true;
 	}
 	
 	@Override
-	public String getLValueReplacer() {
+	public DataId getLvalueReplacer() {
 		return null;
 	}
 	
 	@Override
-	public Action replaceLValue(String replaceTarget, String lValueReplacer) {
-		return new UnaryOpAction(null, lValueReplacer, opType, arg);
+	public Action replaceLvalue(DataId replaceTarget, DataId lvalueReplacer) {
+		return new UnaryOpAction(null, lvalueReplacer, opType, arg);
 	}
 	
 	@Override
-	public boolean canReorderRValues() {
+	public boolean canReorderRvalues() {
 		return false;
 	}
 	
 	@Override
-	public Action swapRValues(int i, int j) {
+	public Action swapRvalues(int i, int j) {
 		return null;
 	}
 	
 	@Override
-	public Action replaceRegIds(Map<String, String> regIdMap) {
-		String target = this.target, arg = this.arg;
-		if (Helper.isRegId(target) && regIdMap.containsKey(target)) {
+	public Action replaceRegIds(Map<DataId, DataId> regIdMap) {
+		DataId target = this.target.removeAllDereferences(), arg = this.arg.removeAllDereferences();
+		if (Helpers.isRegId(target.raw) && regIdMap.containsKey(target)) {
 			target = regIdMap.get(target);
 		}
-		if (Helper.isRegId(arg) && regIdMap.containsKey(arg)) {
+		if (Helpers.isRegId(arg.raw) && regIdMap.containsKey(arg)) {
 			arg = regIdMap.get(arg);
 		}
 		
-		if (!target.equals(this.target) || !arg.equals(this.arg)) {
-			return new UnaryOpAction(null, target, opType, arg);
+		if (!target.equalsOther(this.target, true) || !arg.equalsOther(this.arg, true)) {
+			return new UnaryOpAction(null, target.addDereferences(this.target.dereferenceLevel), opType, arg.addDereferences(this.arg.dereferenceLevel));
 		}
 		else {
 			return null;
@@ -116,38 +117,6 @@ public class UnaryOpAction extends Action implements IValueAction {
 	
 	@Override
 	public String toString() {
-		return target.concat(" = ").concat(opType.toString()).concat(arg);
-	}
-	
-	// Operation Types
-	
-	static final Map<String, UnaryOpType> OP_TYPE_MAP = new HashMap<>();
-	
-	static {
-		OP_TYPE_MAP.put("+", UnaryOpType.PLUS);
-		OP_TYPE_MAP.put("-", UnaryOpType.MINUS);
-		OP_TYPE_MAP.put("~", UnaryOpType.COMPLEMENT);
-		OP_TYPE_MAP.put("?", UnaryOpType.TO_BOOL);
-		OP_TYPE_MAP.put("!", UnaryOpType.NOT);
-	}
-	
-	public static enum UnaryOpType {
-		
-		PLUS("+"),
-		MINUS("-"),
-		COMPLEMENT("~"),
-		TO_BOOL("?"),
-		NOT("!");
-		
-		private final String string;
-		
-		private UnaryOpType(String string) {
-			this.string = string;
-		}
-		
-		@Override
-		public String toString() {
-			return string;
-		}
+		return target.raw.concat(" = ").concat(opType.toString()).concat(arg.raw);
 	}
 }

@@ -6,19 +6,24 @@ public enum RoutineType {
 	
 	LEAF(Global.LEAF),
 	NESTING(Global.NESTING),
-	RECURSIVE(Global.RECURSIVE);
+	STACK(Global.STACK);
 	
-	public final String str;
+	private final String str;
 	
 	private RoutineType(String str) {
 		this.str = str;
 	}
 	
 	public RoutineType onNesting() {
-		return this == RECURSIVE ? RECURSIVE : NESTING;
+		return this == STACK ? STACK : NESTING;
 	}
 	
 	public RoutineType onRecursion() {
-		return RECURSIVE;
+		return STACK;
+	}
+	
+	@Override
+	public String toString() {
+		return str;
 	}
 }

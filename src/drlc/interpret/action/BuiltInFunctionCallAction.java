@@ -1,26 +1,27 @@
 package drlc.interpret.action;
 
-import drlc.Global;
+import java.util.Arrays;
+
+import drlc.*;
+import drlc.interpret.component.DataId;
 import drlc.node.Node;
 
 public class BuiltInFunctionCallAction extends FunctionCallAction {
 	
-	public BuiltInFunctionCallAction(Node node, String target, String name, String... args) {
+	public BuiltInFunctionCallAction(Node node, DataId target, DataId name, DataId[] args) {
 		super(node, target, name, args);
 	}
 	
 	@Override
-	protected FunctionCallAction copy(Node node, String target, String name, String... args) {
-		return new BuiltInFunctionCallAction(node, target, name, args);
+	protected FunctionCallAction copy(Node node, DataId target, DataId[] rvalues) {
+		return new BuiltInFunctionCallAction(node, target, rvalues[0], Arrays.copyOfRange(rvalues, 1, rvalues.length));
 	}
 	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(target).append(" = ").append(Global.HARDWARE).append(" ").append(Global.FUN).append(" ").append(name);
-		for (String arg : args) {
-			builder.append(" ").append(arg);
-		}
+		builder.append(target).append(" = ").append(Global.CALL).append(' ').append(Global.BUILT_IN).append(' ').append(getCallId().raw);
+		Helpers.appendArgs(builder, getArgs());
 		return builder.toString();
 	}
 }

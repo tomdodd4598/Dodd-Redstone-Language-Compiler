@@ -1,0 +1,24 @@
+#setargc 2
+
+var f: Int = argv(0)
+var i: Int = 0
+
+fun fib(Int) -> Int
+var fib_func: fun(Int) -> Int = fib
+
+fun fib(n: Int) -> Int {
+	if n <= 1 {
+		return argv(n)
+	}
+	return fib(n - 1) + fib(n - 2)
+}
+
+fun update() {
+	i += 1
+	f = fib_func(i)
+}
+
+while f > 0 {
+	outint(f)
+	update()
+}

@@ -1,13 +1,13 @@
 package drlc.generate.drc1.instruction.address.offset;
 
-import drlc.Helper;
+import drlc.Helpers;
 import drlc.generate.drc1.*;
 import drlc.generate.drc1.instruction.Instruction;
 import drlc.generate.drc1.instruction.address.IInstructionLoadAddress;
 
 public class InstructionLoadAOffset extends InstructionAddressOffset implements IInstructionLoadAddress {
 	
-	public InstructionLoadAOffset(DataInfo info) {
+	public InstructionLoadAOffset(RedstoneDataInfo info) {
 		super(info);
 	}
 	
@@ -22,32 +22,32 @@ public class InstructionLoadAOffset extends InstructionAddressOffset implements 
 	}
 	
 	@Override
-	public DataInfo getLoadedData() {
+	public RedstoneDataInfo getLoadedData() {
 		return info;
 	}
 	
 	@Override
-	public Instruction getDataReplacement(RedstoneRoutine routine) {
-		return new InstructionLoadAOffset(routine.dataInfo(info.argName));
+	public Instruction getDataReplacement(RedstoneCode code) {
+		return new InstructionLoadAOffset(getDataInfoReplacement(code));
 	}
 	
 	@Override
 	public String binaryString() {
 		if (offset < 0) {
-			return RedstoneOpcodes.get(RedstoneMnemonics.LDANB).concat(Helper.toBinary(-offset, 8));
+			return RedstoneOpcodes.get(RedstoneMnemonics.LDANB).concat(Helpers.toBinary(-offset, 8));
 		}
 		else {
-			return RedstoneOpcodes.get(RedstoneMnemonics.LDAPB).concat(Helper.toBinary(offset, 8));
+			return RedstoneOpcodes.get(RedstoneMnemonics.LDAPB).concat(Helpers.toBinary(offset, 8));
 		}
 	}
 	
 	@Override
 	public String toString() {
 		if (offset < 0) {
-			return RedstoneMnemonics.LDANB.concat("\t").concat(Helper.toHex(-offset, 2));
+			return RedstoneMnemonics.LDANB.concat("\t").concat(Helpers.toHex(-offset, 2));
 		}
 		else {
-			return RedstoneMnemonics.LDAPB.concat("\t").concat(Helper.toHex(offset, 2));
+			return RedstoneMnemonics.LDAPB.concat("\t").concat(Helpers.toHex(offset, 2));
 		}
 	}
 }

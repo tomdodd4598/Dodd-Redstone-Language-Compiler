@@ -3,30 +3,39 @@ package drlc.interpret.action;
 import java.util.Map;
 
 import drlc.*;
+import drlc.interpret.component.DataId;
+import drlc.interpret.component.info.type.TypeInfo;
 import drlc.node.Node;
 
 public class DeclarationAction extends Action implements IValueAction {
 	
-	public final String target;
+	public final DataId target;
+	public final TypeInfo targetTypeInfo;
 	
-	public DeclarationAction(Node node, String target) {
+	public DeclarationAction(Node node, DataId target, TypeInfo targetTypeInfo) {
 		super(node);
 		if (target == null) {
-			throw new IllegalArgumentException(String.format("Initialisation action target was null! %s", node));
+			throw new IllegalArgumentException(String.format("Declaration action target was null! %s", node));
 		}
 		else {
 			this.target = target;
 		}
+		if (targetTypeInfo == null) {
+			throw new IllegalArgumentException(String.format("Declaration action target type info was null! %s", node));
+		}
+		else {
+			this.targetTypeInfo = targetTypeInfo;
+		}
 	}
 	
 	@Override
-	public String[] lValues() {
-		return new String[] {target};
+	public DataId[] lvalues() {
+		return new DataId[] {target};
 	}
 	
 	@Override
-	public String[] rValues() {
-		return new String[] {};
+	public DataId[] rvalues() {
+		return new DataId[] {};
 	}
 	
 	@Override
@@ -35,54 +44,54 @@ public class DeclarationAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public boolean canReplaceRValue() {
+	public boolean canReplaceRvalue() {
 		return false;
 	}
 	
 	@Override
-	public String getRValueReplacer() {
+	public DataId getRvalueReplacer() {
 		return null;
 	}
 	
 	@Override
-	public Action replaceRValue(String replaceTarget, String rValueReplacer) {
+	public Action replaceRvalue(DataId replaceTarget, DataId rvalueReplacer) {
 		return null;
 	}
 	
 	@Override
-	public boolean canReplaceLValue() {
-		return false;
+	public boolean canReplaceLvalue() {
+		return true;
 	}
 	
 	@Override
-	public String getLValueReplacer() {
+	public DataId getLvalueReplacer() {
 		return target;
 	}
 	
 	@Override
-	public Action replaceLValue(String replaceTarget, String lValueReplacer) {
+	public Action replaceLvalue(DataId replaceTarget, DataId lvalueReplacer) {
 		return null;
 	}
 	
 	@Override
-	public boolean canReorderRValues() {
+	public boolean canReorderRvalues() {
 		return false;
 	}
 	
 	@Override
-	public Action swapRValues(int i, int j) {
+	public Action swapRvalues(int i, int j) {
 		return null;
 	}
 	
 	@Override
-	public Action replaceRegIds(Map<String, String> regIdMap) {
-		String target = this.target;
-		if (Helper.isRegId(target) && regIdMap.containsKey(target)) {
+	public Action replaceRegIds(Map<DataId, DataId> regIdMap) {
+		DataId target = this.target.removeAllDereferences();
+		if (Helpers.isRegId(target.raw) && regIdMap.containsKey(target)) {
 			target = regIdMap.get(target);
 		}
 		
-		if (!target.equals(this.target)) {
-			return new DeclarationAction(null, target);
+		if (!target.equalsOther(this.target, true)) {
+			return new DeclarationAction(null, target.addDereferences(this.target.dereferenceLevel), targetTypeInfo);
 		}
 		else {
 			return null;
@@ -91,6 +100,6 @@ public class DeclarationAction extends Action implements IValueAction {
 	
 	@Override
 	public String toString() {
-		return Global.INT.concat(" ").concat(target);
+		return Global.VAR.concat(" ").concat(target.raw).concat(" ").concat(targetTypeInfo.toString());
 	}
 }

@@ -2,29 +2,31 @@ package drlc.interpret.action;
 
 import java.util.Map;
 
+import drlc.interpret.component.DataId;
+
 public interface IValueAction {
 	
-	public String[] lValues();
+	public DataId[] lvalues();
 	
-	public String[] rValues();
+	public DataId[] rvalues();
 	
 	public boolean canRemove();
 	
-	public boolean canReplaceRValue();
+	public boolean canReplaceRvalue();
 	
-	public String getRValueReplacer();
+	public DataId getRvalueReplacer();
 	
-	public Action replaceRValue(String replaceTarget, String rValueReplacer);
+	public Action replaceRvalue(DataId replaceTarget, DataId rvalueReplacer);
 	
-	public boolean canReplaceLValue();
+	public boolean canReplaceLvalue();
 	
-	public String getLValueReplacer();
+	public DataId getLvalueReplacer();
 	
-	public Action replaceLValue(String replaceTarget, String lValueReplacer);
+	public Action replaceLvalue(DataId replaceTarget, DataId lvalueReplacer);
 	
-	public boolean canReorderRValues();
+	public boolean canReorderRvalues();
 	
-	public Action swapRValues(int i, int j);
+	public Action swapRvalues(int i, int j);
 	
-	public Action replaceRegIds(Map<String, String> regIdMap);
+	public Action replaceRegIds(Map<DataId, DataId> regIdMap);
 }
