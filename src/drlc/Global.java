@@ -2,35 +2,29 @@ package drlc;
 
 import java.util.*;
 
-import drlc.interpret.action.*;
-import drlc.interpret.component.*;
-import drlc.interpret.component.info.FunctionModifierInfo;
-import drlc.interpret.component.info.type.*;
+import drlc.intermediate.action.*;
+import drlc.intermediate.component.DataId;
 
 public final class Global {
 	
 	public static final Set<String> DIRECTIVES = new HashSet<>();
-	public static final Map<String, Function> BUILT_IN_FUNCTIONS = new HashMap<>();
-	
-	public static final char DIRECTIVE_PREFIX = '#';
-	
-	public static final String DEF = "def";
-	public static final String ENDDEF = "enddef";
 	
 	public static final String SETARGC = "setargc";
 	
-	public static final String VOID = "Void";
-	public static final String INT = "Int";
+	static {
+		DIRECTIVES.add(SETARGC);
+	}
 	
-	public static final String FUN = "fun";
+	public static final String VOID = "Void";
+	public static final String BOOL = "Bool";
+	public static final String INT = "Int";
+	public static final String NAT = "Nat";
+	public static final String CHAR = "Char";
+	
+	public static final String FN = "fn";
 	public static final String VAR = "var";
 	
-	public static final Type VOID_TYPE = new Type(VOID, 0);
-	public static final Type INT_TYPE = new Type(INT, 1);
-	public static Type fun_type;
-	
-	public static final TypeInfo VOID_TYPE_INFO = new BasicTypeInfo(null, VOID_TYPE, 0);
-	public static final TypeInfo INT_TYPE_INFO = new BasicTypeInfo(null, INT_TYPE, 0);
+	public static final String TYPE_ANNOTATION_PREFIX = ":";
 	
 	public static final String ARGC = "argc";
 	
@@ -39,20 +33,6 @@ public final class Global {
 	public static final String OUTCHAR = "outchar";
 	public static final String OUTINT = "outint";
 	public static final String ARGV = "argv";
-	
-	public static final String SIZEOF = "sizeof";
-	
-	static {
-		DIRECTIVES.add(SETARGC);
-		
-		BUILT_IN_FUNCTIONS.put(INCHAR, new Function(null, INCHAR, true, new FunctionModifierInfo(false, false), INT_TYPE_INFO, Helpers.params(), true));
-		BUILT_IN_FUNCTIONS.put(ININT, new Function(null, ININT, true, new FunctionModifierInfo(false, false), INT_TYPE_INFO, Helpers.params(), true));
-		BUILT_IN_FUNCTIONS.put(OUTCHAR, new Function(null, OUTCHAR, true, new FunctionModifierInfo(false, false), VOID_TYPE_INFO, Helpers.params(Helpers.builtInParam("c", INT_TYPE_INFO)), true));
-		BUILT_IN_FUNCTIONS.put(OUTINT, new Function(null, OUTINT, true, new FunctionModifierInfo(false, false), VOID_TYPE_INFO, Helpers.params(Helpers.builtInParam("x", INT_TYPE_INFO)), true));
-		BUILT_IN_FUNCTIONS.put(ARGV, new Function(null, ARGV, true, new FunctionModifierInfo(false, false), INT_TYPE_INFO, Helpers.params(Helpers.builtInParam("index", INT_TYPE_INFO)), true));
-	}
-	
-	public static final int ROOT_SCOPE_ID = 0;
 	
 	public static final String ROOT_ROUTINE = "\\root";
 	
@@ -69,14 +49,11 @@ public final class Global {
 	public static final String IMMEDIATE = "$";
 	public static final String DISCARD = "_";
 	
-	public static final String INIT = "init";
-	public static final String STACK = "stack";
 	public static final String STATIC = "static";
 	
 	public static final String EQUALS = "=";
 	
 	public static final String IF = "if";
-	public static final String ELIF = "elif";
 	public static final String WHILE = "while";
 	
 	public static final char DEREFERENCE = '*';
@@ -93,6 +70,7 @@ public final class Global {
 	
 	public static final String LEAF = "leaf";
 	public static final String NESTING = "nesting";
+	public static final String STACK = "stack";
 	
 	public static final String BUILT_IN_PARAM_PREFIX = "\\";
 	public static final String DISCARD_PARAM_PREFIX = "\\_";

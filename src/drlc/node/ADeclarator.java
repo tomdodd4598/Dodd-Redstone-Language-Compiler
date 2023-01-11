@@ -2,16 +2,13 @@
 
 package drlc.node;
 
-import java.util.*;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
 public final class ADeclarator extends PDeclarator
 {
-    private final LinkedList<TMultiply> _multiply_ = new LinkedList<TMultiply>();
-    private TName _name_;
-    private TColon _colon_;
-    private PType _type_;
+    private PIdentifier _identifier_;
+    private PTypeAnnotation _typeAnnotation_;
 
     public ADeclarator()
     {
@@ -19,19 +16,13 @@ public final class ADeclarator extends PDeclarator
     }
 
     public ADeclarator(
-        @SuppressWarnings("hiding") List<?> _multiply_,
-        @SuppressWarnings("hiding") TName _name_,
-        @SuppressWarnings("hiding") TColon _colon_,
-        @SuppressWarnings("hiding") PType _type_)
+        @SuppressWarnings("hiding") PIdentifier _identifier_,
+        @SuppressWarnings("hiding") PTypeAnnotation _typeAnnotation_)
     {
         // Constructor
-        setMultiply(_multiply_);
+        setIdentifier(_identifier_);
 
-        setName(_name_);
-
-        setColon(_colon_);
-
-        setType(_type_);
+        setTypeAnnotation(_typeAnnotation_);
 
     }
 
@@ -39,10 +30,8 @@ public final class ADeclarator extends PDeclarator
     public Object clone()
     {
         return new ADeclarator(
-            cloneList(this._multiply_),
-            cloneNode(this._name_),
-            cloneNode(this._colon_),
-            cloneNode(this._type_));
+            cloneNode(this._identifier_),
+            cloneNode(this._typeAnnotation_));
     }
 
     @Override
@@ -51,42 +40,16 @@ public final class ADeclarator extends PDeclarator
         ((Analysis) sw).caseADeclarator(this);
     }
 
-    public LinkedList<TMultiply> getMultiply()
+    public PIdentifier getIdentifier()
     {
-        return this._multiply_;
+        return this._identifier_;
     }
 
-    public void setMultiply(List<?> list)
+    public void setIdentifier(PIdentifier node)
     {
-        for(TMultiply e : this._multiply_)
+        if(this._identifier_ != null)
         {
-            e.parent(null);
-        }
-        this._multiply_.clear();
-
-        for(Object obj_e : list)
-        {
-            TMultiply e = (TMultiply) obj_e;
-            if(e.parent() != null)
-            {
-                e.parent().removeChild(e);
-            }
-
-            e.parent(this);
-            this._multiply_.add(e);
-        }
-    }
-
-    public TName getName()
-    {
-        return this._name_;
-    }
-
-    public void setName(TName node)
-    {
-        if(this._name_ != null)
-        {
-            this._name_.parent(null);
+            this._identifier_.parent(null);
         }
 
         if(node != null)
@@ -99,19 +62,19 @@ public final class ADeclarator extends PDeclarator
             node.parent(this);
         }
 
-        this._name_ = node;
+        this._identifier_ = node;
     }
 
-    public TColon getColon()
+    public PTypeAnnotation getTypeAnnotation()
     {
-        return this._colon_;
+        return this._typeAnnotation_;
     }
 
-    public void setColon(TColon node)
+    public void setTypeAnnotation(PTypeAnnotation node)
     {
-        if(this._colon_ != null)
+        if(this._typeAnnotation_ != null)
         {
-            this._colon_.parent(null);
+            this._typeAnnotation_.parent(null);
         }
 
         if(node != null)
@@ -124,68 +87,30 @@ public final class ADeclarator extends PDeclarator
             node.parent(this);
         }
 
-        this._colon_ = node;
-    }
-
-    public PType getType()
-    {
-        return this._type_;
-    }
-
-    public void setType(PType node)
-    {
-        if(this._type_ != null)
-        {
-            this._type_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._type_ = node;
+        this._typeAnnotation_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._multiply_)
-            + toString(this._name_)
-            + toString(this._colon_)
-            + toString(this._type_);
+            + toString(this._identifier_)
+            + toString(this._typeAnnotation_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._multiply_.remove(child))
+        if(this._identifier_ == child)
         {
+            this._identifier_ = null;
             return;
         }
 
-        if(this._name_ == child)
+        if(this._typeAnnotation_ == child)
         {
-            this._name_ = null;
-            return;
-        }
-
-        if(this._colon_ == child)
-        {
-            this._colon_ = null;
-            return;
-        }
-
-        if(this._type_ == child)
-        {
-            this._type_ = null;
+            this._typeAnnotation_ = null;
             return;
         }
 
@@ -196,39 +121,15 @@ public final class ADeclarator extends PDeclarator
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        for(ListIterator<TMultiply> i = this._multiply_.listIterator(); i.hasNext();)
+        if(this._identifier_ == oldChild)
         {
-            if(i.next() == oldChild)
-            {
-                if(newChild != null)
-                {
-                    i.set((TMultiply) newChild);
-                    newChild.parent(this);
-                    oldChild.parent(null);
-                    return;
-                }
-
-                i.remove();
-                oldChild.parent(null);
-                return;
-            }
-        }
-
-        if(this._name_ == oldChild)
-        {
-            setName((TName) newChild);
+            setIdentifier((PIdentifier) newChild);
             return;
         }
 
-        if(this._colon_ == oldChild)
+        if(this._typeAnnotation_ == oldChild)
         {
-            setColon((TColon) newChild);
-            return;
-        }
-
-        if(this._type_ == oldChild)
-        {
-            setType((PType) newChild);
+            setTypeAnnotation((PTypeAnnotation) newChild);
             return;
         }
 

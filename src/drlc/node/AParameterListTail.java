@@ -9,9 +9,8 @@ import drlc.analysis.*;
 public final class AParameterListTail extends PParameterListTail
 {
     private TComma _comma_;
-    private final LinkedList<TModifier> _modifier_ = new LinkedList<TModifier>();
+    private final LinkedList<TVariableModifier> _variableModifier_ = new LinkedList<TVariableModifier>();
     private PParameter _parameter_;
-    private PType _type_;
 
     public AParameterListTail()
     {
@@ -20,18 +19,15 @@ public final class AParameterListTail extends PParameterListTail
 
     public AParameterListTail(
         @SuppressWarnings("hiding") TComma _comma_,
-        @SuppressWarnings("hiding") List<?> _modifier_,
-        @SuppressWarnings("hiding") PParameter _parameter_,
-        @SuppressWarnings("hiding") PType _type_)
+        @SuppressWarnings("hiding") List<?> _variableModifier_,
+        @SuppressWarnings("hiding") PParameter _parameter_)
     {
         // Constructor
         setComma(_comma_);
 
-        setModifier(_modifier_);
+        setVariableModifier(_variableModifier_);
 
         setParameter(_parameter_);
-
-        setType(_type_);
 
     }
 
@@ -40,9 +36,8 @@ public final class AParameterListTail extends PParameterListTail
     {
         return new AParameterListTail(
             cloneNode(this._comma_),
-            cloneList(this._modifier_),
-            cloneNode(this._parameter_),
-            cloneNode(this._type_));
+            cloneList(this._variableModifier_),
+            cloneNode(this._parameter_));
     }
 
     @Override
@@ -76,29 +71,29 @@ public final class AParameterListTail extends PParameterListTail
         this._comma_ = node;
     }
 
-    public LinkedList<TModifier> getModifier()
+    public LinkedList<TVariableModifier> getVariableModifier()
     {
-        return this._modifier_;
+        return this._variableModifier_;
     }
 
-    public void setModifier(List<?> list)
+    public void setVariableModifier(List<?> list)
     {
-        for(TModifier e : this._modifier_)
+        for(TVariableModifier e : this._variableModifier_)
         {
             e.parent(null);
         }
-        this._modifier_.clear();
+        this._variableModifier_.clear();
 
         for(Object obj_e : list)
         {
-            TModifier e = (TModifier) obj_e;
+            TVariableModifier e = (TVariableModifier) obj_e;
             if(e.parent() != null)
             {
                 e.parent().removeChild(e);
             }
 
             e.parent(this);
-            this._modifier_.add(e);
+            this._variableModifier_.add(e);
         }
     }
 
@@ -127,39 +122,13 @@ public final class AParameterListTail extends PParameterListTail
         this._parameter_ = node;
     }
 
-    public PType getType()
-    {
-        return this._type_;
-    }
-
-    public void setType(PType node)
-    {
-        if(this._type_ != null)
-        {
-            this._type_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._type_ = node;
-    }
-
     @Override
     public String toString()
     {
         return ""
             + toString(this._comma_)
-            + toString(this._modifier_)
-            + toString(this._parameter_)
-            + toString(this._type_);
+            + toString(this._variableModifier_)
+            + toString(this._parameter_);
     }
 
     @Override
@@ -172,7 +141,7 @@ public final class AParameterListTail extends PParameterListTail
             return;
         }
 
-        if(this._modifier_.remove(child))
+        if(this._variableModifier_.remove(child))
         {
             return;
         }
@@ -180,12 +149,6 @@ public final class AParameterListTail extends PParameterListTail
         if(this._parameter_ == child)
         {
             this._parameter_ = null;
-            return;
-        }
-
-        if(this._type_ == child)
-        {
-            this._type_ = null;
             return;
         }
 
@@ -202,13 +165,13 @@ public final class AParameterListTail extends PParameterListTail
             return;
         }
 
-        for(ListIterator<TModifier> i = this._modifier_.listIterator(); i.hasNext();)
+        for(ListIterator<TVariableModifier> i = this._variableModifier_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)
             {
                 if(newChild != null)
                 {
-                    i.set((TModifier) newChild);
+                    i.set((TVariableModifier) newChild);
                     newChild.parent(this);
                     oldChild.parent(null);
                     return;
@@ -223,12 +186,6 @@ public final class AParameterListTail extends PParameterListTail
         if(this._parameter_ == oldChild)
         {
             setParameter((PParameter) newChild);
-            return;
-        }
-
-        if(this._type_ == oldChild)
-        {
-            setType((PType) newChild);
             return;
         }
 

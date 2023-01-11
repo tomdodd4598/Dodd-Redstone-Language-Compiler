@@ -1,506 +1,501 @@
 // ITERATIVE FACTORIAL
 
 /*
-var f: Int = 1
-var a: Int = 1
-var b: Int = 1
+var f: Int = 1;
+var a: Int = 1;
+var b: Int = 1;
 
-fun update() {
-	f = a * b
-	b += 1
-	a = f
+fn update() {
+	f = a * b;
+	b += 1;
+	a = f;
 }
 
 while f > 0 {
-	outint(f)
-	update()
+	outint(f);
+	update();
 }
 */
 
 // RECURSIVE FACTORIAL
 
 /*
-var f: Int = 1
-var i: Int = 1
+var f: Int = 1;
+var i: Int = 1;
 
-fun fact(n: Int) -> Int {
+fn fact(n: Int) -> Int {
 	if n <= 1 {
-		return 1
+		return 1;
 	}
-	return n * fact(n - 1)
+	return n * fact(n - 1);
 }
 
-fun update() {
-	i += 1
-	f = fact(i)
+fn update() {
+	i += 1;
+	f = fact(i);
 }
 
 while f > 0 {
-	outint(f)
-	update()
+	outint(f);
+	update();
 }
 */
 
 // ITERATIVE FIBONACCI
 
 /*
-#setargc 2
+%! setargc 2;
 
-var f: Int = argv(0)
-var a: Int = argv(1)
-var b: Int = 0
+var f: Int = argv(0);
+var a: Int = argv(1);
+var b: Int = 0;
 
-fun update() {
-	f = a + b
-	b = a
-	a = f
+fn update() {
+	f = a + b;
+	b = a;
+	a = f;
 }
 
 while f > 0 {
-	outint(f)
-	update()
+	outint(f);
+	update();
 }
 */
 
 // RECURSIVE FIBONACCI
 
 /*
-#setargc 2
+%! setargc 2;
 
-var f: Int = argv(0)
-var i: Int = 0
+var f: Int = argv(0);
+var i: Int = 0;
 
-fun fib(n: Int) -> Int {
+fn fib(n: Int) -> Int {
 	if n <= 1 {
-		return argv(n)
+		return argv(n);
 	}
-	return fib(n - 1) + fib(n - 2)
+	return fib(n - 1) + fib(n - 2);
 }
 
-fun update() {
-	i += 1
-	f = fib(i)
+fn update() {
+	i += 1;
+	f = fib(i);
 }
 
 while f > 0 {
-	outint(f)
-	update()
+	outint(f);
+	update();
 }
 */
 
 // PRIME NUMBERS
 
 /*
-#def MAX 100
-#def FAIL (MAX + 1)
+#def MAX 100 #enddef
+#def FAIL (MAX + 1) #enddef
 
-var n: Int = 1
+var n: Int = 1;
 
-fun sqrt(m: Int) -> Int {
-	var a: Int = m
-	var b: Int = 1
+fn sqrt(m: Int) -> Int {
+	var a: Int = m;
+	var b: Int = 1;
 	
 	while a > b {
-		a = (a + b) >> 1
-		b = m / a
+		a = (a + b) >> 1;
+		b = m / a;
 	}
 	
-	return a
+	return a;
 }
 
 while n < MAX {
-	n += 1
-	var i: Int = 2
+	n += 1;
+	var i: Int = 2;
 	
 	while i <= sqrt(n) {
 		if n % i {
-			i += 1
+			i += 1;
 		}
 		else {
-			i = FAIL
+			i = FAIL;
 		}
 	}
 	if i != FAIL {
-		outint(n)
+		outint(n);
 	}
 }
 */
 
+// TESTING LITERALS
+
+///*
+var x: Int = 8 * 5 / 20;
+var y: Int = 12 + 8 + 2 * x;
+var z: Int = x * y - 6 + 10 / 5;
+
+outint(z);
+//*/
+
 // TESTING PRINTING
 
 /*
-var a: Int = 72
-var b: Int = 101
-var c: Int = 108
-var d: Int = 108
-var e: Int = 111
-var f: Int = 10
+var a: Int = 72;
+var b: Int = 101;
+var c: Int = 108;
+var d: Int = 108;
+var e: Int = 111;
+var f: Int = 10;
 
-var g: Int = 'W'
-var h: Int = 'o'
-var i: Int = 'r'
-var j: Int = 'l'
-var k: Int = 'd'
-var l: Int = '!'
-var m: Int = '\n'
+var g: Int = 'W';
+var h: Int = 'o';
+var i: Int = 'r';
+var j: Int = 'l';
+var k: Int = 'd';
+var l: Int = '!';
+var m: Int = '\n';
 
-outchar(a); outchar(b); outchar(c); outchar(d); outchar(e)
-outchar(f)
-outchar(g); outchar(h); outchar(i); outchar(j); outchar(k); outchar(l)
-outchar(m)
+outchar(a); outchar(b); outchar(c); outchar(d); outchar(e);
+outchar(f);
+outchar(g); outchar(h); outchar(i); outchar(j); outchar(k); outchar(l);
+outchar(m);
 */
 
 // TESTING BRANCHES
 
 /*
-stack fun func() {
-	var a: Int = 0
-	var b: Int = 1
-	var c: Int = 2
+stack fn func() {
+	var a: Int = 0;
+	var b: Int = 1;
+	var c: Int = 2;
 	
 	if a == 0 {
-		outint(1)
+		outint(1);
 	}
-	elunless b == 0 {
-		outint(2)
+	else unless b == 0 {
+		outint(2);
 	}
 	
 	if c == 0 {
-		outint(3)
+		outint(3);
 	}
 	else {
-		outint(4)
+		outint(4);
 	}
 	
 	unless a == 1 {
-		outint(5)
+		outint(5);
 	}
-	elif b == 1 {
-		outint(6)
+	else if b == 1 {
+		outint(6);
 	}
 	else {
-		outint(7)
+		outint(7);
 	}
 	
 	loop {
 		if c == 1 {
-			outint(8)
+			outint(8);
 		}
 		else {
-			outint(9)
-			goto later
+			outint(9);
+			goto later;
 		}
 	}
 	
 	earlier:
 	while a == 2 {
-		outint(10)
+		outint(10);
 	}
-	goto end
+	goto end;
 	
 	later:
 	do {
-		outint(11)
+		outint(11);
 	}
-	while b == 2
-	goto earlier
+	while b == 2;
+	goto earlier;
 	
 	end:
 	do {
-		outint(12)
+		outint(12);
 	}
-	until c == 2
+	until c == 2;
 }
 
-func()
+func();
 */
 
 // TESTING POINTERS
 
 /*
-var a: Int = 1
-var *b: Int = 2
-var **c: Int = 3
+var a: Int = 1;
+var *b: Int = 2;
+var **c: Int = 3;
 
-stack fun update(x: &Int, *y: &&Int, **z: &&&Int) {
-	*x = *x + 501
-	***y = ***y + 502
-	*****z = *****z + 503
+stack fn update(x: &Int, *y: &&Int, **z: &&&Int) {
+	*x = *x + 501;
+	***y = ***y + 502;
+	*****z = *****z + 503;
 	
-	*x -= 1
-	***y -= 2
-	*****z -= 3
+	*x -= 1;
+	***y -= 2;
+	*****z -= 3;
 }
 
-update(&a, &b, &c)
+update(&a, &b, &c);
 
-//outint(&a)
-outint(a)
-//outint(&b); outint(b)
-outint(*b)
-//outint(&c); outint(c); outint(*c)
-outint(**c)
+//outint(&a);
+outint(a);
+//outint(&b); outint(b);
+outint(*b);
+//outint(&c); outint(c); outint(*c);
+outint(**c);
 
-var d: &Int = &a
-var *e: &&Int = &b
-var **f: &&&Int = &c
+var d: &Int = &a;
+var *e: &&Int = &b;
+var **f: &&&Int = &c;
 
-stack fun update2(**x: &&Int, *y: &&&&Int, z: &&&&&&Int) {
-	****x = 1001
-	*****y = 1002
-	******z = 1003
+stack fn update2(**x: &&Int, *y: &&&&Int, z: &&&&&&Int) {
+	****x = 1001;
+	*****y = 1002;
+	******z = 1003;
 	
-	****x *= 1
-	*****y *= 2
-	******z *= 3
+	****x *= 1;
+	*****y *= 2;
+	******z *= 3;
 }
 
-update2(&d, &e, &f)
+update2(&d, &e, &f);
 
-//outint(&d); outint(d)
-outint(*d)
-//outint(&e); outint(e); outint(*e); outint(**e)
-outint(***e)
-//outint(&f); outint(f); outint(*f); outint(**f); outint(***f); outint(****f)
-outint(*****f)
+//outint(&d); outint(d);
+outint(*d);
+//outint(&e); outint(e); outint(*e); outint(**e);
+outint(***e);
+//outint(&f); outint(f); outint(*f); outint(**f); outint(***f); outint(****f);
+outint(*****f);
 */
 
 // TESTING DEREFERENCE ASSIGNMENT
 
 /*
-#def TRUE 1
-#def FALSE 0
+#def TRUE 1 #enddef
+#def FALSE 0 #enddef
 
-init var ***a: Int
+init var ***a: Int;
 
-fun ptr1(modify: Int) -> &Int {
+fn ptr1(modify: Int) -> &Int {
 	if modify {
-		***a += 100
+		***a += 100;
 	}
-	return **a
+	return **a;
 }
 
-fun ptr2(modify: Int) -> &&Int {
+fn ptr2(modify: Int) -> &&Int {
 	if modify {
-		***a -= 200
+		***a -= 200;
 	}
-	return *a
+	return *a;
 }
 
-fun ptr3(modify: Int) -> &&&Int {
+fn ptr3(modify: Int) -> &&&Int {
 	if modify {
-		***a += 300
+		***a += 300;
 	}
-	return a
+	return a;
 }
 
-*ptr1(TRUE) = ***a + 50; outint(*ptr1(FALSE))
-*ptr1(TRUE) <<= 1; outint(*ptr1(FALSE))
+*ptr1(TRUE) = ***a + 50; outint(*ptr1(FALSE));
+*ptr1(TRUE) <<= 1; outint(*ptr1(FALSE));
 
-**ptr2(TRUE) = ***a + 100; outint(**ptr2(FALSE))
-**ptr2(TRUE) >>= 2; outint(**ptr2(FALSE))
+**ptr2(TRUE) = ***a + 100; outint(**ptr2(FALSE));
+**ptr2(TRUE) >>= 2; outint(**ptr2(FALSE));
 
-***ptr3(TRUE) = ***a + 150; outint(***ptr3(FALSE))
-***ptr3(TRUE) /= 3; outint(***ptr3(FALSE))
+***ptr3(TRUE) = ***a + 150; outint(***ptr3(FALSE));
+***ptr3(TRUE) /= 3; outint(***ptr3(FALSE));
 */
 
 // TESTING CONSTANTS AND SOFTWARE BINARY OPERATORS
 
 /*
-var l: Int = 0b1111111100000000
-var r: Int = 0b0000000011111111
+var l: Int = 0b1111111100000000;
+var r: Int = 0b0000000011111111;
 
-var a: Int = l
-var b: Int = r
+var a: Int = l;
+var b: Int = r;
 
-var a_sal: Int = l << 4
-var b_sal: Int = r << 4
+var a_sal: Int = l << 4;
+var b_sal: Int = r << 4;
 
-var a_sar: Int = l >> 4
-var b_sar: Int = r >> 4
+var a_sar: Int = l >> 4;
+var b_sar: Int = r >> 4;
 
-var a_shr: Int = l >>> 4
-var b_shr: Int = r >>> 4
+var a_shr: Int = l >>> 4;
+var b_shr: Int = r >>> 4;
 
-var a_rotl: Int = l <</ 4
-var b_rotl: Int = r <</ 4
+var a_rotl: Int = l <</ 4;
+var b_rotl: Int = r <</ 4;
 
-var a_rotr: Int = l >>/ 4
-var b_rotr: Int = r >>/ 4
+var a_rotr: Int = l >>/ 4;
+var b_rotr: Int = r >>/ 4;
 
-outint(a); outint(b)
-outint(a_sal); outint(b_sal)
-outint(a_sar); outint(b_sar)
-outint(a_shr); outint(b_shr)
-outint(a_rotl); outint(b_rotl)
-outint(a_rotr); outint(b_rotr)
+outint(a); outint(b);
+outint(a_sal); outint(b_sal);
+outint(a_sar); outint(b_sar);
+outint(a_shr); outint(b_shr);
+outint(a_rotl); outint(b_rotl);
+outint(a_rotr); outint(b_rotr);
 */
 
-// TESTING FUNCTION DECLARATIONS AND FUNCTION POINTERS
+// TESTING FUNCTION POINTERS
 
 /*
-fun choose_ptr(cond: Int, &Int, &Int) -> &Int
-
-fun add(a: Int, b: Int) -> Int {
-	return a + b
+fn add(a: Int, b: Int) -> Int {
+	return a + b;
 }
 
-fun subtract(a: Int, b: Int) -> Int {
-	return a - b
+fn subtract(a: Int, b: Int) -> Int {
+	return a - b;
 }
 
-var print: (Int) -> Void
+var print: fn(Int);
 
-fun add(Int, Int) -> Int
-fun subtract(Int, Int) -> Int
-
-fun multiply(a: Int, b: Int) -> Int {
-	return a * b
+fn multiply(a: Int, b: Int) -> Int {
+	return a * b;
 }
 
-fun divide(a: Int, b: Int) -> Int {
-	return a / b
+fn divide(a: Int, b: Int) -> Int {
+	return a / b;
 }
 
-fun do_binary_op(&Int, Int, Int, &(Int, Int) -> Int)
+var i1: Int = 12;
+var i2: Int = 4;
 
-var i1: Int = 12
-var i2: Int = 4
+var s: Int = 0;
 
-var s: Int = 0
+var *binary_op: fn(Int, Int) -> Int = subtract;
 
-var *binary_op: (Int, Int) -> Int = subtract
-
-fun get_op_ptr() -> &&(Int, Int) -> Int {
-	return &binary_op
+fn get_op_ptr() -> &&fn(Int, Int) -> Int {
+	return &binary_op;
 }
 
-print = outint
+print = outint;
 
-do_binary_op(&s, *choose_ptr(0, &i1, &i2), *choose_ptr(1, &i1, &i2), binary_op)
-print(s)
+do_binary_op(&s, *choose_ptr(0, &i1, &i2), *choose_ptr(1, &i1, &i2), binary_op);
+print(s);
 
 if s {
-	**get_op_ptr() = divide
+	**get_op_ptr() = divide;
 }
 
-do_binary_op(&s, *choose_ptr(?s, &i1, &i2), *choose_ptr(!s, &i1, &i2), binary_op)
-print(s)
+do_binary_op(&s, *choose_ptr(?s, &i1, &i2), *choose_ptr(!s, &i1, &i2), binary_op);
+print(s);
 
-fun choose_ptr(cond: Int, p1: &Int, p2: &Int) -> &Int {
+fn choose_ptr(cond: Int, p1: &Int, p2: &Int) -> &Int {
 	if cond {
-		return p1
+		return p1;
 	}
 	else {
-		return p2
+		return p2;
 	}
 }
 
-fun do_binary_op(loc: &Int, a: Int, b: Int, bin_op: &(Int, Int) -> Int) {
-	*loc = bin_op(a, b)
+fn do_binary_op(loc: &Int, a: Int, b: Int, bin_op: &fn(Int, Int) -> Int) {
+	*loc = bin_op(a, b);
 }
 */
 
 // TESTING VARIABLE AND FUNCTION MODIFIERS
 
 /*
-fun alfa(Int, Int, Int) -> Int
-fun bravo(Int, Int, Int) -> Int
-fun charlie(Int, Int, Int) -> Int
-fun delta(Int, Int, Int) -> Int
-fun echo(Int, Int, Int) -> Int
-fun foxtrot(Int, Int, Int) -> Int
+outint(alfa(9, 8, 7) + echo(4, 5, 6));
 
-outint(alfa(9, 8, 7) + echo(4, 5, 6))
-
-fun alfa(p1: Int, stack p2: Int, static p3: Int) -> Int {
+fn alfa(p1: Int, p2: Int, static p3: Int) -> Int {
 	if p1 <= 0 {
-		return 1
+		return 1;
 	}
 	else {
-		return p2 * bravo(p1, p2 - 1, p3 - 2)
+		return p2 * bravo(p1, p2 - 1, p3 - 2);
 	}
 }
 
-stack fun bravo(static q1: Int, q2: Int, stack q3: Int) -> Int {
-	return charlie(q1 - 2, q2, q3 - 1) + delta(q2, q3, q1)
+stack fn bravo(static q1: Int, q2: Int, q3: Int) -> Int {
+	return charlie(q1 - 2, q2, q3 - 1) + delta(q2, q3, q1);
 }
 
-static fun charlie(stack r1: Int, static r2: Int, r3: Int) -> Int {
-	return alfa(r1 - 1, r2 - 2, r3) + delta(r3, r1, r2)
+fn charlie(r1: Int, static r2: Int, r3: Int) -> Int {
+	return alfa(r1 - 1, r2 - 2, r3) + delta(r3, r1, r2);
 }
 
-stack fun delta(s1: Int, stack s2: Int, static s3: Int) -> Int {
-	outint(s1 + s2 + s3)
-	return 0
+stack fn delta(s1: Int, s2: Int, static s3: Int) -> Int {
+	outint(s1 + s2 + s3);
+	return 0;
 }
 
-static fun echo(static t1: Int, t2: Int, stack t3: Int) -> Int {
-	return foxtrot(t2 - 1, t3 - 1, t1 - 1)
+fn echo(static t1: Int, t2: Int, t3: Int) -> Int {
+	return foxtrot(t2 - 1, t3 - 1, t1 - 1);
 }
 
-stack fun foxtrot(stack u1: Int, static u2: Int, u3: Int) -> Int {
-	outint(u1 - u2 - u3)
-	return 0
+stack fn foxtrot(u1: Int, static u2: Int, u3: Int) -> Int {
+	outint(u1 - u2 - u3);
+	return 0;
 }
 */
 
 // TESTING PREPROCESSOR
 
-///*
-#setargc 2
+/*
+%! setargc 2;
 
 #def FIBONACCI
-#def FUN_TYPE (Int) -> Int #enddef
+#def FN_TYPE (Int) -> Int #enddef
 
-var f: Int = argv(0)
-var i: Int = 0
+var f: Int = argv(0);
+var i: Int = 0;
 
-fun fib FUN_TYPE
-var fib_func: FUN_TYPE = fib
+var fib_func: fn FN_TYPE = fib;
 
-fun fib(n: Int) -> Int {
+fn fib(n: Int) -> Int {
 	if n <= 1 {
-		return argv(n)
+		return argv(n);
 	}
-	return fib(n - 1) + fib(n - 2)
+	return fib(n - 1) + fib(n - 2);
 }
 
-fun update() {
-	i += 1
-	f = fib_func(i)
+fn update() {
+	i += 1;
+	f = fib_func(i);
 }
 
 while f > 0 {
-	outint(f)
-	update()
+	outint(f);
+	update();
 }
 #enddef
 
 FIBONACCI
-//*/
+*/
 
 // TESTING ARRAYS
 
 /*
-var a: Int = 1
-var b: Int = 2
-var c: Int = 3
+var a: Int = 1;
+var b: Int = 2;
+var c: Int = 3;
 
-var arr: [[&Int; 2]; 3] = [[&a, &b], [&b, &c], [&c, &a]] // Initialise array of arrays of integer pointers
+var arr: [[&Int; 2]; 3] = [[&a, &b], [&b, &c], [&c, &a]]; // Initialise array of arrays of integer pointers
 
-var ptr: &[&Int; 2] = &arr[a] // Initialise pointer to arrays of integer pointers
+var ptr: &[&Int; 2] = &arr[a]; // Initialise pointer to arrays of integer pointers
 
-var num: Int = *ptr[1][2] // Get an integer from the indexing the pointer, then indexing the array, and dereferencing the element
+var num: Int = *ptr[1][2]; // Get an integer from the indexing the pointer, then indexing the array, and dereferencing the element
 */
 
 // LINKED LIST
 
 /*
-fun insert_item(start: &&Item, val: &String) {
+fn insert_item(start: &&Item, val: &String) {
 	while *start != null && !insert_before(val, start.value) {
-		start = &start.next
+		start = &start.next;
 	}
-	*start = new Item(val, *start)
+	*start = new Item(val, *start);
 }\
 */

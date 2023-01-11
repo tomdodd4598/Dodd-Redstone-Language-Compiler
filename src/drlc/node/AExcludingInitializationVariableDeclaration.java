@@ -8,10 +8,10 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AExcludingInitializationVariableDeclaration extends PVariableDeclaration
 {
-    private final LinkedList<TModifier> _modifier_ = new LinkedList<TModifier>();
+    private final LinkedList<TVariableModifier> _variableModifier_ = new LinkedList<TVariableModifier>();
     private TVar _var_;
     private PDeclarator _declarator_;
-    private PSeparator _separator_;
+    private final LinkedList<TSemicolon> _semicolon_ = new LinkedList<TSemicolon>();
 
     public AExcludingInitializationVariableDeclaration()
     {
@@ -19,19 +19,19 @@ public final class AExcludingInitializationVariableDeclaration extends PVariable
     }
 
     public AExcludingInitializationVariableDeclaration(
-        @SuppressWarnings("hiding") List<?> _modifier_,
+        @SuppressWarnings("hiding") List<?> _variableModifier_,
         @SuppressWarnings("hiding") TVar _var_,
         @SuppressWarnings("hiding") PDeclarator _declarator_,
-        @SuppressWarnings("hiding") PSeparator _separator_)
+        @SuppressWarnings("hiding") List<?> _semicolon_)
     {
         // Constructor
-        setModifier(_modifier_);
+        setVariableModifier(_variableModifier_);
 
         setVar(_var_);
 
         setDeclarator(_declarator_);
 
-        setSeparator(_separator_);
+        setSemicolon(_semicolon_);
 
     }
 
@@ -39,10 +39,10 @@ public final class AExcludingInitializationVariableDeclaration extends PVariable
     public Object clone()
     {
         return new AExcludingInitializationVariableDeclaration(
-            cloneList(this._modifier_),
+            cloneList(this._variableModifier_),
             cloneNode(this._var_),
             cloneNode(this._declarator_),
-            cloneNode(this._separator_));
+            cloneList(this._semicolon_));
     }
 
     @Override
@@ -51,29 +51,29 @@ public final class AExcludingInitializationVariableDeclaration extends PVariable
         ((Analysis) sw).caseAExcludingInitializationVariableDeclaration(this);
     }
 
-    public LinkedList<TModifier> getModifier()
+    public LinkedList<TVariableModifier> getVariableModifier()
     {
-        return this._modifier_;
+        return this._variableModifier_;
     }
 
-    public void setModifier(List<?> list)
+    public void setVariableModifier(List<?> list)
     {
-        for(TModifier e : this._modifier_)
+        for(TVariableModifier e : this._variableModifier_)
         {
             e.parent(null);
         }
-        this._modifier_.clear();
+        this._variableModifier_.clear();
 
         for(Object obj_e : list)
         {
-            TModifier e = (TModifier) obj_e;
+            TVariableModifier e = (TVariableModifier) obj_e;
             if(e.parent() != null)
             {
                 e.parent().removeChild(e);
             }
 
             e.parent(this);
-            this._modifier_.add(e);
+            this._variableModifier_.add(e);
         }
     }
 
@@ -127,46 +127,47 @@ public final class AExcludingInitializationVariableDeclaration extends PVariable
         this._declarator_ = node;
     }
 
-    public PSeparator getSeparator()
+    public LinkedList<TSemicolon> getSemicolon()
     {
-        return this._separator_;
+        return this._semicolon_;
     }
 
-    public void setSeparator(PSeparator node)
+    public void setSemicolon(List<?> list)
     {
-        if(this._separator_ != null)
+        for(TSemicolon e : this._semicolon_)
         {
-            this._separator_.parent(null);
+            e.parent(null);
         }
+        this._semicolon_.clear();
 
-        if(node != null)
+        for(Object obj_e : list)
         {
-            if(node.parent() != null)
+            TSemicolon e = (TSemicolon) obj_e;
+            if(e.parent() != null)
             {
-                node.parent().removeChild(node);
+                e.parent().removeChild(e);
             }
 
-            node.parent(this);
+            e.parent(this);
+            this._semicolon_.add(e);
         }
-
-        this._separator_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._modifier_)
+            + toString(this._variableModifier_)
             + toString(this._var_)
             + toString(this._declarator_)
-            + toString(this._separator_);
+            + toString(this._semicolon_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._modifier_.remove(child))
+        if(this._variableModifier_.remove(child))
         {
             return;
         }
@@ -183,9 +184,8 @@ public final class AExcludingInitializationVariableDeclaration extends PVariable
             return;
         }
 
-        if(this._separator_ == child)
+        if(this._semicolon_.remove(child))
         {
-            this._separator_ = null;
             return;
         }
 
@@ -196,13 +196,13 @@ public final class AExcludingInitializationVariableDeclaration extends PVariable
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        for(ListIterator<TModifier> i = this._modifier_.listIterator(); i.hasNext();)
+        for(ListIterator<TVariableModifier> i = this._variableModifier_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)
             {
                 if(newChild != null)
                 {
-                    i.set((TModifier) newChild);
+                    i.set((TVariableModifier) newChild);
                     newChild.parent(this);
                     oldChild.parent(null);
                     return;
@@ -226,10 +226,22 @@ public final class AExcludingInitializationVariableDeclaration extends PVariable
             return;
         }
 
-        if(this._separator_ == oldChild)
+        for(ListIterator<TSemicolon> i = this._semicolon_.listIterator(); i.hasNext();)
         {
-            setSeparator((PSeparator) newChild);
-            return;
+            if(i.next() == oldChild)
+            {
+                if(newChild != null)
+                {
+                    i.set((TSemicolon) newChild);
+                    newChild.parent(this);
+                    oldChild.parent(null);
+                    return;
+                }
+
+                i.remove();
+                oldChild.parent(null);
+                return;
+            }
         }
 
         throw new RuntimeException("Not a child.");

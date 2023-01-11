@@ -1,13 +1,70 @@
 package drlc;
 
+import java.io.*;
 import java.util.*;
 import java.util.function.Function;
 
-import drlc.interpret.component.*;
-import drlc.interpret.component.info.*;
-import drlc.interpret.component.info.type.TypeInfo;
+import org.apache.commons.text.translate.*;
+import org.eclipse.jdt.annotation.NonNull;
+
+import drlc.intermediate.component.*;
+import drlc.intermediate.component.info.*;
+import drlc.intermediate.component.type.TypeInfo;
 
 public class Helpers {
+	
+	private static final CharSequenceTranslator UNESCAPE_TRANSLATOR;
+	
+	private static class AsciiUnescaper extends CharSequenceTranslator {
+		
+		@Override
+		public int translate(final CharSequence input, final int index, final Writer out) throws IOException {
+			if (input.charAt(index) == '\\' && index + 1 < input.length() && input.charAt(index + 1) == 'x') {
+				if (index + 4 <= input.length()) {
+					try {
+						out.write(Integer.parseInt(input.subSequence(index + 2, index + 4).toString(), 16));
+					}
+					catch (final NumberFormatException e) {
+						throw new IllegalArgumentException(String.format("Unexpectedly encountered invalid ASCII hex escape sequence \"%s\"!", input.subSequence(index, index + 4)), e);
+					}
+					return 4;
+				}
+				throw new IllegalArgumentException(String.format("Unexpectedly encountered invalid ASCII hex escape sequence!"));
+			}
+			return 0;
+		}
+	}
+	
+	static {
+		Map<CharSequence, CharSequence> unescapeMap = new HashMap<>();
+		unescapeMap.put("\\0", "\0");
+		unescapeMap.put("\\t", "\t");
+		unescapeMap.put("\\b", "\b");
+		unescapeMap.put("\\n", "\n");
+		unescapeMap.put("\\r", "\r");
+		unescapeMap.put("\\f", "\f");
+		unescapeMap.put("\\'", "'");
+		unescapeMap.put("\\\"", "\"");
+		unescapeMap.put("\\\\", "\\");
+		
+		UNESCAPE_TRANSLATOR = new AggregateTranslator(new LookupTranslator(Collections.unmodifiableMap(unescapeMap)), new AsciiUnescaper());
+	}
+	
+	public static @NonNull Character unescapeChar(String str) {
+		String unescape = unescapeString(str);
+		if (unescape.length() != 1) {
+			throw new IllegalArgumentException(String.format("Character value %s is invalid!", str));
+		}
+		return unescape.charAt(0);
+	}
+	
+	public static @NonNull String unescapeString(String str) {
+		String parsed = UNESCAPE_TRANSLATOR.translate(str.substring(1, str.length() - 1));
+		if (parsed == null) {
+			throw new RuntimeException(String.format("Failed to unescape string \"%s\"!", str));
+		}
+		return parsed;
+	}
 	
 	public static boolean isEndOfLine(char c) {
 		return c == 10 || c == 13;
@@ -99,12 +156,24 @@ public class Helpers {
 		return Character.isLetter(s.charAt(0));
 	}
 	
-	public static <T> void subSet(Set<T> subSet, Set<T> superSet, T... values) {
+	public static <T> void addSubset(Set<T> subSet, Set<T> superSet, T... values) {
 		Arrays.asList(values).stream().filter(superSet::contains).forEach(value -> subSet.add(value));
 	}
 	
-	public static <K, V> void subMap(Map<K, V> subMap, Map<K, V> superMap, K... keys) {
+	public static <K, V> void addSubmap(Map<K, V> subMap, Map<K, V> superMap, K... keys) {
 		Arrays.asList(keys).stream().filter(superMap::containsKey).forEach(k -> subMap.put(k, superMap.get(k)));
+	}
+	
+	public static int shortCompareUnsigned(short x, short y) {
+		return Short.compare((short) (x + Short.MIN_VALUE), (short) (y + Short.MIN_VALUE));
+	}
+	
+	public static short shortDivideUnsigned(short dividend, short divisor) {
+		return (short) (Short.toUnsignedInt(dividend) / Short.toUnsignedInt(divisor));
+	}
+	
+	public static short shortRemainderUnsigned(short dividend, short divisor) {
+		return (short) (Short.toUnsignedInt(dividend) % Short.toUnsignedInt(divisor));
 	}
 	
 	public static String immediateValueString(Long immediateValue) {
@@ -216,13 +285,8 @@ public class Helpers {
 		return (int) s.trim().chars().filter(ch -> ch == Global.DEREFERENCE).count();
 	}
 	
-	public static String removeAllDereferences(String s) {
-		s = s.trim();
-		String dereferenced = s.replace(Character.toString(Global.DEREFERENCE), "");
-		if (!s.contains(dereferenced)) {
-			throw new IllegalArgumentException(String.format("Attempted to fully dereference invalid variable expression \"%s\"!", s));
-		}
-		return dereferenced.trim();
+	public static String addDereferences(String s, int count) {
+		return charLine(Global.DEREFERENCE, count).concat(s.trim());
 	}
 	
 	public static String removeDereference(String s) {
@@ -236,8 +300,13 @@ public class Helpers {
 		}
 	}
 	
-	public static String addDereferences(String s, int count) {
-		return charLine(Global.DEREFERENCE, count).concat(s.trim());
+	public static String removeAllDereferences(String s) {
+		s = s.trim();
+		String dereferenced = s.replace(Character.toString(Global.DEREFERENCE), "");
+		if (!s.contains(dereferenced)) {
+			throw new IllegalArgumentException(String.format("Attempted to fully dereference invalid variable expression \"%s\"!", s));
+		}
+		return dereferenced.trim();
 	}
 	
 	public static boolean isDiscardParam(String discardParamString) {
@@ -245,7 +314,7 @@ public class Helpers {
 	}
 	
 	public static DeclaratorInfo builtInParam(String name, TypeInfo typeInfo) {
-		return new DeclaratorInfo(null, new Variable(Global.BUILT_IN_PARAM_PREFIX.concat(name), new VariableModifierInfo(true, false, false), typeInfo), 0);
+		return new DeclaratorInfo(null, new Variable(Global.BUILT_IN_PARAM_PREFIX.concat(name), new VariableModifierInfo(false), typeInfo));
 	}
 	
 	public static DeclaratorInfo[] params(DeclaratorInfo... params) {
@@ -275,7 +344,7 @@ public class Helpers {
 	public static TypeInfo[] paramTypeInfoArray(DeclaratorInfo[] params) {
 		TypeInfo[] typeInfos = new TypeInfo[params.length];
 		for (int i = 0; i < params.length; ++i) {
-			typeInfos[i] = params[i].typeInfo;
+			typeInfos[i] = params[i].getTypeInfo();
 		}
 		return typeInfos;
 	}
@@ -320,5 +389,10 @@ public class Helpers {
 			this.left = left;
 			this.right = right;
 		}
+	}
+	
+	public static class Dummy {
+		
+		public static final Dummy INSTANCE = new Dummy();
 	}
 }

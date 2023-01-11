@@ -4,46 +4,50 @@ Helpers
 	all = [0 .. 127];
 	digit = ['0' .. '9'];
 	letter = [['a' .. 'z'] + ['A' .. 'Z']];
-	name_part = digit | letter | '_';
 	
-	decimal_int = digit+;
+	decimal_integer = (digit | '_')* digit (digit | '_')*;
 	binary_digit = '0' | '1';
-	binary_int_prefix = '0b' | '0B';
-	binary_int = binary_int_prefix binary_digit+;
+	binary_integer = ('0b' | '0B') (binary_digit | '_')* binary_digit (binary_digit | '_')*;
 	octal_digit = ['0' .. '7'];
-	octal_int_prefix = '0o' | '0O';
-	octal_int = octal_int_prefix octal_digit+;
+	octal_integer = ('0o' | '0O') (octal_digit | '_')* octal_digit (octal_digit | '_')*;
 	hexadecimal_digit = [digit + [['a' .. 'f'] + ['A' .. 'F']]];
-	hexadecimal_int_prefix = '0x' | '0X';
-	hexadecimal_int = hexadecimal_int_prefix hexadecimal_digit+;
+	hexadecimal_integer = ('0x' | '0X') (hexadecimal_digit | '_')* hexadecimal_digit (hexadecimal_digit | '_')*;
+	integer = decimal_integer | binary_integer | octal_integer | hexadecimal_integer;
 	
-	tab = 9;
 	lf = 10;
 	cr = 13;
-	not_eol = [all - [cr + lf]];
-	escape_char = '\' not_eol;
+	eol = lf | cr lf?;
 	
 	apostrophe = 39;
-	c_char = [all - [apostrophe + ['\' + [lf + cr]]]] | escape_char;
-	c_char_sequence = c_char+;
-	
 	quote = 34;
+	
+	hex_escape = 'x' octal_digit hexadecimal_digit;
+	escape_char = '\' ('0' | 't' | 'b' | 'n' | 'r' | 'f' | apostrophe | quote | '\' | hex_escape);
+	
+	c_char = [all - [apostrophe + ['\' + [lf + cr]]]] | escape_char;
+	
 	s_char = [all - [quote + ['\' + [lf + cr]]]] | escape_char;
 	s_char_sequence = s_char*;
+	
+	not_eol = [all - [lf + cr]];
+	not_star = [all - '*'];
+	not_star_slash = [not_star - '/'];
+	
+	line_comment = '//' not_eol* eol?;
+	block_comment = '/*' not_star* '*'+ (not_star_slash not_star* '*'+)* '/';
 
 Tokens
-	hash = '#';
-	end = 'end';
+	directive_prefix = '%!';
 	
-	modifier = 'init' | 'static';
+	/* function_modifier = 'stack'; */
+	variable_modifier = 'static';
 	
-	fun = 'fun';
+	fn = 'fn';
 	var = 'var';
 	
 	arrow = '->';
 	
-	conditional_start_section_keyword = 'if' | 'unless';
-	conditional_middle_section_keyword = 'elif' | 'elunless';
+	conditional_branch_section_keyword = 'if' | 'unless';
 	else = 'else';
 	
 	loop = 'loop';
@@ -73,7 +77,6 @@ Tokens
 	
 	logical_and_equals = '&?=';
 	logical_or_equals = '|?=';
-	logical_xor_equals = '^?=';
 	
 	plus_equals = '+=';
 	and_equals = '&=';
@@ -81,11 +84,10 @@ Tokens
 	xor_equals = '^=';
 	minus_equals = '-=';
 	
-	arithmetic_left_shift_equals = '<<=';
-	arithmetic_right_shift_equals = '>>=';
-	logical_right_shift_equals = '>>>=';
-	circular_left_shift_equals = '<</=';
-	circular_right_shift_equals = '>>/=';
+	left_shift_equals = '<<=';
+	right_shift_equals = '>>=';
+	left_rotate_equals = '<<<=';
+	right_rotate_equals = '>>>=';
 	
 	multiply_equals = '*=';
 	divide_equals = '/=';
@@ -93,7 +95,6 @@ Tokens
 	
 	logical_and = '&?';
 	logical_or = '|?';
-	logical_xor = '^?';
 	
 	equal_to = '==';
 	not_equal_to = '!=';
@@ -109,37 +110,40 @@ Tokens
 	xor = '^';
 	minus = '-';
 	
-	arithmetic_left_shift = '<<';
-	arithmetic_right_shift = '>>';
-	logical_right_shift = '>>>';
-	circular_left_shift = '<</';
-	circular_right_shift = '>>/';
+	left_shift = '<<';
+	right_shift = '>>';
+	left_rotate = '<<<';
+	right_rotate = '>>>';
 	
 	multiply = '*';
 	divide = '/';
 	remainder = '%';
 	
-	complement = '~';
-	to_bool = '?';
 	not = '!';
 	
-	name = letter name_part*;
+	name = letter (digit | letter | '_')*;
+	discard = '_';
 	
-	int_value = decimal_int | binary_int | octal_int | hexadecimal_int;
-	char_value = apostrophe c_char_sequence apostrophe;
+	bool_value = 'false' | 'true';
+	int_value = integer 'i'?;
+	nat_value = integer 'n';
+	char_value = apostrophe c_char apostrophe;
 	
-	eol = cr | lf | cr lf;
-	blank = (' ' | tab)+;
+	null = 'null';
+	
+	blank = (' ' | 9 | 11 | eol)+;
+	comment = line_comment | block_comment;
 
 Ignored Tokens
-	blank;
+	blank,
+	comment;
 
 Productions
 	unit =
 		setup program;
 	
 	setup =
-		setup_section*;
+		directive*;
 	
 	program =
 		program_section*;
@@ -148,19 +152,14 @@ Productions
 	
 	/* UNIT SPECIFICATION */
 	
-	setup_section =
-		{directive_function} hash name expression_list? eol directive_end;
-	
-	directive_end =
-		hash end;
+	directive =
+		directive_prefix name expression_list? semicolon+;
 	
 	program_section =
-		{function_declaration} function_declaration |
 		{function_definition} function_definition |
 		{basic_section} basic_section;
 	
 	basic_section =
-		{empty_statement} empty_statement |
 		{variable_declaration} variable_declaration |
 		{expression_statement} expression_statement |
 		{conditional_section} conditional_section |
@@ -172,18 +171,12 @@ Productions
 	
 	/* SECTION SPECIFICATIONS */
 	
-	function_declaration =
-		fun name par_parameter_list return_type? separator;
-	
 	function_definition =
-		modifier* fun name par_parameter_list return_type? l_brace basic_section* stop_statement? r_brace;
-	
-	empty_statement =
-		separator;
+		/* function_modifier* */ fn name par_parameter_list return_type? l_brace basic_section* stop_statement? r_brace;
 	
 	variable_declaration =
-		{excluding_initialization} modifier* var declarator separator |
-		{including_initialization} modifier* var declarator equals initialization_expression separator;
+		{excluding_initialization} variable_modifier* var declarator semicolon+ |
+		{including_initialization} variable_modifier* var declarator equals initialization_expression semicolon+;
 	
 	initialization_expression =
 		{basic} expression_rvalue |
@@ -191,52 +184,43 @@ Productions
 		{array_fill} l_bracket expression_rvalue array_type_tail r_bracket;
 	
 	expression_statement =
-		{basic} expression_rvalue separator |
-		{assignment} expression_lvalue assignment_op expression_rvalue separator;
+		{basic} expression_rvalue semicolon+ |
+		{assignment} expression_lvalue assignment_op expression_rvalue semicolon+;
 	
 	conditional_section =
-		conditional_start_section conditional_middle_section* else_section?;
-	
-	conditional_start_section =
-		conditional_start_section_keyword expression_rvalue l_brace basic_section* stop_statement? r_brace;
-	
-	conditional_middle_section =
-		conditional_middle_section_keyword expression_rvalue l_brace basic_section* stop_statement? r_brace;
+		conditional_branch_section_keyword expression_rvalue l_brace basic_section* stop_statement? r_brace else_section?;
 	
 	else_section =
-		else l_brace basic_section* stop_statement? r_brace;
+		{excluding_branch} else l_brace basic_section* stop_statement? r_brace |
+		{including_branch} else conditional_section;
 	
 	iterative_section =
 		{loop} loop l_brace basic_section* stop_statement? r_brace |
 		{conditional} conditional_iterative_section_keyword expression_rvalue l_brace basic_section* stop_statement? r_brace |
-		{do_conditional} do l_brace basic_section* stop_statement? r_brace conditional_iterative_section_keyword expression_rvalue separator;
+		{do_conditional} do l_brace basic_section* stop_statement? r_brace conditional_iterative_section_keyword expression_rvalue semicolon+;
 	
 	goto_statement =
-		goto name separator;
+		goto name semicolon+;
 	
 	section_label =
 		name colon;
 	
 	stop_statement =
-		{exit} exit separator dead_section* |
-		{return} return separator dead_section* |
-		{continue} continue separator dead_section* |
-		{break} break separator dead_section* |
-		{exit_expression} exit expression_rvalue separator dead_section* |
-		{return_expression} return expression_rvalue separator dead_section*;
+		{exit} exit semicolon+ dead_section* |
+		{return} return semicolon+ dead_section* |
+		{continue} continue semicolon+ dead_section* |
+		{break} break semicolon+ dead_section* |
+		{exit_expression} exit expression_rvalue semicolon+ dead_section* |
+		{return_expression} return expression_rvalue semicolon+ dead_section*;
 	
 	dead_section =
 		{dead0} basic_section |
-		{dead1} exit separator |
-		{dead2} return separator |
-		{dead3} continue separator |
-		{dead4} break separator |
-		{dead5} exit expression_rvalue separator |
-		{dead6} return expression_rvalue separator;
-	
-	separator =
-		{semicolon} semicolon |
-		{eol} eol;
+		{dead1} exit semicolon+ |
+		{dead2} return semicolon+ |
+		{dead3} continue semicolon+ |
+		{dead4} break semicolon+ |
+		{dead5} exit expression_rvalue semicolon+ |
+		{dead6} return expression_rvalue semicolon+;
 	
 	
 	
@@ -248,7 +232,7 @@ Productions
 	raw_type =
 		{basic} name |
 		{array} l_bracket type array_type_tail r_bracket |
-		{function} par_parameter_list return_type;
+		{function} fn par_parameter_list return_type?;
 	
 	array_type_tail =
 		semicolon expression_rvalue;
@@ -260,17 +244,24 @@ Productions
 		l_par parameter_list? r_par;
 	
 	parameter_list =
-		modifier* parameter? type parameter_list_tail* comma?;
+		variable_modifier* parameter parameter_list_tail* comma?;
 	
 	parameter_list_tail =
-		comma modifier* parameter? type;
+		comma variable_modifier* parameter;
 	
 	parameter =
-		{excluding_name} type |
-		{including_name} multiply* name colon type;
+		{excluding_identifier} type |
+		{including_identifier} identifier type_annotation;
 	
 	declarator =
-		multiply* name colon type;
+		identifier type_annotation;
+	
+	identifier =
+		{name} name |
+		{discard} discard;
+	
+	type_annotation =
+		colon type;
 	
 	expression_lvalue =
 		expression6;
@@ -334,10 +325,12 @@ Productions
 		{parentheses} l_par expression0 r_par;
 	
 	value =
+		{bool} bool_value |
 		{int} int_value |
+		{nat} nat_value |
 		{char} char_value |
-		{sizeof_basic_type} sizeof l_par and* name r_par |
-		{sizeof_function_type} sizeof l_par and* fun r_par;
+		{null} null |
+		{sizeof} sizeof type;
 	
 	
 	
@@ -347,25 +340,22 @@ Productions
 		{equals} equals |
 		{logical_and} logical_and_equals |
 		{logical_or} logical_or_equals |
-		{logical_xor} logical_xor_equals |
 		{plus} plus_equals |
 		{and} and_equals |
 		{or} or_equals |
 		{xor} xor_equals |
 		{minus} minus_equals |
-		{arithmetic_left_shift} arithmetic_left_shift_equals |
-		{arithmetic_right_shift} arithmetic_right_shift_equals |
-		{logical_right_shift} logical_right_shift_equals |
-		{circular_left_shift} circular_left_shift_equals |
-		{circular_right_shift} circular_right_shift_equals |
+		{left_shift} left_shift_equals |
+		{right_shift} right_shift_equals |
+		{left_rotate} left_rotate_equals |
+		{right_rotate} right_rotate_equals |
 		{multiply} multiply_equals |
 		{divide} divide_equals |
 		{remainder} remainder_equals;
 	
 	logical_binary_op =
 		{logical_and} logical_and |
-		{logical_or} logical_or |
-		{logical_xor} logical_xor;
+		{logical_or} logical_or;
 	
 	equality_binary_op =
 		{equal_to} equal_to |
@@ -385,11 +375,10 @@ Productions
 		{minus} minus;
 	
 	shift_binary_op =
-		{arithmetic_left_shift} arithmetic_left_shift |
-		{arithmetic_right_shift} arithmetic_right_shift |
-		{logical_right_shift} logical_right_shift |
-		{circular_left_shift} circular_left_shift |
-		{circular_right_shift} circular_right_shift;
+		{left_shift} left_shift |
+		{right_shift} right_shift |
+		{left_rotate} left_rotate |
+		{right_rotate} right_rotate;
 	
 	multiplicative_binary_op =
 		{multiply} multiply |
@@ -397,8 +386,5 @@ Productions
 		{remainder} remainder;
 	
 	unary_op =
-		{plus} plus |
 		{minus} minus |
-		{complement} complement |
-		{to_bool} to_bool |
 		{not} not;

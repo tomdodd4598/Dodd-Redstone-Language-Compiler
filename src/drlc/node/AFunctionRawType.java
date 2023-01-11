@@ -7,6 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AFunctionRawType extends PRawType
 {
+    private TFn _fn_;
     private PParParameterList _parParameterList_;
     private PReturnType _returnType_;
 
@@ -16,10 +17,13 @@ public final class AFunctionRawType extends PRawType
     }
 
     public AFunctionRawType(
+        @SuppressWarnings("hiding") TFn _fn_,
         @SuppressWarnings("hiding") PParParameterList _parParameterList_,
         @SuppressWarnings("hiding") PReturnType _returnType_)
     {
         // Constructor
+        setFn(_fn_);
+
         setParParameterList(_parParameterList_);
 
         setReturnType(_returnType_);
@@ -30,6 +34,7 @@ public final class AFunctionRawType extends PRawType
     public Object clone()
     {
         return new AFunctionRawType(
+            cloneNode(this._fn_),
             cloneNode(this._parParameterList_),
             cloneNode(this._returnType_));
     }
@@ -38,6 +43,31 @@ public final class AFunctionRawType extends PRawType
     public void apply(Switch sw)
     {
         ((Analysis) sw).caseAFunctionRawType(this);
+    }
+
+    public TFn getFn()
+    {
+        return this._fn_;
+    }
+
+    public void setFn(TFn node)
+    {
+        if(this._fn_ != null)
+        {
+            this._fn_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._fn_ = node;
     }
 
     public PParParameterList getParParameterList()
@@ -94,6 +124,7 @@ public final class AFunctionRawType extends PRawType
     public String toString()
     {
         return ""
+            + toString(this._fn_)
             + toString(this._parParameterList_)
             + toString(this._returnType_);
     }
@@ -102,6 +133,12 @@ public final class AFunctionRawType extends PRawType
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
+        if(this._fn_ == child)
+        {
+            this._fn_ = null;
+            return;
+        }
+
         if(this._parParameterList_ == child)
         {
             this._parParameterList_ = null;
@@ -121,6 +158,12 @@ public final class AFunctionRawType extends PRawType
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
+        if(this._fn_ == oldChild)
+        {
+            setFn((TFn) newChild);
+            return;
+        }
+
         if(this._parParameterList_ == oldChild)
         {
             setParParameterList((PParParameterList) newChild);

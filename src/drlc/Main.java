@@ -3,8 +3,7 @@ package drlc;
 import java.io.*;
 import java.lang.reflect.Constructor;
 
-import drlc.generate.Generator;
-import drlc.interpret.Interpreter;
+import drlc.intermediate.interpreter.*;
 import drlc.lexer.Lexer;
 import drlc.node.Start;
 import drlc.parser.Parser;
@@ -66,13 +65,7 @@ public class Main {
 			
 			System.out.printf("Compilation target: %s\n", Generator.NAME_MAP.get(type));
 			
-			long currentTime = System.nanoTime(), previousTime = currentTime;
-			
-			input = new Preprocessor(input).output();
-			
-			currentTime = System.nanoTime();
-			System.out.printf("Preprocessing time: %.2f ms\n", (currentTime - previousTime) / 1E6);
-			previousTime = currentTime;
+			long currentTime, previousTime = System.nanoTime();
 			
 			/* Form our AST */
 			PushbackReader reader = new PushbackReader(new FileReader(input), 8192);
@@ -83,18 +76,21 @@ public class Main {
 			System.out.printf("Parsing time: %.2f ms\n", (currentTime - previousTime) / 1E6);
 			previousTime = currentTime;
 			
-			/* Run interpreter */
-			Interpreter interpreter = new Interpreter(generator);
-			ast.apply(interpreter);
+			/* Run interpreters */
+			generator.astInit();
+			ast.apply(new FirstPassInterpreter(generator));
+			ast.apply(new SecondPassInterpreter(generator));
+			generator.astFinalize();
 			
 			currentTime = System.nanoTime();
 			System.out.printf("Interpreting time: %.2f ms\n", (currentTime - previousTime) / 1E6);
 			previousTime = currentTime;
 			
 			/* Generate code */
-			interpreter.generate();
+			generator.generate();
 			
-			System.out.printf("Generating time: %.2f ms\n", (System.nanoTime() - previousTime) / 1E6);
+			currentTime = System.nanoTime();
+			System.out.printf("Generating time: %.2f ms\n", (currentTime - previousTime) / 1E6);
 		}
 		catch (Exception e) {
 			e.printStackTrace();

@@ -2,6 +2,7 @@
 
 package drlc.node;
 
+import java.util.*;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
@@ -9,7 +10,7 @@ public final class ADead6DeadSection extends PDeadSection
 {
     private TReturn _return_;
     private PExpressionRvalue _expressionRvalue_;
-    private PSeparator _separator_;
+    private final LinkedList<TSemicolon> _semicolon_ = new LinkedList<TSemicolon>();
 
     public ADead6DeadSection()
     {
@@ -19,14 +20,14 @@ public final class ADead6DeadSection extends PDeadSection
     public ADead6DeadSection(
         @SuppressWarnings("hiding") TReturn _return_,
         @SuppressWarnings("hiding") PExpressionRvalue _expressionRvalue_,
-        @SuppressWarnings("hiding") PSeparator _separator_)
+        @SuppressWarnings("hiding") List<?> _semicolon_)
     {
         // Constructor
         setReturn(_return_);
 
         setExpressionRvalue(_expressionRvalue_);
 
-        setSeparator(_separator_);
+        setSemicolon(_semicolon_);
 
     }
 
@@ -36,7 +37,7 @@ public final class ADead6DeadSection extends PDeadSection
         return new ADead6DeadSection(
             cloneNode(this._return_),
             cloneNode(this._expressionRvalue_),
-            cloneNode(this._separator_));
+            cloneList(this._semicolon_));
     }
 
     @Override
@@ -95,29 +96,30 @@ public final class ADead6DeadSection extends PDeadSection
         this._expressionRvalue_ = node;
     }
 
-    public PSeparator getSeparator()
+    public LinkedList<TSemicolon> getSemicolon()
     {
-        return this._separator_;
+        return this._semicolon_;
     }
 
-    public void setSeparator(PSeparator node)
+    public void setSemicolon(List<?> list)
     {
-        if(this._separator_ != null)
+        for(TSemicolon e : this._semicolon_)
         {
-            this._separator_.parent(null);
+            e.parent(null);
         }
+        this._semicolon_.clear();
 
-        if(node != null)
+        for(Object obj_e : list)
         {
-            if(node.parent() != null)
+            TSemicolon e = (TSemicolon) obj_e;
+            if(e.parent() != null)
             {
-                node.parent().removeChild(node);
+                e.parent().removeChild(e);
             }
 
-            node.parent(this);
+            e.parent(this);
+            this._semicolon_.add(e);
         }
-
-        this._separator_ = node;
     }
 
     @Override
@@ -126,7 +128,7 @@ public final class ADead6DeadSection extends PDeadSection
         return ""
             + toString(this._return_)
             + toString(this._expressionRvalue_)
-            + toString(this._separator_);
+            + toString(this._semicolon_);
     }
 
     @Override
@@ -145,9 +147,8 @@ public final class ADead6DeadSection extends PDeadSection
             return;
         }
 
-        if(this._separator_ == child)
+        if(this._semicolon_.remove(child))
         {
-            this._separator_ = null;
             return;
         }
 
@@ -170,10 +171,22 @@ public final class ADead6DeadSection extends PDeadSection
             return;
         }
 
-        if(this._separator_ == oldChild)
+        for(ListIterator<TSemicolon> i = this._semicolon_.listIterator(); i.hasNext();)
         {
-            setSeparator((PSeparator) newChild);
-            return;
+            if(i.next() == oldChild)
+            {
+                if(newChild != null)
+                {
+                    i.set((TSemicolon) newChild);
+                    newChild.parent(this);
+                    oldChild.parent(null);
+                    return;
+                }
+
+                i.remove();
+                oldChild.parent(null);
+                return;
+            }
         }
 
         throw new RuntimeException("Not a child.");

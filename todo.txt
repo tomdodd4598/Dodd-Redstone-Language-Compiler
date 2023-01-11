@@ -1,52 +1,42 @@
-Allow optional comma at end of parameter or expression list
+Make logical and/or short-circuiting and non-commutative
 
-Switch '#def name ... #enddef' for 'macro name { ... }' syntax
+Replace evaluator with optimisation logic
 
-Force capitalised type names (switch 'int' for 'Int' and 'void' for 'Void')
+Remove preprocessor, switch '#def name ... #enddef' for 'const name = ...' and 'macro! name(...) { ... }' syntax
 
-Switch 'sizeof(T)' syntax for '||Int||' syntax
+Use 'main' function as entry point (remove 'setargc' directive, implement proper argc and argv)?
 
-Enable pointer arithmetic
+Implement 'static' keyword for variables
+
+Immutable variables with 'let' keyword, mutable with 'let mut', parameters immutable by default (require 'mut' to be mutable)
+
+Add 'sizeof(x)' for variables
 
 Arrays
-
-Use 'main' function as entry point
-
-Remove 'static' keyword for functions
-Remove 'stack' keyword for functions and variables
-Add 'static' keyword for variables
-
-Use StringReader with Lexer to improve Evaluator
-Add '||x||' for variables and array types
-
-Add unsigned integer type 'Nat'
-Add boolean type 'Bool', require conditionals to be booleans
-Make operators depend on operand types, remove logical and/or/xor, remove logical right shift, use '<<<' and '>>>' for circular shift
 
 String literals
 
 For loops
 
-Immutable variables with 'let' keyword, parameters immutable by default (require 'var' to be mutable)
-
-Tuples (use 'a, b, c, ...' syntax, replace Void with Unit having one instance '()', auto-unpack when used)
+Tuples (use '(x, y, z, ...)' syntax, replace 'Void' with '()' having one instance '()')
 
 Structs (nominal typing)
 
 Enums (nominal typing, pattern matching)
 
-Universal Function Call Syntax
+Universal function call syntax?
+
+Pipeline function call syntax
+
+Namespaces, multiple files, add 'import' for importing globals and functions
 
 Closures
 
-Variable type inference
-
 Generics (use lowercase type parameters)
+Higher kinded types? (https://pastebin.com/htWPe3HZ)
 
-Add 'import' for importing globals and declarations
-
-Namespaces?
-
-'extern { ... }' blocks (for transpilation to C)
+'extern "C" { ... }' blocks for transpilation to C
 
 Standard library
+
+Variable type inference

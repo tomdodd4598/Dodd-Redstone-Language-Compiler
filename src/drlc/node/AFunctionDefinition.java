@@ -8,8 +8,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AFunctionDefinition extends PFunctionDefinition
 {
-    private final LinkedList<TModifier> _modifier_ = new LinkedList<TModifier>();
-    private TFun _fun_;
+    private TFn _fn_;
     private TName _name_;
     private PParParameterList _parParameterList_;
     private PReturnType _returnType_;
@@ -24,8 +23,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
     }
 
     public AFunctionDefinition(
-        @SuppressWarnings("hiding") List<?> _modifier_,
-        @SuppressWarnings("hiding") TFun _fun_,
+        @SuppressWarnings("hiding") TFn _fn_,
         @SuppressWarnings("hiding") TName _name_,
         @SuppressWarnings("hiding") PParParameterList _parParameterList_,
         @SuppressWarnings("hiding") PReturnType _returnType_,
@@ -35,9 +33,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
         @SuppressWarnings("hiding") TRBrace _rBrace_)
     {
         // Constructor
-        setModifier(_modifier_);
-
-        setFun(_fun_);
+        setFn(_fn_);
 
         setName(_name_);
 
@@ -59,8 +55,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
     public Object clone()
     {
         return new AFunctionDefinition(
-            cloneList(this._modifier_),
-            cloneNode(this._fun_),
+            cloneNode(this._fn_),
             cloneNode(this._name_),
             cloneNode(this._parParameterList_),
             cloneNode(this._returnType_),
@@ -76,42 +71,16 @@ public final class AFunctionDefinition extends PFunctionDefinition
         ((Analysis) sw).caseAFunctionDefinition(this);
     }
 
-    public LinkedList<TModifier> getModifier()
+    public TFn getFn()
     {
-        return this._modifier_;
+        return this._fn_;
     }
 
-    public void setModifier(List<?> list)
+    public void setFn(TFn node)
     {
-        for(TModifier e : this._modifier_)
+        if(this._fn_ != null)
         {
-            e.parent(null);
-        }
-        this._modifier_.clear();
-
-        for(Object obj_e : list)
-        {
-            TModifier e = (TModifier) obj_e;
-            if(e.parent() != null)
-            {
-                e.parent().removeChild(e);
-            }
-
-            e.parent(this);
-            this._modifier_.add(e);
-        }
-    }
-
-    public TFun getFun()
-    {
-        return this._fun_;
-    }
-
-    public void setFun(TFun node)
-    {
-        if(this._fun_ != null)
-        {
-            this._fun_.parent(null);
+            this._fn_.parent(null);
         }
 
         if(node != null)
@@ -124,7 +93,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
             node.parent(this);
         }
 
-        this._fun_ = node;
+        this._fn_ = node;
     }
 
     public TName getName()
@@ -307,8 +276,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
     public String toString()
     {
         return ""
-            + toString(this._modifier_)
-            + toString(this._fun_)
+            + toString(this._fn_)
             + toString(this._name_)
             + toString(this._parParameterList_)
             + toString(this._returnType_)
@@ -322,14 +290,9 @@ public final class AFunctionDefinition extends PFunctionDefinition
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._modifier_.remove(child))
+        if(this._fn_ == child)
         {
-            return;
-        }
-
-        if(this._fun_ == child)
-        {
-            this._fun_ = null;
+            this._fn_ = null;
             return;
         }
 
@@ -381,27 +344,9 @@ public final class AFunctionDefinition extends PFunctionDefinition
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        for(ListIterator<TModifier> i = this._modifier_.listIterator(); i.hasNext();)
+        if(this._fn_ == oldChild)
         {
-            if(i.next() == oldChild)
-            {
-                if(newChild != null)
-                {
-                    i.set((TModifier) newChild);
-                    newChild.parent(this);
-                    oldChild.parent(null);
-                    return;
-                }
-
-                i.remove();
-                oldChild.parent(null);
-                return;
-            }
-        }
-
-        if(this._fun_ == oldChild)
-        {
-            setFun((TFun) newChild);
+            setFn((TFn) newChild);
             return;
         }
 

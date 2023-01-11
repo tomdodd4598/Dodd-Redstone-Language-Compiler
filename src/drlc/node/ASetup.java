@@ -8,7 +8,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class ASetup extends PSetup
 {
-    private final LinkedList<PSetupSection> _setupSection_ = new LinkedList<PSetupSection>();
+    private final LinkedList<PDirective> _directive_ = new LinkedList<PDirective>();
 
     public ASetup()
     {
@@ -16,10 +16,10 @@ public final class ASetup extends PSetup
     }
 
     public ASetup(
-        @SuppressWarnings("hiding") List<?> _setupSection_)
+        @SuppressWarnings("hiding") List<?> _directive_)
     {
         // Constructor
-        setSetupSection(_setupSection_);
+        setDirective(_directive_);
 
     }
 
@@ -27,7 +27,7 @@ public final class ASetup extends PSetup
     public Object clone()
     {
         return new ASetup(
-            cloneList(this._setupSection_));
+            cloneList(this._directive_));
     }
 
     @Override
@@ -36,29 +36,29 @@ public final class ASetup extends PSetup
         ((Analysis) sw).caseASetup(this);
     }
 
-    public LinkedList<PSetupSection> getSetupSection()
+    public LinkedList<PDirective> getDirective()
     {
-        return this._setupSection_;
+        return this._directive_;
     }
 
-    public void setSetupSection(List<?> list)
+    public void setDirective(List<?> list)
     {
-        for(PSetupSection e : this._setupSection_)
+        for(PDirective e : this._directive_)
         {
             e.parent(null);
         }
-        this._setupSection_.clear();
+        this._directive_.clear();
 
         for(Object obj_e : list)
         {
-            PSetupSection e = (PSetupSection) obj_e;
+            PDirective e = (PDirective) obj_e;
             if(e.parent() != null)
             {
                 e.parent().removeChild(e);
             }
 
             e.parent(this);
-            this._setupSection_.add(e);
+            this._directive_.add(e);
         }
     }
 
@@ -66,14 +66,14 @@ public final class ASetup extends PSetup
     public String toString()
     {
         return ""
-            + toString(this._setupSection_);
+            + toString(this._directive_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._setupSection_.remove(child))
+        if(this._directive_.remove(child))
         {
             return;
         }
@@ -85,13 +85,13 @@ public final class ASetup extends PSetup
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        for(ListIterator<PSetupSection> i = this._setupSection_.listIterator(); i.hasNext();)
+        for(ListIterator<PDirective> i = this._directive_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)
             {
                 if(newChild != null)
                 {
-                    i.set((PSetupSection) newChild);
+                    i.set((PDirective) newChild);
                     newChild.parent(this);
                     oldChild.parent(null);
                     return;
