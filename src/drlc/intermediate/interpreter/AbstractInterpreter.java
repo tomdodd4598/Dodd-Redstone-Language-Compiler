@@ -39,13 +39,8 @@ public abstract class AbstractInterpreter extends DepthFirstAdapter {
 		}
 	}
 	
-	protected FunctionModifierInfo getFunctionModifierInfo(/*List<TFunctionModifier> tModifierList*/) {
-		// Set<String> modifiers = tModifierList.stream().map(modifier -> modifier.getText()).collect(Collectors.toSet());
-		return new FunctionModifierInfo();
-	}
-	
 	protected VariableModifierInfo getVariableModifierInfo(List<TVariableModifier> tModifierList) {
-		Set<String> modifiers = tModifierList.stream().map(modifier -> modifier.getText()).collect(Collectors.toSet());
+		Set<String> modifiers = tModifierList.stream().map(Token::getText).collect(Collectors.toSet());
 		return new VariableModifierInfo(modifiers.contains(Global.STATIC));
 	}
 	

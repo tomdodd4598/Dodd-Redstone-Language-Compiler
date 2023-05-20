@@ -1,7 +1,7 @@
 package drlc.intermediate.component;
 
 import drlc.*;
-import drlc.intermediate.component.info.*;
+import drlc.intermediate.component.info.DeclaratorInfo;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.node.Node;
 
@@ -9,16 +9,14 @@ public class Function {
 	
 	public final String name;
 	public final boolean builtIn;
-	public final FunctionModifierInfo modifierInfo;
 	public final TypeInfo returnTypeInfo;
 	public final DeclaratorInfo[] params;
 	public final boolean defined;
 	public boolean required;
 	
-	public Function(Node node, String name, boolean builtIn, FunctionModifierInfo modifierInfo, TypeInfo returnTypeInfo, DeclaratorInfo[] params, boolean defined) {
+	public Function(Node node, String name, boolean builtIn, TypeInfo returnTypeInfo, DeclaratorInfo[] params, boolean defined) {
 		this.name = name;
 		this.builtIn = builtIn;
-		this.modifierInfo = modifierInfo;
 		this.returnTypeInfo = returnTypeInfo;
 		this.params = params;
 		this.defined = defined;
@@ -29,7 +27,6 @@ public class Function {
 	}
 	
 	public void updateFromExistingFunction(Function existingFunction) {
-		modifierInfo.updateFromExistingModifierInfo(existingFunction.modifierInfo);
 		required |= existingFunction.required;
 	}
 	

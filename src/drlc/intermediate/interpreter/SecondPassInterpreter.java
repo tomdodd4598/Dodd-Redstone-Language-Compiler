@@ -118,7 +118,6 @@ public class SecondPassInterpreter extends AbstractInterpreter {
 		/*for (TFunctionModifier modifier : node.getFunctionModifier()) {
 			modifier.apply(this);
 		}*/
-		FunctionModifierInfo modifierInfo = getFunctionModifierInfo(/*node.getFunctionModifier()*/);
 		
 		node.getFn().apply(this);
 		node.getName().apply(this);
@@ -133,9 +132,9 @@ public class SecondPassInterpreter extends AbstractInterpreter {
 		
 		node.getLBrace().apply(this);
 		for (DeclaratorInfo paramInfo : generator.program.getParamArray(node, argc, false)) {
-			scope.addVariable(node, paramInfo.variable);
+			scope.addVariable(node, paramInfo.variable, false);
 		}
-		generator.program.defineFunctionAndSetRoutine(node, scope, node.getName().getText(), modifierInfo, argc, returnTypeInfo);
+		generator.program.defineFunctionAndSetRoutine(node, scope, node.getName().getText(), argc, returnTypeInfo);
 		scope.setExpectingFunctionReturn(!isVoid);
 		for (PBasicSection section : node.getBasicSection()) {
 			section.apply(this);
@@ -160,7 +159,7 @@ public class SecondPassInterpreter extends AbstractInterpreter {
 		// TODO: Allow size > 1
 		node.getVar().apply(this);
 		DeclaratorInfo declaratorInfo = createDeclaratorInfo(node, node.getDeclarator(), modifierInfo, 1);
-		scope.addVariable(node, declaratorInfo.variable);
+		scope.addVariable(node, declaratorInfo.variable, false);
 		
 		generator.program.currentRoutine().addStackDeclarationAction(node, declaratorInfo);
 	}
@@ -174,15 +173,15 @@ public class SecondPassInterpreter extends AbstractInterpreter {
 		// TODO: Allow size > 1
 		node.getVar().apply(this);
 		DeclaratorInfo declaratorInfo = createDeclaratorInfo(node, node.getDeclarator(), getVariableModifierInfo(node.getVariableModifier()), 1);
-		scope.addVariable(node, declaratorInfo.variable);
+		scope.addVariable(node, declaratorInfo.variable, false);
 		
 		node.getEquals().apply(this);
 		node.getInitializationExpression().apply(this);
 		
 		Routine routine = generator.program.currentRoutine();
-		TypeInfo lastInfo = routine.getLastExpressionInfo(node).getTypeInfo();
-		if (!lastInfo.canImplicitCastTo(node, generator, declaratorInfo.getTypeInfo())) {
-			throw new IllegalArgumentException(String.format("Attempted to use expression of type \"%s\" to initialize variable of incompatible type \"%s\"! %s", lastInfo, declaratorInfo.typeInfo, node));
+		TypeInfo lastType = routine.getLastExpressionInfo(node).getTypeInfo(), declaratorType = declaratorInfo.getTypeInfo();
+		if (!lastType.canImplicitCastTo(node, generator, declaratorType)) {
+			throw new IllegalArgumentException(String.format("Attempted to use expression of type \"%s\" to initialize variable of incompatible type \"%s\"! %s", lastType, declaratorType, node));
 		}
 		
 		routine.pushCurrentRegIdToStack(node);

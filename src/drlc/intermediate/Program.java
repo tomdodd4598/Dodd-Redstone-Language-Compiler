@@ -7,7 +7,7 @@ import drlc.intermediate.action.*;
 import drlc.intermediate.action.binary.*;
 import drlc.intermediate.action.unary.*;
 import drlc.intermediate.component.Function;
-import drlc.intermediate.component.info.*;
+import drlc.intermediate.component.info.DeclaratorInfo;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.routine.*;
 import drlc.node.Node;
@@ -46,9 +46,9 @@ public class Program {
 		return routineMap.containsKey(name);
 	}
 	
-	public void declareFunction(Node node, Scope scope, String name, FunctionModifierInfo modifierInfo, int argc, TypeInfo returnTypeInfo) {
+	public void declareFunction(Node node, Scope scope, String name, int argc, TypeInfo returnTypeInfo) {
 		boolean functionDefined = routineExists(name);
-		Function newFunction = new Function(node, name, false, new FunctionModifierInfo(), returnTypeInfo, getParamArray(node, argc, true), functionDefined);
+		Function newFunction = new Function(node, name, false, returnTypeInfo, getParamArray(node, argc, true), functionDefined);
 		if (scope.functionExists(name)) {
 			Function existingFunction = scope.getFunction(node, name);
 			if (existingFunction.equals(newFunction)) {
@@ -66,13 +66,13 @@ public class Program {
 		}
 	}
 	
-	public void defineFunctionAndSetRoutine(Node node, Scope scope, String name, FunctionModifierInfo modifierInfo, int argc, TypeInfo returnTypeInfo) {
+	public void defineFunctionAndSetRoutine(Node node, Scope scope, String name, int argc, TypeInfo returnTypeInfo) {
 		if (routineExists(name)) {
 			throw new IllegalArgumentException(String.format("Routine \"%s\" already defined! %s", name, node));
 		}
 		else {
 			currentRoutine = name;
-			Function newFunction = new Function(node, name, false, modifierInfo, returnTypeInfo, getParamArray(node, argc, true), true);
+			Function newFunction = new Function(node, name, false, returnTypeInfo, getParamArray(node, argc, true), true);
 			for (Scope sc : new Scope[] {scope, scope.previous}) {
 				if (sc.functionExists(name)) {
 					Function existingFunction = sc.getFunction(node, name);

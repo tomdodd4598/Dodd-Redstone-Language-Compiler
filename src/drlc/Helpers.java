@@ -5,7 +5,6 @@ import java.util.*;
 import java.util.function.Function;
 
 import org.apache.commons.text.translate.*;
-import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.info.*;
@@ -50,7 +49,7 @@ public class Helpers {
 		UNESCAPE_TRANSLATOR = new AggregateTranslator(new LookupTranslator(Collections.unmodifiableMap(unescapeMap)), new AsciiUnescaper());
 	}
 	
-	public static @NonNull Character unescapeChar(String str) {
+	public static Character unescapeChar(String str) {
 		String unescape = unescapeString(str);
 		if (unescape.length() != 1) {
 			throw new IllegalArgumentException(String.format("Character value %s is invalid!", str));
@@ -58,7 +57,7 @@ public class Helpers {
 		return unescape.charAt(0);
 	}
 	
-	public static @NonNull String unescapeString(String str) {
+	public static String unescapeString(String str) {
 		String parsed = UNESCAPE_TRANSLATOR.translate(str.substring(1, str.length() - 1));
 		if (parsed == null) {
 			throw new RuntimeException(String.format("Failed to unescape string \"%s\"!", str));

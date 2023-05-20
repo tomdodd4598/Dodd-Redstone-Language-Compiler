@@ -30,10 +30,8 @@ public class RedstoneAssemblyGenerator extends RedstoneGenerator {
 			}
 		}
 		
-		try {
-			PrintWriter out = new PrintWriter(outputFile);
+		try (PrintWriter out = new PrintWriter(outputFile)) {
 			out.print(builder.substring(1));
-			out.close();
 		}
 		catch (Exception e) {
 			e.printStackTrace();

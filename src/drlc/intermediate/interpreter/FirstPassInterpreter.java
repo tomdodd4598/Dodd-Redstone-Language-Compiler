@@ -3,7 +3,7 @@ package drlc.intermediate.interpreter;
 import drlc.Generator;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.constant.Constant;
-import drlc.intermediate.component.info.*;
+import drlc.intermediate.component.info.ConstantParseInfo;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.node.*;
 
@@ -110,7 +110,6 @@ public class FirstPassInterpreter extends AbstractInterpreter {
 		/*for (TFunctionModifier modifier : node.getFunctionModifier()) {
 			modifier.apply(this);
 		}*/
-		FunctionModifierInfo modifierInfo = getFunctionModifierInfo(/*node.getFunctionModifier()*/);
 		
 		node.getFn().apply(this);
 		node.getName().apply(this);
@@ -121,7 +120,7 @@ public class FirstPassInterpreter extends AbstractInterpreter {
 			node.getReturnType().apply(this);
 		}
 		TypeInfo returnTypeInfo = createReturnTypeInfo(node, scope, node.getReturnType());
-		generator.program.declareFunction(node, scope, node.getName().getText(), modifierInfo, argc, returnTypeInfo);
+		generator.program.declareFunction(node, scope, node.getName().getText(), argc, returnTypeInfo);
 	}
 	
 	@Override

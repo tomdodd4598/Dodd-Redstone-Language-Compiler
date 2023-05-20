@@ -4,20 +4,20 @@ import drlc.Global;
 
 public class VariableModifierInfo {
 	
-	public boolean static_;
+	public boolean statik;
 	
-	public VariableModifierInfo(boolean static_) {
-		this.static_ = static_;
+	public VariableModifierInfo(boolean statik) {
+		this.statik = statik;
 	}
 	
 	public void updateFromExistingModifierInfo(VariableModifierInfo existingModifierInfo) {
-		static_ |= existingModifierInfo.static_;
+		statik |= existingModifierInfo.statik;
 	}
 	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		if (static_) {
+		if (statik) {
 			builder.append(Global.STATIC).append(' ');
 		}
 		return builder.toString();

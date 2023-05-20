@@ -83,11 +83,11 @@ public class RedstoneOptimization {
 		return flag;
 	}
 	
+	/** A null succeedingData means do not replace succeeding instruction! */
 	public static class ImmediateReplacementInfo {
 		
 		public final Instruction instruction, succeedingData;
 		
-		/** A null succeedingData means do not replace succeeding instruction! */
 		public ImmediateReplacementInfo(Instruction instruction, Instruction succeedingData) {
 			this.instruction = instruction;
 			this.succeedingData = succeedingData;

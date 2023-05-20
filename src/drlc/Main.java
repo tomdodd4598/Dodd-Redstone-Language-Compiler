@@ -67,8 +67,8 @@ public class Main {
 			
 			long currentTime, previousTime = System.nanoTime();
 			
-			/* Form our AST */
-			PushbackReader reader = new PushbackReader(new FileReader(input), 8192);
+			/* Form AST */
+			PushbackReader reader = new PushbackReader(new FileReader(input), 16384);
 			Start ast = new Parser(new Lexer(reader)).parse();
 			reader.close();
 			

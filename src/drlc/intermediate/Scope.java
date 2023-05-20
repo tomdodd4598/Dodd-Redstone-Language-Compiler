@@ -17,7 +17,6 @@ public class Scope {
 	private final HierarchyMap<String, Constant> constantMap;
 	private final HierarchyMap<String, Variable> variableMap;
 	private final HierarchyMap<String, Function> functionMap;
-	private final HierarchySet<String> nameSet;
 	
 	public Boolean expectingFunctionReturn = null;
 	
@@ -30,21 +29,15 @@ public class Scope {
 			constantMap = new HierarchyMap<>(null);
 			variableMap = new HierarchyMap<>(null);
 			functionMap = new HierarchyMap<>(null);
-			nameSet = new HierarchySet<>(null);
 		}
 		else {
 			typeMap = new HierarchyMap<>(previous.typeMap);
 			constantMap = new HierarchyMap<>(previous.constantMap);
 			variableMap = new HierarchyMap<>(previous.variableMap);
 			functionMap = new HierarchyMap<>(previous.functionMap);
-			nameSet = new HierarchySet<>(previous.nameSet);
 			
 			expectingFunctionReturn = previous.expectingFunctionReturn == null ? null : new Boolean(previous.expectingFunctionReturn.booleanValue());
 		}
-	}
-	
-	public boolean typeExists(String name) {
-		return typeMap.containsKey(name);
 	}
 	
 	public boolean typeExists(TypeInfo typeInfo) {
@@ -63,8 +56,12 @@ public class Scope {
 			}
 		}
 		else {
-			return typeExists(typeInfo.type.name);
+			return typeExists(typeInfo.type.toString());
 		}
+	}
+	
+	public boolean typeExists(String name) {
+		return typeMap.containsKey(name);
 	}
 	
 	public boolean constantExists(String name) {
@@ -79,119 +76,138 @@ public class Scope {
 		return functionMap.containsKey(name);
 	}
 	
+	public boolean typeNameCollision(Type type) {
+		return typeExists(type.toString());
+	}
+	
+	public boolean valueNameCollision(String name) {
+		return constantExists(name) || variableExists(name) || functionExists(name);
+	}
+	
 	// Getters
 	
 	public Type getType(Node node, String name) {
-		if (!typeExists(name)) {
+		Type type = typeMap.get(name);
+		if (type == null) {
 			throw new IllegalArgumentException(String.format("Type \"%s\" not defined in this scope! %s", name, node));
 		}
-		return typeMap.get(name);
+		return type;
 	}
 	
 	public Constant getConstant(Node node, String name) {
-		if (!constantExists(name)) {
+		Constant constant = constantMap.get(name);
+		if (constant == null) {
 			throw new IllegalArgumentException(String.format("Constant \"%s\" not defined in this scope! %s", name, node));
 		}
-		return constantMap.get(name);
+		return constant;
 	}
 	
 	public Variable getVariable(Node node, String name) {
 		name = Helpers.removeAllDereferences(name);
-		if (!variableExists(name)) {
+		Variable variable = variableMap.get(name);
+		if (variable == null) {
 			throw new IllegalArgumentException(String.format("Variable \"%s\" not defined in this scope! %s", name, node));
 		}
-		return variableMap.get(name);
+		return variable;
 	}
 	
 	public Function getFunction(Node node, String name) {
-		if (!functionExists(name)) {
+		Function function = functionMap.get(name);
+		if (function == null) {
 			throw new IllegalArgumentException(String.format("Function \"%s\" not defined in this scope! %s", name, node));
 		}
-		return functionMap.get(name);
+		return function;
 	}
 	
 	// Adders
 	
 	public void addType(Node node, Type type) {
+		String typeString;
 		if (type == null) {
 			throw new IllegalArgumentException(String.format("Attempted to create null type! %s", node));
 		}
-		else if (type.toString() == null) {
+		else if ((typeString = type.toString()) == null) {
 			throw new IllegalArgumentException(String.format("Attempted to create type with null name! %s", node));
 		}
-		else if (typeExists(type.toString())) {
-			throw new IllegalArgumentException(String.format("Type name \"%s\" already used in this scope! %s", type.toString(), node));
+		else if (typeNameCollision(type)) {
+			throw new IllegalArgumentException(String.format("Type name \"%s\" already used in this scope! %s", typeString, node));
 		}
 		else {
-			typeMap.put(type.toString(), type);
+			typeMap.put(typeString, type, true);
 		}
 	}
 	
 	public void addConstant(Node node, Constant constant, boolean replace) {
+		TypeInfo typeInfo;
+		Type type;
+		String typeString;
 		if (constant == null) {
 			throw new IllegalArgumentException(String.format("Attempted to create null constant! %s", node));
 		}
 		else if (constant.name == null) {
 			throw new IllegalArgumentException(String.format("Attempted to create constant with null name! %s", node));
 		}
-		else if (!replace && nameSet.contains(constant.name)) {
+		else if (!replace && valueNameCollision(constant.name)) {
 			throw new IllegalArgumentException(String.format("Name \"%s\" already used in this scope! %s", constant.name, node));
 		}
-		else if (constant.typeInfo == null || constant.typeInfo.type == null || constant.typeInfo.type.toString() == null) {
+		else if ((typeInfo = constant.typeInfo) == null || (type = typeInfo.type) == null || (typeString = type.toString()) == null) {
 			throw new IllegalArgumentException(String.format("Attempted to create constant \"%s\" with null type! %s", constant.name, node));
 		}
-		else if (!typeExists(constant.typeInfo)) {
-			throw new IllegalArgumentException(String.format("Type \"%s\" not defined in this scope! %s", constant.typeInfo.type.toString(), node));
+		else if (!typeExists(typeInfo)) {
+			throw new IllegalArgumentException(String.format("Type \"%s\" not defined in this scope! %s", typeString, node));
 		}
 		else {
-			constantMap.put(constant.name, constant);
-			nameSet.add(constant.name);
+			constantMap.put(constant.name, constant, true);
 		}
 	}
 	
-	public void addVariable(Node node, Variable variable) {
+	public void addVariable(Node node, Variable variable, boolean replace) {
+		TypeInfo typeInfo;
+		Type type;
+		String typeString;
 		if (variable == null) {
 			throw new IllegalArgumentException(String.format("Attempted to create null variable! %s", node));
 		}
 		else if (variable.name == null) {
 			throw new IllegalArgumentException(String.format("Attempted to create variable with null name! %s", node));
 		}
-		else if (nameSet.contains(variable.name)) {
+		else if (!replace && valueNameCollision(variable.name)) {
 			throw new IllegalArgumentException(String.format("Name \"%s\" already used in this scope! %s", variable.name, node));
 		}
-		else if (variable.typeInfo == null || variable.typeInfo.type == null || variable.typeInfo.type.toString() == null) {
+		else if ((typeInfo = variable.typeInfo) == null || (type = typeInfo.type) == null || (typeString = type.toString()) == null) {
 			throw new IllegalArgumentException(String.format("Attempted to create variable \"%s\" with null type! %s", variable.name, node));
 		}
-		else if (!typeExists(variable.typeInfo)) {
-			throw new IllegalArgumentException(String.format("Type \"%s\" not defined in this scope! %s", variable.typeInfo.type.toString(), node));
+		else if (!typeExists(typeInfo)) {
+			throw new IllegalArgumentException(String.format("Type \"%s\" not defined in this scope! %s", typeString, node));
 		}
 		else {
-			variable.scope = variable.typeInfo.isFunction() ? generator.program.rootScope : this;
-			variableMap.put(variable.name, variable);
-			nameSet.add(variable.name);
+			variable.scope = typeInfo.isFunction() ? generator.program.rootScope : this;
+			variableMap.put(variable.name, variable, true);
 		}
 	}
 	
 	public void addFunction(Node node, Function function, boolean replace) {
+		TypeInfo typeInfo;
+		Type type;
+		String typeString;
 		if (function == null) {
 			throw new IllegalArgumentException(String.format("Attempted to create null function! %s", node));
 		}
 		else if (function.name == null) {
 			throw new IllegalArgumentException(String.format("Attempted to create function with null name! %s", node));
 		}
-		else if (function.returnTypeInfo == null || function.returnTypeInfo.type == null || function.returnTypeInfo.type.toString() == null) {
+		else if ((typeInfo = function.returnTypeInfo) == null || (type = typeInfo.type) == null || (typeString = type.toString()) == null) {
 			throw new IllegalArgumentException(String.format("Attempted to create function \"%s\" with null return type! %s", function.name, node));
 		}
-		else if (!typeExists(function.returnTypeInfo)) {
-			throw new IllegalArgumentException(String.format("Type \"%s\" not defined in this scope! %s", function.returnTypeInfo.type.toString(), node));
+		else if (!typeExists(typeInfo)) {
+			throw new IllegalArgumentException(String.format("Type \"%s\" not defined in this scope! %s", typeString, node));
 		}
-		else if (!replace && nameSet.contains(function.name)) {
+		else if (!replace && valueNameCollision(function.name)) {
 			throw new IllegalArgumentException(String.format("Name \"%s\" already used in this scope! %s", function.name, node));
 		}
 		else {
-			functionMap.put(function.name, function);
-			nameSet.remove(function.name);
-			addVariable(node, new Variable(function.name, new VariableModifierInfo(true), new FunctionTypeInfo(node, this, function.name)));
+			functionMap.put(function.name, function, true);
+			addVariable(node, new Variable(function.name, new VariableModifierInfo(true), new FunctionTypeInfo(node, this, function.name)), true);
 		}
 	}
 	

@@ -21,7 +21,7 @@ public class IntermediateGenerator extends Generator {
 	@Override
 	public void addBuiltInVariables(Node node) {
 		super.addBuiltInVariables(node);
-		program.rootScope.addVariable(node, new Variable(Global.ARGC, new VariableModifierInfo(false), intTypeInfo));
+		program.rootScope.addVariable(node, new Variable(Global.ARGC, new VariableModifierInfo(false), intTypeInfo), false);
 	}
 	
 	@Override
@@ -64,10 +64,8 @@ public class IntermediateGenerator extends Generator {
 			}
 		}
 		
-		try {
-			PrintWriter out = new PrintWriter(outputFile);
+		try (PrintWriter out = new PrintWriter(outputFile)) {
 			out.print(builder.substring(1));
-			out.close();
 		}
 		catch (Exception e) {
 			e.printStackTrace();

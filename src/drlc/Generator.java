@@ -8,7 +8,6 @@ import drlc.intermediate.action.binary.BinaryActionType;
 import drlc.intermediate.action.unary.UnaryActionType;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.constant.*;
-import drlc.intermediate.component.info.FunctionModifierInfo;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.routine.*;
 import drlc.node.Node;
@@ -93,11 +92,11 @@ public abstract class Generator {
 	public void addBuiltInVariables(Node node) {}
 	
 	public void addBuiltInFunctions(Node node) {
-		builtInFunctionMap.put(Global.INCHAR, new Function(null, Global.INCHAR, true, new FunctionModifierInfo(), charTypeInfo, Helpers.params(), true));
-		builtInFunctionMap.put(Global.ININT, new Function(null, Global.ININT, true, new FunctionModifierInfo(), intTypeInfo, Helpers.params(), true));
-		builtInFunctionMap.put(Global.OUTCHAR, new Function(null, Global.OUTCHAR, true, new FunctionModifierInfo(), voidTypeInfo, Helpers.params(Helpers.builtInParam("c", charTypeInfo)), true));
-		builtInFunctionMap.put(Global.OUTINT, new Function(null, Global.OUTINT, true, new FunctionModifierInfo(), voidTypeInfo, Helpers.params(Helpers.builtInParam("x", intTypeInfo)), true));
-		builtInFunctionMap.put(Global.ARGV, new Function(null, Global.ARGV, true, new FunctionModifierInfo(), intTypeInfo, Helpers.params(Helpers.builtInParam("index", indexTypeInfo)), true));
+		builtInFunctionMap.put(Global.INCHAR, new Function(null, Global.INCHAR, true, charTypeInfo, Helpers.params(), true));
+		builtInFunctionMap.put(Global.ININT, new Function(null, Global.ININT, true, intTypeInfo, Helpers.params(), true));
+		builtInFunctionMap.put(Global.OUTCHAR, new Function(null, Global.OUTCHAR, true, voidTypeInfo, Helpers.params(Helpers.builtInParam("c", charTypeInfo)), true));
+		builtInFunctionMap.put(Global.OUTINT, new Function(null, Global.OUTINT, true, voidTypeInfo, Helpers.params(Helpers.builtInParam("x", intTypeInfo)), true));
+		builtInFunctionMap.put(Global.ARGV, new Function(null, Global.ARGV, true, intTypeInfo, Helpers.params(Helpers.builtInParam("index", indexTypeInfo)), true));
 		
 		for (Entry<String, Function> entry : builtInFunctionMap.entrySet()) {
 			addBuiltInFunction(node, entry.getKey(), entry.getValue());
