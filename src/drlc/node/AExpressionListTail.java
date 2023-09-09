@@ -8,7 +8,7 @@ import drlc.analysis.*;
 public final class AExpressionListTail extends PExpressionListTail
 {
     private TComma _comma_;
-    private PExpressionRvalue _expressionRvalue_;
+    private PExpression _expression_;
 
     public AExpressionListTail()
     {
@@ -17,12 +17,12 @@ public final class AExpressionListTail extends PExpressionListTail
 
     public AExpressionListTail(
         @SuppressWarnings("hiding") TComma _comma_,
-        @SuppressWarnings("hiding") PExpressionRvalue _expressionRvalue_)
+        @SuppressWarnings("hiding") PExpression _expression_)
     {
         // Constructor
         setComma(_comma_);
 
-        setExpressionRvalue(_expressionRvalue_);
+        setExpression(_expression_);
 
     }
 
@@ -31,7 +31,7 @@ public final class AExpressionListTail extends PExpressionListTail
     {
         return new AExpressionListTail(
             cloneNode(this._comma_),
-            cloneNode(this._expressionRvalue_));
+            cloneNode(this._expression_));
     }
 
     @Override
@@ -65,16 +65,16 @@ public final class AExpressionListTail extends PExpressionListTail
         this._comma_ = node;
     }
 
-    public PExpressionRvalue getExpressionRvalue()
+    public PExpression getExpression()
     {
-        return this._expressionRvalue_;
+        return this._expression_;
     }
 
-    public void setExpressionRvalue(PExpressionRvalue node)
+    public void setExpression(PExpression node)
     {
-        if(this._expressionRvalue_ != null)
+        if(this._expression_ != null)
         {
-            this._expressionRvalue_.parent(null);
+            this._expression_.parent(null);
         }
 
         if(node != null)
@@ -87,7 +87,7 @@ public final class AExpressionListTail extends PExpressionListTail
             node.parent(this);
         }
 
-        this._expressionRvalue_ = node;
+        this._expression_ = node;
     }
 
     @Override
@@ -95,7 +95,7 @@ public final class AExpressionListTail extends PExpressionListTail
     {
         return ""
             + toString(this._comma_)
-            + toString(this._expressionRvalue_);
+            + toString(this._expression_);
     }
 
     @Override
@@ -108,9 +108,9 @@ public final class AExpressionListTail extends PExpressionListTail
             return;
         }
 
-        if(this._expressionRvalue_ == child)
+        if(this._expression_ == child)
         {
-            this._expressionRvalue_ = null;
+            this._expression_ = null;
             return;
         }
 
@@ -127,9 +127,9 @@ public final class AExpressionListTail extends PExpressionListTail
             return;
         }
 
-        if(this._expressionRvalue_ == oldChild)
+        if(this._expression_ == oldChild)
         {
-            setExpressionRvalue((PExpressionRvalue) newChild);
+            setExpression((PExpression) newChild);
             return;
         }
 

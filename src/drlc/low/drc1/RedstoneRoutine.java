@@ -8,7 +8,7 @@ import drlc.intermediate.action.*;
 import drlc.intermediate.action.binary.BinaryOpAction;
 import drlc.intermediate.action.unary.UnaryOpAction;
 import drlc.intermediate.component.*;
-import drlc.intermediate.component.info.DeclaratorInfo;
+import drlc.intermediate.component.data.*;
 import drlc.intermediate.routine.*;
 import drlc.low.drc1.instruction.*;
 import drlc.low.drc1.instruction.address.*;
@@ -38,7 +38,7 @@ public class RedstoneRoutine {
 	public final Map<RedstoneAddressKey, Short> dataAddressMap;
 	public final Map<RedstoneAddressKey, Short> tempAddressMap = new HashMap<>();
 	
-	public RedstoneRoutine(RedstoneCode code, String name, RoutineType type, DeclaratorInfo[] params) {
+	public RedstoneRoutine(RedstoneCode code, String name, RoutineCallType type, DeclaratorInfo[] params) {
 		this.code = code;
 		intermediateRoutine = null;
 		this.name = name;
@@ -106,7 +106,7 @@ public class RedstoneRoutine {
 			if (i == 0 && !isRootRoutine()) {
 				for (DeclaratorInfo param : params) {
 					DataId paramId = param.dataId();
-					if (Helpers.getDereferenceCount(paramId.raw) > 0) {
+					if (paramId.dereferenceLevel > 0) {
 						declare(text, paramId, false);
 					}
 				}
@@ -209,36 +209,37 @@ public class RedstoneRoutine {
 					}
 					else {
 						FunctionCallAction fca = (FunctionCallAction) action;
-						DataId callId = fca.getCallId();
-						DataId[] args = fca.getArgs();
+						DataId function = fca.function;
+						List<DataId> args = fca.args;
 						
-						RedstoneRoutine subroutine = code.getRoutine(callId.raw);
+						RedstoneRoutine subroutine = code.getRoutine(function.name);
 						boolean indirectCall = subroutine == null;
 						boolean isStackRoutine = indirectCall || subroutine.isStackRoutine();
 						
+						int argCount = args.size();
 						if (isStackRoutine) {
-							for (int k = args.length - 1; k >= 0; --k) {
-								load(text, args[k]);
+							for (int k = argCount - 1; k >= 0; --k) {
+								load(text, args.get(k));
 								text.add(new InstructionPush());
 							}
 						}
 						else {
-							for (int k = 0; k < args.length; ++k) {
-								load(text, args[k]);
+							for (int k = 0; k < argCount; ++k) {
+								load(text, args.get(k));
 								subroutine.store(text, subroutine.params[k].dataId(), false);
 							}
 						}
 						
 						if (indirectCall) {
-							load(text, callId);
+							load(text, function);
 						}
 						else {
-							text.add(new InstructionLoadCallAddressImmediate(callId.raw));
+							text.add(new InstructionLoadCallAddressImmediate(function.name));
 						}
 						text.add(new InstructionCallSubroutine(indirectCall));
 						
 						if (isStackRoutine) {
-							text.add(new InstructionAddToStackPointer((short) args.length));
+							text.add(new InstructionAddToStackPointer((short) argCount));
 						}
 						
 						store(text, fca.target, true);
@@ -368,8 +369,8 @@ public class RedstoneRoutine {
 		}
 		else {
 			for (Entry<DataId, Long> entry : dataIdMap.entrySet()) {
-				if (isRootRoutine() && RedstoneGenerator.isRootParam(entry.getKey().raw)) {
-					dataAddressMap.put(addressKey(entry.getValue()), (short) (RedstoneCode.MAX_ADDRESS - RedstoneGenerator.parseRootParam(entry.getKey().raw)));
+				if (isRootRoutine() && RedstoneGenerator.isRootParam(entry.getKey().name)) {
+					dataAddressMap.put(addressKey(entry.getValue()), (short) (RedstoneCode.MAX_ADDRESS - RedstoneGenerator.parseRootParam(entry.getKey().name)));
 				}
 				else {
 					dataAddressMap.put(addressKey(entry.getValue()), (short) (code.addressOffset + dataAddressOffset));
@@ -497,7 +498,7 @@ public class RedstoneRoutine {
 	}
 	
 	protected DataId nextExtraTempRegArg() {
-		return new DataId(Global.REG.concat(Helpers.regIdString(extraTempRegId++)), null);
+		return new ExtraRegDataId(extraTempRegId++);
 	}
 	
 	protected boolean isStackData(RedstoneDataInfo info) {
@@ -507,7 +508,7 @@ public class RedstoneRoutine {
 	// Data Info
 	
 	public RedstoneDataInfo dataInfo(DataId arg) {
-		if (Helpers.isRegId(arg.raw)) {
+		if (Helpers.isRegId(arg.name)) {
 			return new RedstoneDataInfo(name, arg, RedstoneDataType.TEMP, tempId(arg));
 		}
 		else if (code.rootIdMap.containsKey(arg)) {
@@ -541,14 +542,14 @@ public class RedstoneRoutine {
 	// Instructions
 	
 	protected void store(List<Instruction> text, DataId arg, boolean autoDereference) {
-		if (arg.equals(Global.TRANSIENT_DATA_ID)) {
+		if (arg instanceof TransientDataId) {
 			return;
 		}
-		else if (Helpers.isImmediateValue(arg.raw)) {
+		else if (Helpers.isImmediateValue(arg.name)) {
 			throw new IllegalArgumentException(String.format("Attempted to add an immediate store instruction! %s", arg));
 		}
 		else {
-			int dereferenceLevel = autoDereference ? Helpers.getDereferenceCount(arg.raw) : 0;
+			int dereferenceLevel = autoDereference ? arg.dereferenceLevel : 0;
 			if (dereferenceLevel == 0) {
 				RedstoneDataInfo argInfo = dataInfo(arg);
 				if (isStackData(argInfo)) {
@@ -578,10 +579,10 @@ public class RedstoneRoutine {
 	}
 	
 	protected void declare(List<Instruction> text, DataId arg, boolean initialize) {
-		if (arg.equals(Global.TRANSIENT_DATA_ID)) {
+		if (arg instanceof TransientDataId) {
 			return;
 		}
-		else if (Helpers.isImmediateValue(arg.raw)) {
+		else if (Helpers.isImmediateValue(arg.name)) {
 			throw new IllegalArgumentException(String.format("Attempted to add an immediate declaration instruction! %s", arg));
 		}
 		else {
@@ -595,8 +596,7 @@ public class RedstoneRoutine {
 				}
 			}
 			
-			int dereferenceLevel = Helpers.getDereferenceCount(arg.raw);
-			for (int i = 0; i < dereferenceLevel; ++i) {
+			for (int i = 0; i < arg.dereferenceLevel; ++i) {
 				if (isStackData(argInfo)) {
 					text.add(new InstructionLoadImmediateAddressOffset(argInfo));
 				}
@@ -618,8 +618,8 @@ public class RedstoneRoutine {
 	}
 	
 	protected void load(List<Instruction> text, DataId arg) {
-		if (Helpers.isImmediateValue(arg.raw)) {
-			final short value = Helpers.parseImmediateValue(arg.raw).shortValue();
+		if (Helpers.isImmediateValue(arg.name)) {
+			final short value = Helpers.parseImmediateValue(arg.name).shortValue();
 			if (RedstoneCode.isLongImmediate(value)) {
 				Instruction illi = new InstructionLoadLongImmediate(value);
 				text.add(illi);
@@ -629,12 +629,12 @@ public class RedstoneRoutine {
 				text.add(new InstructionLoadImmediate(value));
 			}
 		}
-		else if (code.routineExists(arg.raw)) {
-			text.add(new InstructionLoadCallAddressImmediate(arg.raw));
-			code.unusedBuiltInRoutineSet.remove(arg.raw);
+		else if (code.routineExists(arg.name)) {
+			text.add(new InstructionLoadCallAddressImmediate(arg.name));
+			code.unusedBuiltInRoutineSet.remove(arg.name);
 		}
 		else {
-			final boolean hasAddressPrefix = Helpers.hasAddressPrefix(arg.raw);
+			final boolean hasAddressPrefix = Helpers.hasAddressPrefix(arg.name);
 			if (hasAddressPrefix) {
 				final RedstoneDataInfo argInfo = dataInfo(arg.removeAddressPrefix());
 				if (isStackData(argInfo)) {
@@ -658,8 +658,8 @@ public class RedstoneRoutine {
 	
 	protected void binaryOp(List<Instruction> text, BinaryOpType type, DataId arg) {
 		DataId t0, t1;
-		if (Helpers.isImmediateValue(arg.raw)) {
-			final short value = Helpers.parseImmediateValue(arg.raw).shortValue();
+		if (Helpers.isImmediateValue(arg.name)) {
+			final short value = Helpers.parseImmediateValue(arg.name).shortValue();
 			if (RedstoneCode.isLongImmediate(value)) {
 				Instruction li;
 				switch (type) {
@@ -789,7 +789,7 @@ public class RedstoneRoutine {
 							binaryOp(text, BinaryOpType.ARITHMETIC_LEFT_SHIFT, t1);
 							store(text, t1, true);
 							load(text, t0);
-							binaryOp(text, BinaryOpType.LOGICAL_RIGHT_SHIFT, Helpers.immediateDataId((long) RedstoneCode.lowBits(value)));
+							binaryOp(text, BinaryOpType.LOGICAL_RIGHT_SHIFT, Helpers.immediateDataId(RedstoneCode.lowBits(value)));
 							binaryOp(text, BinaryOpType.OR, t1);
 						}
 						break;
@@ -923,7 +923,7 @@ public class RedstoneRoutine {
 							binaryOp(text, BinaryOpType.ARITHMETIC_LEFT_SHIFT, t1);
 							store(text, t1, true);
 							load(text, t0);
-							binaryOp(text, BinaryOpType.LOGICAL_RIGHT_SHIFT, Helpers.immediateDataId((long) value));
+							binaryOp(text, BinaryOpType.LOGICAL_RIGHT_SHIFT, Helpers.immediateDataId(value));
 							binaryOp(text, BinaryOpType.OR, t1);
 						}
 						break;
@@ -1235,8 +1235,8 @@ public class RedstoneRoutine {
 	}
 	
 	protected void dereference(List<Instruction> text, int dereferenceLevel, DataId arg) {
-		if (Helpers.isImmediateValue(arg.raw)) {
-			final short value = Helpers.parseImmediateValue(arg.raw).shortValue();
+		if (Helpers.isImmediateValue(arg.name)) {
+			final short value = Helpers.parseImmediateValue(arg.name).shortValue();
 			if (RedstoneCode.isLongImmediate(value)) {
 				text.add(new InstructionLoadImmediate(RedstoneCode.lowBits(value)));
 			}
@@ -1260,8 +1260,8 @@ public class RedstoneRoutine {
 	}
 	
 	protected void unaryOp(List<Instruction> text, UnaryOpType type, DataId arg) {
-		if (Helpers.isImmediateValue(arg.raw)) {
-			final short value = Helpers.parseImmediateValue(arg.raw).shortValue();
+		if (Helpers.isImmediateValue(arg.name)) {
+			final short value = Helpers.parseImmediateValue(arg.name).shortValue();
 			Instruction li;
 			if (RedstoneCode.isLongImmediate(value)) {
 				switch (type) {
@@ -1382,20 +1382,20 @@ public class RedstoneRoutine {
 	}
 	
 	protected void builtInFunctionCall(List<Instruction> text, BuiltInFunctionCallAction action) {
-		String callName = action.getCallId().raw;
-		if (callName.equals(Global.OUTCHAR)) {
-			load(text, action.getArg(0));
+		String functionName = action.function.name;
+		if (functionName.equals(Global.OUTCHAR)) {
+			load(text, action.args.get(0));
 			text.add(new InstructionAndImmediate((short) 0x7F));
 			text.add(new InstructionOutput());
 		}
-		else if (callName.equals(Global.OUTINT)) {
-			load(text, action.getArg(0));
+		else if (functionName.equals(Global.OUTINT)) {
+			load(text, action.args.get(0));
 			text.add(new InstructionOutput());
 		}
-		else if (callName.equals(Global.ARGV)) {
-			DataId arg = action.getArg(0);
-			if (Helpers.isImmediateValue(arg.raw)) {
-				load(text, code.generator.rootParamDataId(Helpers.parseImmediateValue(arg.raw).intValue()));
+		else if (functionName.equals(Global.ARGV_FUNCTION)) {
+			DataId arg = action.args.get(0);
+			if (Helpers.isImmediateValue(arg.name)) {
+				load(text, code.generator.rootParamDataId(code.program.rootRoutine, Helpers.parseImmediateValue(arg.name).intValue()));
 			}
 			else {
 				load(text, arg);

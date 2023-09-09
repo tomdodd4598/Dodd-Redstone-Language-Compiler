@@ -38,20 +38,20 @@ public class InstructionLoadBOffset extends InstructionAddressOffset {
 	@Override
 	public String binaryString() {
 		if (offset < 0) {
-			return RedstoneOpcodes.get(RedstoneMnemonics.LDBNB).concat(Helpers.toBinary(-offset, 8));
+			return RedstoneOpcodes.get(RedstoneMnemonics.LDBNB) + Helpers.toBinary(-offset, 8);
 		}
 		else {
-			return RedstoneOpcodes.get(RedstoneMnemonics.LDBPB).concat(Helpers.toBinary(offset, 8));
+			return RedstoneOpcodes.get(RedstoneMnemonics.LDBPB) + Helpers.toBinary(offset, 8);
 		}
 	}
 	
 	@Override
 	public String toString() {
 		if (offset < 0) {
-			return RedstoneMnemonics.LDBNB.concat("\t").concat(Helpers.toHex(-offset, 2));
+			return RedstoneMnemonics.LDBNB + '\t' + Helpers.toHex(-offset, 2);
 		}
 		else {
-			return RedstoneMnemonics.LDBPB.concat("\t").concat(Helpers.toHex(offset, 2));
+			return RedstoneMnemonics.LDBPB + '\t' + Helpers.toHex(offset, 2);
 		}
 	}
 }

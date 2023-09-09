@@ -31,11 +31,11 @@ public class InstructionXorImmediate extends InstructionALUImmediate {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.XORI).concat(Helpers.toBinary(value, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.XORI) + Helpers.toBinary(value, 8);
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.XORI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
+		return RedstoneMnemonics.XORI + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
 	}
 }

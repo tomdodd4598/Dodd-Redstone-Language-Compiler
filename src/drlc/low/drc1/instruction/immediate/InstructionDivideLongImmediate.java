@@ -28,11 +28,11 @@ public class InstructionDivideLongImmediate extends InstructionALULongImmediate 
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.DIVLI).concat(Global.ZERO_8);
+		return RedstoneOpcodes.get(RedstoneMnemonics.DIVLI) + Global.ZERO_8;
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.DIVLI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
+		return RedstoneMnemonics.DIVLI + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
 	}
 }

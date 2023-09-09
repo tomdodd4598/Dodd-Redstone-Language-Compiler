@@ -2,6 +2,10 @@ package drlc.intermediate.component;
 
 import java.util.*;
 
+import org.eclipse.jdt.annotation.NonNull;
+
+import drlc.Helpers;
+
 public enum UnaryOpType {
 	
 	MINUS("-"),
@@ -15,8 +19,14 @@ public enum UnaryOpType {
 		}
 	}
 	
-	public static UnaryOpType getOpType(String str) {
-		return NAME_MAP.get(str);
+	public static @NonNull UnaryOpType get(String str) {
+		UnaryOpType opType = NAME_MAP.get(str);
+		if (opType == null) {
+			throw Helpers.nodeError(null, "Unary operator \"%s\" not defined!", str);
+		}
+		else {
+			return opType;
+		}
 	}
 	
 	private final String str;

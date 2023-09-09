@@ -27,7 +27,7 @@ public class InstructionPushBasePointer extends Instruction {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.PSHBP).concat(Global.ZERO_8);
+		return RedstoneOpcodes.get(RedstoneMnemonics.PSHBP) + Global.ZERO_8;
 	}
 	
 	@Override

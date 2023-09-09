@@ -27,7 +27,7 @@ public class InstructionStoreAToBAddress extends Instruction {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.STATB).concat(Global.ZERO_8);
+		return RedstoneOpcodes.get(RedstoneMnemonics.STATB) + Global.ZERO_8;
 	}
 	
 	@Override

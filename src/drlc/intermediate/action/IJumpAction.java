@@ -1,10 +1,10 @@
 package drlc.intermediate.action;
 
-public interface IJumpAction<T extends Action & IJumpAction<T>> {
+public interface IJumpAction {
 	
 	public boolean isConditional();
 	
 	public String getTarget();
 	
-	public T copy(String target);
+	public Action copy(String target);
 }

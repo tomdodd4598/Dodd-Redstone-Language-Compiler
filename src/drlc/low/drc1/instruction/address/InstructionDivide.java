@@ -17,11 +17,11 @@ public class InstructionDivide extends InstructionALU {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.DIV).concat(Helpers.toBinary(address, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.DIV) + Helpers.toBinary(address, 8);
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.DIV.concat("\t").concat(Helpers.toHex(address, 2));
+		return RedstoneMnemonics.DIV + '\t' + Helpers.toHex(address, 2);
 	}
 }

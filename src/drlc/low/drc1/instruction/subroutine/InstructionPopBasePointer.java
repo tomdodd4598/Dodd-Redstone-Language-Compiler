@@ -27,7 +27,7 @@ public class InstructionPopBasePointer extends Instruction {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.POPBP).concat(Global.ZERO_8);
+		return RedstoneOpcodes.get(RedstoneMnemonics.POPBP) + Global.ZERO_8;
 	}
 	
 	@Override

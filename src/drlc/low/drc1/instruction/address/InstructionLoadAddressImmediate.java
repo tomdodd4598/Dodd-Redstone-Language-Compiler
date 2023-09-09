@@ -37,11 +37,11 @@ public class InstructionLoadAddressImmediate extends InstructionAddress {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.LDAI).concat(Helpers.toBinary(address, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.LDAI) + Helpers.toBinary(address, 8);
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.LDAI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(address));
+		return RedstoneMnemonics.LDAI + '\t' + Global.IMMEDIATE + Helpers.toHex(address);
 	}
 }

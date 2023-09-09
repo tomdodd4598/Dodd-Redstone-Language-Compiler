@@ -27,7 +27,7 @@ public class InstructionPush extends Instruction {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.PSHA).concat(Global.ZERO_8);
+		return RedstoneOpcodes.get(RedstoneMnemonics.PSHA) + Global.ZERO_8;
 	}
 	
 	@Override

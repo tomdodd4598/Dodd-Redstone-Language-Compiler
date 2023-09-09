@@ -32,11 +32,11 @@ public class InstructionStore extends InstructionAddress implements IInstruction
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.STA).concat(Helpers.toBinary(address, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.STA) + Helpers.toBinary(address, 8);
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.STA.concat("\t").concat(Helpers.toHex(address, 2));
+		return RedstoneMnemonics.STA + '\t' + Helpers.toHex(address, 2);
 	}
 }

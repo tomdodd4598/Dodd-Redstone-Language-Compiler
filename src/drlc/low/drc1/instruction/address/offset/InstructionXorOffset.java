@@ -18,20 +18,20 @@ public class InstructionXorOffset extends InstructionALUOffset {
 	@Override
 	public String binaryString() {
 		if (offset < 0) {
-			return RedstoneOpcodes.get(RedstoneMnemonics.XORNB).concat(Helpers.toBinary(-offset, 8));
+			return RedstoneOpcodes.get(RedstoneMnemonics.XORNB) + Helpers.toBinary(-offset, 8);
 		}
 		else {
-			return RedstoneOpcodes.get(RedstoneMnemonics.XORPB).concat(Helpers.toBinary(offset, 8));
+			return RedstoneOpcodes.get(RedstoneMnemonics.XORPB) + Helpers.toBinary(offset, 8);
 		}
 	}
 	
 	@Override
 	public String toString() {
 		if (offset < 0) {
-			return RedstoneMnemonics.XORNB.concat("\t").concat(Helpers.toHex(-offset, 2));
+			return RedstoneMnemonics.XORNB + '\t' + Helpers.toHex(-offset, 2);
 		}
 		else {
-			return RedstoneMnemonics.XORPB.concat("\t").concat(Helpers.toHex(offset, 2));
+			return RedstoneMnemonics.XORPB + '\t' + Helpers.toHex(offset, 2);
 		}
 	}
 }

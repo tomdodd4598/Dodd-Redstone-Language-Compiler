@@ -1,19 +1,10 @@
 package drlc;
 
-import java.util.*;
-
 import drlc.intermediate.action.*;
-import drlc.intermediate.component.DataId;
 
 public final class Global {
 	
-	public static final Set<String> DIRECTIVES = new HashSet<>();
-	
 	public static final String SETARGC = "setargc";
-	
-	static {
-		DIRECTIVES.add(SETARGC);
-	}
 	
 	public static final String VOID = "Void";
 	public static final String BOOL = "Bool";
@@ -22,17 +13,18 @@ public final class Global {
 	public static final String CHAR = "Char";
 	
 	public static final String FN = "fn";
-	public static final String VAR = "var";
+	public static final String LET = "let";
 	
 	public static final String TYPE_ANNOTATION_PREFIX = ":";
 	
 	public static final String ARGC = "argc";
+	public static final String ARGV_PARAM = "\\argv";
 	
 	public static final String INCHAR = "inchar";
 	public static final String ININT = "inint";
 	public static final String OUTCHAR = "outchar";
 	public static final String OUTINT = "outint";
-	public static final String ARGV = "argv";
+	public static final String ARGV_FUNCTION = "argv";
 	
 	public static final String ROOT_ROUTINE = "\\root";
 	
@@ -42,19 +34,24 @@ public final class Global {
 	
 	public static final String DOUBLE_COLON = "::";
 	
-	public static final String SECTION_1 = "{";
-	public static final String SECTION_2 = "}";
+	public static final String SECTION_ID_START = "{";
+	public static final String SECTION_ID_END = "}";
 	public static final String REG = "%";
+	public static final String EXTRA_REG = "%%";
 	public static final String TRANSIENT = "%t";
 	public static final String IMMEDIATE = "$";
 	public static final String DISCARD = "_";
 	
+	public static final String CONST = "const";
 	public static final String STATIC = "static";
+	public static final String MUT = "mut";
 	
 	public static final String EQUALS = "=";
 	
 	public static final String IF = "if";
+	public static final String UNLESS = "unless";
 	public static final String WHILE = "while";
+	public static final String UNTIL = "until";
 	
 	public static final char DEREFERENCE = '*';
 	public static final char ADDRESS_OF = '&';
@@ -74,8 +71,14 @@ public final class Global {
 	
 	public static final String BUILT_IN_PARAM_PREFIX = "\\";
 	public static final String DISCARD_PARAM_PREFIX = "\\_";
-	public static final String PARAM_SEPARATOR = ", ";
-	public static final String ARG_SEPARATOR = ", ";
+	
+	public static final String LIST_SEPARATOR = ", ";
+	public static final String LIST_START = "(";
+	public static final String LIST_END = ")";
+	
+	public static final String ARRAY_TYPE_DELIMITER = "; ";
+	public static final String ARRAY_START = "[";
+	public static final String ARRAY_END = "]";
 	
 	public static final Action RETURN_FROM_FUNCTION = new ReturnAction();
 	public static final Action EXIT_PROGRAM = new ExitAction();
@@ -91,8 +94,6 @@ public final class Global {
 	public static final Action ITERATION_BREAK_PLACEHOLDER = new PlaceholderAction(null, "break");
 	public static final Action ITERATION_CONDITIONAL_BREAK_PLACEHOLDER = new PlaceholderAction(null, "cbreak");
 	public static final Action ITERATION_CONDITIONAL_NOT_BREAK_PLACEHOLDER = new PlaceholderAction(null, "cnbreak");
-	
-	public static final DataId TRANSIENT_DATA_ID = new DataId(TRANSIENT, null);
 	
 	public static final String LOGICAL_RIGHT_SHIFT = "\\logical_right_shift";
 	public static final String CIRCULAR_LEFT_SHIFT = "\\circular_left_shift";

@@ -35,11 +35,11 @@ public class InstructionJump extends Instruction {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.JMP).concat(Helpers.toBinary(address, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.JMP) + Helpers.toBinary(address, 8);
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.JMP.concat("\t").concat(Helpers.toHex(address, 2));
+		return RedstoneMnemonics.JMP + '\t' + Helpers.toHex(address, 2);
 	}
 }

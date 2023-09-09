@@ -48,11 +48,11 @@ public class InstructionLoadLongImmediate extends InstructionLongImmediate imple
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.LDALI).concat(Global.ZERO_8);
+		return RedstoneOpcodes.get(RedstoneMnemonics.LDALI) + Global.ZERO_8;
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.LDALI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
+		return RedstoneMnemonics.LDALI + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
 	}
 }

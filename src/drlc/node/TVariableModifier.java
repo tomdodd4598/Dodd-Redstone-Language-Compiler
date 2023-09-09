@@ -7,14 +7,14 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class TVariableModifier extends Token
 {
-    public TVariableModifier()
+    public TVariableModifier(String text)
     {
-        super.setText("static");
+        setText(text);
     }
 
-    public TVariableModifier(int line, int pos)
+    public TVariableModifier(String text, int line, int pos)
     {
-        super.setText("static");
+        setText(text);
         setLine(line);
         setPos(pos);
     }
@@ -22,18 +22,12 @@ public final class TVariableModifier extends Token
     @Override
     public Object clone()
     {
-      return new TVariableModifier(getLine(), getPos());
+      return new TVariableModifier(getText(), getLine(), getPos());
     }
 
     @Override
     public void apply(Switch sw)
     {
         ((Analysis) sw).caseTVariableModifier(this);
-    }
-
-    @Override
-    public void setText(@SuppressWarnings("unused") String text)
-    {
-        throw new RuntimeException("Cannot change TVariableModifier text.");
     }
 }

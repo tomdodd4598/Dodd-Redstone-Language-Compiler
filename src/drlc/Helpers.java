@@ -1,17 +1,47 @@
 package drlc;
 
 import java.io.*;
+import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.nio.file.*;
 import java.util.*;
-import java.util.function.Function;
+import java.util.Map.Entry;
+import java.util.stream.*;
 
 import org.apache.commons.text.translate.*;
+import org.eclipse.jdt.annotation.*;
 
 import drlc.intermediate.component.*;
-import drlc.intermediate.component.info.*;
 import drlc.intermediate.component.type.TypeInfo;
+import drlc.lexer.Lexer;
+import drlc.node.Node;
+import drlc.node.Token;
 
 public class Helpers {
 	
+	public static @NonNull String readFile(String fileName) throws Exception {
+		try {
+			return new String(Files.readAllBytes(Paths.get(fileName)), Charset.defaultCharset());
+		}
+		catch (Exception e) {
+			throw e;
+		}
+	}
+	
+	public static void writeFile(String fileName, String contents) throws Exception {
+		try (PrintWriter out = new PrintWriter(fileName)) {
+			out.print(contents);
+		}
+		catch (Exception e) {
+			throw e;
+		}
+	}
+	
+	public static Lexer stringLexer(String str) {
+		return new Lexer(new PushbackReader(new StringReader(str), 16384));
+	}
+	
+	private static final Map<String, String> ESCAPE_MAP = new HashMap<>();
 	private static final CharSequenceTranslator UNESCAPE_TRANSLATOR;
 	
 	private static class AsciiUnescaper extends CharSequenceTranslator {
@@ -35,34 +65,133 @@ public class Helpers {
 	}
 	
 	static {
-		Map<CharSequence, CharSequence> unescapeMap = new HashMap<>();
-		unescapeMap.put("\\0", "\0");
-		unescapeMap.put("\\t", "\t");
-		unescapeMap.put("\\b", "\b");
-		unescapeMap.put("\\n", "\n");
-		unescapeMap.put("\\r", "\r");
-		unescapeMap.put("\\f", "\f");
-		unescapeMap.put("\\'", "'");
-		unescapeMap.put("\\\"", "\"");
-		unescapeMap.put("\\\\", "\\");
+		ESCAPE_MAP.put("\0", "\\0");
+		ESCAPE_MAP.put("\t", "\\t");
+		ESCAPE_MAP.put("\b", "\\b");
+		ESCAPE_MAP.put("\n", "\\n");
+		ESCAPE_MAP.put("\r", "\\r");
+		ESCAPE_MAP.put("\f", "\\f");
+		ESCAPE_MAP.put("'", "\\'");
+		ESCAPE_MAP.put("\"", "\\\"");
+		ESCAPE_MAP.put("\\", "\\\\");
 		
-		UNESCAPE_TRANSLATOR = new AggregateTranslator(new LookupTranslator(Collections.unmodifiableMap(unescapeMap)), new AsciiUnescaper());
-	}
-	
-	public static Character unescapeChar(String str) {
-		String unescape = unescapeString(str);
-		if (unescape.length() != 1) {
-			throw new IllegalArgumentException(String.format("Character value %s is invalid!", str));
+		Map<CharSequence, CharSequence> unescapeMap = new HashMap<>();
+		for (Entry<String, String> entry : ESCAPE_MAP.entrySet()) {
+			unescapeMap.put(entry.getValue(), entry.getKey());
 		}
-		return unescape.charAt(0);
+		
+		UNESCAPE_TRANSLATOR = new AggregateTranslator(new LookupTranslator(unescapeMap), new AsciiUnescaper());
 	}
 	
 	public static String unescapeString(String str) {
-		String parsed = UNESCAPE_TRANSLATOR.translate(str.substring(1, str.length() - 1));
-		if (parsed == null) {
-			throw new RuntimeException(String.format("Failed to unescape string \"%s\"!", str));
+		String translated = UNESCAPE_TRANSLATOR.translate(str.substring(1, str.length() - 1));
+		if (translated == null) {
+			throw new RuntimeException(String.format("Failed to unescape string %s!", str));
 		}
-		return parsed;
+		return translated;
+	}
+	
+	public static char unescapeChar(String str) {
+		String translated = unescapeString(str);
+		if (translated.length() != 1) {
+			throw new RuntimeException(String.format("Failed to unescape char %s!", str));
+		}
+		return translated.charAt(0);
+	}
+	
+	public static String charToString(char c) {
+		String str = Character.toString(c);
+		if (ESCAPE_MAP.containsKey(str)) {
+			str = ESCAPE_MAP.get(str);
+		}
+		else if (Character.isISOControl(c)) {
+			str = "\\" + Integer.toHexString(c);
+		}
+		return "\'" + str + "\'";
+	}
+	
+	public static @NonNull BigInteger parseBigInt(String str) {
+		if (str.endsWith("I") || str.endsWith("i") || str.endsWith("N") || str.endsWith("n")) {
+			str = str.substring(0, str.length() - 1);
+		}
+		str = str.replaceAll("_", "");
+		
+		String prefix = str.length() > 2 ? lowerCase(str.substring(0, 2)) : null;
+		
+		if (prefix != null && prefix.equals("0b")) {
+			return new BigInteger(str.substring(2), 2);
+		}
+		else if (prefix != null && prefix.equals("0o")) {
+			return new BigInteger(str.substring(2), 8);
+		}
+		else if (prefix != null && prefix.equals("0x")) {
+			return new BigInteger(str.substring(2), 16);
+		}
+		else {
+			return new BigInteger(str);
+		}
+	}
+	
+	public static long parseInt(String str) {
+		return parseBigInt(str).longValue();
+	}
+	
+	public static String substring(String s, int minLine, int minPos, int maxLine, int maxPos) {
+		String[] lines = s.split("\\R", -1);
+		if (minLine == maxLine) {
+			return lines[minLine].substring(minPos, maxPos);
+		}
+		else {
+			StringBuilder sb = new StringBuilder(lines[minLine].substring(minPos));
+			for (int i = 1 + minLine; i < maxLine; ++i) {
+				sb.append(lines[i]);
+			}
+			return sb.append(lines[maxLine].substring(0, maxPos)).toString();
+		}
+	}
+	
+	private static Stream<Token> allTokens(Node parseNode) {
+		if (parseNode instanceof Token) {
+			return Stream.of((Token) parseNode);
+		}
+		else {
+			return Arrays.stream(parseNode.getClass().getDeclaredMethods()).filter(x -> x.getParameterCount() == 0 && Node.class.isAssignableFrom(x.getReturnType())).map(x -> {
+				try {
+					return x.invoke(parseNode);
+				}
+				catch (Exception e) {
+					return null;
+				}
+			}).filter(x -> x instanceof Node).flatMap(x -> allTokens((Node) x));
+		}
+	}
+	
+	public static Pair<String, String> nodeInfo(Node[] parseNodes) {
+		MinMax<Token> mm = new MinMax<>((x, y) -> {
+			int lineCompare = Integer.compare(x.getLine(), y.getLine());
+			return lineCompare != 0 ? lineCompare : Integer.compare(x.getPos(), y.getPos());
+		});
+		
+		for (Node parseNode : parseNodes) {
+			allTokens(parseNode).forEach(x -> mm.update(x));
+		}
+		
+		Token min = mm.min, max = mm.max;
+		int minLine = min.getLine(), minPos = min.getPos(), maxLine = max.getLine(), maxPos = max.getPos() + max.getText().length();
+		
+		String range = String.format("(%s:%s -> %s:%s)", minLine, minPos, maxLine, 1 + maxPos);
+		String source = substring(Main.source, minLine - 1, minPos - 1, maxLine - 1, maxPos);
+		
+		return new Pair<>(range, source);
+	}
+	
+	public static RuntimeException nodeError(Node[] parseNodes, String s, Object... args) {
+		StringBuilder sb = new StringBuilder(String.format(s, args));
+		if (parseNodes.length > 0) {
+			Pair<String, String> info = nodeInfo(parseNodes);
+			sb.append("\n -> ").append(info.left).append("\n\n").append(info.right).append("\n\n");
+		}
+		return new IllegalArgumentException(sb.toString());
 	}
 	
 	public static boolean isEndOfLine(char c) {
@@ -137,30 +266,12 @@ public class Helpers {
 		return count;
 	}
 	
-	public static String removeParentheses(String s) {
-		s = removeWhitespace(s);
-		if (s.startsWith("(") && s.endsWith(")")) {
-			return removeParentheses(s.substring(1, s.length() - 1));
-		}
-		else {
-			return s;
-		}
-	}
-	
 	public static boolean isConstantName(String s) {
 		return Character.isLetter(s.charAt(0));
 	}
 	
 	public static boolean isVariableName(String s) {
 		return Character.isLetter(s.charAt(0));
-	}
-	
-	public static <T> void addSubset(Set<T> subSet, Set<T> superSet, T... values) {
-		Arrays.asList(values).stream().filter(superSet::contains).forEach(value -> subSet.add(value));
-	}
-	
-	public static <K, V> void addSubmap(Map<K, V> subMap, Map<K, V> superMap, K... keys) {
-		Arrays.asList(keys).stream().filter(superMap::containsKey).forEach(k -> subMap.put(k, superMap.get(k)));
 	}
 	
 	public static int shortCompareUnsigned(short x, short y) {
@@ -175,128 +286,46 @@ public class Helpers {
 		return (short) (Short.toUnsignedInt(dividend) % Short.toUnsignedInt(divisor));
 	}
 	
-	public static String immediateValueString(Long immediateValue) {
-		return Global.IMMEDIATE.concat(immediateValue.toString());
-	}
-	
-	public static String immediateValueString(String immediateValueText) {
-		return Global.IMMEDIATE.concat(immediateValueText);
-	}
-	
-	public static boolean isImmediateValue(String immediateValueString) {
-		return immediateValueString.startsWith(Global.IMMEDIATE);
-	}
-	
-	public static Long parseImmediateValue(String immediateValueString) {
-		if (isImmediateValue(immediateValueString)) {
-			return Long.parseLong(immediateValueString.substring(Global.IMMEDIATE.length()));
-		}
-		else {
-			return null;
-		}
-	}
-	
-	public static DataId immediateDataId(Long immediateValue) {
-		return new DataId(Helpers.immediateValueString(immediateValue), null);
-	}
-	
-	public static String regIdString(long regId) {
-		return Global.REG.concat(Long.toString(regId));
-	}
-	
-	public static boolean isRegId(String regIdString) {
-		return regIdString.startsWith(Global.REG);
-	}
-	
-	public static Long parseRegId(String regIdString) {
-		if (isRegId(regIdString)) {
-			return Long.parseLong(regIdString.substring(Global.REG.length()));
-		}
-		else {
-			return null;
-		}
-	}
-	
-	public static DataId regDataId(long regId) {
-		return new DataId(regIdString(regId), null);
-	}
-	
 	public static String sectionIdString(int sectionId) {
-		return Global.SECTION_1.concat(Integer.toString(sectionId)).concat(Global.SECTION_2);
+		return Global.SECTION_ID_START + sectionId + Global.SECTION_ID_END;
 	}
 	
 	public static boolean isSectionId(String sectionIdString) {
-		return sectionIdString.startsWith(Global.SECTION_1) && sectionIdString.endsWith(Global.SECTION_2);
+		return sectionIdString.startsWith(Global.SECTION_ID_START) && sectionIdString.endsWith(Global.SECTION_ID_END);
 	}
 	
 	public static Integer parseSectionId(String sectionIdString) {
 		if (isSectionId(sectionIdString)) {
-			return Integer.parseInt(sectionIdString.substring(Global.SECTION_1.length(), sectionIdString.length() - Global.SECTION_2.length()));
+			return Integer.parseInt(sectionIdString.substring(Global.SECTION_ID_START.length(), sectionIdString.length() - Global.SECTION_ID_END.length()));
 		}
 		else {
 			return null;
 		}
 	}
 	
-	public static String statementLabelString(String labelName) {
-		return Global.STATEMENT_LABEL_PREFIX.concat(labelName);
+	public static String sectionLabelString(String labelName) {
+		return Global.STATEMENT_LABEL_PREFIX + labelName;
 	}
 	
-	public static boolean isStatementLabel(String statementLabelString) {
-		return statementLabelString.startsWith(Global.STATEMENT_LABEL_PREFIX);
+	public static boolean isSectionLabel(String sectionLabelString) {
+		return sectionLabelString.startsWith(Global.STATEMENT_LABEL_PREFIX);
 	}
 	
-	public static String parseLabelName(String statementLabelString) {
-		if (isStatementLabel(statementLabelString)) {
-			return statementLabelString.substring(Global.STATEMENT_LABEL_PREFIX.length());
+	public static String parseSectionLabel(String sectionLabelString) {
+		if (isSectionLabel(sectionLabelString)) {
+			return sectionLabelString.substring(Global.STATEMENT_LABEL_PREFIX.length());
 		}
 		else {
 			return null;
-		}
-	}
-	
-	public static boolean hasAddressPrefix(String s) {
-		s = s.trim();
-		if (s.startsWith(Character.toString(Global.ADDRESS_OF))) {
-			return true;
-		}
-		else {
-			return false;
 		}
 	}
 	
 	public static String addAddressPrefix(String s) {
-		return Character.toString(Global.ADDRESS_OF).concat(s.trim());
-	}
-	
-	public static String removeAddressPrefix(String s) {
-		s = s.trim();
-		String addressOf = Character.toString(Global.ADDRESS_OF);
-		if (s.startsWith(addressOf)) {
-			return s.substring(addressOf.length()).trim();
-		}
-		else {
-			throw new IllegalArgumentException(String.format("Attempted to remove the \"address of\" prefix of invalid variable expression \"%s\"!", s));
-		}
-	}
-	
-	public static int getDereferenceCount(String s) {
-		return (int) s.trim().chars().filter(ch -> ch == Global.DEREFERENCE).count();
+		return Global.ADDRESS_OF + s.trim();
 	}
 	
 	public static String addDereferences(String s, int count) {
-		return charLine(Global.DEREFERENCE, count).concat(s.trim());
-	}
-	
-	public static String removeDereference(String s) {
-		s = s.trim();
-		String dereference = Character.toString(Global.DEREFERENCE);
-		if (s.startsWith(dereference)) {
-			return s.substring(dereference.length()).trim();
-		}
-		else {
-			throw new IllegalArgumentException(String.format("Attempted to singly dereference invalid variable expression \"%s\"!", s));
-		}
+		return charLine(Global.DEREFERENCE, count) + s.trim();
 	}
 	
 	public static String removeAllDereferences(String s) {
@@ -312,40 +341,24 @@ public class Helpers {
 		return discardParamString.startsWith(Global.DISCARD_PARAM_PREFIX);
 	}
 	
-	public static DeclaratorInfo builtInParam(String name, TypeInfo typeInfo) {
-		return new DeclaratorInfo(null, new Variable(Global.BUILT_IN_PARAM_PREFIX.concat(name), new VariableModifierInfo(false), typeInfo));
+	public static DeclaratorInfo builtInParam(@NonNull String name, @NonNull TypeInfo typeInfo) {
+		return new DeclaratorInfo(null, new Variable(Global.BUILT_IN_PARAM_PREFIX + name, VariableModifier.DEFAULT_PARAM, typeInfo));
 	}
 	
-	public static DeclaratorInfo[] params(DeclaratorInfo... params) {
-		return params;
+	public static <T> String collectionString(Collection<T> collection, String delimiter, String prefix, String suffix) {
+		return collection.stream().map(String::valueOf).collect(Collectors.joining(delimiter, prefix, suffix));
 	}
 	
-	private static <T> void appendParamsInternal(StringBuilder builder, Function<T, String> toString, String separator, T[] params) {
-		int l = params.length;
-		builder.append('(');
-		if (l > 0) {
-			for (int i = 0; i < l - 1; ++i) {
-				builder.append(toString.apply(params[i])).append(separator);
-			}
-			builder.append(toString.apply(params[l - 1]));
-		}
-		builder.append(')');
+	public static <T> String listString(Collection<T> collection) {
+		return collectionString(collection, Global.LIST_SEPARATOR, Global.LIST_START, Global.LIST_END);
 	}
 	
-	public static <T> void appendParams(StringBuilder builder, DeclaratorInfo[] params) {
-		appendParamsInternal(builder, param -> param.toDeclarationString(), Global.PARAM_SEPARATOR, params);
+	public static <T> String arrayString(Collection<T> collection) {
+		return collectionString(collection, Global.LIST_SEPARATOR, Global.ARRAY_START, Global.ARRAY_END);
 	}
 	
-	public static <T> void appendArgs(StringBuilder builder, DataId[] args) {
-		appendParamsInternal(builder, arg -> arg.raw, Global.ARG_SEPARATOR, args);
-	}
-	
-	public static TypeInfo[] paramTypeInfoArray(DeclaratorInfo[] params) {
-		TypeInfo[] typeInfos = new TypeInfo[params.length];
-		for (int i = 0; i < params.length; ++i) {
-			typeInfos[i] = params[i].getTypeInfo();
-		}
-		return typeInfos;
+	public static List<TypeInfo> paramTypeInfos(List<DeclaratorInfo> params) {
+		return params.stream().map(DeclaratorInfo::getTypeInfo).collect(Collectors.toList());
 	}
 	
 	public static String charLine(char c, int length) {
@@ -354,29 +367,104 @@ public class Helpers {
 		return new String(charArray);
 	}
 	
-	public static String toBinary(int value, int length) {
+	public static <T> boolean allEqual(Collection<T> collection) {
+		T object = null;
+		Iterator<T> iter = collection.iterator();
+		while (iter.hasNext()) {
+			T next = iter.next();
+			if (object == null) {
+				object = next;
+			}
+			else if (!object.equals(next)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public static <T> T[] array(T... objects) {
+		return objects;
+	}
+	
+	public static <T> @NonNull List<T> list(T... objects) {
+		return new ArrayList<>(Arrays.asList(objects));
+	}
+	
+	public static <T> @NonNull Set<T> set(T... objects) {
+		return new HashSet<>(Arrays.asList(objects));
+	}
+	
+	public static String toBinary(long value, int length) {
 		if ((length & 31) != 0) {
 			value &= ((1 << length) - 1);
 		}
-		return String.format("%" + length + "s", Integer.toBinaryString(value)).replace(' ', '0');
+		return String.format("%" + length + "s", Long.toBinaryString(value)).replace(' ', '0');
 	}
 	
-	public static String toHex(int value) {
-		if (value < 0) {
-			return "-0x".concat(Integer.toHexString(-value).toUpperCase(Locale.ROOT));
+	public static String toHex(long value) {
+		return (value < 0 ? "-0x" : "0x") + Long.toHexString(Math.abs(value)).toUpperCase(Locale.ROOT);
+	}
+	
+	public static String toHex(long value, int length) {
+		return (value < 0 ? "-0x" : "0x") + String.format("%" + length + "s", Long.toHexString(Math.abs(value))).replace(' ', '0').toUpperCase(Locale.ROOT);
+	}
+	
+	public static @Nullable TypeInfo getCommonTypeInfo(List<TypeInfo> types) {
+		if (types.isEmpty()) {
+			return Main.generator.wildcardPtrTypeInfo;
 		}
 		else {
-			return "0x".concat(Integer.toHexString(value).toUpperCase(Locale.ROOT));
+			int count = types.size();
+			List<List<@NonNull TypeInfo>> typeLists = new ArrayList<>();
+			int[] ends = new int[count];
+			for (int i = 0; i < count; ++i) {
+				List<@NonNull TypeInfo> list = getSuperTypeList(types.get(i));
+				typeLists.add(list);
+				ends[i] = list.size() - 1;
+			}
+			return getCommonTypeInfoInternal(typeLists, ends);
 		}
 	}
 	
-	public static String toHex(int value, int length) {
-		if (value < 0) {
-			return "-0x".concat(String.format("%" + length + "s", Integer.toHexString(-value)).replace(' ', '0').toUpperCase(Locale.ROOT));
+	private static List<@NonNull TypeInfo> getSuperTypeList(TypeInfo type) {
+		List<@NonNull TypeInfo> list = new ArrayList<>();
+		while (type != null) {
+			list.add(type);
+			type = type.getSuperType();
 		}
-		else {
-			return "0x".concat(String.format("%" + length + "s", Integer.toHexString(value)).replace(' ', '0').toUpperCase(Locale.ROOT));
+		return list;
+	}
+	
+	private static @Nullable TypeInfo getCommonTypeInfoInternal(List<List<@NonNull TypeInfo>> typeLists, int[] ends) {
+		int count = typeLists.size();
+		int[] indices = new int[count];
+		List<TypeInfo> firstTypeList = typeLists.get(0);
+		outer: while (true) {
+			boolean success = true;
+			TypeInfo firstType = firstTypeList.get(indices[0]);
+			for (int i = 1; i < count; ++i) {
+				if (!firstType.equals(typeLists.get(i).get(indices[i]))) {
+					success = false;
+					break;
+				}
+			}
+			if (success) {
+				return firstType;
+			}
+			else {
+				for (int i = 0; i < count; ++i) {
+					if (indices[i] == ends[i]) {
+						indices[i] = 0;
+					}
+					else {
+						++indices[i];
+						continue outer;
+					}
+				}
+				break;
+			}
 		}
+		return null;
 	}
 	
 	public static class Pair<L, R> {
@@ -390,8 +478,22 @@ public class Helpers {
 		}
 	}
 	
-	public static class Dummy {
+	public static class MinMax<T> {
 		
-		public static final Dummy INSTANCE = new Dummy();
+		public T min = null, max = null;
+		public final Comparator<T> comparator;
+		
+		public MinMax(Comparator<T> comparator) {
+			this.comparator = comparator;
+		}
+		
+		public void update(T value) {
+			if (min == null || comparator.compare(min, value) > 0) {
+				min = value;
+			}
+			if (max == null || comparator.compare(max, value) < 0) {
+				max = value;
+			}
+		}
 	}
 }

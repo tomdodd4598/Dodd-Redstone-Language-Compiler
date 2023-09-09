@@ -2,26 +2,26 @@ package drlc.intermediate.action;
 
 import java.util.Map;
 
-import drlc.*;
-import drlc.intermediate.component.DataId;
+import drlc.Global;
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
-import drlc.node.Node;
 
 public class DeclarationAction extends Action implements IValueAction {
 	
 	public final DataId target;
 	public final TypeInfo targetTypeInfo;
 	
-	public DeclarationAction(Node node, DataId target, TypeInfo targetTypeInfo) {
+	public DeclarationAction(ASTNode node, DataId target, TypeInfo targetTypeInfo) {
 		super(node);
 		if (target == null) {
-			throw new IllegalArgumentException(String.format("Declaration action target was null! %s", node));
+			throw node.error("Declaration action target was null!");
 		}
 		else {
 			this.target = target;
 		}
 		if (targetTypeInfo == null) {
-			throw new IllegalArgumentException(String.format("Declaration action target type info was null! %s", node));
+			throw node.error("Declaration action target type info was null!");
 		}
 		else {
 			this.targetTypeInfo = targetTypeInfo;
@@ -54,7 +54,7 @@ public class DeclarationAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRvalue(DataId replaceTarget, DataId rvalueReplacer) {
+	public Action replaceRegRvalue(long targetId, DataId rvalueReplacer) {
 		return null;
 	}
 	
@@ -69,7 +69,12 @@ public class DeclarationAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceLvalue(DataId replaceTarget, DataId lvalueReplacer) {
+	public Action replaceRegLvalue(long targetId, DataId lvalueReplacer) {
+		return null;
+	}
+	
+	@Override
+	public Action setTransientLvalue() {
 		return null;
 	}
 	
@@ -84,14 +89,15 @@ public class DeclarationAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRegIds(Map<DataId, DataId> regIdMap) {
-		DataId target = this.target.removeAllDereferences();
-		if (Helpers.isRegId(target.raw) && regIdMap.containsKey(target)) {
-			target = regIdMap.get(target);
-		}
-		
-		if (!target.equalsOther(this.target, true)) {
-			return new DeclarationAction(null, target.addDereferences(this.target.dereferenceLevel), targetTypeInfo);
+	public Action foldRvalues() {
+		return null;
+	}
+	
+	@Override
+	public Action replaceRegIds(Map<Long, Long> regIdMap) {
+		RegReplaceResult targetResult = replaceRegId(target, regIdMap);
+		if (targetResult.success) {
+			return new DeclarationAction(null, targetResult.dataId, targetTypeInfo);
 		}
 		else {
 			return null;
@@ -100,6 +106,6 @@ public class DeclarationAction extends Action implements IValueAction {
 	
 	@Override
 	public String toString() {
-		return Global.VAR.concat(" ").concat(target.raw).concat(" ").concat(targetTypeInfo.toString());
+		return Global.LET + ' ' + target.declarationString();
 	}
 }

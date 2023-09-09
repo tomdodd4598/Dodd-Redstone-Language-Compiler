@@ -48,6 +48,6 @@ public class InstructionConstant extends Instruction {
 	
 	@Override
 	public String toString() {
-		return Global.IMMEDIATE.concat(Helpers.toHex(value));
+		return Global.IMMEDIATE + Helpers.toHex(value);
 	}
 }

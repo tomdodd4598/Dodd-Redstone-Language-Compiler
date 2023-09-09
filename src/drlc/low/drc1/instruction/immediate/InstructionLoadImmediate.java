@@ -50,11 +50,11 @@ public class InstructionLoadImmediate extends InstructionImmediate implements II
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.LDAI).concat(Helpers.toBinary(value, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.LDAI) + Helpers.toBinary(value, 8);
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.LDAI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
+		return RedstoneMnemonics.LDAI + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
 	}
 }

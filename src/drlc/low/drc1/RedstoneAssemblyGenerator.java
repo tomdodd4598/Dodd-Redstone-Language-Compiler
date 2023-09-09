@@ -1,6 +1,5 @@
 package drlc.low.drc1;
 
-import java.io.PrintWriter;
 import java.util.List;
 
 import drlc.Helpers;
@@ -19,28 +18,30 @@ public class RedstoneAssemblyGenerator extends RedstoneGenerator {
 		
 		RedstoneCode code = generateCode();
 		
-		StringBuilder builder = new StringBuilder();
-		int i = -1;
+		StringBuilder sb = new StringBuilder();
+		boolean begin = true;
+		int i = 0;
 		for (RedstoneRoutine routine : code.getRoutineMap().values()) {
-			builder.append("\n").append(routine.name).append(":\n");
+			if (begin) {
+				begin = false;
+			}
+			else {
+				sb.append('\n');
+			}
+			sb.append(routine.name).append(":\n");
 			for (List<Instruction> section : routine.textSectionMap.values()) {
 				for (Instruction instruction : section) {
-					appendInstruction(builder, instruction, ++i);
+					appendInstruction(sb, instruction, i++);
 				}
 			}
 		}
 		
-		try (PrintWriter out = new PrintWriter(outputFile)) {
-			out.print(builder.substring(1));
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
+		Helpers.writeFile(outputFile, sb.toString());
 	}
 	
-	protected void appendInstruction(StringBuilder builder, Instruction instruction, int address) {
+	protected void appendInstruction(StringBuilder sb, Instruction instruction, int address) {
 		if (!(instruction instanceof InstructionConstant)) {
-			builder.append(String.format("%-4s", Helpers.toHex(address, 2))).append("\t").append(instruction.toString()).append("\n");
+			sb.append(String.format("%-4s", Helpers.toHex(address, 2))).append('\t').append(instruction).append('\n');
 		}
 	}
 }

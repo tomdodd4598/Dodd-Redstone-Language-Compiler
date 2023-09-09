@@ -4,7 +4,8 @@ import java.util.*;
 
 import drlc.*;
 import drlc.intermediate.component.*;
-import drlc.intermediate.routine.RoutineType;
+import drlc.intermediate.component.data.DataId;
+import drlc.intermediate.routine.RoutineCallType;
 import drlc.low.drc1.RedstoneCode;
 import drlc.low.drc1.instruction.Instruction;
 import drlc.low.drc1.instruction.immediate.InstructionLeftShiftImmediate;
@@ -14,7 +15,7 @@ import drlc.low.drc1.instruction.subroutine.InstructionReturnFromSubroutine;
 public class LogicalRightShiftRedstoneRoutine extends BuiltInRedstoneRoutine {
 	
 	public LogicalRightShiftRedstoneRoutine(RedstoneCode code, String name) {
-		super(code, name, RoutineType.LEAF, Helpers.params(Helpers.builtInParam("x", Global.INT_TYPE_INFO), Helpers.builtInParam("y", Global.INT_TYPE_INFO)));
+		super(code, name, RoutineCallType.LEAF, Helpers.params(Helpers.builtInParam("x", Global.INT_TYPE_INFO), Helpers.builtInParam("y", Global.INT_TYPE_INFO)));
 	}
 	
 	@Override

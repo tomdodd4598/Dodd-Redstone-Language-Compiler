@@ -3,10 +3,9 @@ package drlc.intermediate;
 import java.util.*;
 import java.util.Map.Entry;
 
-import drlc.Helpers;
-import drlc.Helpers.Pair;
+import drlc.*;
 import drlc.intermediate.action.*;
-import drlc.intermediate.component.DataId;
+import drlc.intermediate.component.data.*;
 import drlc.intermediate.routine.Routine;
 
 public class IntermediateOptimization {
@@ -67,7 +66,7 @@ public class IntermediateOptimization {
 			for (int j = 0; j < list.size(); ++j) {
 				Action action = list.get(j);
 				if (action instanceof IJumpAction) {
-					IJumpAction<?> jump = (IJumpAction<?>) action;
+					IJumpAction jump = (IJumpAction) action;
 					int target = Helpers.parseSectionId(jump.getTarget());
 					boolean bool = true;
 					for (int key : keys) {
@@ -94,12 +93,13 @@ public class IntermediateOptimization {
 			for (int j = 0; j < list.size(); ++j) {
 				Action action = list.get(j);
 				if (action instanceof IJumpAction) {
-					IJumpAction<?> jump = (IJumpAction<?>) action;
+					IJumpAction jump = (IJumpAction) action;
 					int target = Helpers.parseSectionId(jump.getTarget());
 					List<Action> section = body.get(target);
 					if (section.size() == 1) {
-						if (section.get(0) instanceof IJumpAction) {
-							IJumpAction<?> other = (IJumpAction<?>) section.get(0);
+						Action single = section.get(0);
+						if (single instanceof IJumpAction) {
+							IJumpAction other = (IJumpAction) single;
 							if (!other.isConditional()) {
 								flag = true;
 								list.set(j, jump.copy(other.getTarget()));
@@ -121,7 +121,7 @@ public class IntermediateOptimization {
 			for (int j = 0; j < list.size(); ++j) {
 				Action action = list.get(j);
 				if (action instanceof IJumpAction) {
-					IJumpAction<?> jump = (IJumpAction<?>) action;
+					IJumpAction jump = (IJumpAction) action;
 					targets.add(Helpers.parseSectionId(jump.getTarget()));
 				}
 			}
@@ -132,8 +132,9 @@ public class IntermediateOptimization {
 			int j = i + 1;
 			while (j < body.size() && !targets.contains(j)) {
 				flag = true;
-				list.addAll(body.get(j));
-				body.get(j).clear();
+				List<Action> other = body.get(j);
+				list.addAll(other);
+				other.clear();
 				++j;
 			}
 		}
@@ -149,15 +150,16 @@ public class IntermediateOptimization {
 			for (int j = 0; j < list.size(); ++j) {
 				Action action = list.get(j);
 				if (action instanceof IJumpAction) {
-					IJumpAction<?> jump = (IJumpAction<?>) action;
+					IJumpAction jump = (IJumpAction) action;
 					int target = Helpers.parseSectionId(jump.getTarget());
 					List<Action> section = body.get(target);
 					if (section.size() == 1) {
-						if (section.get(0) instanceof IDefiniteRedirectAction) {
+						Action single = section.get(0);
+						if (single instanceof IDefiniteRedirectAction) {
 							boolean conditional = jump.isConditional();
 							if (!conditional) {
 								flag = true;
-								list.set(j, section.get(0));
+								list.set(j, single);
 							}
 							clearMap.put(section, clearMap.containsKey(section) ? clearMap.get(section) || conditional : conditional);
 						}
@@ -182,10 +184,11 @@ public class IntermediateOptimization {
 						IValueAction iva = (IValueAction) previous;
 						if (iva instanceof AssignmentAction || iva instanceof InitializationAction) {
 							DataId arg = iva.rvalues()[0];
-							if (Helpers.isImmediateValue(arg.raw)) {
+							if (arg instanceof ValueDataId) {
 								flag = true;
 								ConditionalJumpAction cja = (ConditionalJumpAction) action;
-								list.set(j, (Helpers.parseImmediateValue(arg.raw) == 0) ^ !cja.jumpCondition ? new NoOpAction() : new JumpAction(null, cja.target));
+								boolean noop = ((ValueDataId) arg).value.equals(Main.generator.falseValue) ^ !cja.jumpCondition;
+								list.set(j, noop ? new NoOpAction() : new JumpAction(null, cja.target));
 								list.set(j - 1, new NoOpAction());
 							}
 						}
@@ -199,7 +202,7 @@ public class IntermediateOptimization {
 			if (!list.isEmpty()) {
 				Action action = list.get(list.size() - 1);
 				if (action instanceof IJumpAction) {
-					IJumpAction<?> jump = (IJumpAction<?>) action;
+					IJumpAction jump = (IJumpAction) action;
 					if (!jump.isConditional() && Helpers.parseSectionId(jump.getTarget()) == i + 1) {
 						flag = true;
 						list.set(list.size() - 1, new NoOpAction());
@@ -210,106 +213,68 @@ public class IntermediateOptimization {
 		return flag;
 	}
 	
-	static class MapArrayPair extends Pair<Map<Long, Integer>, DataId[]> {
-		
-		public MapArrayPair(Map<Long, Integer> map, DataId[] array) {
-			super(map, array);
+	private static void fillCompressMap(IValueAction valAction, int index, Map<Long, Integer> map, DataId[] dataIds) {
+		for (DataId dataId : dataIds) {
+			if (dataId.dereferenceLevel == 0 && dataId instanceof RegDataId) {
+				long regId = ((RegDataId) dataId).regId;
+				if (map.containsKey(regId)) {
+					throw new IllegalArgumentException(String.format("Found unexpected use of register %s! %s", dataId, valAction));
+				}
+				else {
+					map.put(regId, index);
+				}
+			}
 		}
 	}
 	
-	public static boolean compressRvalueRegisters(Routine routine) {
+	public static boolean compressRegisters(Routine routine) {
 		boolean flag = false;
 		List<List<Action>> body = routine.getBodyActionLists();
 		for (int i = 0; i < body.size(); ++i) {
 			List<Action> list = body.get(i);
 			final Map<Long, Integer> lMap = new TreeMap<>(), rMap = new TreeMap<>();
 			for (int j = 0; j < list.size(); ++j) {
-				if (list.get(j) instanceof IValueAction) {
-					IValueAction valAction = (IValueAction) list.get(j);
-					for (MapArrayPair pair : new MapArrayPair[] {new MapArrayPair(lMap, valAction.lvalues()), new MapArrayPair(rMap, valAction.rvalues())}) {
-						for (DataId val : pair.right) {
-							if (Helpers.isRegId(val.raw)) {
-								long regId = Helpers.parseRegId(val.raw);
-								if (pair.left.containsKey(regId)) {
-									throw new IllegalArgumentException(String.format("Found unexpected use of register %s! %s", val, valAction));
-								}
-								else {
-									pair.left.put(regId, j);
-								}
-							}
-						}
-					}
+				Action action = list.get(j);
+				if (action instanceof IValueAction) {
+					IValueAction valAction = (IValueAction) action;
+					fillCompressMap(valAction, j, lMap, valAction.lvalues());
+					fillCompressMap(valAction, j, rMap, valAction.rvalues());
 				}
 			}
 			
+			boolean sectionFlag = false;
+			
 			for (Entry<Long, Integer> entry : lMap.entrySet()) {
-				long lKey = entry.getKey();
+				long regId = entry.getKey();
 				int actionIndex = entry.getValue();
 				IValueAction action = (IValueAction) list.get(actionIndex);
-				if (action.canRemove() && rMap.containsKey(lKey)) {
-					int otherIndex = rMap.get(lKey);
+				if (action.canRemove() && rMap.containsKey(regId)) {
+					int otherIndex = rMap.get(regId);
 					IValueAction other = (IValueAction) list.get(otherIndex);
 					if (other.canReplaceRvalue()) {
-						Action replacement = other.replaceRvalue(Helpers.regDataId(lKey), action.getRvalueReplacer());
+						Action replacement = other.replaceRegRvalue(regId, action.getRvalueReplacer());
 						if (replacement != null) {
-							flag = true;
+							flag = sectionFlag = true;
 							list.set(actionIndex, new NoOpAction());
 							list.set(otherIndex, replacement);
 						}
 					}
 				}
 			}
-		}
-		return flag;
-	}
-	
-	public static boolean compressLvalueRegisters(Routine routine) {
-		boolean flag = false;
-		List<List<Action>> body = routine.getBodyActionLists();
-		for (int i = 0; i < body.size(); ++i) {
-			List<Action> list = body.get(i);
-			final Map<Long, Integer> lMap = new TreeMap<>(), rMap = new TreeMap<>();
-			for (int j = 0; j < list.size(); ++j) {
-				if (list.get(j) instanceof IValueAction) {
-					IValueAction valAction = (IValueAction) list.get(j);
-					for (MapArrayPair pair : new MapArrayPair[] {new MapArrayPair(lMap, valAction.lvalues()), new MapArrayPair(rMap, valAction.rvalues())}) {
-						for (DataId val : pair.right) {
-							if (Helpers.isRegId(val.raw)) {
-								long regId = Helpers.parseRegId(val.raw);
-								if (pair.left.containsKey(regId)) {
-									throw new IllegalArgumentException(String.format("Found unexpected use of register %s! %s", val, valAction));
-								}
-								else {
-									pair.left.put(regId, j);
-								}
-							}
-						}
-					}
-				}
+			
+			if (sectionFlag) {
+				continue;
 			}
 			
-			loop: for (Entry<Long, Integer> entry : rMap.entrySet()) {
+			for (Entry<Long, Integer> entry : rMap.entrySet()) {
+				long regId = entry.getKey();
 				int actionIndex = entry.getValue();
 				IValueAction action = (IValueAction) list.get(actionIndex);
-				if (action.canRemove()) {
-					DataId regId = Helpers.regDataId(entry.getKey());
-					int otherIndex = lMap.get(entry.getKey());
+				if (action.canRemove() && lMap.containsKey(regId)) {
+					int otherIndex = lMap.get(regId);
 					IValueAction other = (IValueAction) list.get(otherIndex);
 					if (other.canReplaceLvalue()) {
-						DataId lvalueReplacer = action.getLvalueReplacer();
-						if (lvalueReplacer.dereferenceLevel > 0 && actionIndex > otherIndex) {
-							for (int k = otherIndex; k <= actionIndex; ++k) {
-								if (list.get(k) instanceof IValueAction) {
-									IValueAction iva = (IValueAction) list.get(k);
-									for (DataId lvalue : iva.lvalues()) {
-										if (lvalue.equalsOther(lvalueReplacer, true)) {
-											continue loop;
-										}
-									}
-								}
-							}
-						}
-						Action replacement = other.replaceLvalue(regId, lvalueReplacer);
+						Action replacement = other.replaceRegLvalue(regId, action.getLvalueReplacer());
 						if (replacement != null) {
 							flag = true;
 							list.set(actionIndex, new NoOpAction());
@@ -328,14 +293,16 @@ public class IntermediateOptimization {
 		for (int i = 0; i < body.size(); ++i) {
 			List<Action> list = body.get(i);
 			for (int j = 1; j < list.size(); ++j) {
-				if (list.get(j - 1) instanceof IValueAction) {
-					IValueAction lvalAction = (IValueAction) list.get(j - 1);
-					if (lvalAction.lvalues().length == 1 && list.get(j) instanceof IValueAction) {
+				Action first = list.get(j - 1);
+				if (first instanceof IValueAction) {
+					IValueAction lvalAction = (IValueAction) first;
+					Action second;
+					if (lvalAction.lvalues().length == 1 && (second = list.get(j)) instanceof IValueAction) {
 						DataId lvalue = lvalAction.lvalues()[0];
-						if (Helpers.isImmediateValue(lvalue.raw)) {
-							throw new IllegalArgumentException(String.format("Immediate %s can not be used as an lvalue! %s", lvalue, lvalAction));
+						if (lvalue instanceof ValueDataId) {
+							throw new IllegalArgumentException(String.format("Data ID \"%s\" can not be used as an lvalue! %s", lvalue, lvalAction));
 						}
-						IValueAction valAction = (IValueAction) list.get(j);
+						IValueAction valAction = (IValueAction) second;
 						if (valAction.canReorderRvalues()) {
 							int index = 0;
 							DataId[] rvalues = valAction.rvalues();
@@ -360,21 +327,44 @@ public class IntermediateOptimization {
 		return flag;
 	}
 	
-	public static boolean orderRegisters(Routine routine) {
+	public static boolean foldRvalues(Routine routine) {
 		boolean flag = false;
 		List<List<Action>> body = routine.getBodyActionLists();
-		final Map<DataId, DataId> regIdMap = new HashMap<>();
-		int count = 0;
 		for (int i = 0; i < body.size(); ++i) {
 			List<Action> list = body.get(i);
 			for (int j = 0; j < list.size(); ++j) {
-				if (list.get(j) instanceof IValueAction) {
-					IValueAction valAction = (IValueAction) list.get(j);
-					for (DataId[] arr : new DataId[][] {valAction.lvalues(), valAction.rvalues()}) {
+				Action action = list.get(j);
+				if (action instanceof IValueAction) {
+					IValueAction valAction = (IValueAction) action;
+					Action replace = valAction.foldRvalues();
+					if (replace != null) {
+						list.set(j, replace);
+						flag = true;
+					}
+				}
+			}
+		}
+		return flag;
+	}
+	
+	public static boolean orderRegisters(Routine routine) {
+		boolean flag = false;
+		List<List<Action>> body = routine.getBodyActionLists();
+		final Map<Long, Long> regIdMap = new TreeMap<>();
+		long count = 0;
+		for (int i = 0; i < body.size(); ++i) {
+			List<Action> list = body.get(i);
+			for (int j = 0; j < list.size(); ++j) {
+				Action action = list.get(j);
+				if (action instanceof IValueAction) {
+					IValueAction valAction = (IValueAction) action;
+					for (DataId[] arr : Helpers.array(valAction.lvalues(), valAction.rvalues())) {
 						for (DataId id : arr) {
-							id = id.removeAllDereferences();
-							if (Helpers.isRegId(id.raw) && !regIdMap.containsKey(id)) {
-								regIdMap.put(id, Helpers.regDataId(count++));
+							if (id instanceof RegDataId) {
+								long regId = ((RegDataId) id).regId;
+								if (!regIdMap.containsKey(regId)) {
+									regIdMap.put(regId, count++);
+								}
 							}
 						}
 					}
@@ -385,8 +375,9 @@ public class IntermediateOptimization {
 		for (int i = 0; i < body.size(); ++i) {
 			List<Action> list = body.get(i);
 			for (int j = 0; j < list.size(); ++j) {
-				if (list.get(j) instanceof IValueAction) {
-					Action replace = ((IValueAction) list.get(j)).replaceRegIds(regIdMap);
+				Action action = list.get(j);
+				if (action instanceof IValueAction) {
+					Action replace = ((IValueAction) action).replaceRegIds(regIdMap);
 					if (replace != null) {
 						flag = true;
 						list.set(j, replace);
@@ -403,10 +394,11 @@ public class IntermediateOptimization {
 		for (int i = 0; i < body.size(); ++i) {
 			List<Action> list = body.get(i);
 			for (int j = 0; j < list.size(); ++j) {
-				if (list.get(j) instanceof DereferenceAction) {
-					DereferenceAction deref = (DereferenceAction) list.get(j);
+				Action action = list.get(j);
+				if (action instanceof DereferenceAction) {
+					DereferenceAction deref = (DereferenceAction) action;
 					DataId arg = deref.arg;
-					if (Helpers.hasAddressPrefix(arg.raw)) {
+					if (arg.isAddress()) {
 						list.set(j, new AssignmentAction(null, deref.target, arg.removeAddressPrefix()));
 						flag = true;
 					}

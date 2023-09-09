@@ -2,18 +2,18 @@ package drlc.intermediate.action;
 
 import java.util.Map;
 
-import drlc.*;
-import drlc.intermediate.component.DataId;
-import drlc.node.Node;
+import drlc.Global;
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.data.DataId;
 
 public class ReturnValueAction extends Action implements IDefiniteRedirectAction, IValueAction {
 	
 	public final DataId arg;
 	
-	public ReturnValueAction(Node node, DataId arg) {
+	public ReturnValueAction(ASTNode node, DataId arg) {
 		super(node);
 		if (arg == null) {
-			throw new IllegalArgumentException(String.format("Return value action argument was null! %s", node));
+			throw node.error("Return value action argument was null!");
 		}
 		else {
 			this.arg = arg;
@@ -46,7 +46,7 @@ public class ReturnValueAction extends Action implements IDefiniteRedirectAction
 	}
 	
 	@Override
-	public Action replaceRvalue(DataId replaceTarget, DataId rvalueReplacer) {
+	public Action replaceRegRvalue(long targetId, DataId rvalueReplacer) {
 		return new ReturnValueAction(null, rvalueReplacer);
 	}
 	
@@ -61,7 +61,12 @@ public class ReturnValueAction extends Action implements IDefiniteRedirectAction
 	}
 	
 	@Override
-	public Action replaceLvalue(DataId replaceTarget, DataId lvalueReplacer) {
+	public Action replaceRegLvalue(long targetId, DataId lvalueReplacer) {
+		return null;
+	}
+	
+	@Override
+	public Action setTransientLvalue() {
 		return null;
 	}
 	
@@ -76,14 +81,15 @@ public class ReturnValueAction extends Action implements IDefiniteRedirectAction
 	}
 	
 	@Override
-	public Action replaceRegIds(Map<DataId, DataId> regIdMap) {
-		DataId arg = this.arg.removeAllDereferences();
-		if (Helpers.isRegId(arg.raw) && regIdMap.containsKey(arg)) {
-			arg = regIdMap.get(arg);
-		}
-		
-		if (!arg.equalsOther(this.arg, true)) {
-			return new ReturnValueAction(null, arg.addDereferences(this.arg.dereferenceLevel));
+	public Action foldRvalues() {
+		return null;
+	}
+	
+	@Override
+	public Action replaceRegIds(Map<Long, Long> regIdMap) {
+		RegReplaceResult argResult = replaceRegId(arg, regIdMap);
+		if (argResult.success) {
+			return new ReturnValueAction(null, argResult.dataId);
 		}
 		else {
 			return null;
@@ -92,6 +98,6 @@ public class ReturnValueAction extends Action implements IDefiniteRedirectAction
 	
 	@Override
 	public String toString() {
-		return Global.RETURN.concat(" ").concat(arg.raw);
+		return Global.RETURN + ' ' + arg;
 	}
 }

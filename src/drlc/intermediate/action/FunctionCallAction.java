@@ -1,54 +1,43 @@
 package drlc.intermediate.action;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 import drlc.*;
-import drlc.intermediate.component.DataId;
-import drlc.node.Node;
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.data.DataId;
 
 public class FunctionCallAction extends Action implements IValueAction {
 	
 	public final DataId target;
-	public final DataId[] rvalues;
+	public final DataId function;
+	public final List<DataId> args;
 	
-	public FunctionCallAction(Node node, DataId target, DataId name, DataId[] args) {
+	public FunctionCallAction(ASTNode node, DataId target, DataId function, List<DataId> args) {
 		super(node);
-		if (name == null) {
-			throw new IllegalArgumentException(String.format("Function call action name was null! %s", node));
-		}
-		else if (args == null) {
-			throw new IllegalArgumentException(String.format("Function call action arguments were null! %s", node));
-		}
-		else {
-			rvalues = new DataId[1 + args.length];
-			rvalues[0] = name;
-			for (int i = 0; i < args.length; ++i) {
-				rvalues[i + 1] = args[i];
-			}
-		}
 		if (target == null) {
-			throw new IllegalArgumentException(String.format("Function call action target was null! %s", node));
+			throw node.error("Function call action target was null!");
 		}
 		else {
 			this.target = target;
 		}
+		
+		if (function == null) {
+			throw node.error("Function call action function was null!");
+		}
+		else {
+			this.function = function;
+		}
+		
+		if (args == null) {
+			throw node.error("Function call action argument list was null!");
+		}
+		else {
+			this.args = args;
+		}
 	}
 	
-	public DataId getCallId() {
-		return rvalues[0];
-	}
-	
-	public DataId[] getArgs() {
-		return Arrays.copyOfRange(rvalues, 1, rvalues.length);
-	}
-	
-	public DataId getArg(int i) {
-		return rvalues[1 + i];
-	}
-	
-	protected FunctionCallAction copy(Node node, DataId target, DataId[] rvalues) {
-		return new FunctionCallAction(node, target, rvalues[0], Arrays.copyOfRange(rvalues, 1, rvalues.length));
+	protected FunctionCallAction copy(ASTNode node, DataId target, DataId function, List<DataId> args) {
+		return new FunctionCallAction(node, target, function, args);
 	}
 	
 	@Override
@@ -58,6 +47,12 @@ public class FunctionCallAction extends Action implements IValueAction {
 	
 	@Override
 	public DataId[] rvalues() {
+		int argCount = args.size();
+		DataId[] rvalues = new DataId[1 + argCount];
+		rvalues[0] = function;
+		for (int i = 0; i < argCount; ++i) {
+			rvalues[i + 1] = args.get(i);
+		}
 		return rvalues;
 	}
 	
@@ -77,15 +72,21 @@ public class FunctionCallAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRvalue(DataId replaceTarget, DataId rvalueReplacer) {
-		DataId[] replaceRvalues = Arrays.copyOf(rvalues, rvalues.length);
-		for (int i = 0; i < rvalues.length; ++i) {
-			if (rvalues[i].equals(replaceTarget)) {
-				replaceRvalues[i] = rvalueReplacer;
-				return copy(null, target, replaceRvalues);
-			}
+	public Action replaceRegRvalue(long targetId, DataId rvalueReplacer) {
+		RegReplaceResult functionResult = replaceRegId(function, targetId, rvalueReplacer);
+		boolean success = functionResult.success;
+		List<DataId> replaceArgs = new ArrayList<>();
+		for (DataId arg : args) {
+			RegReplaceResult argResult = replaceRegId(arg, targetId, rvalueReplacer);
+			success |= argResult.success;
+			replaceArgs.add(argResult.dataId);
 		}
-		throw new IllegalArgumentException(String.format("No function call action argument %s matched replacement target %s!", Arrays.toString(rvalues), replaceTarget));
+		if (success) {
+			return copy(null, target, functionResult.dataId, replaceArgs);
+		}
+		else {
+			throw new IllegalArgumentException(String.format("No function call action rvalue %s, %s matched replacement reg ID %d!", function, Helpers.listString(args), targetId));
+		}
 	}
 	
 	@Override
@@ -99,13 +100,13 @@ public class FunctionCallAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceLvalue(DataId replaceTarget, DataId lvalueReplacer) {
-		if (target.equals(replaceTarget)) {
-			return copy(null, lvalueReplacer, rvalues);
-		}
-		else {
-			throw new IllegalArgumentException(String.format("Function call action target %s doesn't match replacement target %s!", target, replaceTarget));
-		}
+	public Action replaceRegLvalue(long targetId, DataId lvalueReplacer) {
+		return copy(null, lvalueReplacer, function, new ArrayList<>(args));
+	}
+	
+	@Override
+	public Action setTransientLvalue() {
+		return copy(null, target.getTransient(), function, new ArrayList<>(args));
 	}
 	
 	@Override
@@ -115,46 +116,34 @@ public class FunctionCallAction extends Action implements IValueAction {
 	
 	@Override
 	public Action swapRvalues(int i, int j) {
-		DataId[] swapRvalues = Arrays.copyOf(rvalues, rvalues.length);
-		swapRvalues[i] = rvalues[j];
-		swapRvalues[j] = rvalues[i];
-		return copy(null, target, swapRvalues);
-	}
-	
-	@Override
-	public Action replaceRegIds(Map<DataId, DataId> regIdMap) {
-		DataId replaceTarget = target.removeAllDereferences();
-		DataId[] replaceRvalues = Stream.of(rvalues).map(DataId::removeAllDereferences).toArray(DataId[]::new);
-		if (Helpers.isRegId(replaceTarget.raw) && regIdMap.containsKey(replaceTarget)) {
-			replaceTarget = regIdMap.get(replaceTarget);
-		}
-		for (int i = 0; i < replaceRvalues.length; ++i) {
-			if (Helpers.isRegId(replaceRvalues[i].raw) && regIdMap.containsKey(replaceRvalues[i])) {
-				replaceRvalues[i] = regIdMap.get(replaceRvalues[i]);
-			}
-		}
-		
-		replaceTarget = replaceTarget.addDereferences(target.dereferenceLevel);
-		for (int i = 0; i < replaceRvalues.length; ++i) {
-			replaceRvalues[i] = replaceRvalues[i].addDereferences(rvalues[i].dereferenceLevel);
-		}
-		
-		if (!replaceTarget.equalsOther(target, true)) {
-			return copy(null, replaceTarget, replaceRvalues);
-		}
-		for (int i = 0; i < replaceRvalues.length; ++i) {
-			if (!replaceRvalues[i].equalsOther(rvalues[i], true)) {
-				return copy(null, replaceTarget, replaceRvalues);
-			}
-		}
 		return null;
 	}
 	
 	@Override
+	public Action foldRvalues() {
+		return null;
+	}
+	
+	@Override
+	public Action replaceRegIds(Map<Long, Long> regIdMap) {
+		RegReplaceResult targetResult = replaceRegId(target, regIdMap), functionResult = replaceRegId(function, regIdMap);
+		boolean success = targetResult.success || functionResult.success;
+		List<DataId> replaceArgs = new ArrayList<>();
+		for (DataId arg : args) {
+			RegReplaceResult argResult = replaceRegId(arg, regIdMap);
+			success |= argResult.success;
+			replaceArgs.add(argResult.dataId);
+		}
+		if (success) {
+			return copy(null, targetResult.dataId, functionResult.dataId, replaceArgs);
+		}
+		else {
+			return null;
+		}
+	}
+	
+	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(target.raw).append(" = ").append(Global.CALL).append(' ').append(getCallId().raw);
-		Helpers.appendArgs(builder, getArgs());
-		return builder.toString();
+		return target + " = " + Global.CALL + ' ' + function + Helpers.listString(args);
 	}
 }

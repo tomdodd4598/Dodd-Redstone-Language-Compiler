@@ -17,11 +17,11 @@ public class InstructionRightShift extends InstructionALU {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.RSH).concat(Helpers.toBinary(address, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.RSH) + Helpers.toBinary(address, 8);
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.RSH.concat("\t").concat(Helpers.toHex(address, 2));
+		return RedstoneMnemonics.RSH + '\t' + Helpers.toHex(address, 2);
 	}
 }

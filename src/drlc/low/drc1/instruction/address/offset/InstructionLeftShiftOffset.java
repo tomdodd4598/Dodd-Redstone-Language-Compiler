@@ -18,20 +18,20 @@ public class InstructionLeftShiftOffset extends InstructionALUOffset {
 	@Override
 	public String binaryString() {
 		if (offset < 0) {
-			return RedstoneOpcodes.get(RedstoneMnemonics.LSHNB).concat(Helpers.toBinary(-offset, 8));
+			return RedstoneOpcodes.get(RedstoneMnemonics.LSHNB) + Helpers.toBinary(-offset, 8);
 		}
 		else {
-			return RedstoneOpcodes.get(RedstoneMnemonics.LSHPB).concat(Helpers.toBinary(offset, 8));
+			return RedstoneOpcodes.get(RedstoneMnemonics.LSHPB) + Helpers.toBinary(offset, 8);
 		}
 	}
 	
 	@Override
 	public String toString() {
 		if (offset < 0) {
-			return RedstoneMnemonics.LSHNB.concat("\t").concat(Helpers.toHex(-offset, 2));
+			return RedstoneMnemonics.LSHNB + '\t' + Helpers.toHex(-offset, 2);
 		}
 		else {
-			return RedstoneMnemonics.LSHPB.concat("\t").concat(Helpers.toHex(offset, 2));
+			return RedstoneMnemonics.LSHPB + '\t' + Helpers.toHex(offset, 2);
 		}
 	}
 }

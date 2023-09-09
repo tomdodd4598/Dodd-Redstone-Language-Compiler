@@ -1,61 +1,45 @@
 package drlc.intermediate.component.type;
 
-import java.util.Arrays;
+import java.util.List;
+
+import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
-import drlc.intermediate.Scope;
-import drlc.intermediate.component.Function;
-import drlc.node.Node;
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.scope.Scope;
 
-public class FunctionTypeInfo extends TypeInfo {
+public abstract class FunctionTypeInfo extends TypeInfo {
 	
-	public final Function function;
-	public final TypeInfo returnTypeInfo;
-	public final TypeInfo[] paramTypeInfos;
+	public final @NonNull TypeInfo returnTypeInfo;
+	public final List<TypeInfo> paramTypeInfos;
 	
-	protected FunctionTypeInfo(Node node, Type type, int referenceLevel, Function function, TypeInfo returnTypeInfo, TypeInfo[] paramTypeInfos) {
-		super(node, type, referenceLevel);
-		this.function = function;
+	protected FunctionTypeInfo(ASTNode node, int referenceLevel, @NonNull TypeInfo returnTypeInfo, List<TypeInfo> paramTypeInfos) {
+		super(node, referenceLevel);
 		this.returnTypeInfo = returnTypeInfo;
 		this.paramTypeInfos = paramTypeInfos;
 	}
 	
-	public FunctionTypeInfo(Node node, Scope scope, String functionName) {
-		super(node, scope.getType(node, Global.FN), 0);
-		this.function = scope.getFunction(node, functionName);
-		this.returnTypeInfo = function.returnTypeInfo;
-		this.paramTypeInfos = Helpers.paramTypeInfoArray(function.params);
-	}
-	
-	public FunctionTypeInfo(Node node, Scope scope, int referenceLevel, TypeInfo returnTypeInfo, TypeInfo[] paramTypeInfos) {
-		this(node, scope.getType(node, Global.FN), referenceLevel, null, returnTypeInfo, paramTypeInfos);
+	@Override
+	public boolean exists(Scope scope) {
+		return returnTypeInfo.exists(scope) && paramTypeInfos.stream().allMatch(x -> x.exists(scope));
 	}
 	
 	@Override
-	public TypeInfo copy(Node node, int newReferenceLevel) {
-		return new FunctionTypeInfo(node, type, newReferenceLevel, function, returnTypeInfo, paramTypeInfos);
-	}
-	
-	@Override
-	public boolean canImplicitCastTo(Node node, Generator generator, TypeInfo otherInfo) {
-		return isAddress(node) ? super.canImplicitCastTo(node, generator, otherInfo) : equals(otherInfo);
+	public int getSize() {
+		return isAddress() ? Main.generator.getAddressSize() : Main.generator.getFunctionSize();
 	}
 	
 	@Override
 	public boolean isFunction() {
-		return true;
+		return !isAddress();
 	}
 	
 	@Override
-	public boolean isAddressable() {
-		return function == null;
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
+	public boolean equalsOther(Object obj, boolean ignoreReferenceLevels) {
 		if (obj instanceof FunctionTypeInfo) {
 			FunctionTypeInfo other = (FunctionTypeInfo) obj;
-			return type.equals(other.type) && referenceLevel == other.referenceLevel && returnTypeInfo.equals(other.returnTypeInfo) && Arrays.equals(paramTypeInfos, other.paramTypeInfos);
+			boolean equalReferenceLevels = ignoreReferenceLevels || referenceLevel == other.referenceLevel;
+			return equalReferenceLevels && returnTypeInfo.equals(other.returnTypeInfo) && paramTypeInfos.equals(other.paramTypeInfos);
 		}
 		else {
 			return false;
@@ -63,16 +47,7 @@ public class FunctionTypeInfo extends TypeInfo {
 	}
 	
 	@Override
-	public String typeString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append('(');
-		int l = paramTypeInfos.length;
-		if (l > 0) {
-			for (int i = 0; i < l - 1; ++i) {
-				builder.append(paramTypeInfos[i].toString()).append(", ");
-			}
-			builder.append(paramTypeInfos[l - 1].toString());
-		}
-		return builder.append(')').append(returnTypeInfo.toString()).toString();
+	public String rawString() {
+		return Helpers.listString(paramTypeInfos) + " -> " + returnTypeInfo;
 	}
 }

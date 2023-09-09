@@ -2,7 +2,7 @@ package drlc.low.drc1;
 
 import java.util.Objects;
 
-import drlc.intermediate.component.DataId;
+import drlc.intermediate.component.data.DataId;
 
 public class RedstoneDataInfo {
 	
@@ -51,6 +51,6 @@ public class RedstoneDataInfo {
 	
 	@Override
 	public String toString() {
-		return routineName.concat(", ").concat(argId.raw).concat(", ").concat(type.toString()).concat(", ").concat(key.toString());
+		return routineName + ", " + argId + ", " + type + ", " + key;
 	}
 }

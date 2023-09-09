@@ -1,11 +1,11 @@
 package drlc.intermediate.action.binary;
 
-import drlc.intermediate.component.DataId;
-import drlc.node.Node;
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.data.DataId;
 
 public class BinaryBoolOrBoolAction extends BinaryOpAction {
 	
-	BinaryBoolOrBoolAction(Node node, DataId target, DataId arg1, DataId arg2) {
+	BinaryBoolOrBoolAction(ASTNode node, DataId target, DataId arg1, DataId arg2) {
 		super(node, BinaryActionType.BOOL_OR_BOOL, target, arg1, arg2);
 	}
 	
@@ -26,6 +26,6 @@ public class BinaryBoolOrBoolAction extends BinaryOpAction {
 	
 	@Override
 	public String toString() {
-		return target.raw.concat(" = ").concat(arg1.raw).concat(" | ").concat(arg2.raw);
+		return target + " = " + arg1 + " | " + arg2;
 	}
 }

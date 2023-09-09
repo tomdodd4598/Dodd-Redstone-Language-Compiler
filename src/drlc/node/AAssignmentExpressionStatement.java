@@ -8,9 +8,9 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AAssignmentExpressionStatement extends PExpressionStatement
 {
-    private PExpressionLvalue _expressionLvalue_;
+    private PAssignmentExpression _assignmentExpression_;
     private PAssignmentOp _assignmentOp_;
-    private PExpressionRvalue _expressionRvalue_;
+    private PExpression _expression_;
     private final LinkedList<TSemicolon> _semicolon_ = new LinkedList<TSemicolon>();
 
     public AAssignmentExpressionStatement()
@@ -19,17 +19,17 @@ public final class AAssignmentExpressionStatement extends PExpressionStatement
     }
 
     public AAssignmentExpressionStatement(
-        @SuppressWarnings("hiding") PExpressionLvalue _expressionLvalue_,
+        @SuppressWarnings("hiding") PAssignmentExpression _assignmentExpression_,
         @SuppressWarnings("hiding") PAssignmentOp _assignmentOp_,
-        @SuppressWarnings("hiding") PExpressionRvalue _expressionRvalue_,
+        @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") List<?> _semicolon_)
     {
         // Constructor
-        setExpressionLvalue(_expressionLvalue_);
+        setAssignmentExpression(_assignmentExpression_);
 
         setAssignmentOp(_assignmentOp_);
 
-        setExpressionRvalue(_expressionRvalue_);
+        setExpression(_expression_);
 
         setSemicolon(_semicolon_);
 
@@ -39,9 +39,9 @@ public final class AAssignmentExpressionStatement extends PExpressionStatement
     public Object clone()
     {
         return new AAssignmentExpressionStatement(
-            cloneNode(this._expressionLvalue_),
+            cloneNode(this._assignmentExpression_),
             cloneNode(this._assignmentOp_),
-            cloneNode(this._expressionRvalue_),
+            cloneNode(this._expression_),
             cloneList(this._semicolon_));
     }
 
@@ -51,16 +51,16 @@ public final class AAssignmentExpressionStatement extends PExpressionStatement
         ((Analysis) sw).caseAAssignmentExpressionStatement(this);
     }
 
-    public PExpressionLvalue getExpressionLvalue()
+    public PAssignmentExpression getAssignmentExpression()
     {
-        return this._expressionLvalue_;
+        return this._assignmentExpression_;
     }
 
-    public void setExpressionLvalue(PExpressionLvalue node)
+    public void setAssignmentExpression(PAssignmentExpression node)
     {
-        if(this._expressionLvalue_ != null)
+        if(this._assignmentExpression_ != null)
         {
-            this._expressionLvalue_.parent(null);
+            this._assignmentExpression_.parent(null);
         }
 
         if(node != null)
@@ -73,7 +73,7 @@ public final class AAssignmentExpressionStatement extends PExpressionStatement
             node.parent(this);
         }
 
-        this._expressionLvalue_ = node;
+        this._assignmentExpression_ = node;
     }
 
     public PAssignmentOp getAssignmentOp()
@@ -101,16 +101,16 @@ public final class AAssignmentExpressionStatement extends PExpressionStatement
         this._assignmentOp_ = node;
     }
 
-    public PExpressionRvalue getExpressionRvalue()
+    public PExpression getExpression()
     {
-        return this._expressionRvalue_;
+        return this._expression_;
     }
 
-    public void setExpressionRvalue(PExpressionRvalue node)
+    public void setExpression(PExpression node)
     {
-        if(this._expressionRvalue_ != null)
+        if(this._expression_ != null)
         {
-            this._expressionRvalue_.parent(null);
+            this._expression_.parent(null);
         }
 
         if(node != null)
@@ -123,7 +123,7 @@ public final class AAssignmentExpressionStatement extends PExpressionStatement
             node.parent(this);
         }
 
-        this._expressionRvalue_ = node;
+        this._expression_ = node;
     }
 
     public LinkedList<TSemicolon> getSemicolon()
@@ -156,9 +156,9 @@ public final class AAssignmentExpressionStatement extends PExpressionStatement
     public String toString()
     {
         return ""
-            + toString(this._expressionLvalue_)
+            + toString(this._assignmentExpression_)
             + toString(this._assignmentOp_)
-            + toString(this._expressionRvalue_)
+            + toString(this._expression_)
             + toString(this._semicolon_);
     }
 
@@ -166,9 +166,9 @@ public final class AAssignmentExpressionStatement extends PExpressionStatement
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._expressionLvalue_ == child)
+        if(this._assignmentExpression_ == child)
         {
-            this._expressionLvalue_ = null;
+            this._assignmentExpression_ = null;
             return;
         }
 
@@ -178,9 +178,9 @@ public final class AAssignmentExpressionStatement extends PExpressionStatement
             return;
         }
 
-        if(this._expressionRvalue_ == child)
+        if(this._expression_ == child)
         {
-            this._expressionRvalue_ = null;
+            this._expression_ = null;
             return;
         }
 
@@ -196,9 +196,9 @@ public final class AAssignmentExpressionStatement extends PExpressionStatement
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._expressionLvalue_ == oldChild)
+        if(this._assignmentExpression_ == oldChild)
         {
-            setExpressionLvalue((PExpressionLvalue) newChild);
+            setAssignmentExpression((PAssignmentExpression) newChild);
             return;
         }
 
@@ -208,9 +208,9 @@ public final class AAssignmentExpressionStatement extends PExpressionStatement
             return;
         }
 
-        if(this._expressionRvalue_ == oldChild)
+        if(this._expression_ == oldChild)
         {
-            setExpressionRvalue((PExpressionRvalue) newChild);
+            setExpression((PExpression) newChild);
             return;
         }
 

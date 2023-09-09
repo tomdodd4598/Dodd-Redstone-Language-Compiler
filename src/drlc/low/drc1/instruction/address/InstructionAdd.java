@@ -17,11 +17,11 @@ public class InstructionAdd extends InstructionALU {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.ADD).concat(Helpers.toBinary(address, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.ADD) + Helpers.toBinary(address, 8);
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.ADD.concat("\t").concat(Helpers.toHex(address, 2));
+		return RedstoneMnemonics.ADD + '\t' + Helpers.toHex(address, 2);
 	}
 }

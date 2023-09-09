@@ -61,11 +61,11 @@ public class InstructionSubtractFromStackPointer extends Instruction {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.SUBSP).concat(Helpers.toBinary(value, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.SUBSP) + Helpers.toBinary(value, 8);
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.SUBSP.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
+		return RedstoneMnemonics.SUBSP + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
 	}
 }

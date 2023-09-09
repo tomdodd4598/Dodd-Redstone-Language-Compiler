@@ -1,11 +1,11 @@
 package drlc.intermediate.action.unary;
 
-import drlc.intermediate.component.DataId;
-import drlc.node.Node;
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.data.DataId;
 
 public class UnaryNotIntAction extends UnaryOpAction {
 	
-	UnaryNotIntAction(Node node, DataId target, DataId arg) {
+	UnaryNotIntAction(ASTNode node, DataId target, DataId arg) {
 		super(node, UnaryActionType.NOT_INT, target, arg);
 	}
 	
@@ -16,6 +16,6 @@ public class UnaryNotIntAction extends UnaryOpAction {
 	
 	@Override
 	public String toString() {
-		return target.raw.concat(" = !").concat(arg.raw);
+		return target + " = !" + arg;
 	}
 }

@@ -4,14 +4,15 @@ import java.util.*;
 
 import drlc.*;
 import drlc.intermediate.component.*;
-import drlc.intermediate.routine.RoutineType;
+import drlc.intermediate.component.data.DataId;
+import drlc.intermediate.routine.RoutineCallType;
 import drlc.low.drc1.RedstoneCode;
 import drlc.low.drc1.instruction.Instruction;
 import drlc.low.drc1.instruction.subroutine.InstructionReturnFromSubroutine;
 
 public class CircularLeftShiftRedstoneRoutine extends BuiltInRedstoneRoutine {
 	
-	public CircularLeftShiftRedstoneRoutine(RedstoneCode code, String name, RoutineType type) {
+	public CircularLeftShiftRedstoneRoutine(RedstoneCode code, String name, RoutineCallType type) {
 		super(code, name, type, Helpers.params(Helpers.builtInParam("x", Global.INT_TYPE_INFO), Helpers.builtInParam("y", Global.INT_TYPE_INFO)));
 	}
 	

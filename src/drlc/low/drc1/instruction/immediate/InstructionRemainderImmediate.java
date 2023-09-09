@@ -27,11 +27,11 @@ public class InstructionRemainderImmediate extends InstructionALUImmediate {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.REMI).concat(Helpers.toBinary(value, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.REMI) + Helpers.toBinary(value, 8);
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.REMI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
+		return RedstoneMnemonics.REMI + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
 	}
 }

@@ -1,26 +1,28 @@
 package drlc.intermediate.component.type;
 
-import drlc.Global;
-import drlc.intermediate.Scope;
-import drlc.node.Node;
+import org.eclipse.jdt.annotation.NonNull;
 
-public class NatTypeInfo extends BuiltInTypeInfo {
+import drlc.Global;
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.scope.Scope;
+
+public class NatTypeInfo extends BasicTypeInfo {
 	
-	protected NatTypeInfo(Node node, Type type, int referenceLevel) {
-		super(node, type, referenceLevel);
+	protected NatTypeInfo(ASTNode node, @NonNull RawType rawType, int referenceLevel) {
+		super(node, rawType, referenceLevel);
 	}
 	
-	public NatTypeInfo(Node node, Scope scope, int referenceLevel) {
+	public NatTypeInfo(ASTNode node, Scope scope, int referenceLevel) {
 		super(node, scope, Global.NAT, referenceLevel);
 	}
 	
 	@Override
-	public TypeInfo copy(Node node, int newReferenceLevel) {
-		return new NatTypeInfo(node, type, newReferenceLevel);
+	public @NonNull TypeInfo copy(ASTNode node, int newReferenceLevel) {
+		return new NatTypeInfo(node, rawType, newReferenceLevel);
 	}
 	
 	@Override
-	public boolean isInteger(Node node) {
-		return !isAddress(node);
+	public boolean isWord() {
+		return !isAddress();
 	}
 }

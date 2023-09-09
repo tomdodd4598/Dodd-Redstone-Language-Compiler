@@ -1,16 +1,16 @@
-Make logical and/or short-circuiting and non-commutative
-
-Replace evaluator with optimisation logic
-
-Remove preprocessor, switch '#def name ... #enddef' for 'const name = ...' and 'macro! name(...) { ... }' syntax
+Add 'macro! name(...) { ... }' syntax
 
 Use 'main' function as entry point (remove 'setargc' directive, implement proper argc and argv)?
 
-Implement 'static' keyword for variables
+Implement 'static' and 'mut' keywords for variables
 
-Immutable variables with 'let' keyword, mutable with 'let mut', parameters immutable by default (require 'mut' to be mutable)
+Add 'sizeof(x)' for expressions
 
-Add 'sizeof(x)' for variables
+Add '&x' for lvalues
+
+Short-circuiting and non-commutative logical and/or
+
+Local type inference
 
 Arrays
 
@@ -24,19 +24,12 @@ Structs (nominal typing)
 
 Enums (nominal typing, pattern matching)
 
-Universal function call syntax?
-
-Pipeline function call syntax
+Rust method call syntax?
 
 Namespaces, multiple files, add 'import' for importing globals and functions
 
-Closures
+Closures?
 
-Generics (use lowercase type parameters)
-Higher kinded types? (https://pastebin.com/htWPe3HZ)
+Generics/templates?
 
-'extern "C" { ... }' blocks for transpilation to C
-
-Standard library
-
-Variable type inference
+Small standard library

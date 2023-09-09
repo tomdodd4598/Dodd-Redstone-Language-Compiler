@@ -1,56 +1,64 @@
 package drlc.intermediate.action.binary;
 
-import drlc.intermediate.component.DataId;
-import drlc.node.Node;
+import org.eclipse.jdt.annotation.NonNull;
+
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.BinaryOpType;
+import drlc.intermediate.component.data.DataId;
 
 public enum BinaryActionType {
 	
-	BOOL_EQUAL_TO_BOOL,
-	BOOL_NOT_EQUAL_TO_BOOL,
-	BOOL_LESS_THAN_BOOL,
-	BOOL_LESS_OR_EQUAL_BOOL,
-	BOOL_MORE_THAN_BOOL,
-	BOOL_MORE_OR_EQUAL_BOOL,
-	BOOL_AND_BOOL,
-	BOOL_OR_BOOL,
-	BOOL_XOR_BOOL,
-	BOOL_MULTIPLY_BOOL,
+	BOOL_EQUAL_TO_BOOL(BinaryOpType.EQUAL_TO),
+	BOOL_NOT_EQUAL_TO_BOOL(BinaryOpType.NOT_EQUAL_TO),
+	BOOL_LESS_THAN_BOOL(BinaryOpType.LESS_THAN),
+	BOOL_LESS_OR_EQUAL_BOOL(BinaryOpType.LESS_OR_EQUAL),
+	BOOL_MORE_THAN_BOOL(BinaryOpType.MORE_THAN),
+	BOOL_MORE_OR_EQUAL_BOOL(BinaryOpType.MORE_OR_EQUAL),
+	BOOL_AND_BOOL(BinaryOpType.AND),
+	BOOL_OR_BOOL(BinaryOpType.OR),
+	BOOL_XOR_BOOL(BinaryOpType.XOR),
 	
-	INT_EQUAL_TO_INT,
-	INT_NOT_EQUAL_TO_INT,
-	INT_LESS_THAN_INT,
-	INT_LESS_OR_EQUAL_INT,
-	INT_MORE_THAN_INT,
-	INT_MORE_OR_EQUAL_INT,
-	INT_PLUS_INT,
-	INT_AND_INT,
-	INT_OR_INT,
-	INT_XOR_INT,
-	INT_MINUS_INT,
-	INT_LEFT_SHIFT_INT,
-	INT_RIGHT_SHIFT_INT,
-	INT_LEFT_ROTATE_INT,
-	INT_RIGHT_ROTATE_INT,
-	INT_MULTIPLY_INT,
-	INT_DIVIDE_INT,
-	INT_REMAINDER_INT,
+	INT_EQUAL_TO_INT(BinaryOpType.EQUAL_TO),
+	INT_NOT_EQUAL_TO_INT(BinaryOpType.NOT_EQUAL_TO),
+	INT_LESS_THAN_INT(BinaryOpType.LESS_THAN),
+	INT_LESS_OR_EQUAL_INT(BinaryOpType.LESS_OR_EQUAL),
+	INT_MORE_THAN_INT(BinaryOpType.MORE_THAN),
+	INT_MORE_OR_EQUAL_INT(BinaryOpType.MORE_OR_EQUAL),
+	INT_PLUS_INT(BinaryOpType.PLUS),
+	INT_AND_INT(BinaryOpType.AND),
+	INT_OR_INT(BinaryOpType.OR),
+	INT_XOR_INT(BinaryOpType.XOR),
+	INT_MINUS_INT(BinaryOpType.MINUS),
+	INT_LEFT_SHIFT_INT(BinaryOpType.LEFT_SHIFT),
+	INT_RIGHT_SHIFT_INT(BinaryOpType.RIGHT_SHIFT),
+	INT_LEFT_ROTATE_INT(BinaryOpType.LEFT_ROTATE),
+	INT_RIGHT_ROTATE_INT(BinaryOpType.RIGHT_ROTATE),
+	INT_MULTIPLY_INT(BinaryOpType.MULTIPLY),
+	INT_DIVIDE_INT(BinaryOpType.DIVIDE),
+	INT_REMAINDER_INT(BinaryOpType.REMAINDER),
 	
-	NAT_LESS_THAN_NAT,
-	NAT_LESS_OR_EQUAL_NAT,
-	NAT_MORE_THAN_NAT,
-	NAT_MORE_OR_EQUAL_NAT,
-	NAT_RIGHT_SHIFT_INT,
-	NAT_DIVIDE_NAT,
-	NAT_REMAINDER_NAT,
+	NAT_LESS_THAN_NAT(BinaryOpType.LESS_THAN),
+	NAT_LESS_OR_EQUAL_NAT(BinaryOpType.LESS_OR_EQUAL),
+	NAT_MORE_THAN_NAT(BinaryOpType.MORE_THAN),
+	NAT_MORE_OR_EQUAL_NAT(BinaryOpType.MORE_OR_EQUAL),
+	NAT_RIGHT_SHIFT_INT(BinaryOpType.RIGHT_SHIFT),
+	NAT_DIVIDE_NAT(BinaryOpType.DIVIDE),
+	NAT_REMAINDER_NAT(BinaryOpType.REMAINDER),
 	
-	CHAR_EQUAL_TO_CHAR,
-	CHAR_NOT_EQUAL_TO_CHAR,
-	CHAR_LESS_THAN_CHAR,
-	CHAR_LESS_OR_EQUAL_CHAR,
-	CHAR_MORE_THAN_CHAR,
-	CHAR_MORE_OR_EQUAL_CHAR;
+	CHAR_EQUAL_TO_CHAR(BinaryOpType.EQUAL_TO),
+	CHAR_NOT_EQUAL_TO_CHAR(BinaryOpType.NOT_EQUAL_TO),
+	CHAR_LESS_THAN_CHAR(BinaryOpType.LESS_THAN),
+	CHAR_LESS_OR_EQUAL_CHAR(BinaryOpType.LESS_OR_EQUAL),
+	CHAR_MORE_THAN_CHAR(BinaryOpType.MORE_THAN),
+	CHAR_MORE_OR_EQUAL_CHAR(BinaryOpType.MORE_OR_EQUAL);
 	
-	public BinaryOpAction action(Node node, DataId target, DataId arg1, DataId arg2) {
+	public final @NonNull BinaryOpType opType;
+	
+	private BinaryActionType(@NonNull BinaryOpType opType) {
+		this.opType = opType;
+	}
+	
+	public BinaryOpAction action(ASTNode node, DataId target, DataId arg1, DataId arg2) {
 		switch (this) {
 			case BOOL_EQUAL_TO_BOOL:
 				return new BinaryBoolEqualToBoolAction(node, target, arg1, arg2);
@@ -70,8 +78,6 @@ public enum BinaryActionType {
 				return new BinaryBoolOrBoolAction(node, target, arg1, arg2);
 			case BOOL_XOR_BOOL:
 				return new BinaryBoolXorBoolAction(node, target, arg1, arg2);
-			case BOOL_MULTIPLY_BOOL:
-				return new BinaryBoolMultiplyBoolAction(node, target, arg1, arg2);
 			
 			case INT_EQUAL_TO_INT:
 				return new BinaryIntEqualToIntAction(node, target, arg1, arg2);
@@ -138,7 +144,7 @@ public enum BinaryActionType {
 			case CHAR_MORE_OR_EQUAL_CHAR:
 				return new BinaryCharMoreOrEqualCharAction(node, target, arg1, arg2);
 			default:
-				throw new IllegalArgumentException(String.format("Attempted to write an expression including a binary op of unknown type! %s", node));
+				throw node.error("Attempted to write an expression including a binary op of unknown type!");
 		}
 	}
 }

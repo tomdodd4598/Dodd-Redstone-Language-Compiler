@@ -1,22 +1,26 @@
 package drlc.intermediate.routine;
 
+import java.util.List;
+
+import org.eclipse.jdt.annotation.NonNull;
+
 import drlc.*;
-import drlc.intermediate.component.info.DeclaratorInfo;
+import drlc.intermediate.component.DeclaratorInfo;
 import drlc.intermediate.component.type.TypeInfo;
 
 public class RootRoutine extends Routine {
 	
-	public DeclaratorInfo[] params;
+	public List<DeclaratorInfo> params;
 	
-	public RootRoutine(Generator generator) {
-		super(generator, Global.ROOT_ROUTINE);
+	public RootRoutine() {
+		super(Global.ROOT_ROUTINE);
 		getDestructionActionList().add(Global.EXIT_PROGRAM);
 	}
 	
 	@Override
-	public RoutineType getType() {
-		RoutineType type = super.getType();
-		if (type.equals(RoutineType.STACK)) {
+	public RoutineCallType getType() {
+		RoutineCallType type = super.getType();
+		if (type.equals(RoutineCallType.STACK)) {
 			throw new IllegalArgumentException(String.format("Root routine can not be stack-based!"));
 		}
 		return type;
@@ -24,7 +28,7 @@ public class RootRoutine extends Routine {
 	
 	@Override
 	public void onRequiresNesting() {
-		type = type.onNesting();
+		type = type.onRequiresNesting();
 	}
 	
 	@Override
@@ -38,20 +42,17 @@ public class RootRoutine extends Routine {
 	}
 	
 	@Override
-	public TypeInfo getReturnTypeInfo() {
+	public @NonNull TypeInfo getReturnTypeInfo() {
 		throw new IllegalArgumentException(String.format("Unexpectedly attempted to get return type of root routine!"));
 	}
 	
 	@Override
-	public DeclaratorInfo[] getParams() {
+	public List<DeclaratorInfo> getParams() {
 		return params;
 	}
 	
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(Global.FN).append(' ').append(name);
-		Helpers.appendParams(builder, params);
-		return builder.append(' ').append(Global.INT).toString();
+		return Global.FN + ' ' + name + Helpers.listString(params) + " -> " + Main.generator.rootReturnTypeInfo;
 	}
 }

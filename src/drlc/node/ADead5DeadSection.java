@@ -9,7 +9,7 @@ import drlc.analysis.*;
 public final class ADead5DeadSection extends PDeadSection
 {
     private TExit _exit_;
-    private PExpressionRvalue _expressionRvalue_;
+    private PExpression _expression_;
     private final LinkedList<TSemicolon> _semicolon_ = new LinkedList<TSemicolon>();
 
     public ADead5DeadSection()
@@ -19,13 +19,13 @@ public final class ADead5DeadSection extends PDeadSection
 
     public ADead5DeadSection(
         @SuppressWarnings("hiding") TExit _exit_,
-        @SuppressWarnings("hiding") PExpressionRvalue _expressionRvalue_,
+        @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") List<?> _semicolon_)
     {
         // Constructor
         setExit(_exit_);
 
-        setExpressionRvalue(_expressionRvalue_);
+        setExpression(_expression_);
 
         setSemicolon(_semicolon_);
 
@@ -36,7 +36,7 @@ public final class ADead5DeadSection extends PDeadSection
     {
         return new ADead5DeadSection(
             cloneNode(this._exit_),
-            cloneNode(this._expressionRvalue_),
+            cloneNode(this._expression_),
             cloneList(this._semicolon_));
     }
 
@@ -71,16 +71,16 @@ public final class ADead5DeadSection extends PDeadSection
         this._exit_ = node;
     }
 
-    public PExpressionRvalue getExpressionRvalue()
+    public PExpression getExpression()
     {
-        return this._expressionRvalue_;
+        return this._expression_;
     }
 
-    public void setExpressionRvalue(PExpressionRvalue node)
+    public void setExpression(PExpression node)
     {
-        if(this._expressionRvalue_ != null)
+        if(this._expression_ != null)
         {
-            this._expressionRvalue_.parent(null);
+            this._expression_.parent(null);
         }
 
         if(node != null)
@@ -93,7 +93,7 @@ public final class ADead5DeadSection extends PDeadSection
             node.parent(this);
         }
 
-        this._expressionRvalue_ = node;
+        this._expression_ = node;
     }
 
     public LinkedList<TSemicolon> getSemicolon()
@@ -127,7 +127,7 @@ public final class ADead5DeadSection extends PDeadSection
     {
         return ""
             + toString(this._exit_)
-            + toString(this._expressionRvalue_)
+            + toString(this._expression_)
             + toString(this._semicolon_);
     }
 
@@ -141,9 +141,9 @@ public final class ADead5DeadSection extends PDeadSection
             return;
         }
 
-        if(this._expressionRvalue_ == child)
+        if(this._expression_ == child)
         {
-            this._expressionRvalue_ = null;
+            this._expression_ = null;
             return;
         }
 
@@ -165,9 +165,9 @@ public final class ADead5DeadSection extends PDeadSection
             return;
         }
 
-        if(this._expressionRvalue_ == oldChild)
+        if(this._expression_ == oldChild)
         {
-            setExpressionRvalue((PExpressionRvalue) newChild);
+            setExpression((PExpression) newChild);
             return;
         }
 

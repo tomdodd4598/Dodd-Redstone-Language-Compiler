@@ -8,7 +8,9 @@ import drlc.analysis.*;
 public final class AFunctionExpression7 extends PExpression7
 {
     private PExpression7 _expression7_;
-    private PParExpressionList _parExpressionList_;
+    private TLPar _lPar_;
+    private PExpressionList _expressionList_;
+    private TRPar _rPar_;
 
     public AFunctionExpression7()
     {
@@ -17,12 +19,18 @@ public final class AFunctionExpression7 extends PExpression7
 
     public AFunctionExpression7(
         @SuppressWarnings("hiding") PExpression7 _expression7_,
-        @SuppressWarnings("hiding") PParExpressionList _parExpressionList_)
+        @SuppressWarnings("hiding") TLPar _lPar_,
+        @SuppressWarnings("hiding") PExpressionList _expressionList_,
+        @SuppressWarnings("hiding") TRPar _rPar_)
     {
         // Constructor
         setExpression7(_expression7_);
 
-        setParExpressionList(_parExpressionList_);
+        setLPar(_lPar_);
+
+        setExpressionList(_expressionList_);
+
+        setRPar(_rPar_);
 
     }
 
@@ -31,7 +39,9 @@ public final class AFunctionExpression7 extends PExpression7
     {
         return new AFunctionExpression7(
             cloneNode(this._expression7_),
-            cloneNode(this._parExpressionList_));
+            cloneNode(this._lPar_),
+            cloneNode(this._expressionList_),
+            cloneNode(this._rPar_));
     }
 
     @Override
@@ -65,16 +75,16 @@ public final class AFunctionExpression7 extends PExpression7
         this._expression7_ = node;
     }
 
-    public PParExpressionList getParExpressionList()
+    public TLPar getLPar()
     {
-        return this._parExpressionList_;
+        return this._lPar_;
     }
 
-    public void setParExpressionList(PParExpressionList node)
+    public void setLPar(TLPar node)
     {
-        if(this._parExpressionList_ != null)
+        if(this._lPar_ != null)
         {
-            this._parExpressionList_.parent(null);
+            this._lPar_.parent(null);
         }
 
         if(node != null)
@@ -87,7 +97,57 @@ public final class AFunctionExpression7 extends PExpression7
             node.parent(this);
         }
 
-        this._parExpressionList_ = node;
+        this._lPar_ = node;
+    }
+
+    public PExpressionList getExpressionList()
+    {
+        return this._expressionList_;
+    }
+
+    public void setExpressionList(PExpressionList node)
+    {
+        if(this._expressionList_ != null)
+        {
+            this._expressionList_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._expressionList_ = node;
+    }
+
+    public TRPar getRPar()
+    {
+        return this._rPar_;
+    }
+
+    public void setRPar(TRPar node)
+    {
+        if(this._rPar_ != null)
+        {
+            this._rPar_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._rPar_ = node;
     }
 
     @Override
@@ -95,7 +155,9 @@ public final class AFunctionExpression7 extends PExpression7
     {
         return ""
             + toString(this._expression7_)
-            + toString(this._parExpressionList_);
+            + toString(this._lPar_)
+            + toString(this._expressionList_)
+            + toString(this._rPar_);
     }
 
     @Override
@@ -108,9 +170,21 @@ public final class AFunctionExpression7 extends PExpression7
             return;
         }
 
-        if(this._parExpressionList_ == child)
+        if(this._lPar_ == child)
         {
-            this._parExpressionList_ = null;
+            this._lPar_ = null;
+            return;
+        }
+
+        if(this._expressionList_ == child)
+        {
+            this._expressionList_ = null;
+            return;
+        }
+
+        if(this._rPar_ == child)
+        {
+            this._rPar_ = null;
             return;
         }
 
@@ -127,9 +201,21 @@ public final class AFunctionExpression7 extends PExpression7
             return;
         }
 
-        if(this._parExpressionList_ == oldChild)
+        if(this._lPar_ == oldChild)
         {
-            setParExpressionList((PParExpressionList) newChild);
+            setLPar((TLPar) newChild);
+            return;
+        }
+
+        if(this._expressionList_ == oldChild)
+        {
+            setExpressionList((PExpressionList) newChild);
+            return;
+        }
+
+        if(this._rPar_ == oldChild)
+        {
+            setRPar((TRPar) newChild);
             return;
         }
 

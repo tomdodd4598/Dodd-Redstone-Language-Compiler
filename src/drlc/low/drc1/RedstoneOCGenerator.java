@@ -1,8 +1,8 @@
 package drlc.low.drc1;
 
-import java.io.PrintWriter;
 import java.util.List;
 
+import drlc.Helpers;
 import drlc.low.drc1.instruction.Instruction;
 
 public class RedstoneOCGenerator extends RedstoneGenerator {
@@ -18,20 +18,22 @@ public class RedstoneOCGenerator extends RedstoneGenerator {
 		
 		RedstoneCode code = generateCode();
 		
-		StringBuilder builder = new StringBuilder();
+		StringBuilder sb = new StringBuilder();
+		boolean begin = true;
 		for (RedstoneRoutine routine : code.getRoutineMap().values()) {
 			for (List<Instruction> section : routine.textSectionMap.values()) {
 				for (Instruction instruction : section) {
-					builder.append(' ').append(Integer.parseUnsignedInt(instruction.binaryString(), 2));
+					if (begin) {
+						begin = false;
+					}
+					else {
+						sb.append(' ');
+					}
+					sb.append(Integer.parseUnsignedInt(instruction.binaryString(), 2));
 				}
 			}
 		}
 		
-		try (PrintWriter out = new PrintWriter(outputFile)) {
-			out.print(builder.substring(1));
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
+		Helpers.writeFile(outputFile, sb.toString());
 	}
 }

@@ -8,7 +8,9 @@ import drlc.analysis.*;
 public final class AFunctionRawType extends PRawType
 {
     private TFn _fn_;
-    private PParParameterList _parParameterList_;
+    private TLPar _lPar_;
+    private PTypeList _typeList_;
+    private TRPar _rPar_;
     private PReturnType _returnType_;
 
     public AFunctionRawType()
@@ -18,13 +20,19 @@ public final class AFunctionRawType extends PRawType
 
     public AFunctionRawType(
         @SuppressWarnings("hiding") TFn _fn_,
-        @SuppressWarnings("hiding") PParParameterList _parParameterList_,
+        @SuppressWarnings("hiding") TLPar _lPar_,
+        @SuppressWarnings("hiding") PTypeList _typeList_,
+        @SuppressWarnings("hiding") TRPar _rPar_,
         @SuppressWarnings("hiding") PReturnType _returnType_)
     {
         // Constructor
         setFn(_fn_);
 
-        setParParameterList(_parParameterList_);
+        setLPar(_lPar_);
+
+        setTypeList(_typeList_);
+
+        setRPar(_rPar_);
 
         setReturnType(_returnType_);
 
@@ -35,7 +43,9 @@ public final class AFunctionRawType extends PRawType
     {
         return new AFunctionRawType(
             cloneNode(this._fn_),
-            cloneNode(this._parParameterList_),
+            cloneNode(this._lPar_),
+            cloneNode(this._typeList_),
+            cloneNode(this._rPar_),
             cloneNode(this._returnType_));
     }
 
@@ -70,16 +80,16 @@ public final class AFunctionRawType extends PRawType
         this._fn_ = node;
     }
 
-    public PParParameterList getParParameterList()
+    public TLPar getLPar()
     {
-        return this._parParameterList_;
+        return this._lPar_;
     }
 
-    public void setParParameterList(PParParameterList node)
+    public void setLPar(TLPar node)
     {
-        if(this._parParameterList_ != null)
+        if(this._lPar_ != null)
         {
-            this._parParameterList_.parent(null);
+            this._lPar_.parent(null);
         }
 
         if(node != null)
@@ -92,7 +102,57 @@ public final class AFunctionRawType extends PRawType
             node.parent(this);
         }
 
-        this._parParameterList_ = node;
+        this._lPar_ = node;
+    }
+
+    public PTypeList getTypeList()
+    {
+        return this._typeList_;
+    }
+
+    public void setTypeList(PTypeList node)
+    {
+        if(this._typeList_ != null)
+        {
+            this._typeList_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._typeList_ = node;
+    }
+
+    public TRPar getRPar()
+    {
+        return this._rPar_;
+    }
+
+    public void setRPar(TRPar node)
+    {
+        if(this._rPar_ != null)
+        {
+            this._rPar_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._rPar_ = node;
     }
 
     public PReturnType getReturnType()
@@ -125,7 +185,9 @@ public final class AFunctionRawType extends PRawType
     {
         return ""
             + toString(this._fn_)
-            + toString(this._parParameterList_)
+            + toString(this._lPar_)
+            + toString(this._typeList_)
+            + toString(this._rPar_)
             + toString(this._returnType_);
     }
 
@@ -139,9 +201,21 @@ public final class AFunctionRawType extends PRawType
             return;
         }
 
-        if(this._parParameterList_ == child)
+        if(this._lPar_ == child)
         {
-            this._parParameterList_ = null;
+            this._lPar_ = null;
+            return;
+        }
+
+        if(this._typeList_ == child)
+        {
+            this._typeList_ = null;
+            return;
+        }
+
+        if(this._rPar_ == child)
+        {
+            this._rPar_ = null;
             return;
         }
 
@@ -164,9 +238,21 @@ public final class AFunctionRawType extends PRawType
             return;
         }
 
-        if(this._parParameterList_ == oldChild)
+        if(this._lPar_ == oldChild)
         {
-            setParParameterList((PParParameterList) newChild);
+            setLPar((TLPar) newChild);
+            return;
+        }
+
+        if(this._typeList_ == oldChild)
+        {
+            setTypeList((PTypeList) newChild);
+            return;
+        }
+
+        if(this._rPar_ == oldChild)
+        {
+            setRPar((TRPar) newChild);
             return;
         }
 

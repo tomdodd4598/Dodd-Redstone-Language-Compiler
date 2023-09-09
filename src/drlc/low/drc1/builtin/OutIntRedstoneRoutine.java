@@ -2,7 +2,7 @@ package drlc.low.drc1.builtin;
 
 import java.util.*;
 
-import drlc.intermediate.component.DataId;
+import drlc.intermediate.component.data.DataId;
 import drlc.low.drc1.RedstoneCode;
 import drlc.low.drc1.instruction.*;
 import drlc.low.drc1.instruction.subroutine.InstructionReturnFromSubroutine;

@@ -2,24 +2,24 @@ package drlc.intermediate.action;
 
 import java.util.Map;
 
-import drlc.Helpers;
-import drlc.intermediate.component.DataId;
-import drlc.node.Node;
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.data.DataId;
 
 public class AssignmentAction extends Action implements IValueAction {
 	
 	public final DataId target, arg;
 	
-	public AssignmentAction(Node node, DataId target, DataId arg) {
+	public AssignmentAction(ASTNode node, DataId target, DataId arg) {
 		super(node);
 		if (target == null) {
-			throw new IllegalArgumentException(String.format("Assignment action target was null! %s", node));
+			throw node.error("Assignment action target was null!");
 		}
 		else {
 			this.target = target;
 		}
+		
 		if (arg == null) {
-			throw new IllegalArgumentException(String.format("Assignment action argument was null! %s", node));
+			throw node.error("Assignment action argument was null!");
 		}
 		else {
 			this.arg = arg;
@@ -38,7 +38,7 @@ public class AssignmentAction extends Action implements IValueAction {
 	
 	@Override
 	public boolean canRemove() {
-		return true;
+		return target.dereferenceLevel == 0 && arg.dereferenceLevel == 0;
 	}
 	
 	@Override
@@ -52,7 +52,7 @@ public class AssignmentAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRvalue(DataId replaceTarget, DataId rvalueReplacer) {
+	public Action replaceRegRvalue(long targetId, DataId rvalueReplacer) {
 		return new AssignmentAction(null, target, rvalueReplacer);
 	}
 	
@@ -67,8 +67,13 @@ public class AssignmentAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceLvalue(DataId replaceTarget, DataId lvalueReplacer) {
+	public Action replaceRegLvalue(long targetId, DataId lvalueReplacer) {
 		return new AssignmentAction(null, lvalueReplacer, arg);
+	}
+	
+	@Override
+	public Action setTransientLvalue() {
+		return new AssignmentAction(null, target.getTransient(), arg);
 	}
 	
 	@Override
@@ -82,17 +87,15 @@ public class AssignmentAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRegIds(Map<DataId, DataId> regIdMap) {
-		DataId target = this.target.removeAllDereferences(), arg = this.arg.removeAllDereferences();
-		if (Helpers.isRegId(target.raw) && regIdMap.containsKey(target)) {
-			target = regIdMap.get(target);
-		}
-		if (Helpers.isRegId(arg.raw) && regIdMap.containsKey(arg)) {
-			arg = regIdMap.get(arg);
-		}
-		
-		if (!target.equalsOther(this.target, true) || !arg.equalsOther(this.arg, true)) {
-			return new AssignmentAction(null, target.addDereferences(this.target.dereferenceLevel), arg.addDereferences(this.arg.dereferenceLevel));
+	public Action foldRvalues() {
+		return null;
+	}
+	
+	@Override
+	public Action replaceRegIds(Map<Long, Long> regIdMap) {
+		RegReplaceResult targetResult = replaceRegId(target, regIdMap), argResult = replaceRegId(arg, regIdMap);
+		if (targetResult.success || argResult.success) {
+			return new AssignmentAction(null, targetResult.dataId, argResult.dataId);
 		}
 		else {
 			return null;
@@ -101,6 +104,6 @@ public class AssignmentAction extends Action implements IValueAction {
 	
 	@Override
 	public String toString() {
-		return target.raw.concat(" = ").concat(arg.raw);
+		return target + " = " + arg;
 	}
 }

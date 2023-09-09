@@ -1,16 +1,16 @@
 package drlc.intermediate.action;
 
 import drlc.Global;
-import drlc.node.Node;
+import drlc.intermediate.ast.ASTNode;
 
-public class JumpAction extends Action implements IJumpAction<JumpAction>, IDefiniteRedirectAction {
+public class JumpAction extends Action implements IJumpAction, IDefiniteRedirectAction {
 	
 	public final String target;
 	
-	public JumpAction(Node node, String target) {
+	public JumpAction(ASTNode node, String target) {
 		super(node);
 		if (target == null) {
-			throw new IllegalArgumentException(String.format("Jump action target was null! %s", node));
+			throw node.error("Jump action target was null!");
 		}
 		else {
 			this.target = target;
@@ -34,6 +34,6 @@ public class JumpAction extends Action implements IJumpAction<JumpAction>, IDefi
 	
 	@Override
 	public String toString() {
-		return Global.JUMP.concat(" ").concat(target);
+		return Global.JUMP + ' ' + target;
 	}
 }

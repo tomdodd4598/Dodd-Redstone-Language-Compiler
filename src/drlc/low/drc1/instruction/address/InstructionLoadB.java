@@ -37,11 +37,11 @@ public class InstructionLoadB extends InstructionAddress {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.LDB).concat(Helpers.toBinary(address, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.LDB) + Helpers.toBinary(address, 8);
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.LDB.concat("\t").concat(Helpers.toHex(address, 2));
+		return RedstoneMnemonics.LDB + '\t' + Helpers.toHex(address, 2);
 	}
 }

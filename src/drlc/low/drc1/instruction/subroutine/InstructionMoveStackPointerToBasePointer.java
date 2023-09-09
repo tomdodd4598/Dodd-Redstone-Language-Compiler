@@ -27,7 +27,7 @@ public class InstructionMoveStackPointerToBasePointer extends Instruction {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.MSPBP).concat(Global.ZERO_8);
+		return RedstoneOpcodes.get(RedstoneMnemonics.MSPBP) + Global.ZERO_8;
 	}
 	
 	@Override

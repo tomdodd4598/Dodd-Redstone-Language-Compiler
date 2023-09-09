@@ -55,11 +55,11 @@ public class InstructionConditionalJumpIfLessThanZero extends InstructionConditi
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.JLZ).concat(Helpers.toBinary(address, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.JLZ) + Helpers.toBinary(address, 8);
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.JLZ.concat("\t").concat(Helpers.toHex(address, 2));
+		return RedstoneMnemonics.JLZ + '\t' + Helpers.toHex(address, 2);
 	}
 }

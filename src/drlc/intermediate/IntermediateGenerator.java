@@ -1,16 +1,12 @@
 package drlc.intermediate;
 
-import java.io.PrintWriter;
 import java.util.List;
 
 import drlc.*;
 import drlc.intermediate.action.Action;
-import drlc.intermediate.component.Variable;
-import drlc.intermediate.component.constant.Constant;
-import drlc.intermediate.component.info.*;
-import drlc.intermediate.component.type.TypeInfo;
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.*;
 import drlc.intermediate.routine.*;
-import drlc.node.Node;
 
 public class IntermediateGenerator extends Generator {
 	
@@ -19,17 +15,24 @@ public class IntermediateGenerator extends Generator {
 	}
 	
 	@Override
-	public void addBuiltInVariables(Node node) {
-		super.addBuiltInVariables(node);
-		program.rootScope.addVariable(node, new Variable(Global.ARGC, new VariableModifierInfo(false), intTypeInfo), false);
+	public void addBuiltInDirectives(ASTNode node) {
+		directiveMap.put(Global.SETARGC, new Directive(1, Helpers.array(Helpers.builtInParam("x", intTypeInfo))) {});
 	}
 	
 	@Override
-	public void handleDirectiveCall(Node node, String name, List<Constant> constantList) {}
+	public void addBuiltInVariables(ASTNode node) {
+		super.addBuiltInVariables(node);
+		program.rootScope.addVariable(node, new Variable(Global.ARGC, VariableModifier.ROOT_PARAM, intTypeInfo), false);
+	}
 	
 	@Override
 	public int getWordSize() {
 		return 8;
+	}
+	
+	@Override
+	public int getFunctionSize() {
+		return getWordSize();
 	}
 	
 	@Override
@@ -40,9 +43,8 @@ public class IntermediateGenerator extends Generator {
 	@Override
 	public void generateRootParams(RootRoutine routine) {
 		routine.params = new DeclaratorInfo[2];
-		routine.params[0] = new DeclaratorInfo(null, new Variable(Global.ARGC, new VariableModifierInfo(false), intTypeInfo));
-		TypeInfo argvTypeInfo = charTypeInfo(2);
-		routine.params[1] = new DeclaratorInfo(null, new Variable("\\argv", new VariableModifierInfo(false), argvTypeInfo));
+		routine.params[0] = new DeclaratorInfo(null, new Variable(Global.ARGC, VariableModifier.ROOT_PARAM, intTypeInfo));
+		routine.params[1] = new DeclaratorInfo(null, new Variable(Global.ARGV_PARAM, VariableModifier.ROOT_PARAM, charTypeInfo(2)));
 	}
 	
 	@Override
@@ -50,25 +52,27 @@ public class IntermediateGenerator extends Generator {
 		optimizeIntermediate();
 		program.finalizeRoutines();
 		
-		StringBuilder builder = new StringBuilder();
+		StringBuilder sb = new StringBuilder();
+		boolean begin = true;
 		for (Routine routine : program.routineMap.values()) {
 			if (!routine.isBuiltInFunctionRoutine()) {
-				builder.append('\n').append(routine.getType().toString()).append(' ').append(routine.toString()).append(":\n");
+				if (begin) {
+					begin = false;
+				}
+				else {
+					sb.append('\n');
+				}
+				sb.append(routine.getType()).append(' ').append(routine).append(":\n");
 				List<List<Action>> list = routine.getBodyActionLists();
 				for (int i = 0; i < list.size(); ++i) {
-					builder.append(Helpers.sectionIdString(i)).append(":\n");
+					sb.append(Helpers.sectionIdString(i)).append(":\n");
 					for (Action action : list.get(i)) {
-						builder.append('\t').append(action.toString()).append('\n');
+						sb.append('\t').append(action).append('\n');
 					}
 				}
 			}
 		}
 		
-		try (PrintWriter out = new PrintWriter(outputFile)) {
-			out.print(builder.substring(1));
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
+		Helpers.writeFile(outputFile, sb.toString());
 	}
 }

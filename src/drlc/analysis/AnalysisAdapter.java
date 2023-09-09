@@ -111,6 +111,18 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseAScopedSectionBasicSection(AScopedSectionBasicSection node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAConstantDefinitionBasicSection(AConstantDefinitionBasicSection node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseAVariableDeclarationBasicSection(AVariableDeclarationBasicSection node)
     {
         defaultCase(node);
@@ -153,6 +165,18 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseAScopedSection(AScopedSection node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAConstantDefinition(AConstantDefinition node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseAExcludingInitializationVariableDeclaration(AExcludingInitializationVariableDeclaration node)
     {
         defaultCase(node);
@@ -160,24 +184,6 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseAIncludingInitializationVariableDeclaration(AIncludingInitializationVariableDeclaration node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseABasicInitializationExpression(ABasicInitializationExpression node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAArrayInitializationExpression(AArrayInitializationExpression node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAArrayFillInitializationExpression(AArrayFillInitializationExpression node)
     {
         defaultCase(node);
     }
@@ -238,6 +244,12 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseASectionLabel(ASectionLabel node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAScopeContents(AScopeContents node)
     {
         defaultCase(node);
     }
@@ -345,7 +357,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAArrayTypeTail(AArrayTypeTail node)
+    public void caseATypeList(ATypeList node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseATypeListTail(ATypeListTail node)
     {
         defaultCase(node);
     }
@@ -357,7 +375,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAParParameterList(AParParameterList node)
+    public void caseAVariableDeclarator(AVariableDeclarator node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseATypeAnnotation(ATypeAnnotation node)
     {
         defaultCase(node);
     }
@@ -375,19 +399,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAExcludingIdentifierParameter(AExcludingIdentifierParameter node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAIncludingIdentifierParameter(AIncludingIdentifierParameter node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseADeclarator(ADeclarator node)
+    public void caseAParameterDeclarator(AParameterDeclarator node)
     {
         defaultCase(node);
     }
@@ -405,19 +417,19 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseATypeAnnotation(ATypeAnnotation node)
+    public void caseAExpression(AExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAExpressionLvalue(AExpressionLvalue node)
+    public void caseAConstantExpression(AConstantExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAExpressionRvalue(AExpressionRvalue node)
+    public void caseAAssignmentExpression(AAssignmentExpression node)
     {
         defaultCase(node);
     }
@@ -525,6 +537,18 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseAArrayListExpression7(AArrayListExpression7 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAArrayRepeatExpression7(AArrayRepeatExpression7 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseAIndexExpression7(AIndexExpression7 node)
     {
         defaultCase(node);
@@ -532,24 +556,6 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseAFunctionExpression7(AFunctionExpression7 node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseABracketExpression(ABracketExpression node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseABracketExpressionList(ABracketExpressionList node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAParExpressionList(AParExpressionList node)
     {
         defaultCase(node);
     }
@@ -622,18 +628,6 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseAEqualsAssignmentOp(AEqualsAssignmentOp node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseALogicalAndAssignmentOp(ALogicalAndAssignmentOp node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseALogicalOrAssignmentOp(ALogicalOrAssignmentOp node)
     {
         defaultCase(node);
     }
@@ -861,7 +855,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTVar(TVar node)
+    public void caseTConst(TConst node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTLet(TLet node)
     {
         defaultCase(node);
     }
@@ -873,7 +873,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTConditionalBranchSectionKeyword(TConditionalBranchSectionKeyword node)
+    public void caseTConditionalBranchKeyword(TConditionalBranchKeyword node)
     {
         defaultCase(node);
     }
@@ -891,7 +891,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTConditionalIterativeSectionKeyword(TConditionalIterativeSectionKeyword node)
+    public void caseTConditionalIterativeKeyword(TConditionalIterativeKeyword node)
     {
         defaultCase(node);
     }
@@ -994,18 +994,6 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTEquals(TEquals node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTLogicalAndEquals(TLogicalAndEquals node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTLogicalOrEquals(TLogicalOrEquals node)
     {
         defaultCase(node);
     }
@@ -1209,6 +1197,12 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseTBoolValue(TBoolValue node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseTName(TName node)
     {
         defaultCase(node);
@@ -1216,12 +1210,6 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTDiscard(TDiscard node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTBoolValue(TBoolValue node)
     {
         defaultCase(node);
     }

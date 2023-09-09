@@ -1,8 +1,9 @@
 package drlc;
 
-import java.io.*;
-import java.lang.reflect.Constructor;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import drlc.intermediate.ast.StartNode;
 import drlc.intermediate.interpreter.*;
 import drlc.lexer.Lexer;
 import drlc.node.Start;
@@ -10,113 +11,113 @@ import drlc.parser.Parser;
 
 public class Main {
 	
-	public static void main(String[] args) {
-		if (args.length == 3) {
-			run(args[0], args[1], args[2]);
-		}
-		else {
-			StringBuilder builder = new StringBuilder(), types = new StringBuilder();
-			builder.append("PARAMETERS: type output input\n");
-			for (String s : Generator.CLASS_MAP.keySet()) {
-				types.append(", " + s);
-			}
-			builder.append("TYPES: ").append(types.substring(2));
-			builder.append("\nEXAMPLE: s1 program.drs1 program.drl\n");
-			err(builder.toString());
+	private static class Input {
+		
+		private final List<String> args;
+		private final Set<String> options;
+		
+		private Input(String[] args) {
+			Map<Boolean, List<String>> map = Arrays.stream(args).collect(Collectors.partitioningBy(x -> x.charAt(0) == '-'));
+			this.args = map.get(false);
+			this.options = map.get(true).stream().map(x -> Helpers.lowerCase(x).substring(1)).collect(Collectors.toSet());
 		}
 	}
 	
-	private static void run(String type, String output, String input) {
-		try {
-			/* Find generator */
-			type = trim(type);
-			if (type.equalsIgnoreCase("all")) {
-				for (String t : Generator.CLASS_MAP.keySet()) {
-					String o = (output.contains(".") ? output.substring(0, output.lastIndexOf('.') + 1) : output.concat(".")).concat("dr").concat(t);
-					generate(t, o, input);
-				}
-			}
-			else {
-				generate(type, output, input);
-			}
-			
-			System.out.print("Finished!\n");
+	public static void main(String[] args) throws Exception {
+		Input input = new Input(args);
+		if (input.args.size() != 2) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("Arguments: [-TARGETS...] OUTPUT INPUT\n");
+			sb.append("Targets: ");
+			sb.append(Generator.NAME_MAP.entrySet().stream().map(x -> String.format("-%s (%s)\n", x.getKey(), x.getValue())).collect(Collectors.joining(Helpers.charLine(' ', 9))));
+			sb.append("Example: -s1 program.drs1 program.drl\n");
+			err(sb.toString());
 		}
-		catch (Exception e) {
-			e.printStackTrace();
+		else {
+			try {
+				String outputFile = input.args.get(0), inputFile = input.args.get(1);
+				if (input.options.contains("all")) {
+					outputFile = (outputFile.contains(".") ? outputFile.substring(0, 1 + outputFile.lastIndexOf('.')) : (outputFile + ".")) + "dr";
+					for (String target : Generator.NAME_MAP.keySet()) {
+						generate(target, outputFile + target, inputFile);
+					}
+				}
+				else {
+					for (String target : input.options) {
+						generate(target, outputFile, inputFile);
+					}
+				}
+				System.out.print("Finished!\n");
+			}
+			catch (Exception e) {
+				throw e;
+			}
 		}
 	}
 	
 	private static boolean first = true;
 	
-	private static void generate(String type, String output, String input) {
-		try {
-			Generator generator = getGenerator(type, output);
-			if (generator == null) {
-				err("ERROR: chosen output type not found!");
-			}
-			
-			if (first) {
-				first = false;
-			}
-			else {
-				System.out.print("\n");
-			}
-			
-			System.out.printf("Compilation target: %s\n", Generator.NAME_MAP.get(type));
-			
-			long currentTime, previousTime = System.nanoTime();
-			
-			/* Form AST */
-			PushbackReader reader = new PushbackReader(new FileReader(input), 16384);
-			Start ast = new Parser(new Lexer(reader)).parse();
-			reader.close();
-			
-			currentTime = System.nanoTime();
-			System.out.printf("Parsing time: %.2f ms\n", (currentTime - previousTime) / 1E6);
-			previousTime = currentTime;
-			
-			/* Run interpreters */
-			generator.astInit();
-			ast.apply(new FirstPassInterpreter(generator));
-			ast.apply(new SecondPassInterpreter(generator));
-			generator.astFinalize();
-			
-			currentTime = System.nanoTime();
-			System.out.printf("Interpreting time: %.2f ms\n", (currentTime - previousTime) / 1E6);
-			previousTime = currentTime;
-			
-			/* Generate code */
-			generator.generate();
-			
-			currentTime = System.nanoTime();
-			System.out.printf("Generating time: %.2f ms\n", (currentTime - previousTime) / 1E6);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	public static Generator generator;
+	public static String source;
 	
-	private static Generator getGenerator(String type, String output) throws Exception {
-		return newGenerator(Generator.CLASS_MAP.get(type), output);
-	}
-	
-	private static <T> T newGenerator(Class<T> clazz, String output) throws Exception {
-		if (clazz == null) {
-			return null;
+	private static void generate(String target, String outputFile, String inputFile) throws Exception {
+		if (!Generator.CONSTRUCTOR_MAP.containsKey(target)) {
+			err("ERROR: output target \"%s\" not found!", target);
+		}
+		
+		generator = Generator.CONSTRUCTOR_MAP.get(target).apply(outputFile);
+		
+		if (first) {
+			first = false;
 		}
 		else {
-			Constructor<T> constructor = clazz.getConstructor(String.class);
-			return constructor.newInstance(output);
+			System.out.print("\n");
 		}
+		
+		System.out.printf("Compilation target: %s\n", Generator.NAME_MAP.get(target));
+		
+		long currentTime, previousTime = System.nanoTime();
+		
+		/* Form parse tree */
+		source = Helpers.readFile(inputFile);
+		Lexer lexer = Helpers.stringLexer(source);
+		Parser parser = new Parser(lexer);
+		Start parseTree = parser.parse();
+		
+		currentTime = System.nanoTime();
+		System.out.printf("Parsing time: %.2f ms\n", (currentTime - previousTime) / 1E6);
+		previousTime = currentTime;
+		
+		/* Form AST */
+		ParseTreeInterpreter interpreter = new ParseTreeInterpreter();
+		parseTree.apply(interpreter);
+		StartNode ast = interpreter.ast;
+		
+		/* Run interpreters */
+		ast.setScopes(null);
+		ast.defineTypes(null);
+		ast.checkTypes(null);
+		ast.resolveExpressions(null);
+		ast.generate(null);
+		
+		parseTree.apply(new FirstPassInterpreter(generator, program));
+		parseTree.apply(new SecondPassInterpreter(generator, program));
+		
+		generator.interpretFinalize();
+		
+		currentTime = System.nanoTime();
+		System.out.printf("Interpreting time: %.2f ms\n", (currentTime - previousTime) / 1E6);
+		previousTime = currentTime;
+		
+		/* Generate code */
+		generator.generate();
+		
+		currentTime = System.nanoTime();
+		System.out.printf("Generating time: %.2f ms\n", (currentTime - previousTime) / 1E6);
 	}
 	
-	private static String trim(String arg) {
-		return Helpers.lowerCase(arg.replaceAll("-|_", ""));
-	}
-	
-	private static void err(String string) {
-		System.err.print(string);
-		System.exit(1);
+	private static void err(String string, Object... args) {
+		System.err.print(String.format(string, args));
+		System.exit(0);
 	}
 }

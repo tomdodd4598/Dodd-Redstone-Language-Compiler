@@ -2,41 +2,41 @@ package drlc.intermediate.action.binary;
 
 import java.util.Map;
 
-import drlc.Helpers;
+import drlc.Main;
 import drlc.intermediate.action.*;
-import drlc.intermediate.component.DataId;
-import drlc.node.Node;
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.data.*;
 
 public abstract class BinaryOpAction extends Action implements IValueAction {
 	
 	public final BinaryActionType type;
 	public final DataId target, arg1, arg2;
 	
-	protected BinaryOpAction(Node node, BinaryActionType type, DataId target, DataId arg1, DataId arg2) {
+	protected BinaryOpAction(ASTNode node, BinaryActionType type, DataId target, DataId arg1, DataId arg2) {
 		super(node);
 		if (type == null) {
-			throw new IllegalArgumentException(String.format("Binary op action type was null! %s", node));
+			throw node.error("Binary op action type was null!");
 		}
 		else {
 			this.type = type;
 		}
 		
 		if (target == null) {
-			throw new IllegalArgumentException(String.format("Binary op action target was null! %s", node));
+			throw node.error("Binary op action target was null!");
 		}
 		else {
 			this.target = target;
 		}
 		
 		if (arg1 == null) {
-			throw new IllegalArgumentException(String.format("Binary op action first argument was null! %s", node));
+			throw node.error("Binary op action first argument was null!");
 		}
 		else {
 			this.arg1 = arg1;
 		}
 		
 		if (arg2 == null) {
-			throw new IllegalArgumentException(String.format("Binary op action second argument was null! %s", node));
+			throw node.error("Binary op action second argument was null!");
 		}
 		else {
 			this.arg2 = arg2;
@@ -73,15 +73,13 @@ public abstract class BinaryOpAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRvalue(DataId replaceTarget, DataId rvalueReplacer) {
-		if (arg1.equals(replaceTarget)) {
-			return copy(target, rvalueReplacer, arg2);
-		}
-		else if (arg2.equals(replaceTarget)) {
-			return copy(target, arg1, rvalueReplacer);
+	public Action replaceRegRvalue(long targetId, DataId rvalueReplacer) {
+		RegReplaceResult arg1Result = replaceRegId(arg1, targetId, rvalueReplacer), arg2Result = replaceRegId(arg2, targetId, rvalueReplacer);
+		if (arg1Result.success || arg2Result.success) {
+			return copy(target, arg1Result.dataId, arg2Result.dataId);
 		}
 		else {
-			throw new IllegalArgumentException(String.format("Neither binary op action argument [%s, %s] matched replacement target %s!", arg1, arg2, replaceTarget));
+			throw new IllegalArgumentException(String.format("Neither binary op action argument %s, %s matched replacement reg ID %d!", arg1, arg2, targetId));
 		}
 	}
 	
@@ -96,13 +94,13 @@ public abstract class BinaryOpAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceLvalue(DataId replaceTarget, DataId lvalueReplacer) {
-		if (target.equals(replaceTarget)) {
-			return copy(lvalueReplacer, arg1, arg2);
-		}
-		else {
-			throw new IllegalArgumentException(String.format("Binary op action target %s doesn't match replacement target %s!", target, replaceTarget));
-		}
+	public Action replaceRegLvalue(long targetId, DataId lvalueReplacer) {
+		return copy(lvalueReplacer, arg1, arg2);
+	}
+	
+	@Override
+	public Action setTransientLvalue() {
+		return copy(target.getTransient(), arg1, arg2);
 	}
 	
 	@Override
@@ -116,20 +114,20 @@ public abstract class BinaryOpAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRegIds(Map<DataId, DataId> regIdMap) {
-		DataId target = this.target.removeAllDereferences(), arg1 = this.arg1.removeAllDereferences(), arg2 = this.arg2.removeAllDereferences();
-		if (Helpers.isRegId(target.raw) && regIdMap.containsKey(target)) {
-			target = regIdMap.get(target);
+	public Action foldRvalues() {
+		if (arg1 instanceof ValueDataId && arg2 instanceof ValueDataId) {
+			return new AssignmentAction(null, target, new ValueDataId(Main.generator.binaryOp(null, ((ValueDataId) arg1).value, type.opType, ((ValueDataId) arg2).value)));
 		}
-		if (Helpers.isRegId(arg1.raw) && regIdMap.containsKey(arg1)) {
-			arg1 = regIdMap.get(arg1);
+		else {
+			return null;
 		}
-		if (Helpers.isRegId(arg2.raw) && regIdMap.containsKey(arg2)) {
-			arg2 = regIdMap.get(arg2);
-		}
-		
-		if (!target.equalsOther(this.target, true) || !arg1.equalsOther(this.arg1, true) || !arg2.equalsOther(this.arg2, true)) {
-			return copy(target.addDereferences(this.target.dereferenceLevel), arg1.addDereferences(this.arg1.dereferenceLevel), arg2.addDereferences(this.arg2.dereferenceLevel));
+	}
+	
+	@Override
+	public Action replaceRegIds(Map<Long, Long> regIdMap) {
+		RegReplaceResult targetResult = replaceRegId(target, regIdMap), arg1Result = replaceRegId(arg1, regIdMap), arg2Result = replaceRegId(arg2, regIdMap);
+		if (targetResult.success || arg1Result.success || arg2Result.success) {
+			return copy(targetResult.dataId, arg1Result.dataId, arg2Result.dataId);
 		}
 		else {
 			return null;

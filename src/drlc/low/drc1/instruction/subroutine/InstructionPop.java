@@ -27,7 +27,7 @@ public class InstructionPop extends Instruction {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.POPA).concat(Global.ZERO_8);
+		return RedstoneOpcodes.get(RedstoneMnemonics.POPA) + Global.ZERO_8;
 	}
 	
 	@Override

@@ -39,19 +39,19 @@ Helpers
 Tokens
 	directive_prefix = '%!';
 	
-	/* function_modifier = 'stack'; */
-	variable_modifier = 'static';
+	variable_modifier = 'static' | 'mut';
 	
 	fn = 'fn';
-	var = 'var';
+	const = 'const';
+	let = 'let';
 	
 	arrow = '->';
 	
-	conditional_branch_section_keyword = 'if' | 'unless';
+	conditional_branch_keyword = 'if' | 'unless';
 	else = 'else';
 	
 	loop = 'loop';
-	conditional_iterative_section_keyword = 'while' | 'until';
+	conditional_iterative_keyword = 'while' | 'until';
 	do = 'do';
 	
 	goto = 'goto';
@@ -74,9 +74,6 @@ Tokens
 	semicolon = ';';
 	
 	equals = '=';
-	
-	logical_and_equals = '&?=';
-	logical_or_equals = '|?=';
 	
 	plus_equals = '+=';
 	and_equals = '&=';
@@ -121,12 +118,14 @@ Tokens
 	
 	not = '!';
 	
+	bool_value = 'false' | 'true';
+	
 	name = letter (digit | letter | '_')*;
 	discard = '_';
 	
-	bool_value = 'false' | 'true';
-	int_value = integer 'i'?;
-	nat_value = integer 'n';
+	int_value = integer ('I' | 'i')?;
+	nat_value = integer ('N' | 'n');
+	
 	char_value = apostrophe c_char apostrophe;
 	
 	null = 'null';
@@ -160,6 +159,8 @@ Productions
 		{basic_section} basic_section;
 	
 	basic_section =
+		{scoped_section} scoped_section |
+		{constant_definition} constant_definition |
 		{variable_declaration} variable_declaration |
 		{expression_statement} expression_statement |
 		{conditional_section} conditional_section |
@@ -172,32 +173,33 @@ Productions
 	/* SECTION SPECIFICATIONS */
 	
 	function_definition =
-		/* function_modifier* */ fn name par_parameter_list return_type? l_brace basic_section* stop_statement? r_brace;
+		fn name l_par parameter_list? r_par return_type? l_brace scope_contents r_brace;
+	
+	scoped_section =
+		l_brace scope_contents r_brace;
+	
+	constant_definition =
+		const name type_annotation equals constant_expression semicolon+;
 	
 	variable_declaration =
-		{excluding_initialization} variable_modifier* var declarator semicolon+ |
-		{including_initialization} variable_modifier* var declarator equals initialization_expression semicolon+;
-	
-	initialization_expression =
-		{basic} expression_rvalue |
-		{array} bracket_expression_list |
-		{array_fill} l_bracket expression_rvalue array_type_tail r_bracket;
+		{excluding_initialization} let variable_declarator semicolon+ |
+		{including_initialization} let variable_declarator equals expression semicolon+;
 	
 	expression_statement =
-		{basic} expression_rvalue semicolon+ |
-		{assignment} expression_lvalue assignment_op expression_rvalue semicolon+;
+		{basic} expression semicolon+ |
+		{assignment} assignment_expression assignment_op expression semicolon+;
 	
 	conditional_section =
-		conditional_branch_section_keyword expression_rvalue l_brace basic_section* stop_statement? r_brace else_section?;
+		conditional_branch_keyword expression l_brace scope_contents r_brace else_section?;
 	
 	else_section =
-		{excluding_branch} else l_brace basic_section* stop_statement? r_brace |
+		{excluding_branch} else l_brace scope_contents r_brace |
 		{including_branch} else conditional_section;
 	
 	iterative_section =
-		{loop} loop l_brace basic_section* stop_statement? r_brace |
-		{conditional} conditional_iterative_section_keyword expression_rvalue l_brace basic_section* stop_statement? r_brace |
-		{do_conditional} do l_brace basic_section* stop_statement? r_brace conditional_iterative_section_keyword expression_rvalue semicolon+;
+		{loop} loop l_brace scope_contents r_brace |
+		{conditional} conditional_iterative_keyword expression l_brace scope_contents r_brace |
+		{do_conditional} do l_brace scope_contents r_brace conditional_iterative_keyword expression semicolon+;
 	
 	goto_statement =
 		goto name semicolon+;
@@ -205,13 +207,16 @@ Productions
 	section_label =
 		name colon;
 	
+	scope_contents =
+		basic_section* stop_statement?;
+	
 	stop_statement =
 		{exit} exit semicolon+ dead_section* |
 		{return} return semicolon+ dead_section* |
 		{continue} continue semicolon+ dead_section* |
 		{break} break semicolon+ dead_section* |
-		{exit_expression} exit expression_rvalue semicolon+ dead_section* |
-		{return_expression} return expression_rvalue semicolon+ dead_section*;
+		{exit_expression} exit expression semicolon+ dead_section* |
+		{return_expression} return expression semicolon+ dead_section*;
 	
 	dead_section =
 		{dead0} basic_section |
@@ -219,8 +224,8 @@ Productions
 		{dead2} return semicolon+ |
 		{dead3} continue semicolon+ |
 		{dead4} break semicolon+ |
-		{dead5} exit expression_rvalue semicolon+ |
-		{dead6} return expression_rvalue semicolon+;
+		{dead5} exit expression semicolon+ |
+		{dead6} return expression semicolon+;
 	
 	
 	
@@ -231,42 +236,44 @@ Productions
 	
 	raw_type =
 		{basic} name |
-		{array} l_bracket type array_type_tail r_bracket |
-		{function} fn par_parameter_list return_type?;
+		{array} l_bracket type semicolon constant_expression r_bracket |
+		{function} fn l_par type_list? r_par return_type?;
 	
-	array_type_tail =
-		semicolon expression_rvalue;
+	type_list =
+		type type_list_tail* comma?;
+	
+	type_list_tail =
+		comma type;
 	
 	return_type =
 		arrow type;
 	
-	par_parameter_list =
-		l_par parameter_list? r_par;
+	variable_declarator =
+		variable_modifier* name type_annotation;
+	
+	type_annotation =
+		colon type;
 	
 	parameter_list =
-		variable_modifier* parameter parameter_list_tail* comma?;
+		parameter_declarator parameter_list_tail* comma?;
 	
 	parameter_list_tail =
-		comma variable_modifier* parameter;
+		comma parameter_declarator;
 	
-	parameter =
-		{excluding_identifier} type |
-		{including_identifier} identifier type_annotation;
-	
-	declarator =
-		identifier type_annotation;
+	parameter_declarator =
+		variable_modifier* identifier type_annotation;
 	
 	identifier =
 		{name} name |
 		{discard} discard;
 	
-	type_annotation =
-		colon type;
+	expression =
+		expression0;
 	
-	expression_lvalue =
-		expression6;
+	constant_expression =
+		expression0;
 	
-	expression_rvalue =
+	assignment_expression =
 		expression0;
 	
 	expression0 =
@@ -297,32 +304,25 @@ Productions
 		{prioritized} expression7 |
 		{unary} unary_op expression6 |
 		{dereference} multiply expression6 |
-		{address_of} and name;
+		{address_of} and expression6;
 	
 	expression7 =
 		{prioritized} expression8 |
-		{index} expression7 bracket_expression |
-		{function} expression7 par_expression_list;
-	
-	bracket_expression =
-		l_bracket expression_rvalue? r_bracket;
-	
-	bracket_expression_list =
-		l_bracket expression_list? r_bracket;
-	
-	par_expression_list =
-		l_par expression_list? r_par;
+		{array_list} l_bracket expression_list? r_bracket |
+		{array_repeat} l_bracket expression semicolon constant_expression r_bracket |
+		{index} expression7 l_bracket expression r_bracket |
+		{function} expression7 l_par expression_list? r_par;
 	
 	expression_list =
-		expression_rvalue expression_list_tail* comma?;
+		expression expression_list_tail* comma?;
 	
 	expression_list_tail =
-		comma expression_rvalue;
+		comma expression;
 	
 	expression8 =
 		{value} value |
 		{variable} name |
-		{parentheses} l_par expression0 r_par;
+		{parentheses} l_par expression r_par;
 	
 	value =
 		{bool} bool_value |
@@ -334,12 +334,10 @@ Productions
 	
 	
 	
-		/* OPERATION SPECIFICATIONS */
+	/* OPERATION SPECIFICATIONS */
 	
 	assignment_op =
 		{equals} equals |
-		{logical_and} logical_and_equals |
-		{logical_or} logical_or_equals |
 		{plus} plus_equals |
 		{and} and_equals |
 		{or} or_equals |

@@ -31,7 +31,7 @@ public class InstructionCallSubroutine extends Instruction {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.CALL).concat(Helpers.toBinary(returnAddress, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.CALL) + Helpers.toBinary(returnAddress, 8);
 	}
 	
 	@Override

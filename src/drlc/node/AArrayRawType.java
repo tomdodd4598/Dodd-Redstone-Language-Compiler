@@ -9,7 +9,8 @@ public final class AArrayRawType extends PRawType
 {
     private TLBracket _lBracket_;
     private PType _type_;
-    private PArrayTypeTail _arrayTypeTail_;
+    private TSemicolon _semicolon_;
+    private PConstantExpression _constantExpression_;
     private TRBracket _rBracket_;
 
     public AArrayRawType()
@@ -20,7 +21,8 @@ public final class AArrayRawType extends PRawType
     public AArrayRawType(
         @SuppressWarnings("hiding") TLBracket _lBracket_,
         @SuppressWarnings("hiding") PType _type_,
-        @SuppressWarnings("hiding") PArrayTypeTail _arrayTypeTail_,
+        @SuppressWarnings("hiding") TSemicolon _semicolon_,
+        @SuppressWarnings("hiding") PConstantExpression _constantExpression_,
         @SuppressWarnings("hiding") TRBracket _rBracket_)
     {
         // Constructor
@@ -28,7 +30,9 @@ public final class AArrayRawType extends PRawType
 
         setType(_type_);
 
-        setArrayTypeTail(_arrayTypeTail_);
+        setSemicolon(_semicolon_);
+
+        setConstantExpression(_constantExpression_);
 
         setRBracket(_rBracket_);
 
@@ -40,7 +44,8 @@ public final class AArrayRawType extends PRawType
         return new AArrayRawType(
             cloneNode(this._lBracket_),
             cloneNode(this._type_),
-            cloneNode(this._arrayTypeTail_),
+            cloneNode(this._semicolon_),
+            cloneNode(this._constantExpression_),
             cloneNode(this._rBracket_));
     }
 
@@ -100,16 +105,16 @@ public final class AArrayRawType extends PRawType
         this._type_ = node;
     }
 
-    public PArrayTypeTail getArrayTypeTail()
+    public TSemicolon getSemicolon()
     {
-        return this._arrayTypeTail_;
+        return this._semicolon_;
     }
 
-    public void setArrayTypeTail(PArrayTypeTail node)
+    public void setSemicolon(TSemicolon node)
     {
-        if(this._arrayTypeTail_ != null)
+        if(this._semicolon_ != null)
         {
-            this._arrayTypeTail_.parent(null);
+            this._semicolon_.parent(null);
         }
 
         if(node != null)
@@ -122,7 +127,32 @@ public final class AArrayRawType extends PRawType
             node.parent(this);
         }
 
-        this._arrayTypeTail_ = node;
+        this._semicolon_ = node;
+    }
+
+    public PConstantExpression getConstantExpression()
+    {
+        return this._constantExpression_;
+    }
+
+    public void setConstantExpression(PConstantExpression node)
+    {
+        if(this._constantExpression_ != null)
+        {
+            this._constantExpression_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._constantExpression_ = node;
     }
 
     public TRBracket getRBracket()
@@ -156,7 +186,8 @@ public final class AArrayRawType extends PRawType
         return ""
             + toString(this._lBracket_)
             + toString(this._type_)
-            + toString(this._arrayTypeTail_)
+            + toString(this._semicolon_)
+            + toString(this._constantExpression_)
             + toString(this._rBracket_);
     }
 
@@ -176,9 +207,15 @@ public final class AArrayRawType extends PRawType
             return;
         }
 
-        if(this._arrayTypeTail_ == child)
+        if(this._semicolon_ == child)
         {
-            this._arrayTypeTail_ = null;
+            this._semicolon_ = null;
+            return;
+        }
+
+        if(this._constantExpression_ == child)
+        {
+            this._constantExpression_ = null;
             return;
         }
 
@@ -207,9 +244,15 @@ public final class AArrayRawType extends PRawType
             return;
         }
 
-        if(this._arrayTypeTail_ == oldChild)
+        if(this._semicolon_ == oldChild)
         {
-            setArrayTypeTail((PArrayTypeTail) newChild);
+            setSemicolon((TSemicolon) newChild);
+            return;
+        }
+
+        if(this._constantExpression_ == oldChild)
+        {
+            setConstantExpression((PConstantExpression) newChild);
             return;
         }
 

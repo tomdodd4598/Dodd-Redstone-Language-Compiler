@@ -8,7 +8,9 @@ import drlc.analysis.*;
 public final class AIndexExpression7 extends PExpression7
 {
     private PExpression7 _expression7_;
-    private PBracketExpression _bracketExpression_;
+    private TLBracket _lBracket_;
+    private PExpression _expression_;
+    private TRBracket _rBracket_;
 
     public AIndexExpression7()
     {
@@ -17,12 +19,18 @@ public final class AIndexExpression7 extends PExpression7
 
     public AIndexExpression7(
         @SuppressWarnings("hiding") PExpression7 _expression7_,
-        @SuppressWarnings("hiding") PBracketExpression _bracketExpression_)
+        @SuppressWarnings("hiding") TLBracket _lBracket_,
+        @SuppressWarnings("hiding") PExpression _expression_,
+        @SuppressWarnings("hiding") TRBracket _rBracket_)
     {
         // Constructor
         setExpression7(_expression7_);
 
-        setBracketExpression(_bracketExpression_);
+        setLBracket(_lBracket_);
+
+        setExpression(_expression_);
+
+        setRBracket(_rBracket_);
 
     }
 
@@ -31,7 +39,9 @@ public final class AIndexExpression7 extends PExpression7
     {
         return new AIndexExpression7(
             cloneNode(this._expression7_),
-            cloneNode(this._bracketExpression_));
+            cloneNode(this._lBracket_),
+            cloneNode(this._expression_),
+            cloneNode(this._rBracket_));
     }
 
     @Override
@@ -65,16 +75,16 @@ public final class AIndexExpression7 extends PExpression7
         this._expression7_ = node;
     }
 
-    public PBracketExpression getBracketExpression()
+    public TLBracket getLBracket()
     {
-        return this._bracketExpression_;
+        return this._lBracket_;
     }
 
-    public void setBracketExpression(PBracketExpression node)
+    public void setLBracket(TLBracket node)
     {
-        if(this._bracketExpression_ != null)
+        if(this._lBracket_ != null)
         {
-            this._bracketExpression_.parent(null);
+            this._lBracket_.parent(null);
         }
 
         if(node != null)
@@ -87,7 +97,57 @@ public final class AIndexExpression7 extends PExpression7
             node.parent(this);
         }
 
-        this._bracketExpression_ = node;
+        this._lBracket_ = node;
+    }
+
+    public PExpression getExpression()
+    {
+        return this._expression_;
+    }
+
+    public void setExpression(PExpression node)
+    {
+        if(this._expression_ != null)
+        {
+            this._expression_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._expression_ = node;
+    }
+
+    public TRBracket getRBracket()
+    {
+        return this._rBracket_;
+    }
+
+    public void setRBracket(TRBracket node)
+    {
+        if(this._rBracket_ != null)
+        {
+            this._rBracket_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._rBracket_ = node;
     }
 
     @Override
@@ -95,7 +155,9 @@ public final class AIndexExpression7 extends PExpression7
     {
         return ""
             + toString(this._expression7_)
-            + toString(this._bracketExpression_);
+            + toString(this._lBracket_)
+            + toString(this._expression_)
+            + toString(this._rBracket_);
     }
 
     @Override
@@ -108,9 +170,21 @@ public final class AIndexExpression7 extends PExpression7
             return;
         }
 
-        if(this._bracketExpression_ == child)
+        if(this._lBracket_ == child)
         {
-            this._bracketExpression_ = null;
+            this._lBracket_ = null;
+            return;
+        }
+
+        if(this._expression_ == child)
+        {
+            this._expression_ = null;
+            return;
+        }
+
+        if(this._rBracket_ == child)
+        {
+            this._rBracket_ = null;
             return;
         }
 
@@ -127,9 +201,21 @@ public final class AIndexExpression7 extends PExpression7
             return;
         }
 
-        if(this._bracketExpression_ == oldChild)
+        if(this._lBracket_ == oldChild)
         {
-            setBracketExpression((PBracketExpression) newChild);
+            setLBracket((TLBracket) newChild);
+            return;
+        }
+
+        if(this._expression_ == oldChild)
+        {
+            setExpression((PExpression) newChild);
+            return;
+        }
+
+        if(this._rBracket_ == oldChild)
+        {
+            setRBracket((TRBracket) newChild);
             return;
         }
 

@@ -12,7 +12,7 @@ public class InstructionSetNegative extends InstructionSet {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.LDNEG).concat(Global.ZERO_8);
+		return RedstoneOpcodes.get(RedstoneMnemonics.LDNEG) + Global.ZERO_8;
 	}
 	
 	@Override

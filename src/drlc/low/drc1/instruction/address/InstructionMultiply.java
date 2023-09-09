@@ -17,11 +17,11 @@ public class InstructionMultiply extends InstructionALU {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.MUL).concat(Helpers.toBinary(address, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.MUL) + Helpers.toBinary(address, 8);
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.MUL.concat("\t").concat(Helpers.toHex(address, 2));
+		return RedstoneMnemonics.MUL + '\t' + Helpers.toHex(address, 2);
 	}
 }

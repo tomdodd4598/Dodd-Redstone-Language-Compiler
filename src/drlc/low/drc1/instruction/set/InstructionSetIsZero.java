@@ -11,7 +11,7 @@ public class InstructionSetIsZero extends InstructionSet {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.LDEZ).concat(Global.ZERO_8);
+		return RedstoneOpcodes.get(RedstoneMnemonics.LDEZ) + Global.ZERO_8;
 	}
 	
 	@Override

@@ -8,7 +8,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AExpressionList extends PExpressionList
 {
-    private PExpressionRvalue _expressionRvalue_;
+    private PExpression _expression_;
     private final LinkedList<PExpressionListTail> _expressionListTail_ = new LinkedList<PExpressionListTail>();
     private TComma _comma_;
 
@@ -18,12 +18,12 @@ public final class AExpressionList extends PExpressionList
     }
 
     public AExpressionList(
-        @SuppressWarnings("hiding") PExpressionRvalue _expressionRvalue_,
+        @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") List<?> _expressionListTail_,
         @SuppressWarnings("hiding") TComma _comma_)
     {
         // Constructor
-        setExpressionRvalue(_expressionRvalue_);
+        setExpression(_expression_);
 
         setExpressionListTail(_expressionListTail_);
 
@@ -35,7 +35,7 @@ public final class AExpressionList extends PExpressionList
     public Object clone()
     {
         return new AExpressionList(
-            cloneNode(this._expressionRvalue_),
+            cloneNode(this._expression_),
             cloneList(this._expressionListTail_),
             cloneNode(this._comma_));
     }
@@ -46,16 +46,16 @@ public final class AExpressionList extends PExpressionList
         ((Analysis) sw).caseAExpressionList(this);
     }
 
-    public PExpressionRvalue getExpressionRvalue()
+    public PExpression getExpression()
     {
-        return this._expressionRvalue_;
+        return this._expression_;
     }
 
-    public void setExpressionRvalue(PExpressionRvalue node)
+    public void setExpression(PExpression node)
     {
-        if(this._expressionRvalue_ != null)
+        if(this._expression_ != null)
         {
-            this._expressionRvalue_.parent(null);
+            this._expression_.parent(null);
         }
 
         if(node != null)
@@ -68,7 +68,7 @@ public final class AExpressionList extends PExpressionList
             node.parent(this);
         }
 
-        this._expressionRvalue_ = node;
+        this._expression_ = node;
     }
 
     public LinkedList<PExpressionListTail> getExpressionListTail()
@@ -126,7 +126,7 @@ public final class AExpressionList extends PExpressionList
     public String toString()
     {
         return ""
-            + toString(this._expressionRvalue_)
+            + toString(this._expression_)
             + toString(this._expressionListTail_)
             + toString(this._comma_);
     }
@@ -135,9 +135,9 @@ public final class AExpressionList extends PExpressionList
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._expressionRvalue_ == child)
+        if(this._expression_ == child)
         {
-            this._expressionRvalue_ = null;
+            this._expression_ = null;
             return;
         }
 
@@ -159,9 +159,9 @@ public final class AExpressionList extends PExpressionList
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._expressionRvalue_ == oldChild)
+        if(this._expression_ == oldChild)
         {
-            setExpressionRvalue((PExpressionRvalue) newChild);
+            setExpression((PExpression) newChild);
             return;
         }
 

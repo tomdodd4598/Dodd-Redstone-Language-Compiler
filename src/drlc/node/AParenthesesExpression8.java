@@ -8,7 +8,7 @@ import drlc.analysis.*;
 public final class AParenthesesExpression8 extends PExpression8
 {
     private TLPar _lPar_;
-    private PExpression0 _expression0_;
+    private PExpression _expression_;
     private TRPar _rPar_;
 
     public AParenthesesExpression8()
@@ -18,13 +18,13 @@ public final class AParenthesesExpression8 extends PExpression8
 
     public AParenthesesExpression8(
         @SuppressWarnings("hiding") TLPar _lPar_,
-        @SuppressWarnings("hiding") PExpression0 _expression0_,
+        @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") TRPar _rPar_)
     {
         // Constructor
         setLPar(_lPar_);
 
-        setExpression0(_expression0_);
+        setExpression(_expression_);
 
         setRPar(_rPar_);
 
@@ -35,7 +35,7 @@ public final class AParenthesesExpression8 extends PExpression8
     {
         return new AParenthesesExpression8(
             cloneNode(this._lPar_),
-            cloneNode(this._expression0_),
+            cloneNode(this._expression_),
             cloneNode(this._rPar_));
     }
 
@@ -70,16 +70,16 @@ public final class AParenthesesExpression8 extends PExpression8
         this._lPar_ = node;
     }
 
-    public PExpression0 getExpression0()
+    public PExpression getExpression()
     {
-        return this._expression0_;
+        return this._expression_;
     }
 
-    public void setExpression0(PExpression0 node)
+    public void setExpression(PExpression node)
     {
-        if(this._expression0_ != null)
+        if(this._expression_ != null)
         {
-            this._expression0_.parent(null);
+            this._expression_.parent(null);
         }
 
         if(node != null)
@@ -92,7 +92,7 @@ public final class AParenthesesExpression8 extends PExpression8
             node.parent(this);
         }
 
-        this._expression0_ = node;
+        this._expression_ = node;
     }
 
     public TRPar getRPar()
@@ -125,7 +125,7 @@ public final class AParenthesesExpression8 extends PExpression8
     {
         return ""
             + toString(this._lPar_)
-            + toString(this._expression0_)
+            + toString(this._expression_)
             + toString(this._rPar_);
     }
 
@@ -139,9 +139,9 @@ public final class AParenthesesExpression8 extends PExpression8
             return;
         }
 
-        if(this._expression0_ == child)
+        if(this._expression_ == child)
         {
-            this._expression0_ = null;
+            this._expression_ = null;
             return;
         }
 
@@ -164,9 +164,9 @@ public final class AParenthesesExpression8 extends PExpression8
             return;
         }
 
-        if(this._expression0_ == oldChild)
+        if(this._expression_ == oldChild)
         {
-            setExpression0((PExpression0) newChild);
+            setExpression((PExpression) newChild);
             return;
         }
 

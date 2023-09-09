@@ -1,17 +1,17 @@
 package drlc.intermediate.action;
 
 import drlc.Global;
-import drlc.node.Node;
+import drlc.intermediate.ast.ASTNode;
 
-public class ConditionalJumpAction extends Action implements IJumpAction<ConditionalJumpAction> {
+public class ConditionalJumpAction extends Action implements IJumpAction {
 	
 	public final String target;
 	public final boolean jumpCondition;
 	
-	public ConditionalJumpAction(Node node, String target, boolean jumpCondition) {
+	public ConditionalJumpAction(ASTNode node, String target, boolean jumpCondition) {
 		super(node);
 		if (target == null) {
-			throw new IllegalArgumentException(String.format("Conditional jump action target was null! %s", node));
+			throw node.error("Conditional jump action target was null!");
 		}
 		else {
 			this.target = target;
@@ -36,6 +36,6 @@ public class ConditionalJumpAction extends Action implements IJumpAction<Conditi
 	
 	@Override
 	public String toString() {
-		return (jumpCondition ? Global.CONDITIONAL_JUMP : Global.CONDITIONAL_NOT_JUMP).concat(" ").concat(target);
+		return (jumpCondition ? Global.CONDITIONAL_JUMP : Global.CONDITIONAL_NOT_JUMP) + ' ' + target;
 	}
 }

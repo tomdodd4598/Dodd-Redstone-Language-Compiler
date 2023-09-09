@@ -36,11 +36,11 @@ public class InstructionAndImmediate extends InstructionALUImmediate {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.ANDI).concat(Helpers.toBinary(value, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.ANDI) + Helpers.toBinary(value, 8);
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.ANDI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
+		return RedstoneMnemonics.ANDI + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
 	}
 }

@@ -1,21 +1,23 @@
 package drlc.intermediate.component.type;
 
-import drlc.Global;
-import drlc.intermediate.Scope;
-import drlc.node.Node;
+import org.eclipse.jdt.annotation.NonNull;
 
-public class BoolTypeInfo extends BuiltInTypeInfo {
+import drlc.Global;
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.scope.Scope;
+
+public class BoolTypeInfo extends BasicTypeInfo {
 	
-	protected BoolTypeInfo(Node node, Type type, int referenceLevel) {
-		super(node, type, referenceLevel);
+	protected BoolTypeInfo(ASTNode node, @NonNull RawType rawType, int referenceLevel) {
+		super(node, rawType, referenceLevel);
 	}
 	
-	public BoolTypeInfo(Node node, Scope scope, int referenceLevel) {
+	public BoolTypeInfo(ASTNode node, Scope scope, int referenceLevel) {
 		super(node, scope, Global.BOOL, referenceLevel);
 	}
 	
 	@Override
-	public TypeInfo copy(Node node, int newReferenceLevel) {
-		return new BoolTypeInfo(node, type, newReferenceLevel);
+	public @NonNull TypeInfo copy(ASTNode node, int newReferenceLevel) {
+		return new BoolTypeInfo(node, rawType, newReferenceLevel);
 	}
 }

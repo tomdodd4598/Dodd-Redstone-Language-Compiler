@@ -31,11 +31,11 @@ public class InstructionMultiplyLongImmediate extends InstructionALULongImmediat
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.MULLI).concat(Global.ZERO_8);
+		return RedstoneOpcodes.get(RedstoneMnemonics.MULLI) + Global.ZERO_8;
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.MULLI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
+		return RedstoneMnemonics.MULLI + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
 	}
 }

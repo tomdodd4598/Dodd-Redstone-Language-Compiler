@@ -1,10 +1,10 @@
 package drlc.intermediate.action;
 
-import drlc.node.Node;
+import drlc.intermediate.ast.ASTNode;
 
 public abstract class Action {
 	
-	public Action(Node node) {}
+	public Action(ASTNode node) {}
 	
 	@Override
 	public abstract String toString();

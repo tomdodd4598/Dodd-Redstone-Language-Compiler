@@ -1,56 +1,59 @@
 package drlc.intermediate.component;
 
+import java.util.*;
+
+import org.eclipse.jdt.annotation.NonNull;
+
 import drlc.*;
-import drlc.intermediate.component.info.DeclaratorInfo;
-import drlc.intermediate.component.type.TypeInfo;
-import drlc.node.Node;
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.type.*;
 
 public class Function {
 	
-	public final String name;
+	public final @NonNull String name;
+	
 	public final boolean builtIn;
-	public final TypeInfo returnTypeInfo;
-	public final DeclaratorInfo[] params;
-	public final boolean defined;
+	
+	public final @NonNull TypeInfo returnTypeInfo;
+	public final List<DeclaratorInfo> params;
+	
+	public final List<TypeInfo> paramTypeInfos;
+	
 	public boolean required;
 	
-	public Function(Node node, String name, boolean builtIn, TypeInfo returnTypeInfo, DeclaratorInfo[] params, boolean defined) {
+	public Function(ASTNode node, @NonNull String name, boolean builtIn, @NonNull TypeInfo returnTypeInfo, List<DeclaratorInfo> params) {
 		this.name = name;
 		this.builtIn = builtIn;
 		this.returnTypeInfo = returnTypeInfo;
 		this.params = params;
-		this.defined = defined;
+		paramTypeInfos = Helpers.paramTypeInfos(params);
+		required = false;
 	}
 	
 	public int getArgumentCount() {
-		return params.length;
+		return params.size();
 	}
 	
-	public void updateFromExistingFunction(Function existingFunction) {
-		required |= existingFunction.required;
+	public boolean typeEquals(FunctionTypeInfo functionTypeInfo) {
+		return returnTypeInfo.equals(functionTypeInfo.returnTypeInfo) && paramTypeInfos.equals(functionTypeInfo.paramTypeInfos);
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(name, returnTypeInfo, paramTypeInfos);
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Function) {
 			Function other = (Function) obj;
-			if (name.equals(other.name) && returnTypeInfo.equals(other.returnTypeInfo) && params.length == other.params.length) {
-				for (int i = 0; i < params.length; ++i) {
-					if (!params[i].getTypeInfo().equals(other.params[i].getTypeInfo())) {
-						return false;
-					}
-				}
-				return true;
-			}
+			return name.equals(other.name) && returnTypeInfo.equals(other.returnTypeInfo) && paramTypeInfos.equals(other.paramTypeInfos);
 		}
 		return false;
 	}
 	
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(Global.FN).append(' ').append(name);
-		Helpers.appendParams(builder, params);
-		return builder.append(' ').append(returnTypeInfo.toString()).toString();
+		return Global.FN + ' ' + name + Helpers.listString(params) + " -> " + returnTypeInfo;
 	}
 }

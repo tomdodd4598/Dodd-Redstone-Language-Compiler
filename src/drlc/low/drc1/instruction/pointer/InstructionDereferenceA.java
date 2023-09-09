@@ -27,7 +27,7 @@ public class InstructionDereferenceA extends Instruction {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.DEA).concat(Global.ZERO_8);
+		return RedstoneOpcodes.get(RedstoneMnemonics.DEA) + Global.ZERO_8;
 	}
 	
 	@Override

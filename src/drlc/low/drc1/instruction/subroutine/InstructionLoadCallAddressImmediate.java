@@ -43,11 +43,11 @@ public class InstructionLoadCallAddressImmediate extends Instruction {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.LDAI).concat(Helpers.toBinary(value, 8));
+		return RedstoneOpcodes.get(RedstoneMnemonics.LDAI) + Helpers.toBinary(value, 8);
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.LDAI.concat("\t").concat(subroutine);
+		return RedstoneMnemonics.LDAI + '\t' + subroutine;
 	}
 }

@@ -26,7 +26,7 @@ public class InstructionHalt extends Instruction {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.HLT).concat(Global.ZERO_8);
+		return RedstoneOpcodes.get(RedstoneMnemonics.HLT) + Global.ZERO_8;
 	}
 	
 	@Override

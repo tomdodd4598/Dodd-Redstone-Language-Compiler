@@ -28,11 +28,11 @@ public class InstructionXorLongImmediate extends InstructionALULongImmediate {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.XORLI).concat(Global.ZERO_8);
+		return RedstoneOpcodes.get(RedstoneMnemonics.XORLI) + Global.ZERO_8;
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.XORLI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
+		return RedstoneMnemonics.XORLI + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
 	}
 }

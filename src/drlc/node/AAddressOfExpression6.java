@@ -8,7 +8,7 @@ import drlc.analysis.*;
 public final class AAddressOfExpression6 extends PExpression6
 {
     private TAnd _and_;
-    private TName _name_;
+    private PExpression6 _expression6_;
 
     public AAddressOfExpression6()
     {
@@ -17,12 +17,12 @@ public final class AAddressOfExpression6 extends PExpression6
 
     public AAddressOfExpression6(
         @SuppressWarnings("hiding") TAnd _and_,
-        @SuppressWarnings("hiding") TName _name_)
+        @SuppressWarnings("hiding") PExpression6 _expression6_)
     {
         // Constructor
         setAnd(_and_);
 
-        setName(_name_);
+        setExpression6(_expression6_);
 
     }
 
@@ -31,7 +31,7 @@ public final class AAddressOfExpression6 extends PExpression6
     {
         return new AAddressOfExpression6(
             cloneNode(this._and_),
-            cloneNode(this._name_));
+            cloneNode(this._expression6_));
     }
 
     @Override
@@ -65,16 +65,16 @@ public final class AAddressOfExpression6 extends PExpression6
         this._and_ = node;
     }
 
-    public TName getName()
+    public PExpression6 getExpression6()
     {
-        return this._name_;
+        return this._expression6_;
     }
 
-    public void setName(TName node)
+    public void setExpression6(PExpression6 node)
     {
-        if(this._name_ != null)
+        if(this._expression6_ != null)
         {
-            this._name_.parent(null);
+            this._expression6_.parent(null);
         }
 
         if(node != null)
@@ -87,7 +87,7 @@ public final class AAddressOfExpression6 extends PExpression6
             node.parent(this);
         }
 
-        this._name_ = node;
+        this._expression6_ = node;
     }
 
     @Override
@@ -95,7 +95,7 @@ public final class AAddressOfExpression6 extends PExpression6
     {
         return ""
             + toString(this._and_)
-            + toString(this._name_);
+            + toString(this._expression6_);
     }
 
     @Override
@@ -108,9 +108,9 @@ public final class AAddressOfExpression6 extends PExpression6
             return;
         }
 
-        if(this._name_ == child)
+        if(this._expression6_ == child)
         {
-            this._name_ = null;
+            this._expression6_ = null;
             return;
         }
 
@@ -127,9 +127,9 @@ public final class AAddressOfExpression6 extends PExpression6
             return;
         }
 
-        if(this._name_ == oldChild)
+        if(this._expression6_ == oldChild)
         {
-            setName((TName) newChild);
+            setExpression6((PExpression6) newChild);
             return;
         }
 

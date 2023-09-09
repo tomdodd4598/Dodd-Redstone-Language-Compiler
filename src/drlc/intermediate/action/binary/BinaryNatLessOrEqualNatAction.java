@@ -1,11 +1,11 @@
 package drlc.intermediate.action.binary;
 
-import drlc.intermediate.component.DataId;
-import drlc.node.Node;
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.data.DataId;
 
 public class BinaryNatLessOrEqualNatAction extends BinaryOpAction {
 	
-	BinaryNatLessOrEqualNatAction(Node node, DataId target, DataId arg1, DataId arg2) {
+	BinaryNatLessOrEqualNatAction(ASTNode node, DataId target, DataId arg1, DataId arg2) {
 		super(node, BinaryActionType.NAT_LESS_OR_EQUAL_NAT, target, arg1, arg2);
 	}
 	
@@ -26,6 +26,6 @@ public class BinaryNatLessOrEqualNatAction extends BinaryOpAction {
 	
 	@Override
 	public String toString() {
-		return target.raw.concat(" = ").concat(arg1.raw).concat(" <= ").concat(arg2.raw);
+		return target + " = " + arg1 + " <= " + arg2;
 	}
 }

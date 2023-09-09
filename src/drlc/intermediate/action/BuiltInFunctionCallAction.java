@@ -1,27 +1,24 @@
 package drlc.intermediate.action;
 
-import java.util.Arrays;
+import java.util.List;
 
 import drlc.*;
-import drlc.intermediate.component.DataId;
-import drlc.node.Node;
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.data.DataId;
 
 public class BuiltInFunctionCallAction extends FunctionCallAction {
 	
-	public BuiltInFunctionCallAction(Node node, DataId target, DataId name, DataId[] args) {
-		super(node, target, name, args);
+	public BuiltInFunctionCallAction(ASTNode node, DataId target, DataId function, List<DataId> args) {
+		super(node, target, function, args);
 	}
 	
 	@Override
-	protected FunctionCallAction copy(Node node, DataId target, DataId[] rvalues) {
-		return new BuiltInFunctionCallAction(node, target, rvalues[0], Arrays.copyOfRange(rvalues, 1, rvalues.length));
+	protected BuiltInFunctionCallAction copy(ASTNode node, DataId target, DataId function, List<DataId> args) {
+		return new BuiltInFunctionCallAction(node, target, function, args);
 	}
 	
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(target).append(" = ").append(Global.CALL).append(' ').append(Global.BUILT_IN).append(' ').append(getCallId().raw);
-		Helpers.appendArgs(builder, getArgs());
-		return builder.toString();
+		return target + " = " + Global.CALL + ' ' + Global.BUILT_IN + ' ' + function + Helpers.listString(args);
 	}
 }

@@ -4,7 +4,8 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import drlc.Global;
-import drlc.intermediate.component.*;
+import drlc.intermediate.Program;
+import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.routine.*;
 import drlc.low.drc1.builtin.*;
 import drlc.low.drc1.instruction.Instruction;
@@ -13,6 +14,8 @@ import drlc.low.drc1.instruction.immediate.InstructionLoadLongImmediate;
 public class RedstoneCode {
 	
 	public final RedstoneGenerator generator;
+	public final Program program;
+	
 	public boolean requiresStack = false;
 	
 	private final Map<String, RedstoneRoutine> routineMap = new LinkedHashMap<>();
@@ -26,9 +29,10 @@ public class RedstoneCode {
 	
 	public final Map<String, Short> textAddressMap = new HashMap<>();
 	
-	public RedstoneCode(RedstoneGenerator generator) {
+	public RedstoneCode(RedstoneGenerator generator, Program program) {
 		this.generator = generator;
-		unusedBuiltInRoutineSet = new HashSet<>(generator.program.builtInRoutineMap.keySet());
+		this.program = program;
+		unusedBuiltInRoutineSet = new HashSet<>(program.builtInRoutineMap.keySet());
 	}
 	
 	public Map<String, RedstoneRoutine> getRoutineMap() {
@@ -44,12 +48,11 @@ public class RedstoneCode {
 	}
 	
 	public void generate() {
-		for (Entry<String, Routine> entry : generator.program.routineMap.entrySet()) {
-			String routineName = entry.getKey();
+		for (Entry<String, Routine> entry : program.routineMap.entrySet()) {
 			Routine intermediateRoutine = entry.getValue();
 			RedstoneRoutine routine = new RedstoneRoutine(this, intermediateRoutine);
 			if (!intermediateRoutine.isBuiltInFunctionRoutine()) {
-				routineMap.put(routineName, routine);
+				routineMap.put(entry.getKey(), routine);
 			}
 			if (routine.isStackRoutine()) {
 				requiresStack = true;
@@ -88,26 +91,13 @@ public class RedstoneCode {
 	private void addBuiltInRoutines() {
 		routineMap.put(Global.OUTCHAR, new OutCharRedstoneRoutine(this, Global.OUTCHAR));
 		routineMap.put(Global.OUTINT, new OutIntRedstoneRoutine(this, Global.OUTINT));
-		routineMap.put(Global.ARGV, new ArgvRedstoneRoutine(this, Global.ARGV));
+		routineMap.put(Global.ARGV_FUNCTION, new ArgvRedstoneRoutine(this, Global.ARGV_FUNCTION));
 		
-		int lrs = generator.program.getBinaryOpCount(BinaryOpType.LOGICAL_RIGHT_SHIFT);
-		int cls = generator.program.getBinaryOpCount(BinaryOpType.CIRCULAR_LEFT_SHIFT);
-		int crs = generator.program.getBinaryOpCount(BinaryOpType.CIRCULAR_RIGHT_SHIFT);
+		routineMap.put(Global.LOGICAL_RIGHT_SHIFT, new LogicalRightShiftRedstoneRoutine(this, Global.LOGICAL_RIGHT_SHIFT));
+		routineMap.put(Global.CIRCULAR_LEFT_SHIFT, new CircularLeftShiftRedstoneRoutine(this, Global.CIRCULAR_LEFT_SHIFT, RoutineCallType.NESTING));
+		routineMap.put(Global.CIRCULAR_RIGHT_SHIFT, new CircularRightShiftRedstoneRoutine(this, Global.CIRCULAR_RIGHT_SHIFT, RoutineCallType.NESTING));
 		
-		boolean lrsRoutine = lrs + cls + crs > 4;
-		RoutineType csType = lrsRoutine ? RoutineType.NESTING : RoutineType.LEAF;
-		
-		if (lrsRoutine) {
-			routineMap.put(Global.LOGICAL_RIGHT_SHIFT, new LogicalRightShiftRedstoneRoutine(this, Global.LOGICAL_RIGHT_SHIFT));
-		}
-		if (cls > 1) {
-			routineMap.put(Global.CIRCULAR_LEFT_SHIFT, new CircularLeftShiftRedstoneRoutine(this, Global.CIRCULAR_LEFT_SHIFT, csType));
-		}
-		if (crs > 1) {
-			routineMap.put(Global.CIRCULAR_RIGHT_SHIFT, new CircularRightShiftRedstoneRoutine(this, Global.CIRCULAR_RIGHT_SHIFT, csType));
-		}
-		
-		for (String name : generator.program.builtInRoutineMap.keySet()) {
+		for (String name : program.builtInRoutineMap.keySet()) {
 			if (!routineMap.containsKey(name)) {
 				throw new IllegalArgumentException(String.format("Unexpectedly encountered unimplemented built-in function \"%s\"!", name));
 			}

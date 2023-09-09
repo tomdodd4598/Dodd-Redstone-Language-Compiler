@@ -27,11 +27,11 @@ public class InstructionSubtractLongImmediate extends InstructionALULongImmediat
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.SUBLI).concat(Global.ZERO_8);
+		return RedstoneOpcodes.get(RedstoneMnemonics.SUBLI) + Global.ZERO_8;
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.SUBLI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
+		return RedstoneMnemonics.SUBLI + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
 	}
 }

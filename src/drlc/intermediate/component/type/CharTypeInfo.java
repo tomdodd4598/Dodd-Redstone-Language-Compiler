@@ -1,21 +1,23 @@
 package drlc.intermediate.component.type;
 
-import drlc.Global;
-import drlc.intermediate.Scope;
-import drlc.node.Node;
+import org.eclipse.jdt.annotation.NonNull;
 
-public class CharTypeInfo extends BuiltInTypeInfo {
+import drlc.Global;
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.scope.Scope;
+
+public class CharTypeInfo extends BasicTypeInfo {
 	
-	protected CharTypeInfo(Node node, Type type, int referenceLevel) {
-		super(node, type, referenceLevel);
+	protected CharTypeInfo(ASTNode node, @NonNull RawType rawType, int referenceLevel) {
+		super(node, rawType, referenceLevel);
 	}
 	
-	public CharTypeInfo(Node node, Scope scope, int referenceLevel) {
+	public CharTypeInfo(ASTNode node, Scope scope, int referenceLevel) {
 		super(node, scope, Global.CHAR, referenceLevel);
 	}
 	
 	@Override
-	public TypeInfo copy(Node node, int newReferenceLevel) {
-		return new CharTypeInfo(node, type, newReferenceLevel);
+	public @NonNull TypeInfo copy(ASTNode node, int newReferenceLevel) {
+		return new CharTypeInfo(node, rawType, newReferenceLevel);
 	}
 }

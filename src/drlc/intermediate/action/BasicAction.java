@@ -1,15 +1,15 @@
 package drlc.intermediate.action;
 
-import drlc.node.Node;
+import drlc.intermediate.ast.ASTNode;
 
 public abstract class BasicAction extends Action {
 	
 	public final String arg;
 	
-	public BasicAction(Node node, String arg) {
+	public BasicAction(ASTNode node, String arg) {
 		super(node);
 		if (arg == null) {
-			throw new IllegalArgumentException(String.format("Basic action argument was null! %s", node));
+			throw node.error("Basic action argument was null!");
 		}
 		else {
 			this.arg = arg;

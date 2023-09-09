@@ -18,20 +18,20 @@ public class InstructionSubtractOffset extends InstructionALUOffset {
 	@Override
 	public String binaryString() {
 		if (offset < 0) {
-			return RedstoneOpcodes.get(RedstoneMnemonics.SUBNB).concat(Helpers.toBinary(-offset, 8));
+			return RedstoneOpcodes.get(RedstoneMnemonics.SUBNB) + Helpers.toBinary(-offset, 8);
 		}
 		else {
-			return RedstoneOpcodes.get(RedstoneMnemonics.SUBPB).concat(Helpers.toBinary(offset, 8));
+			return RedstoneOpcodes.get(RedstoneMnemonics.SUBPB) + Helpers.toBinary(offset, 8);
 		}
 	}
 	
 	@Override
 	public String toString() {
 		if (offset < 0) {
-			return RedstoneMnemonics.SUBNB.concat("\t").concat(Helpers.toHex(-offset, 2));
+			return RedstoneMnemonics.SUBNB + '\t' + Helpers.toHex(-offset, 2);
 		}
 		else {
-			return RedstoneMnemonics.SUBPB.concat("\t").concat(Helpers.toHex(offset, 2));
+			return RedstoneMnemonics.SUBPB + '\t' + Helpers.toHex(offset, 2);
 		}
 	}
 }

@@ -2,11 +2,14 @@ package drlc.intermediate.component;
 
 import java.util.*;
 
+import org.eclipse.jdt.annotation.NonNull;
+
+import drlc.Helpers;
+
 public enum BinaryOpType {
 	
 	// LOGICAL_AND("&?"),
 	// LOGICAL_OR("|?"),
-	// LOGICAL_XOR("^?"),
 	
 	EQUAL_TO("=="),
 	NOT_EQUAL_TO("!="),
@@ -39,8 +42,14 @@ public enum BinaryOpType {
 		}
 	}
 	
-	public static BinaryOpType getOpType(String str) {
-		return NAME_MAP.get(str);
+	public static @NonNull BinaryOpType get(String str) {
+		BinaryOpType opType = NAME_MAP.get(str);
+		if (opType == null) {
+			throw Helpers.nodeError(null, "Binary operator \"%s\" not defined!", str);
+		}
+		else {
+			return opType;
+		}
 	}
 	
 	private final String str;

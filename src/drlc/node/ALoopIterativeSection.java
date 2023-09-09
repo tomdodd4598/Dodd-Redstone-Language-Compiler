@@ -2,7 +2,6 @@
 
 package drlc.node;
 
-import java.util.*;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
@@ -10,8 +9,7 @@ public final class ALoopIterativeSection extends PIterativeSection
 {
     private TLoop _loop_;
     private TLBrace _lBrace_;
-    private final LinkedList<PBasicSection> _basicSection_ = new LinkedList<PBasicSection>();
-    private PStopStatement _stopStatement_;
+    private PScopeContents _scopeContents_;
     private TRBrace _rBrace_;
 
     public ALoopIterativeSection()
@@ -22,8 +20,7 @@ public final class ALoopIterativeSection extends PIterativeSection
     public ALoopIterativeSection(
         @SuppressWarnings("hiding") TLoop _loop_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
-        @SuppressWarnings("hiding") List<?> _basicSection_,
-        @SuppressWarnings("hiding") PStopStatement _stopStatement_,
+        @SuppressWarnings("hiding") PScopeContents _scopeContents_,
         @SuppressWarnings("hiding") TRBrace _rBrace_)
     {
         // Constructor
@@ -31,9 +28,7 @@ public final class ALoopIterativeSection extends PIterativeSection
 
         setLBrace(_lBrace_);
 
-        setBasicSection(_basicSection_);
-
-        setStopStatement(_stopStatement_);
+        setScopeContents(_scopeContents_);
 
         setRBrace(_rBrace_);
 
@@ -45,8 +40,7 @@ public final class ALoopIterativeSection extends PIterativeSection
         return new ALoopIterativeSection(
             cloneNode(this._loop_),
             cloneNode(this._lBrace_),
-            cloneList(this._basicSection_),
-            cloneNode(this._stopStatement_),
+            cloneNode(this._scopeContents_),
             cloneNode(this._rBrace_));
     }
 
@@ -106,42 +100,16 @@ public final class ALoopIterativeSection extends PIterativeSection
         this._lBrace_ = node;
     }
 
-    public LinkedList<PBasicSection> getBasicSection()
+    public PScopeContents getScopeContents()
     {
-        return this._basicSection_;
+        return this._scopeContents_;
     }
 
-    public void setBasicSection(List<?> list)
+    public void setScopeContents(PScopeContents node)
     {
-        for(PBasicSection e : this._basicSection_)
+        if(this._scopeContents_ != null)
         {
-            e.parent(null);
-        }
-        this._basicSection_.clear();
-
-        for(Object obj_e : list)
-        {
-            PBasicSection e = (PBasicSection) obj_e;
-            if(e.parent() != null)
-            {
-                e.parent().removeChild(e);
-            }
-
-            e.parent(this);
-            this._basicSection_.add(e);
-        }
-    }
-
-    public PStopStatement getStopStatement()
-    {
-        return this._stopStatement_;
-    }
-
-    public void setStopStatement(PStopStatement node)
-    {
-        if(this._stopStatement_ != null)
-        {
-            this._stopStatement_.parent(null);
+            this._scopeContents_.parent(null);
         }
 
         if(node != null)
@@ -154,7 +122,7 @@ public final class ALoopIterativeSection extends PIterativeSection
             node.parent(this);
         }
 
-        this._stopStatement_ = node;
+        this._scopeContents_ = node;
     }
 
     public TRBrace getRBrace()
@@ -188,8 +156,7 @@ public final class ALoopIterativeSection extends PIterativeSection
         return ""
             + toString(this._loop_)
             + toString(this._lBrace_)
-            + toString(this._basicSection_)
-            + toString(this._stopStatement_)
+            + toString(this._scopeContents_)
             + toString(this._rBrace_);
     }
 
@@ -209,14 +176,9 @@ public final class ALoopIterativeSection extends PIterativeSection
             return;
         }
 
-        if(this._basicSection_.remove(child))
+        if(this._scopeContents_ == child)
         {
-            return;
-        }
-
-        if(this._stopStatement_ == child)
-        {
-            this._stopStatement_ = null;
+            this._scopeContents_ = null;
             return;
         }
 
@@ -245,27 +207,9 @@ public final class ALoopIterativeSection extends PIterativeSection
             return;
         }
 
-        for(ListIterator<PBasicSection> i = this._basicSection_.listIterator(); i.hasNext();)
+        if(this._scopeContents_ == oldChild)
         {
-            if(i.next() == oldChild)
-            {
-                if(newChild != null)
-                {
-                    i.set((PBasicSection) newChild);
-                    newChild.parent(this);
-                    oldChild.parent(null);
-                    return;
-                }
-
-                i.remove();
-                oldChild.parent(null);
-                return;
-            }
-        }
-
-        if(this._stopStatement_ == oldChild)
-        {
-            setStopStatement((PStopStatement) newChild);
+            setScopeContents((PScopeContents) newChild);
             return;
         }
 

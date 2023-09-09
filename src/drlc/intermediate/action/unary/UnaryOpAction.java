@@ -2,34 +2,34 @@ package drlc.intermediate.action.unary;
 
 import java.util.Map;
 
-import drlc.Helpers;
+import drlc.Main;
 import drlc.intermediate.action.*;
-import drlc.intermediate.component.DataId;
-import drlc.node.Node;
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.data.*;
 
 public abstract class UnaryOpAction extends Action implements IValueAction {
 	
 	public final UnaryActionType type;
 	public final DataId target, arg;
 	
-	protected UnaryOpAction(Node node, UnaryActionType type, DataId target, DataId arg) {
+	protected UnaryOpAction(ASTNode node, UnaryActionType type, DataId target, DataId arg) {
 		super(node);
 		if (type == null) {
-			throw new IllegalArgumentException(String.format("Unary op action type was null! %s", node));
+			throw node.error("Unary op action type was null!");
 		}
 		else {
 			this.type = type;
 		}
 		
 		if (target == null) {
-			throw new IllegalArgumentException(String.format("Unary op action target was null! %s", node));
+			throw node.error("Unary op action target was null!");
 		}
 		else {
 			this.target = target;
 		}
 		
 		if (arg == null) {
-			throw new IllegalArgumentException(String.format("Unary op action argument was null! %s", node));
+			throw node.error("Unary op action argument was null!");
 		}
 		else {
 			this.arg = arg;
@@ -64,7 +64,7 @@ public abstract class UnaryOpAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRvalue(DataId replaceTarget, DataId rvalueReplacer) {
+	public Action replaceRegRvalue(long targetId, DataId rvalueReplacer) {
 		return copy(target, rvalueReplacer);
 	}
 	
@@ -79,8 +79,13 @@ public abstract class UnaryOpAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceLvalue(DataId replaceTarget, DataId lvalueReplacer) {
+	public Action replaceRegLvalue(long targetId, DataId lvalueReplacer) {
 		return copy(lvalueReplacer, arg);
+	}
+	
+	@Override
+	public Action setTransientLvalue() {
+		return copy(target.getTransient(), arg);
 	}
 	
 	@Override
@@ -94,17 +99,20 @@ public abstract class UnaryOpAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRegIds(Map<DataId, DataId> regIdMap) {
-		DataId target = this.target.removeAllDereferences(), arg = this.arg.removeAllDereferences();
-		if (Helpers.isRegId(target.raw) && regIdMap.containsKey(target)) {
-			target = regIdMap.get(target);
+	public Action foldRvalues() {
+		if (arg instanceof ValueDataId) {
+			return new AssignmentAction(null, target, new ValueDataId(Main.generator.unaryOp(null, type.opType, ((ValueDataId) arg).value)));
 		}
-		if (Helpers.isRegId(arg.raw) && regIdMap.containsKey(arg)) {
-			arg = regIdMap.get(arg);
+		else {
+			return null;
 		}
-		
-		if (!target.equalsOther(this.target, true) || !arg.equalsOther(this.arg, true)) {
-			return copy(target.addDereferences(this.target.dereferenceLevel), arg.addDereferences(this.arg.dereferenceLevel));
+	}
+	
+	@Override
+	public Action replaceRegIds(Map<Long, Long> regIdMap) {
+		RegReplaceResult targetResult = replaceRegId(target, regIdMap), argResult = replaceRegId(arg, regIdMap);
+		if (targetResult.success || argResult.success) {
+			return copy(targetResult.dataId, argResult.dataId);
 		}
 		else {
 			return null;

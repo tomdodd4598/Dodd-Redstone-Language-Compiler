@@ -22,11 +22,11 @@ public class InstructionAndLongImmediate extends InstructionALULongImmediate {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.ANDLI).concat(Global.ZERO_8);
+		return RedstoneOpcodes.get(RedstoneMnemonics.ANDLI) + Global.ZERO_8;
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.ANDLI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
+		return RedstoneMnemonics.ANDLI + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
 	}
 }

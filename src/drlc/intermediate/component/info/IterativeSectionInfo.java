@@ -2,130 +2,132 @@ package drlc.intermediate.component.info;
 
 import java.util.*;
 
-import drlc.node.Node;
+import drlc.intermediate.ast.ASTNode;
 
 public class IterativeSectionInfo {
 	
-	String continueJumpTargetSectionId = null;
+	Integer continueJumpTargetSectionId = null;
 	public final Set<Integer> continueJumpIterativeSectionIds = new HashSet<>();
 	
-	String bodyJumpTargetSectionId = null;
+	Integer bodyJumpTargetSectionId = null;
 	public final Set<Integer> bodyJumpIterativeSectionIds = new HashSet<>();
 	
-	String breakJumpTargetSectionId = null;
+	Integer breakJumpTargetSectionId = null;
 	public final Set<Integer> breakJumpIterativeSectionIds = new HashSet<>();
 	
-	public IterativeSectionInfo() {}
+	public IterativeSectionInfo() {
+		
+	}
 	
-	public void setContinueJumpTargetSectionId(Node node, String sectionId) {
+	public void setContinueJumpTargetSectionId(ASTNode node, Integer sectionId) {
 		if (sectionId == null && continueJumpTargetSectionId == null) {
-			throw new IllegalArgumentException(String.format("Iterative continue target section is already null! %s", node));
+			throw node.error("Iterative continue target section is already null!");
 		}
 		else if (sectionId != null && continueJumpTargetSectionId != null) {
-			throw new IllegalArgumentException(String.format("Iterative continue target section can not be overwritten! %s", node));
+			throw node.error("Iterative continue target section can not be overwritten!");
 		}
 		else {
 			continueJumpTargetSectionId = sectionId;
 		}
 	}
 	
-	public String getContinueJumpTargetSectionId(Node node) {
+	public Integer getContinueJumpTargetSectionId(ASTNode node) {
 		if (continueJumpTargetSectionId == null) {
-			throw new IllegalArgumentException(String.format("Iterative continue target section is null! %s", node));
+			throw node.error("Iterative continue target section is null!");
 		}
 		else {
 			return continueJumpTargetSectionId;
 		}
 	}
 	
-	public Integer[] getContinueJumpIterativeSectionIds(Node node) {
+	public Integer[] getContinueJumpIterativeSectionIds(ASTNode node) {
 		if (continueJumpTargetSectionId == null) {
-			throw new IllegalArgumentException(String.format("Iterative continue target section was unexpectedly null while getting continue jump sections array! %s", node));
+			throw node.error("Iterative continue target section was unexpectedly null while getting continue jump sections array!");
 		}
 		else if (bodyJumpTargetSectionId == null && !bodyJumpIterativeSectionIds.isEmpty()) {
-			throw new IllegalArgumentException(String.format("Iterative body target section was unexpectedly null while getting continue jump sections array! %s", node));
+			throw node.error("Iterative body target section was unexpectedly null while getting continue jump sections array!");
 		}
 		else if (breakJumpTargetSectionId == null) {
-			throw new IllegalArgumentException(String.format("Iterative break target section was unexpectedly null while getting continue jump sections array! %s", node));
+			throw node.error("Iterative break target section was unexpectedly null while getting continue jump sections array!");
 		}
 		else {
-			Integer[] sections = continueJumpIterativeSectionIds.toArray(new Integer[continueJumpIterativeSectionIds.size()]);
+			Integer[] sections = continueJumpIterativeSectionIds.toArray(new Integer[0]);
 			continueJumpIterativeSectionIds.clear();
 			return sections;
 		}
 	}
 	
-	public void setBodyJumpTargetSectionId(Node node, String sectionId) {
+	public void setBodyJumpTargetSectionId(ASTNode node, Integer sectionId) {
 		if (sectionId == null && bodyJumpTargetSectionId == null) {
-			throw new IllegalArgumentException(String.format("Iterative body target section is already null! %s", node));
+			throw node.error("Iterative body target section is already null!");
 		}
 		else if (sectionId != null && bodyJumpTargetSectionId != null) {
-			throw new IllegalArgumentException(String.format("Iterative body target section can not be overwritten! %s", node));
+			throw node.error("Iterative body target section can not be overwritten!");
 		}
 		else {
 			bodyJumpTargetSectionId = sectionId;
 		}
 	}
 	
-	public String getBodyJumpTargetSectionId(Node node) {
+	public Integer getBodyJumpTargetSectionId(ASTNode node) {
 		if (bodyJumpTargetSectionId == null) {
-			throw new IllegalArgumentException(String.format("Iterative body target section is null! %s", node));
+			throw node.error("Iterative body target section is null!");
 		}
 		else {
 			return bodyJumpTargetSectionId;
 		}
 	}
 	
-	public Integer[] getBodyJumpIterativeSectionIds(Node node) {
+	public Integer[] getBodyJumpIterativeSectionIds(ASTNode node) {
 		if (continueJumpTargetSectionId == null) {
-			throw new IllegalArgumentException(String.format("Iterative continue target section was unexpectedly null while getting body jump sections array! %s", node));
+			throw node.error("Iterative continue target section was unexpectedly null while getting body jump sections array!");
 		}
 		else if (bodyJumpTargetSectionId == null && !bodyJumpIterativeSectionIds.isEmpty()) {
-			throw new IllegalArgumentException(String.format("Iterative body target section was unexpectedly null while getting body jump sections array! %s", node));
+			throw node.error("Iterative body target section was unexpectedly null while getting body jump sections array!");
 		}
 		else if (breakJumpTargetSectionId == null) {
-			throw new IllegalArgumentException(String.format("Iterative break target section was unexpectedly null while getting body jump sections array! %s", node));
+			throw node.error("Iterative break target section was unexpectedly null while getting body jump sections array!");
 		}
 		else {
-			Integer[] sections = bodyJumpIterativeSectionIds.toArray(new Integer[bodyJumpIterativeSectionIds.size()]);
+			Integer[] sections = bodyJumpIterativeSectionIds.toArray(new Integer[0]);
 			bodyJumpIterativeSectionIds.clear();
 			return sections;
 		}
 	}
 	
-	public void setBreakJumpTargetSectionId(Node node, String sectionId) {
+	public void setBreakJumpTargetSectionId(ASTNode node, Integer sectionId) {
 		if (sectionId == null && breakJumpTargetSectionId == null) {
-			throw new IllegalArgumentException(String.format("Iterative break target section is already null! %s", node));
+			throw node.error("Iterative break target section is already null!");
 		}
 		else if (sectionId != null && breakJumpTargetSectionId != null) {
-			throw new IllegalArgumentException(String.format("Iterative break target section can not be overwritten! %s", node));
+			throw node.error("Iterative break target section can not be overwritten!");
 		}
 		else {
 			breakJumpTargetSectionId = sectionId;
 		}
 	}
 	
-	public String getBreakJumpTargetSectionId(Node node) {
+	public Integer getBreakJumpTargetSectionId(ASTNode node) {
 		if (breakJumpTargetSectionId == null) {
-			throw new IllegalArgumentException(String.format("Iterative break target section is null! %s", node));
+			throw node.error("Iterative break target section is null!");
 		}
 		else {
 			return breakJumpTargetSectionId;
 		}
 	}
 	
-	public Integer[] getBreakJumpIterativeSectionIds(Node node) {
+	public Integer[] getBreakJumpIterativeSectionIds(ASTNode node) {
 		if (continueJumpTargetSectionId == null) {
-			throw new IllegalArgumentException(String.format("Iterative continue target section was unexpectedly null while getting break jump sections array! %s", node));
+			throw node.error("Iterative continue target section was unexpectedly null while getting break jump sections array!");
 		}
 		else if (bodyJumpTargetSectionId == null && !bodyJumpIterativeSectionIds.isEmpty()) {
-			throw new IllegalArgumentException(String.format("Iterative body target section was unexpectedly null while getting break jump sections array! %s", node));
+			throw node.error("Iterative body target section was unexpectedly null while getting break jump sections array!");
 		}
 		else if (breakJumpTargetSectionId == null) {
-			throw new IllegalArgumentException(String.format("Iterative break target section was unexpectedly null while getting break jump sections array! %s", node));
+			throw node.error("Iterative break target section was unexpectedly null while getting break jump sections array!");
 		}
 		else {
-			Integer[] sections = breakJumpIterativeSectionIds.toArray(new Integer[breakJumpIterativeSectionIds.size()]);
+			Integer[] sections = breakJumpIterativeSectionIds.toArray(new Integer[0]);
 			breakJumpIterativeSectionIds.clear();
 			return sections;
 		}

@@ -1,21 +1,21 @@
 package drlc.low.drc1.builtin;
 
-import drlc.intermediate.component.info.DeclaratorInfo;
-import drlc.intermediate.routine.RoutineType;
+import drlc.intermediate.component.DeclaratorInfo;
+import drlc.intermediate.routine.RoutineCallType;
 import drlc.low.drc1.*;
 
 public abstract class BuiltInRedstoneRoutine extends RedstoneRoutine {
 	
-	protected RoutineType type;
+	protected RoutineCallType type;
 	
-	public BuiltInRedstoneRoutine(RedstoneCode code, String name, RoutineType type, DeclaratorInfo[] params) {
+	public BuiltInRedstoneRoutine(RedstoneCode code, String name, RoutineCallType type, DeclaratorInfo[] params) {
 		super(code, name, type, params);
 		this.type = type;
 		mapParams();
 	}
 	
 	public BuiltInRedstoneRoutine(RedstoneCode code, String name) {
-		this(code, name, code.generator.program.builtInRoutineMap.get(name).getType(), code.generator.builtInFunctionMap.get(name).params);
+		this(code, name, code.program.builtInRoutineMap.get(name).getType(), code.generator.builtInFunctionMap.get(name).params);
 	}
 	
 	@Override
@@ -26,7 +26,7 @@ public abstract class BuiltInRedstoneRoutine extends RedstoneRoutine {
 	
 	@Override
 	public void onRequiresNesting() {
-		type.onNesting();
+		type.onRequiresNesting();
 	}
 	
 	@Override
@@ -36,7 +36,7 @@ public abstract class BuiltInRedstoneRoutine extends RedstoneRoutine {
 	
 	@Override
 	public boolean isStackRoutine() {
-		return type.equals(RoutineType.STACK);
+		return type.equals(RoutineCallType.STACK);
 	}
 	
 	@Override

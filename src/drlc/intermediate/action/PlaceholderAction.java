@@ -1,15 +1,15 @@
 package drlc.intermediate.action;
 
-import drlc.node.Node;
+import drlc.intermediate.ast.ASTNode;
 
 public class PlaceholderAction extends Action {
 	
 	public final String type;
 	
-	public PlaceholderAction(Node node, String type) {
+	public PlaceholderAction(ASTNode node, String type) {
 		super(node);
 		if (type == null) {
-			throw new IllegalArgumentException(String.format("Placeholder action type was null! %s", node));
+			throw node.error("Placeholder action type was null!");
 		}
 		else {
 			this.type = type;

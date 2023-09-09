@@ -8,11 +8,10 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AIncludingInitializationVariableDeclaration extends PVariableDeclaration
 {
-    private final LinkedList<TVariableModifier> _variableModifier_ = new LinkedList<TVariableModifier>();
-    private TVar _var_;
-    private PDeclarator _declarator_;
+    private TLet _let_;
+    private PVariableDeclarator _variableDeclarator_;
     private TEquals _equals_;
-    private PInitializationExpression _initializationExpression_;
+    private PExpression _expression_;
     private final LinkedList<TSemicolon> _semicolon_ = new LinkedList<TSemicolon>();
 
     public AIncludingInitializationVariableDeclaration()
@@ -21,23 +20,20 @@ public final class AIncludingInitializationVariableDeclaration extends PVariable
     }
 
     public AIncludingInitializationVariableDeclaration(
-        @SuppressWarnings("hiding") List<?> _variableModifier_,
-        @SuppressWarnings("hiding") TVar _var_,
-        @SuppressWarnings("hiding") PDeclarator _declarator_,
+        @SuppressWarnings("hiding") TLet _let_,
+        @SuppressWarnings("hiding") PVariableDeclarator _variableDeclarator_,
         @SuppressWarnings("hiding") TEquals _equals_,
-        @SuppressWarnings("hiding") PInitializationExpression _initializationExpression_,
+        @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") List<?> _semicolon_)
     {
         // Constructor
-        setVariableModifier(_variableModifier_);
+        setLet(_let_);
 
-        setVar(_var_);
-
-        setDeclarator(_declarator_);
+        setVariableDeclarator(_variableDeclarator_);
 
         setEquals(_equals_);
 
-        setInitializationExpression(_initializationExpression_);
+        setExpression(_expression_);
 
         setSemicolon(_semicolon_);
 
@@ -47,11 +43,10 @@ public final class AIncludingInitializationVariableDeclaration extends PVariable
     public Object clone()
     {
         return new AIncludingInitializationVariableDeclaration(
-            cloneList(this._variableModifier_),
-            cloneNode(this._var_),
-            cloneNode(this._declarator_),
+            cloneNode(this._let_),
+            cloneNode(this._variableDeclarator_),
             cloneNode(this._equals_),
-            cloneNode(this._initializationExpression_),
+            cloneNode(this._expression_),
             cloneList(this._semicolon_));
     }
 
@@ -61,42 +56,16 @@ public final class AIncludingInitializationVariableDeclaration extends PVariable
         ((Analysis) sw).caseAIncludingInitializationVariableDeclaration(this);
     }
 
-    public LinkedList<TVariableModifier> getVariableModifier()
+    public TLet getLet()
     {
-        return this._variableModifier_;
+        return this._let_;
     }
 
-    public void setVariableModifier(List<?> list)
+    public void setLet(TLet node)
     {
-        for(TVariableModifier e : this._variableModifier_)
+        if(this._let_ != null)
         {
-            e.parent(null);
-        }
-        this._variableModifier_.clear();
-
-        for(Object obj_e : list)
-        {
-            TVariableModifier e = (TVariableModifier) obj_e;
-            if(e.parent() != null)
-            {
-                e.parent().removeChild(e);
-            }
-
-            e.parent(this);
-            this._variableModifier_.add(e);
-        }
-    }
-
-    public TVar getVar()
-    {
-        return this._var_;
-    }
-
-    public void setVar(TVar node)
-    {
-        if(this._var_ != null)
-        {
-            this._var_.parent(null);
+            this._let_.parent(null);
         }
 
         if(node != null)
@@ -109,19 +78,19 @@ public final class AIncludingInitializationVariableDeclaration extends PVariable
             node.parent(this);
         }
 
-        this._var_ = node;
+        this._let_ = node;
     }
 
-    public PDeclarator getDeclarator()
+    public PVariableDeclarator getVariableDeclarator()
     {
-        return this._declarator_;
+        return this._variableDeclarator_;
     }
 
-    public void setDeclarator(PDeclarator node)
+    public void setVariableDeclarator(PVariableDeclarator node)
     {
-        if(this._declarator_ != null)
+        if(this._variableDeclarator_ != null)
         {
-            this._declarator_.parent(null);
+            this._variableDeclarator_.parent(null);
         }
 
         if(node != null)
@@ -134,7 +103,7 @@ public final class AIncludingInitializationVariableDeclaration extends PVariable
             node.parent(this);
         }
 
-        this._declarator_ = node;
+        this._variableDeclarator_ = node;
     }
 
     public TEquals getEquals()
@@ -162,16 +131,16 @@ public final class AIncludingInitializationVariableDeclaration extends PVariable
         this._equals_ = node;
     }
 
-    public PInitializationExpression getInitializationExpression()
+    public PExpression getExpression()
     {
-        return this._initializationExpression_;
+        return this._expression_;
     }
 
-    public void setInitializationExpression(PInitializationExpression node)
+    public void setExpression(PExpression node)
     {
-        if(this._initializationExpression_ != null)
+        if(this._expression_ != null)
         {
-            this._initializationExpression_.parent(null);
+            this._expression_.parent(null);
         }
 
         if(node != null)
@@ -184,7 +153,7 @@ public final class AIncludingInitializationVariableDeclaration extends PVariable
             node.parent(this);
         }
 
-        this._initializationExpression_ = node;
+        this._expression_ = node;
     }
 
     public LinkedList<TSemicolon> getSemicolon()
@@ -217,11 +186,10 @@ public final class AIncludingInitializationVariableDeclaration extends PVariable
     public String toString()
     {
         return ""
-            + toString(this._variableModifier_)
-            + toString(this._var_)
-            + toString(this._declarator_)
+            + toString(this._let_)
+            + toString(this._variableDeclarator_)
             + toString(this._equals_)
-            + toString(this._initializationExpression_)
+            + toString(this._expression_)
             + toString(this._semicolon_);
     }
 
@@ -229,20 +197,15 @@ public final class AIncludingInitializationVariableDeclaration extends PVariable
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._variableModifier_.remove(child))
+        if(this._let_ == child)
         {
+            this._let_ = null;
             return;
         }
 
-        if(this._var_ == child)
+        if(this._variableDeclarator_ == child)
         {
-            this._var_ = null;
-            return;
-        }
-
-        if(this._declarator_ == child)
-        {
-            this._declarator_ = null;
+            this._variableDeclarator_ = null;
             return;
         }
 
@@ -252,9 +215,9 @@ public final class AIncludingInitializationVariableDeclaration extends PVariable
             return;
         }
 
-        if(this._initializationExpression_ == child)
+        if(this._expression_ == child)
         {
-            this._initializationExpression_ = null;
+            this._expression_ = null;
             return;
         }
 
@@ -270,33 +233,15 @@ public final class AIncludingInitializationVariableDeclaration extends PVariable
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        for(ListIterator<TVariableModifier> i = this._variableModifier_.listIterator(); i.hasNext();)
+        if(this._let_ == oldChild)
         {
-            if(i.next() == oldChild)
-            {
-                if(newChild != null)
-                {
-                    i.set((TVariableModifier) newChild);
-                    newChild.parent(this);
-                    oldChild.parent(null);
-                    return;
-                }
-
-                i.remove();
-                oldChild.parent(null);
-                return;
-            }
-        }
-
-        if(this._var_ == oldChild)
-        {
-            setVar((TVar) newChild);
+            setLet((TLet) newChild);
             return;
         }
 
-        if(this._declarator_ == oldChild)
+        if(this._variableDeclarator_ == oldChild)
         {
-            setDeclarator((PDeclarator) newChild);
+            setVariableDeclarator((PVariableDeclarator) newChild);
             return;
         }
 
@@ -306,9 +251,9 @@ public final class AIncludingInitializationVariableDeclaration extends PVariable
             return;
         }
 
-        if(this._initializationExpression_ == oldChild)
+        if(this._expression_ == oldChild)
         {
-            setInitializationExpression((PInitializationExpression) newChild);
+            setExpression((PExpression) newChild);
             return;
         }
 

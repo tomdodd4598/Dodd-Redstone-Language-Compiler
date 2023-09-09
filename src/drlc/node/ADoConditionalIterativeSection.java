@@ -10,11 +10,10 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
 {
     private TDo _do_;
     private TLBrace _lBrace_;
-    private final LinkedList<PBasicSection> _basicSection_ = new LinkedList<PBasicSection>();
-    private PStopStatement _stopStatement_;
+    private PScopeContents _scopeContents_;
     private TRBrace _rBrace_;
-    private TConditionalIterativeSectionKeyword _conditionalIterativeSectionKeyword_;
-    private PExpressionRvalue _expressionRvalue_;
+    private TConditionalIterativeKeyword _conditionalIterativeKeyword_;
+    private PExpression _expression_;
     private final LinkedList<TSemicolon> _semicolon_ = new LinkedList<TSemicolon>();
 
     public ADoConditionalIterativeSection()
@@ -25,11 +24,10 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
     public ADoConditionalIterativeSection(
         @SuppressWarnings("hiding") TDo _do_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
-        @SuppressWarnings("hiding") List<?> _basicSection_,
-        @SuppressWarnings("hiding") PStopStatement _stopStatement_,
+        @SuppressWarnings("hiding") PScopeContents _scopeContents_,
         @SuppressWarnings("hiding") TRBrace _rBrace_,
-        @SuppressWarnings("hiding") TConditionalIterativeSectionKeyword _conditionalIterativeSectionKeyword_,
-        @SuppressWarnings("hiding") PExpressionRvalue _expressionRvalue_,
+        @SuppressWarnings("hiding") TConditionalIterativeKeyword _conditionalIterativeKeyword_,
+        @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") List<?> _semicolon_)
     {
         // Constructor
@@ -37,15 +35,13 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
 
         setLBrace(_lBrace_);
 
-        setBasicSection(_basicSection_);
-
-        setStopStatement(_stopStatement_);
+        setScopeContents(_scopeContents_);
 
         setRBrace(_rBrace_);
 
-        setConditionalIterativeSectionKeyword(_conditionalIterativeSectionKeyword_);
+        setConditionalIterativeKeyword(_conditionalIterativeKeyword_);
 
-        setExpressionRvalue(_expressionRvalue_);
+        setExpression(_expression_);
 
         setSemicolon(_semicolon_);
 
@@ -57,11 +53,10 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
         return new ADoConditionalIterativeSection(
             cloneNode(this._do_),
             cloneNode(this._lBrace_),
-            cloneList(this._basicSection_),
-            cloneNode(this._stopStatement_),
+            cloneNode(this._scopeContents_),
             cloneNode(this._rBrace_),
-            cloneNode(this._conditionalIterativeSectionKeyword_),
-            cloneNode(this._expressionRvalue_),
+            cloneNode(this._conditionalIterativeKeyword_),
+            cloneNode(this._expression_),
             cloneList(this._semicolon_));
     }
 
@@ -121,42 +116,16 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
         this._lBrace_ = node;
     }
 
-    public LinkedList<PBasicSection> getBasicSection()
+    public PScopeContents getScopeContents()
     {
-        return this._basicSection_;
+        return this._scopeContents_;
     }
 
-    public void setBasicSection(List<?> list)
+    public void setScopeContents(PScopeContents node)
     {
-        for(PBasicSection e : this._basicSection_)
+        if(this._scopeContents_ != null)
         {
-            e.parent(null);
-        }
-        this._basicSection_.clear();
-
-        for(Object obj_e : list)
-        {
-            PBasicSection e = (PBasicSection) obj_e;
-            if(e.parent() != null)
-            {
-                e.parent().removeChild(e);
-            }
-
-            e.parent(this);
-            this._basicSection_.add(e);
-        }
-    }
-
-    public PStopStatement getStopStatement()
-    {
-        return this._stopStatement_;
-    }
-
-    public void setStopStatement(PStopStatement node)
-    {
-        if(this._stopStatement_ != null)
-        {
-            this._stopStatement_.parent(null);
+            this._scopeContents_.parent(null);
         }
 
         if(node != null)
@@ -169,7 +138,7 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
             node.parent(this);
         }
 
-        this._stopStatement_ = node;
+        this._scopeContents_ = node;
     }
 
     public TRBrace getRBrace()
@@ -197,16 +166,16 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
         this._rBrace_ = node;
     }
 
-    public TConditionalIterativeSectionKeyword getConditionalIterativeSectionKeyword()
+    public TConditionalIterativeKeyword getConditionalIterativeKeyword()
     {
-        return this._conditionalIterativeSectionKeyword_;
+        return this._conditionalIterativeKeyword_;
     }
 
-    public void setConditionalIterativeSectionKeyword(TConditionalIterativeSectionKeyword node)
+    public void setConditionalIterativeKeyword(TConditionalIterativeKeyword node)
     {
-        if(this._conditionalIterativeSectionKeyword_ != null)
+        if(this._conditionalIterativeKeyword_ != null)
         {
-            this._conditionalIterativeSectionKeyword_.parent(null);
+            this._conditionalIterativeKeyword_.parent(null);
         }
 
         if(node != null)
@@ -219,19 +188,19 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
             node.parent(this);
         }
 
-        this._conditionalIterativeSectionKeyword_ = node;
+        this._conditionalIterativeKeyword_ = node;
     }
 
-    public PExpressionRvalue getExpressionRvalue()
+    public PExpression getExpression()
     {
-        return this._expressionRvalue_;
+        return this._expression_;
     }
 
-    public void setExpressionRvalue(PExpressionRvalue node)
+    public void setExpression(PExpression node)
     {
-        if(this._expressionRvalue_ != null)
+        if(this._expression_ != null)
         {
-            this._expressionRvalue_.parent(null);
+            this._expression_.parent(null);
         }
 
         if(node != null)
@@ -244,7 +213,7 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
             node.parent(this);
         }
 
-        this._expressionRvalue_ = node;
+        this._expression_ = node;
     }
 
     public LinkedList<TSemicolon> getSemicolon()
@@ -279,11 +248,10 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
         return ""
             + toString(this._do_)
             + toString(this._lBrace_)
-            + toString(this._basicSection_)
-            + toString(this._stopStatement_)
+            + toString(this._scopeContents_)
             + toString(this._rBrace_)
-            + toString(this._conditionalIterativeSectionKeyword_)
-            + toString(this._expressionRvalue_)
+            + toString(this._conditionalIterativeKeyword_)
+            + toString(this._expression_)
             + toString(this._semicolon_);
     }
 
@@ -303,14 +271,9 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
             return;
         }
 
-        if(this._basicSection_.remove(child))
+        if(this._scopeContents_ == child)
         {
-            return;
-        }
-
-        if(this._stopStatement_ == child)
-        {
-            this._stopStatement_ = null;
+            this._scopeContents_ = null;
             return;
         }
 
@@ -320,15 +283,15 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
             return;
         }
 
-        if(this._conditionalIterativeSectionKeyword_ == child)
+        if(this._conditionalIterativeKeyword_ == child)
         {
-            this._conditionalIterativeSectionKeyword_ = null;
+            this._conditionalIterativeKeyword_ = null;
             return;
         }
 
-        if(this._expressionRvalue_ == child)
+        if(this._expression_ == child)
         {
-            this._expressionRvalue_ = null;
+            this._expression_ = null;
             return;
         }
 
@@ -356,27 +319,9 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
             return;
         }
 
-        for(ListIterator<PBasicSection> i = this._basicSection_.listIterator(); i.hasNext();)
+        if(this._scopeContents_ == oldChild)
         {
-            if(i.next() == oldChild)
-            {
-                if(newChild != null)
-                {
-                    i.set((PBasicSection) newChild);
-                    newChild.parent(this);
-                    oldChild.parent(null);
-                    return;
-                }
-
-                i.remove();
-                oldChild.parent(null);
-                return;
-            }
-        }
-
-        if(this._stopStatement_ == oldChild)
-        {
-            setStopStatement((PStopStatement) newChild);
+            setScopeContents((PScopeContents) newChild);
             return;
         }
 
@@ -386,15 +331,15 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
             return;
         }
 
-        if(this._conditionalIterativeSectionKeyword_ == oldChild)
+        if(this._conditionalIterativeKeyword_ == oldChild)
         {
-            setConditionalIterativeSectionKeyword((TConditionalIterativeSectionKeyword) newChild);
+            setConditionalIterativeKeyword((TConditionalIterativeKeyword) newChild);
             return;
         }
 
-        if(this._expressionRvalue_ == oldChild)
+        if(this._expression_ == oldChild)
         {
-            setExpressionRvalue((PExpressionRvalue) newChild);
+            setExpression((PExpression) newChild);
             return;
         }
 

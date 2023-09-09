@@ -33,11 +33,11 @@ public class InstructionNotLongImmediate extends InstructionALULongImmediate {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.NOTLI).concat(Global.ZERO_8);
+		return RedstoneOpcodes.get(RedstoneMnemonics.NOTLI) + Global.ZERO_8;
 	}
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.NOTLI.concat("\t").concat(Global.IMMEDIATE).concat(Helpers.toHex(value));
+		return RedstoneMnemonics.NOTLI + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
 	}
 }

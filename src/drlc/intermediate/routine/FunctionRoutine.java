@@ -1,37 +1,40 @@
 package drlc.intermediate.routine;
 
-import drlc.*;
-import drlc.intermediate.component.Function;
-import drlc.intermediate.component.expression.ExpressionInfo;
-import drlc.intermediate.component.info.DeclaratorInfo;
-import drlc.intermediate.component.type.*;
-import drlc.node.Node;
+import java.util.List;
+
+import org.eclipse.jdt.annotation.NonNull;
+
+import drlc.Global;
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.*;
+import drlc.intermediate.component.type.TypeInfo;
 
 public class FunctionRoutine extends Routine {
 	
 	public final Function function;
+	public boolean isDefined = false;
 	
-	public FunctionRoutine(Node node, Generator generator, String name, Function function) {
-		super(generator, name);
+	public FunctionRoutine(ASTNode node, Function function) {
+		super(function.name);
 		this.function = function;
-		if (function.returnTypeInfo.isVoid(node)) {
+		if (function.returnTypeInfo.isVoid()) {
 			getDestructionActionList().add(Global.RETURN_FROM_FUNCTION);
 		}
 	}
 	
 	@Override
-	public RoutineType getType() {
+	public RoutineCallType getType() {
 		return type;
 	}
 	
 	@Override
 	public void onRequiresNesting() {
-		type = type.onNesting();
+		type = type.onRequiresNesting();
 	}
 	
 	@Override
 	public void onRequiresStack() {
-		type = type.onRecursion();
+		type = type.onRequiresRecursion();
 	}
 	
 	@Override
@@ -45,30 +48,29 @@ public class FunctionRoutine extends Routine {
 	}
 	
 	@Override
+	public boolean isDefined() {
+		return isDefined;
+	}
+	
+	@Override
 	public Function getFunction() {
 		return function;
 	}
 	
 	@Override
-	public TypeInfo getReturnTypeInfo() {
+	public @NonNull TypeInfo getReturnTypeInfo() {
 		return function.returnTypeInfo;
 	}
 	
 	@Override
-	public DeclaratorInfo[] getParams() {
+	public List<DeclaratorInfo> getParams() {
 		return function.params;
 	}
 	
 	@Override
-	public void setLastExpressionInfo(Node node, ExpressionInfo expressionInfo) {
-		TypeInfo expressionTypeInfo = expressionInfo.getTypeInfo();
-		if (expressionTypeInfo.isFunction()) {
-			Function function = ((FunctionTypeInfo) expressionTypeInfo).function;
-			if (function != null && !expressionInfo.isDirectFunction) {
-				onRequiresStack();
-			}
-		}
-		super.setLastExpressionInfo(node, expressionInfo);
+	protected void onReversibleFunctionItemExpressionInfo(ASTNode node, Function function) {
+		onRequiresStack();
+		super.onReversibleFunctionItemExpressionInfo(node, function);
 	}
 	
 	@Override

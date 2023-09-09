@@ -31,7 +31,7 @@ public class InstructionOutput extends Instruction {
 	
 	@Override
 	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.OUT).concat(Global.ZERO_8);
+		return RedstoneOpcodes.get(RedstoneMnemonics.OUT) + Global.ZERO_8;
 	}
 	
 	@Override

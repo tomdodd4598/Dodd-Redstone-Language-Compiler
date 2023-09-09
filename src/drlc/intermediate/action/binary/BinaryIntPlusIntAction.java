@@ -1,11 +1,11 @@
 package drlc.intermediate.action.binary;
 
-import drlc.intermediate.component.DataId;
-import drlc.node.Node;
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.data.DataId;
 
 public class BinaryIntPlusIntAction extends BinaryOpAction {
 	
-	BinaryIntPlusIntAction(Node node, DataId target, DataId arg1, DataId arg2) {
+	BinaryIntPlusIntAction(ASTNode node, DataId target, DataId arg1, DataId arg2) {
 		super(node, BinaryActionType.INT_PLUS_INT, target, arg1, arg2);
 	}
 	
@@ -26,6 +26,6 @@ public class BinaryIntPlusIntAction extends BinaryOpAction {
 	
 	@Override
 	public String toString() {
-		return target.raw.concat(" = ").concat(arg1.raw).concat(" + ").concat(arg2.raw);
+		return target + " = " + arg1 + " + " + arg2;
 	}
 }

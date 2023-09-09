@@ -2,15 +2,13 @@
 
 package drlc.node;
 
-import java.util.*;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
 public final class AParameterListTail extends PParameterListTail
 {
     private TComma _comma_;
-    private final LinkedList<TVariableModifier> _variableModifier_ = new LinkedList<TVariableModifier>();
-    private PParameter _parameter_;
+    private PParameterDeclarator _parameterDeclarator_;
 
     public AParameterListTail()
     {
@@ -19,15 +17,12 @@ public final class AParameterListTail extends PParameterListTail
 
     public AParameterListTail(
         @SuppressWarnings("hiding") TComma _comma_,
-        @SuppressWarnings("hiding") List<?> _variableModifier_,
-        @SuppressWarnings("hiding") PParameter _parameter_)
+        @SuppressWarnings("hiding") PParameterDeclarator _parameterDeclarator_)
     {
         // Constructor
         setComma(_comma_);
 
-        setVariableModifier(_variableModifier_);
-
-        setParameter(_parameter_);
+        setParameterDeclarator(_parameterDeclarator_);
 
     }
 
@@ -36,8 +31,7 @@ public final class AParameterListTail extends PParameterListTail
     {
         return new AParameterListTail(
             cloneNode(this._comma_),
-            cloneList(this._variableModifier_),
-            cloneNode(this._parameter_));
+            cloneNode(this._parameterDeclarator_));
     }
 
     @Override
@@ -71,42 +65,16 @@ public final class AParameterListTail extends PParameterListTail
         this._comma_ = node;
     }
 
-    public LinkedList<TVariableModifier> getVariableModifier()
+    public PParameterDeclarator getParameterDeclarator()
     {
-        return this._variableModifier_;
+        return this._parameterDeclarator_;
     }
 
-    public void setVariableModifier(List<?> list)
+    public void setParameterDeclarator(PParameterDeclarator node)
     {
-        for(TVariableModifier e : this._variableModifier_)
+        if(this._parameterDeclarator_ != null)
         {
-            e.parent(null);
-        }
-        this._variableModifier_.clear();
-
-        for(Object obj_e : list)
-        {
-            TVariableModifier e = (TVariableModifier) obj_e;
-            if(e.parent() != null)
-            {
-                e.parent().removeChild(e);
-            }
-
-            e.parent(this);
-            this._variableModifier_.add(e);
-        }
-    }
-
-    public PParameter getParameter()
-    {
-        return this._parameter_;
-    }
-
-    public void setParameter(PParameter node)
-    {
-        if(this._parameter_ != null)
-        {
-            this._parameter_.parent(null);
+            this._parameterDeclarator_.parent(null);
         }
 
         if(node != null)
@@ -119,7 +87,7 @@ public final class AParameterListTail extends PParameterListTail
             node.parent(this);
         }
 
-        this._parameter_ = node;
+        this._parameterDeclarator_ = node;
     }
 
     @Override
@@ -127,8 +95,7 @@ public final class AParameterListTail extends PParameterListTail
     {
         return ""
             + toString(this._comma_)
-            + toString(this._variableModifier_)
-            + toString(this._parameter_);
+            + toString(this._parameterDeclarator_);
     }
 
     @Override
@@ -141,14 +108,9 @@ public final class AParameterListTail extends PParameterListTail
             return;
         }
 
-        if(this._variableModifier_.remove(child))
+        if(this._parameterDeclarator_ == child)
         {
-            return;
-        }
-
-        if(this._parameter_ == child)
-        {
-            this._parameter_ = null;
+            this._parameterDeclarator_ = null;
             return;
         }
 
@@ -165,27 +127,9 @@ public final class AParameterListTail extends PParameterListTail
             return;
         }
 
-        for(ListIterator<TVariableModifier> i = this._variableModifier_.listIterator(); i.hasNext();)
+        if(this._parameterDeclarator_ == oldChild)
         {
-            if(i.next() == oldChild)
-            {
-                if(newChild != null)
-                {
-                    i.set((TVariableModifier) newChild);
-                    newChild.parent(this);
-                    oldChild.parent(null);
-                    return;
-                }
-
-                i.remove();
-                oldChild.parent(null);
-                return;
-            }
-        }
-
-        if(this._parameter_ == oldChild)
-        {
-            setParameter((PParameter) newChild);
+            setParameterDeclarator((PParameterDeclarator) newChild);
             return;
         }
 
