@@ -2,7 +2,7 @@ package drlc.intermediate.action;
 
 import java.util.Map;
 
-import drlc.Global;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.data.DataId;
 
@@ -10,10 +10,10 @@ public class ExitValueAction extends Action implements IDefiniteRedirectAction, 
 	
 	public final DataId arg;
 	
-	public ExitValueAction(ASTNode node, DataId arg) {
+	public ExitValueAction(ASTNode<?, ?> node, DataId arg) {
 		super(node);
 		if (arg == null) {
-			throw node.error("Exit value action argument was null!");
+			throw Helpers.nodeError(node, "Exit value action argument was null!");
 		}
 		else {
 			this.arg = arg;
@@ -46,7 +46,7 @@ public class ExitValueAction extends Action implements IDefiniteRedirectAction, 
 	}
 	
 	@Override
-	public Action replaceRegRvalue(long targetId, DataId rvalueReplacer) {
+	public ExitValueAction replaceRvalue(DataId targetId, DataId rvalueReplacer) {
 		return new ExitValueAction(null, rvalueReplacer);
 	}
 	
@@ -61,7 +61,7 @@ public class ExitValueAction extends Action implements IDefiniteRedirectAction, 
 	}
 	
 	@Override
-	public Action replaceRegLvalue(long targetId, DataId lvalueReplacer) {
+	public ExitValueAction replaceLvalue(DataId targetId, DataId lvalueReplacer) {
 		return null;
 	}
 	
@@ -87,7 +87,7 @@ public class ExitValueAction extends Action implements IDefiniteRedirectAction, 
 	
 	@Override
 	public Action replaceRegIds(Map<Long, Long> regIdMap) {
-		RegReplaceResult argResult = replaceRegId(arg, regIdMap);
+		DataIdReplaceResult argResult = replaceRegId(arg, regIdMap);
 		if (argResult.success) {
 			return new ExitValueAction(null, argResult.dataId);
 		}

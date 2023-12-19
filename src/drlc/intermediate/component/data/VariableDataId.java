@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.Helpers;
+import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Variable;
 
 public class VariableDataId extends DataId {
@@ -22,34 +23,34 @@ public class VariableDataId extends DataId {
 	}
 	
 	@Override
-	public VariableDataId addAddressPrefix() {
+	public VariableDataId addAddressPrefix(ASTNode<?, ?> node) {
 		if (dereferenceLevel == 0) {
 			return new VariableDataId(-1, variable);
 		}
 		else {
-			throw Helpers.nodeError(null, "Attempted to add address prefix to data ID \"%s\"!", this);
+			throw Helpers.nodeError(node, "Attempted to add address prefix to data ID \"%s\"!", this);
 		}
 	}
 	
 	@Override
-	public VariableDataId removeAddressPrefix() {
+	public VariableDataId removeAddressPrefix(ASTNode<?, ?> node) {
 		if (isAddress()) {
 			return new VariableDataId(dereferenceLevel + 1, variable);
 		}
 		else {
-			throw Helpers.nodeError(null, "Attempted to remove address prefix from data ID \"%s\"!", this);
+			throw Helpers.nodeError(node, "Attempted to remove address prefix from data ID \"%s\"!", this);
 		}
 	}
 	
 	@Override
-	public VariableDataId addDereference() {
+	public VariableDataId addDereference(ASTNode<?, ?> node) {
 		return new VariableDataId(dereferenceLevel + 1, variable);
 	}
 	
 	@Override
-	public VariableDataId removeDereference() {
+	public VariableDataId removeDereference(ASTNode<?, ?> node) {
 		if (!isDereferenced()) {
-			throw Helpers.nodeError(null, "Attempted to remove dereference from data ID \"%s\"!", this);
+			throw Helpers.nodeError(node, "Attempted to remove dereference from data ID \"%s\"!", this);
 		}
 		else {
 			return new VariableDataId(dereferenceLevel - 1, variable);
@@ -57,13 +58,23 @@ public class VariableDataId extends DataId {
 	}
 	
 	@Override
-	public VariableDataId removeAllDereferences() {
+	public VariableDataId removeAllDereferences(ASTNode<?, ?> node) {
 		if (isAddress()) {
-			throw Helpers.nodeError(null, "Attempted to remove all dereferences from data ID \"%s\"!", this);
+			throw Helpers.nodeError(node, "Attempted to remove all dereferences from data ID \"%s\"!", this);
 		}
 		else {
 			return new VariableDataId(0, variable);
 		}
+	}
+	
+	@Override
+	public boolean isCompressable() {
+		return false;
+	}
+	
+	@Override
+	public boolean isRepeatable() {
+		return true;
 	}
 	
 	@Override

@@ -8,6 +8,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class ADoConditionalIterativeSection extends PIterativeSection
 {
+    private PIterativeSectionLabel _iterativeSectionLabel_;
     private TDo _do_;
     private TLBrace _lBrace_;
     private PScopeContents _scopeContents_;
@@ -22,6 +23,7 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
     }
 
     public ADoConditionalIterativeSection(
+        @SuppressWarnings("hiding") PIterativeSectionLabel _iterativeSectionLabel_,
         @SuppressWarnings("hiding") TDo _do_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
         @SuppressWarnings("hiding") PScopeContents _scopeContents_,
@@ -31,6 +33,8 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
         @SuppressWarnings("hiding") List<?> _semicolon_)
     {
         // Constructor
+        setIterativeSectionLabel(_iterativeSectionLabel_);
+
         setDo(_do_);
 
         setLBrace(_lBrace_);
@@ -51,6 +55,7 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
     public Object clone()
     {
         return new ADoConditionalIterativeSection(
+            cloneNode(this._iterativeSectionLabel_),
             cloneNode(this._do_),
             cloneNode(this._lBrace_),
             cloneNode(this._scopeContents_),
@@ -64,6 +69,31 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
     public void apply(Switch sw)
     {
         ((Analysis) sw).caseADoConditionalIterativeSection(this);
+    }
+
+    public PIterativeSectionLabel getIterativeSectionLabel()
+    {
+        return this._iterativeSectionLabel_;
+    }
+
+    public void setIterativeSectionLabel(PIterativeSectionLabel node)
+    {
+        if(this._iterativeSectionLabel_ != null)
+        {
+            this._iterativeSectionLabel_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._iterativeSectionLabel_ = node;
     }
 
     public TDo getDo()
@@ -246,6 +276,7 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
     public String toString()
     {
         return ""
+            + toString(this._iterativeSectionLabel_)
             + toString(this._do_)
             + toString(this._lBrace_)
             + toString(this._scopeContents_)
@@ -259,6 +290,12 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
+        if(this._iterativeSectionLabel_ == child)
+        {
+            this._iterativeSectionLabel_ = null;
+            return;
+        }
+
         if(this._do_ == child)
         {
             this._do_ = null;
@@ -307,6 +344,12 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
+        if(this._iterativeSectionLabel_ == oldChild)
+        {
+            setIterativeSectionLabel((PIterativeSectionLabel) newChild);
+            return;
+        }
+
         if(this._do_ == oldChild)
         {
             setDo((TDo) newChild);

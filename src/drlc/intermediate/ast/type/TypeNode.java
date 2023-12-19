@@ -4,9 +4,11 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.TypeInfo;
+import drlc.intermediate.routine.Routine;
+import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
-public class TypeNode extends ASTNode {
+public class TypeNode extends ASTNode<Scope, Routine> {
 	
 	public final int referenceLevel;
 	public final @NonNull RawTypeNode rawTypeNode;
@@ -23,19 +25,19 @@ public class TypeNode extends ASTNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode parent) {
+	public void setScopes(ASTNode<?, ?> parent) {
 		scope = parent.scope;
 		
 		rawTypeNode.setScopes(this);
 	}
 	
 	@Override
-	public void defineTypes(ASTNode parent) {
+	public void defineTypes(ASTNode<?, ?> parent) {
 		rawTypeNode.defineTypes(this);
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode parent) {
+	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 		
 		rawTypeNode.declareExpressions(this);
@@ -44,17 +46,22 @@ public class TypeNode extends ASTNode {
 	}
 	
 	@Override
-	public void checkTypes(ASTNode parent) {
+	public void checkTypes(ASTNode<?, ?> parent) {
 		rawTypeNode.checkTypes(this);
 	}
 	
 	@Override
-	public void foldConstants(ASTNode parent) {
+	public void foldConstants(ASTNode<?, ?> parent) {
 		rawTypeNode.foldConstants(this);
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode parent) {
+	public void trackFunctions(ASTNode<?, ?> parent) {
+		rawTypeNode.trackFunctions(this);
+	}
+	
+	@Override
+	public void generateIntermediate(ASTNode<?, ?> parent) {
 		rawTypeNode.generateIntermediate(this);
 	}
 	

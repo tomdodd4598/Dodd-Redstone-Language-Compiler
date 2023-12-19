@@ -1,8 +1,7 @@
-package drlc.intermediate;
+package drlc;
 
 import java.util.*;
 
-import drlc.*;
 import drlc.intermediate.action.*;
 import drlc.intermediate.component.data.*;
 import drlc.intermediate.component.value.FunctionItemValue;
@@ -10,13 +9,11 @@ import drlc.intermediate.routine.*;
 
 public class Program {
 	
-	public final HierarchyMap<String, Routine> builtInRoutineMap = new HierarchyMap<>(null, new LinkedHashMap<>());
-	public final HierarchyMap<String, Routine> routineMap = new HierarchyMap<>(builtInRoutineMap, new LinkedHashMap<>());
+	public final Map<String, FunctionRoutine> builtInRoutineMap = new LinkedHashMap<>();
+	public final Map<String, Routine> routineMap = new LinkedHashMap<>();
 	
 	public Program() {
-		rootRoutine = new RootRoutine();
-		routineMap.put(Global.ROOT_ROUTINE, rootRoutine);
-		returnToRootRoutine();
+		
 	}
 	
 	public Routine getRoutine(String name) {
@@ -31,18 +28,21 @@ public class Program {
 		return routineExists(name) && getRoutine(name).isDefined();
 	}
 	
-	// Finalization
+	public void flattenRoutines() {
+		for (Routine routine : routineMap.values()) {
+			routine.flattenSections();
+		}
+	}
 	
 	public void finalizeRoutines() {
 		for (Routine routine : routineMap.values()) {
 			if (routine.isRootRoutine()) {
-				generator.generateRootParams((RootRoutine) routine);
+				Main.generator.generateRootParams((RootRoutine) routine);
 			}
 			routine.setTransientRegisters();
-			routine.checkInvalidDataIds();
 			routine.checkFunctionVariableInitialization();
 		}
-		updateRoutineTypes(rootRoutine, new ArrayList<>(), new HashMap<>(), 0);
+		updateRoutineTypes(Main.rootRoutine, new ArrayList<>(), new HashMap<>(), 0);
 	}
 	
 	public void updateRoutineTypes(Routine routine, List<String> callList, Map<String, Integer> callMap, int index) {
@@ -77,8 +77,8 @@ public class Program {
 									}
 								}
 							}
-							else if (rootScope.functionExists(routineName)) {
-								throw Helpers.nodeError(null, "Function \"%s\" was not defined!", routineName);
+							else if (Main.rootScope.functionExists(routineName)) {
+								throw Helpers.error("Function \"%s\" was not defined!", routineName);
 							}
 						}
 					}

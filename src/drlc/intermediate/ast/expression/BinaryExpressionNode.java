@@ -28,7 +28,7 @@ public class BinaryExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode parent) {
+	public void setScopes(ASTNode<?, ?> parent) {
 		scope = parent.scope;
 		
 		leftExpressionNode.setScopes(this);
@@ -36,13 +36,13 @@ public class BinaryExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode parent) {
+	public void defineTypes(ASTNode<?, ?> parent) {
 		leftExpressionNode.defineTypes(this);
 		rightExpressionNode.defineTypes(this);
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode parent) {
+	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 		
 		leftExpressionNode.declareExpressions(this);
@@ -52,13 +52,13 @@ public class BinaryExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void checkTypes(ASTNode parent) {
+	public void checkTypes(ASTNode<?, ?> parent) {
 		leftExpressionNode.checkTypes(this);
 		rightExpressionNode.checkTypes(this);
 	}
 	
 	@Override
-	public void foldConstants(ASTNode parent) {
+	public void foldConstants(ASTNode<?, ?> parent) {
 		leftExpressionNode.foldConstants(this);
 		rightExpressionNode.foldConstants(this);
 		
@@ -74,7 +74,13 @@ public class BinaryExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode parent) {
+	public void trackFunctions(ASTNode<?, ?> parent) {
+		leftExpressionNode.trackFunctions(this);
+		rightExpressionNode.trackFunctions(this);
+	}
+	
+	@Override
+	public void generateIntermediate(ASTNode<?, ?> parent) {
 		leftExpressionNode.generateIntermediate(this);
 		
 		routine.pushCurrentRegId(this);

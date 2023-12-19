@@ -3,8 +3,7 @@ package drlc.low.drc1;
 import java.util.*;
 import java.util.Map.Entry;
 
-import drlc.Global;
-import drlc.intermediate.Program;
+import drlc.*;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.routine.*;
 import drlc.low.drc1.builtin.*;
@@ -14,7 +13,6 @@ import drlc.low.drc1.instruction.immediate.InstructionLoadLongImmediate;
 public class RedstoneCode {
 	
 	public final RedstoneGenerator generator;
-	public final Program program;
 	
 	public boolean requiresStack = false;
 	
@@ -29,10 +27,9 @@ public class RedstoneCode {
 	
 	public final Map<String, Short> textAddressMap = new HashMap<>();
 	
-	public RedstoneCode(RedstoneGenerator generator, Program program) {
+	public RedstoneCode(RedstoneGenerator generator) {
 		this.generator = generator;
-		this.program = program;
-		unusedBuiltInRoutineSet = new HashSet<>(program.builtInRoutineMap.keySet());
+		unusedBuiltInRoutineSet = new HashSet<>(Main.program.builtInRoutineMap.keySet());
 	}
 	
 	public Map<String, RedstoneRoutine> getRoutineMap() {
@@ -48,7 +45,7 @@ public class RedstoneCode {
 	}
 	
 	public void generate() {
-		for (Entry<String, Routine> entry : program.routineMap.entrySet()) {
+		for (Entry<String, Routine> entry : Main.program.routineMap.entrySet()) {
 			Routine intermediateRoutine = entry.getValue();
 			RedstoneRoutine routine = new RedstoneRoutine(this, intermediateRoutine);
 			if (!intermediateRoutine.isBuiltInFunctionRoutine()) {
@@ -97,7 +94,7 @@ public class RedstoneCode {
 		routineMap.put(Global.CIRCULAR_LEFT_SHIFT, new CircularLeftShiftRedstoneRoutine(this, Global.CIRCULAR_LEFT_SHIFT, RoutineCallType.NESTING));
 		routineMap.put(Global.CIRCULAR_RIGHT_SHIFT, new CircularRightShiftRedstoneRoutine(this, Global.CIRCULAR_RIGHT_SHIFT, RoutineCallType.NESTING));
 		
-		for (String name : program.builtInRoutineMap.keySet()) {
+		for (String name : Main.program.builtInRoutineMap.keySet()) {
 			if (!routineMap.containsKey(name)) {
 				throw new IllegalArgumentException(String.format("Unexpectedly encountered unimplemented built-in function \"%s\"!", name));
 			}

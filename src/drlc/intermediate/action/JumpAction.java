@@ -5,16 +5,11 @@ import drlc.intermediate.ast.ASTNode;
 
 public class JumpAction extends Action implements IJumpAction, IDefiniteRedirectAction {
 	
-	public final String target;
+	protected int target;
 	
-	public JumpAction(ASTNode node, String target) {
+	public JumpAction(ASTNode<?, ?> node, int target) {
 		super(node);
-		if (target == null) {
-			throw node.error("Jump action target was null!");
-		}
-		else {
-			this.target = target;
-		}
+		this.target = target;
 	}
 	
 	@Override
@@ -23,17 +18,21 @@ public class JumpAction extends Action implements IJumpAction, IDefiniteRedirect
 	}
 	
 	@Override
-	public String getTarget() {
+	public int getTarget() {
 		return target;
 	}
 	
+	public void setTarget(int target) {
+		this.target = target;
+	}
+	
 	@Override
-	public JumpAction copy(String target) {
+	public JumpAction copy(int target) {
 		return new JumpAction(null, target);
 	}
 	
 	@Override
 	public String toString() {
-		return Global.JUMP + ' ' + target;
+		return Global.JUMP + ' ' + getTarget();
 	}
 }

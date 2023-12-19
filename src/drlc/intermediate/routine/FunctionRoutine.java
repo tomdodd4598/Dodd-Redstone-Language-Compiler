@@ -14,7 +14,7 @@ public class FunctionRoutine extends Routine {
 	public final Function function;
 	public boolean isDefined = false;
 	
-	public FunctionRoutine(ASTNode node, Function function) {
+	public FunctionRoutine(ASTNode<?, ?> node, Function function) {
 		super(function.name);
 		this.function = function;
 		if (function.returnTypeInfo.isVoid()) {
@@ -68,9 +68,9 @@ public class FunctionRoutine extends Routine {
 	}
 	
 	@Override
-	protected void onReversibleFunctionItemExpressionInfo(ASTNode node, Function function) {
+	public void onNonLocalFunctionItemExpression(ASTNode<?, ?> node, Function function) {
 		onRequiresStack();
-		super.onReversibleFunctionItemExpressionInfo(node, function);
+		super.onNonLocalFunctionItemExpression(node, function);
 	}
 	
 	@Override

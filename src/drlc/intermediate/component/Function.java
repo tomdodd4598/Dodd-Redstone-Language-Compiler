@@ -21,7 +21,7 @@ public class Function {
 	
 	public boolean required;
 	
-	public Function(ASTNode node, @NonNull String name, boolean builtIn, @NonNull TypeInfo returnTypeInfo, List<DeclaratorInfo> params) {
+	public Function(ASTNode<?, ?> node, @NonNull String name, boolean builtIn, @NonNull TypeInfo returnTypeInfo, List<DeclaratorInfo> params) {
 		this.name = name;
 		this.builtIn = builtIn;
 		this.returnTypeInfo = returnTypeInfo;

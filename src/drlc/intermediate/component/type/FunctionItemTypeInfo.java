@@ -1,10 +1,10 @@
 package drlc.intermediate.component.type;
 
-import java.util.List;
+import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Function;
 import drlc.intermediate.scope.Scope;
@@ -15,22 +15,26 @@ public class FunctionItemTypeInfo extends FunctionTypeInfo {
 	
 	public final @NonNull FunctionPointerTypeInfo functionPointerTypeInfo;
 	
-	protected FunctionItemTypeInfo(ASTNode node, int referenceLevel, @NonNull Function function, @NonNull TypeInfo returnTypeInfo, List<TypeInfo> paramTypeInfos) {
+	protected FunctionItemTypeInfo(ASTNode<?, ?> node, int referenceLevel, @NonNull Function function, @NonNull TypeInfo returnTypeInfo, List<TypeInfo> paramTypeInfos) {
 		super(node, referenceLevel, returnTypeInfo, paramTypeInfos);
 		this.function = function;
 		functionPointerTypeInfo = new FunctionPointerTypeInfo(null, referenceLevel, returnTypeInfo, paramTypeInfos);
+		
+		if (referenceLevel < 0) {
+			throw Helpers.nodeError(node, "Reference level of function item type \"%s\" can not be negative!", rawString());
+		}
 	}
 	
-	protected FunctionItemTypeInfo(ASTNode node, @NonNull Function function) {
+	protected FunctionItemTypeInfo(ASTNode<?, ?> node, @NonNull Function function) {
 		this(node, 0, function, function.returnTypeInfo, function.paramTypeInfos);
 	}
 	
-	public FunctionItemTypeInfo(ASTNode node, Scope scope, String functionName) {
+	public FunctionItemTypeInfo(ASTNode<?, ?> node, Scope scope, String functionName) {
 		this(node, scope.getFunction(node, functionName));
 	}
 	
 	@Override
-	public @NonNull TypeInfo copy(ASTNode node, int newReferenceLevel) {
+	public @NonNull TypeInfo copy(ASTNode<?, ?> node, int newReferenceLevel) {
 		return new FunctionItemTypeInfo(node, newReferenceLevel, function, returnTypeInfo, paramTypeInfos);
 	}
 	
@@ -47,6 +51,11 @@ public class FunctionItemTypeInfo extends FunctionTypeInfo {
 	@Override
 	public @Nullable TypeInfo getSuperType() {
 		return functionPointerTypeInfo;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(referenceLevel, returnTypeInfo, paramTypeInfos, function);
 	}
 	
 	@Override

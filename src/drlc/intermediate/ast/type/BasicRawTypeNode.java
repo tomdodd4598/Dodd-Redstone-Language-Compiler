@@ -15,34 +15,39 @@ public class BasicRawTypeNode extends RawTypeNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode parent) {
+	public void setScopes(ASTNode<?, ?> parent) {
 		scope = parent.scope;
 	}
 	
 	@Override
-	public void defineTypes(ASTNode parent) {
+	public void defineTypes(ASTNode<?, ?> parent) {
 		
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode parent) {
+	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 		
 		setTypeInfo();
 	}
 	
 	@Override
-	public void checkTypes(ASTNode parent) {
+	public void checkTypes(ASTNode<?, ?> parent) {
 		
 	}
 	
 	@Override
-	public void foldConstants(ASTNode parent) {
+	public void foldConstants(ASTNode<?, ?> parent) {
 		
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode parent) {
+	public void trackFunctions(ASTNode<?, ?> parent) {
+		
+	}
+	
+	@Override
+	public void generateIntermediate(ASTNode<?, ?> parent) {
 		
 	}
 	

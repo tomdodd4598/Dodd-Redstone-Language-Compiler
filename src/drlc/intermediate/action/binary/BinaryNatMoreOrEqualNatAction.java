@@ -5,7 +5,7 @@ import drlc.intermediate.component.data.DataId;
 
 public class BinaryNatMoreOrEqualNatAction extends BinaryOpAction {
 	
-	BinaryNatMoreOrEqualNatAction(ASTNode node, DataId target, DataId arg1, DataId arg2) {
+	BinaryNatMoreOrEqualNatAction(ASTNode<?, ?> node, DataId target, DataId arg1, DataId arg2) {
 		super(node, BinaryActionType.NAT_MORE_OR_EQUAL_NAT, target, arg1, arg2);
 	}
 	

@@ -28,10 +28,6 @@ public final class Global {
 	
 	public static final String ROOT_ROUTINE = "\\root";
 	
-	public static final String CONSTRUCTOR = "{0}";
-	public static final String DESTRUCTOR = "{d}";
-	public static final String STATEMENT_LABEL_PREFIX = ":";
-	
 	public static final String DOUBLE_COLON = "::";
 	
 	public static final String SECTION_ID_START = "{";
@@ -82,18 +78,6 @@ public final class Global {
 	
 	public static final Action RETURN_FROM_FUNCTION = new ReturnAction();
 	public static final Action EXIT_PROGRAM = new ExitAction();
-	
-	public static final Action ITERATION_CONTINUE_PLACEHOLDER = new PlaceholderAction(null, "continue");
-	public static final Action ITERATION_CONDITIONAL_CONTINUE_PLACEHOLDER = new PlaceholderAction(null, "ccontinue");
-	public static final Action ITERATION_CONDITIONAL_NOT_CONTINUE_PLACEHOLDER = new PlaceholderAction(null, "cncontinue");
-	
-	public static final Action ITERATION_BODY_JUMP_PLACEHOLDER = new PlaceholderAction(null, "body");
-	public static final Action ITERATION_CONDITIONAL_BODY_JUMP_PLACEHOLDER = new PlaceholderAction(null, "cbody");
-	public static final Action ITERATION_CONDITIONAL_NOT_BODY_JUMP_PLACEHOLDER = new PlaceholderAction(null, "cnbody");
-	
-	public static final Action ITERATION_BREAK_PLACEHOLDER = new PlaceholderAction(null, "break");
-	public static final Action ITERATION_CONDITIONAL_BREAK_PLACEHOLDER = new PlaceholderAction(null, "cbreak");
-	public static final Action ITERATION_CONDITIONAL_NOT_BREAK_PLACEHOLDER = new PlaceholderAction(null, "cnbreak");
 	
 	public static final String LOGICAL_RIGHT_SHIFT = "\\logical_right_shift";
 	public static final String CIRCULAR_LEFT_SHIFT = "\\circular_left_shift";

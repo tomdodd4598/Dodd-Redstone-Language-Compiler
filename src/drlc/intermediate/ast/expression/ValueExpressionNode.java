@@ -3,8 +3,9 @@ package drlc.intermediate.ast.expression;
 import org.eclipse.jdt.annotation.*;
 
 import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.Function;
 import drlc.intermediate.component.type.TypeInfo;
-import drlc.intermediate.component.value.Value;
+import drlc.intermediate.component.value.*;
 import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
@@ -12,6 +13,10 @@ import drlc.node.Node;
 public class ValueExpressionNode extends ConstantExpressionNode {
 	
 	public final @NonNull Value value;
+	
+	public boolean setDirectFunction = false;
+	
+	public @Nullable Function directFunction = null;
 	
 	public ValueExpressionNode(Node[] parseNodes, Scope scope, Routine routine, @NonNull Value value) {
 		super(parseNodes);
@@ -22,32 +27,39 @@ public class ValueExpressionNode extends ConstantExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode parent) {
+	public void setScopes(ASTNode<?, ?> parent) {
 		scope = parent.scope;
 	}
 	
 	@Override
-	public void defineTypes(ASTNode parent) {
+	public void defineTypes(ASTNode<?, ?> parent) {
 		
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode parent) {
+	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 	}
 	
 	@Override
-	public void checkTypes(ASTNode parent) {
+	public void checkTypes(ASTNode<?, ?> parent) {
 		
 	}
 	
 	@Override
-	public void foldConstants(ASTNode parent) {
+	public void foldConstants(ASTNode<?, ?> parent) {
 		
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode parent) {
+	public void trackFunctions(ASTNode<?, ?> parent) {
+		if (directFunction != null) {
+			routine.onNonLocalFunctionItemExpression(this, directFunction);
+		}
+	}
+	
+	@Override
+	public void generateIntermediate(ASTNode<?, ?> parent) {
 		routine.incrementRegId(value.typeInfo);
 		routine.addImmediateRegisterAssignmentAction(this, value);
 	}
@@ -63,12 +75,23 @@ public class ValueExpressionNode extends ConstantExpressionNode {
 	}
 	
 	@Override
-	protected @Nullable Value getConstantValueInternal() {
+	protected @NonNull Value getConstantValueInternal() {
 		return value;
 	}
 	
 	@Override
 	protected void setConstantValueInternal() {
 		
+	}
+	
+	@Override
+	public @Nullable Function getDirectFunction() {
+		if (!setDirectFunction) {
+			if (value instanceof FunctionItemValue) {
+				directFunction = scope.getFunction(this, ((FunctionItemValue) value).name);
+			}
+			setDirectFunction = true;
+		}
+		return directFunction;
 	}
 }

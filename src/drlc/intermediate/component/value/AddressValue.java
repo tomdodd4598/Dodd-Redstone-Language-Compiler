@@ -12,13 +12,13 @@ public class AddressValue extends Value {
 	
 	public final long address;
 	
-	public AddressValue(ASTNode node, @NonNull TypeInfo typeInfo, long address) {
+	public AddressValue(ASTNode<?, ?> node, @NonNull TypeInfo typeInfo, long address) {
 		super(node, typeInfo);
 		this.address = address;
 	}
 	
 	@Override
-	public long longValue(ASTNode node) {
+	public long longValue(ASTNode<?, ?> node) {
 		return address;
 	}
 	

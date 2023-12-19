@@ -2,7 +2,7 @@ package drlc.intermediate.action.binary;
 
 import java.util.Map;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.action.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.data.*;
@@ -12,31 +12,31 @@ public abstract class BinaryOpAction extends Action implements IValueAction {
 	public final BinaryActionType type;
 	public final DataId target, arg1, arg2;
 	
-	protected BinaryOpAction(ASTNode node, BinaryActionType type, DataId target, DataId arg1, DataId arg2) {
+	protected BinaryOpAction(ASTNode<?, ?> node, BinaryActionType type, DataId target, DataId arg1, DataId arg2) {
 		super(node);
 		if (type == null) {
-			throw node.error("Binary op action type was null!");
+			throw Helpers.nodeError(node, "Binary op action type was null!");
 		}
 		else {
 			this.type = type;
 		}
 		
 		if (target == null) {
-			throw node.error("Binary op action target was null!");
+			throw Helpers.nodeError(node, "Binary op action target was null!");
 		}
 		else {
 			this.target = target;
 		}
 		
 		if (arg1 == null) {
-			throw node.error("Binary op action first argument was null!");
+			throw Helpers.nodeError(node, "Binary op action first argument was null!");
 		}
 		else {
 			this.arg1 = arg1;
 		}
 		
 		if (arg2 == null) {
-			throw node.error("Binary op action second argument was null!");
+			throw Helpers.nodeError(node, "Binary op action second argument was null!");
 		}
 		else {
 			this.arg2 = arg2;
@@ -73,13 +73,13 @@ public abstract class BinaryOpAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRegRvalue(long targetId, DataId rvalueReplacer) {
-		RegReplaceResult arg1Result = replaceRegId(arg1, targetId, rvalueReplacer), arg2Result = replaceRegId(arg2, targetId, rvalueReplacer);
+	public BinaryOpAction replaceRvalue(DataId targetId, DataId rvalueReplacer) {
+		DataIdReplaceResult arg1Result = replaceDataId(arg1, targetId, rvalueReplacer), arg2Result = replaceDataId(arg2, targetId, rvalueReplacer);
 		if (arg1Result.success || arg2Result.success) {
 			return copy(target, arg1Result.dataId, arg2Result.dataId);
 		}
 		else {
-			throw new IllegalArgumentException(String.format("Neither binary op action argument %s, %s matched replacement reg ID %d!", arg1, arg2, targetId));
+			throw new IllegalArgumentException(String.format("Neither binary op action argument %s, %s matched replacement data ID %s!", arg1, arg2, targetId));
 		}
 	}
 	
@@ -94,13 +94,13 @@ public abstract class BinaryOpAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRegLvalue(long targetId, DataId lvalueReplacer) {
+	public BinaryOpAction replaceLvalue(DataId targetId, DataId lvalueReplacer) {
 		return copy(lvalueReplacer, arg1, arg2);
 	}
 	
 	@Override
 	public Action setTransientLvalue() {
-		return copy(target.getTransient(), arg1, arg2);
+		return copy(target.getTransient(null), arg1, arg2);
 	}
 	
 	@Override
@@ -125,7 +125,7 @@ public abstract class BinaryOpAction extends Action implements IValueAction {
 	
 	@Override
 	public Action replaceRegIds(Map<Long, Long> regIdMap) {
-		RegReplaceResult targetResult = replaceRegId(target, regIdMap), arg1Result = replaceRegId(arg1, regIdMap), arg2Result = replaceRegId(arg2, regIdMap);
+		DataIdReplaceResult targetResult = replaceRegId(target, regIdMap), arg1Result = replaceRegId(arg1, regIdMap), arg2Result = replaceRegId(arg2, regIdMap);
 		if (targetResult.success || arg1Result.success || arg2Result.success) {
 			return copy(targetResult.dataId, arg1Result.dataId, arg2Result.dataId);
 		}

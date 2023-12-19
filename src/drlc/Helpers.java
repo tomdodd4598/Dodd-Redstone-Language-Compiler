@@ -11,6 +11,7 @@ import java.util.stream.*;
 import org.apache.commons.text.translate.*;
 import org.eclipse.jdt.annotation.*;
 
+import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.lexer.Lexer;
@@ -19,21 +20,21 @@ import drlc.node.Token;
 
 public class Helpers {
 	
-	public static @NonNull String readFile(String fileName) throws Exception {
+	public static @NonNull String readFile(String fileName) throws RuntimeException {
 		try {
 			return new String(Files.readAllBytes(Paths.get(fileName)), Charset.defaultCharset());
 		}
 		catch (Exception e) {
-			throw e;
+			throw new RuntimeException(String.format("Failed to read file \"%s\"!", fileName));
 		}
 	}
 	
-	public static void writeFile(String fileName, String contents) throws Exception {
+	public static void writeFile(String fileName, String contents) throws RuntimeException {
 		try (PrintWriter out = new PrintWriter(fileName)) {
 			out.print(contents);
 		}
 		catch (Exception e) {
-			throw e;
+			throw new RuntimeException(String.format("Failed to write file \"%s\"!", fileName));
 		}
 	}
 	
@@ -187,11 +188,19 @@ public class Helpers {
 	
 	public static RuntimeException nodeError(Node[] parseNodes, String s, Object... args) {
 		StringBuilder sb = new StringBuilder(String.format(s, args));
-		if (parseNodes.length > 0) {
+		if (parseNodes != null && parseNodes.length > 0) {
 			Pair<String, String> info = nodeInfo(parseNodes);
 			sb.append("\n -> ").append(info.left).append("\n\n").append(info.right).append("\n\n");
 		}
 		return new IllegalArgumentException(sb.toString());
+	}
+	
+	public static RuntimeException nodeError(ASTNode<?, ?> node, String s, Object... args) {
+		return nodeError(node == null ? null : node.parseNodes, s, args);
+	}
+	
+	public static RuntimeException error(String s, Object... args) {
+		return new IllegalArgumentException(String.format(s, args));
 	}
 	
 	public static boolean isEndOfLine(char c) {
@@ -250,22 +259,6 @@ public class Helpers {
 		return s.replaceAll("\\s+", "");
 	}
 	
-	public static int countSubstrings(String s, String substring, int fromIndex, int toIndex) {
-		if (substring.isEmpty()) {
-			return -1;
-		}
-		int count = 0;
-		
-		while (fromIndex != -1 && fromIndex < toIndex) {
-			fromIndex = s.indexOf(substring, fromIndex);
-			if (fromIndex != -1) {
-				++count;
-				fromIndex += substring.length();
-			}
-		}
-		return count;
-	}
-	
 	public static boolean isConstantName(String s) {
 		return Character.isLetter(s.charAt(0));
 	}
@@ -284,40 +277,6 @@ public class Helpers {
 	
 	public static short shortRemainderUnsigned(short dividend, short divisor) {
 		return (short) (Short.toUnsignedInt(dividend) % Short.toUnsignedInt(divisor));
-	}
-	
-	public static String sectionIdString(int sectionId) {
-		return Global.SECTION_ID_START + sectionId + Global.SECTION_ID_END;
-	}
-	
-	public static boolean isSectionId(String sectionIdString) {
-		return sectionIdString.startsWith(Global.SECTION_ID_START) && sectionIdString.endsWith(Global.SECTION_ID_END);
-	}
-	
-	public static Integer parseSectionId(String sectionIdString) {
-		if (isSectionId(sectionIdString)) {
-			return Integer.parseInt(sectionIdString.substring(Global.SECTION_ID_START.length(), sectionIdString.length() - Global.SECTION_ID_END.length()));
-		}
-		else {
-			return null;
-		}
-	}
-	
-	public static String sectionLabelString(String labelName) {
-		return Global.STATEMENT_LABEL_PREFIX + labelName;
-	}
-	
-	public static boolean isSectionLabel(String sectionLabelString) {
-		return sectionLabelString.startsWith(Global.STATEMENT_LABEL_PREFIX);
-	}
-	
-	public static String parseSectionLabel(String sectionLabelString) {
-		if (isSectionLabel(sectionLabelString)) {
-			return sectionLabelString.substring(Global.STATEMENT_LABEL_PREFIX.length());
-		}
-		else {
-			return null;
-		}
 	}
 	
 	public static String addAddressPrefix(String s) {

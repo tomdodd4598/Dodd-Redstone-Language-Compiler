@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
+import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.TypeInfo;
 
 public class ExtraRegDataId extends DataId {
@@ -26,48 +27,58 @@ public class ExtraRegDataId extends DataId {
 	}
 	
 	@Override
-	public ExtraRegDataId addAddressPrefix() {
+	public ExtraRegDataId addAddressPrefix(ASTNode<?, ?> node) {
 		if (dereferenceLevel == 0) {
-			return new ExtraRegDataId(-1, typeInfo.modifiedReferenceLevel(null, 1), regId);
+			return new ExtraRegDataId(-1, typeInfo.modifiedReferenceLevel(node, 1), regId);
 		}
 		else {
-			throw Helpers.nodeError(null, "Attempted to add address prefix to data ID \"%s\"!", this);
+			throw Helpers.nodeError(node, "Attempted to add address prefix to data ID \"%s\"!", this);
 		}
 	}
 	
 	@Override
-	public ExtraRegDataId removeAddressPrefix() {
+	public ExtraRegDataId removeAddressPrefix(ASTNode<?, ?> node) {
 		if (isAddress()) {
-			return new ExtraRegDataId(dereferenceLevel + 1, typeInfo.modifiedReferenceLevel(null, -1), regId);
+			return new ExtraRegDataId(dereferenceLevel + 1, typeInfo.modifiedReferenceLevel(node, -1), regId);
 		}
 		else {
-			throw Helpers.nodeError(null, "Attempted to remove address prefix from data ID \"%s\"!", this);
+			throw Helpers.nodeError(node, "Attempted to remove address prefix from data ID \"%s\"!", this);
 		}
 	}
 	
 	@Override
-	public ExtraRegDataId addDereference() {
-		return new ExtraRegDataId(dereferenceLevel + 1, typeInfo.modifiedReferenceLevel(null, -1), regId);
+	public ExtraRegDataId addDereference(ASTNode<?, ?> node) {
+		return new ExtraRegDataId(dereferenceLevel + 1, typeInfo.modifiedReferenceLevel(node, -1), regId);
 	}
 	
 	@Override
-	public ExtraRegDataId removeDereference() {
+	public ExtraRegDataId removeDereference(ASTNode<?, ?> node) {
 		if (!isDereferenced()) {
-			throw Helpers.nodeError(null, "Attempted to remove dereference from data ID \"%s\"!", this);
+			throw Helpers.nodeError(node, "Attempted to remove dereference from data ID \"%s\"!", this);
 		}
 		else {
-			return new ExtraRegDataId(dereferenceLevel - 1, typeInfo.modifiedReferenceLevel(null, 1), regId);
+			return new ExtraRegDataId(dereferenceLevel - 1, typeInfo.modifiedReferenceLevel(node, 1), regId);
 		}
 	}
 	
 	@Override
-	public ExtraRegDataId removeAllDereferences() {
+	public ExtraRegDataId removeAllDereferences(ASTNode<?, ?> node) {
 		if (isAddress()) {
-			throw Helpers.nodeError(null, "Attempted to remove all dereferences from data ID \"%s\"!", this);
+			throw Helpers.nodeError(node, "Attempted to remove all dereferences from data ID \"%s\"!", this);
 		}
 		else {
-			return new ExtraRegDataId(0, typeInfo.modifiedReferenceLevel(null, dereferenceLevel), regId);
+			return new ExtraRegDataId(0, typeInfo.modifiedReferenceLevel(node, dereferenceLevel), regId);
 		}
+	}
+	
+	@Override
+	public boolean isCompressable() {
+		return dereferenceLevel <= 0;
+	}
+	
+	@Override
+	public boolean isRepeatable() {
+		return false;
 	}
 	
 	@Override

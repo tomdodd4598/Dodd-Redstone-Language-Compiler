@@ -29,7 +29,7 @@ public class ArrayListExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode parent) {
+	public void setScopes(ASTNode<?, ?> parent) {
 		scope = parent.scope;
 		
 		for (ExpressionNode expressionNode : expressionNodes) {
@@ -38,14 +38,14 @@ public class ArrayListExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode parent) {
+	public void defineTypes(ASTNode<?, ?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.defineTypes(this);
 		}
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode parent) {
+	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 		
 		for (ExpressionNode expressionNode : expressionNodes) {
@@ -56,14 +56,14 @@ public class ArrayListExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void checkTypes(ASTNode parent) {
+	public void checkTypes(ASTNode<?, ?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.checkTypes(this);
 		}
 	}
 	
 	@Override
-	public void foldConstants(ASTNode parent) {
+	public void foldConstants(ASTNode<?, ?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.foldConstants(this);
 		}
@@ -77,7 +77,14 @@ public class ArrayListExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode parent) {
+	public void trackFunctions(ASTNode<?, ?> parent) {
+		for (ExpressionNode expressionNode : expressionNodes) {
+			expressionNode.trackFunctions(this);
+		}
+	}
+	
+	@Override
+	public void generateIntermediate(ASTNode<?, ?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.generateIntermediate(this);
 			

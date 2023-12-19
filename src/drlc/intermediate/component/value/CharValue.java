@@ -9,7 +9,7 @@ public class CharValue extends BasicValue {
 	
 	public final byte value;
 	
-	public CharValue(ASTNode node, char value) {
+	public CharValue(ASTNode<?, ?> node, char value) {
 		super(node, Main.generator.charTypeInfo);
 		this.value = (byte) value;
 	}

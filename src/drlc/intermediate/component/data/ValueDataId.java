@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
+import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.value.Value;
 
 public class ValueDataId extends DataId {
@@ -22,28 +23,38 @@ public class ValueDataId extends DataId {
 	}
 	
 	@Override
-	public ValueDataId addAddressPrefix() {
-		throw Helpers.nodeError(null, "Attempted to add address prefix to data ID \"%s\"!", this);
+	public ValueDataId addAddressPrefix(ASTNode<?, ?> node) {
+		throw Helpers.nodeError(node, "Attempted to add address prefix to data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public ValueDataId removeAddressPrefix() {
-		throw Helpers.nodeError(null, "Attempted to remove address prefix from data ID \"%s\"!", this);
+	public ValueDataId removeAddressPrefix(ASTNode<?, ?> node) {
+		throw Helpers.nodeError(node, "Attempted to remove address prefix from data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public ValueDataId addDereference() {
-		throw Helpers.nodeError(null, "Attempted to add dereference to data ID \"%s\"!", this);
+	public ValueDataId addDereference(ASTNode<?, ?> node) {
+		throw Helpers.nodeError(node, "Attempted to add dereference to data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public ValueDataId removeDereference() {
-		throw Helpers.nodeError(null, "Attempted to remove dereference from data ID \"%s\"!", this);
+	public ValueDataId removeDereference(ASTNode<?, ?> node) {
+		throw Helpers.nodeError(node, "Attempted to remove dereference from data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public ValueDataId removeAllDereferences() {
+	public ValueDataId removeAllDereferences(ASTNode<?, ?> node) {
 		return new ValueDataId(value);
+	}
+	
+	@Override
+	public boolean isCompressable() {
+		return false;
+	}
+	
+	@Override
+	public boolean isRepeatable() {
+		return true;
 	}
 	
 	@Override

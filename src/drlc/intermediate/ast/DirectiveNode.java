@@ -9,9 +9,11 @@ import drlc.intermediate.ast.expression.ExpressionNode;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
+import drlc.intermediate.routine.Routine;
+import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
-public class DirectiveNode extends ASTNode {
+public class DirectiveNode extends ASTNode<Scope, Routine> {
 	
 	public final @NonNull String name;
 	public final @NonNull List<ExpressionNode> constantExpressionNodes;
@@ -23,7 +25,7 @@ public class DirectiveNode extends ASTNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode parent) {
+	public void setScopes(ASTNode<?, ?> parent) {
 		for (ExpressionNode constantExpressionNode : constantExpressionNodes) {
 			constantExpressionNode.setScopes(this);
 		}
@@ -51,31 +53,36 @@ public class DirectiveNode extends ASTNode {
 			}
 		}
 		
-		directive.call(values);
+		directive.run(values);
 	}
 	
 	@Override
-	public void defineTypes(ASTNode parent) {
+	public void defineTypes(ASTNode<?, ?> parent) {
 		
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode parent) {
+	public void declareExpressions(ASTNode<?, ?> parent) {
 		
 	}
 	
 	@Override
-	public void checkTypes(ASTNode parent) {
+	public void checkTypes(ASTNode<?, ?> parent) {
 		
 	}
 	
 	@Override
-	public void foldConstants(ASTNode parent) {
+	public void foldConstants(ASTNode<?, ?> parent) {
 		
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode parent) {
+	public void trackFunctions(ASTNode<?, ?> parent) {
+		
+	}
+	
+	@Override
+	public void generateIntermediate(ASTNode<?, ?> parent) {
 		
 	}
 }

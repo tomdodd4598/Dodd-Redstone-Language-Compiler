@@ -5,7 +5,7 @@ import drlc.intermediate.component.data.DataId;
 
 public class BinaryBoolXorBoolAction extends BinaryOpAction {
 	
-	BinaryBoolXorBoolAction(ASTNode node, DataId target, DataId arg1, DataId arg2) {
+	BinaryBoolXorBoolAction(ASTNode<?, ?> node, DataId target, DataId arg1, DataId arg2) {
 		super(node, BinaryActionType.BOOL_XOR_BOOL, target, arg1, arg2);
 	}
 	

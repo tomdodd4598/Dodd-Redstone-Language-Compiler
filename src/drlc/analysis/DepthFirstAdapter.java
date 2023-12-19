@@ -313,48 +313,6 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outAIterativeSectionBasicSection(node);
     }
 
-    public void inAGotoStatementBasicSection(AGotoStatementBasicSection node)
-    {
-        defaultIn(node);
-    }
-
-    public void outAGotoStatementBasicSection(AGotoStatementBasicSection node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseAGotoStatementBasicSection(AGotoStatementBasicSection node)
-    {
-        inAGotoStatementBasicSection(node);
-        if(node.getGotoStatement() != null)
-        {
-            node.getGotoStatement().apply(this);
-        }
-        outAGotoStatementBasicSection(node);
-    }
-
-    public void inASectionLabelBasicSection(ASectionLabelBasicSection node)
-    {
-        defaultIn(node);
-    }
-
-    public void outASectionLabelBasicSection(ASectionLabelBasicSection node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseASectionLabelBasicSection(ASectionLabelBasicSection node)
-    {
-        inASectionLabelBasicSection(node);
-        if(node.getSectionLabel() != null)
-        {
-            node.getSectionLabel().apply(this);
-        }
-        outASectionLabelBasicSection(node);
-    }
-
     public void inAFunctionDefinition(AFunctionDefinition node)
     {
         defaultIn(node);
@@ -730,6 +688,10 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseALoopIterativeSection(ALoopIterativeSection node)
     {
         inALoopIterativeSection(node);
+        if(node.getIterativeSectionLabel() != null)
+        {
+            node.getIterativeSectionLabel().apply(this);
+        }
         if(node.getLoop() != null)
         {
             node.getLoop().apply(this);
@@ -763,6 +725,10 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAConditionalIterativeSection(AConditionalIterativeSection node)
     {
         inAConditionalIterativeSection(node);
+        if(node.getIterativeSectionLabel() != null)
+        {
+            node.getIterativeSectionLabel().apply(this);
+        }
         if(node.getConditionalIterativeKeyword() != null)
         {
             node.getConditionalIterativeKeyword().apply(this);
@@ -800,6 +766,10 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseADoConditionalIterativeSection(ADoConditionalIterativeSection node)
     {
         inADoConditionalIterativeSection(node);
+        if(node.getIterativeSectionLabel() != null)
+        {
+            node.getIterativeSectionLabel().apply(this);
+        }
         if(node.getDo() != null)
         {
             node.getDo().apply(this);
@@ -832,63 +802,6 @@ public class DepthFirstAdapter extends AnalysisAdapter
             }
         }
         outADoConditionalIterativeSection(node);
-    }
-
-    public void inAGotoStatement(AGotoStatement node)
-    {
-        defaultIn(node);
-    }
-
-    public void outAGotoStatement(AGotoStatement node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseAGotoStatement(AGotoStatement node)
-    {
-        inAGotoStatement(node);
-        if(node.getGoto() != null)
-        {
-            node.getGoto().apply(this);
-        }
-        if(node.getName() != null)
-        {
-            node.getName().apply(this);
-        }
-        {
-            List<TSemicolon> copy = new ArrayList<TSemicolon>(node.getSemicolon());
-            for(TSemicolon e : copy)
-            {
-                e.apply(this);
-            }
-        }
-        outAGotoStatement(node);
-    }
-
-    public void inASectionLabel(ASectionLabel node)
-    {
-        defaultIn(node);
-    }
-
-    public void outASectionLabel(ASectionLabel node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseASectionLabel(ASectionLabel node)
-    {
-        inASectionLabel(node);
-        if(node.getName() != null)
-        {
-            node.getName().apply(this);
-        }
-        if(node.getColon() != null)
-        {
-            node.getColon().apply(this);
-        }
-        outASectionLabel(node);
     }
 
     public void inAScopeContents(AScopeContents node)
@@ -937,6 +850,10 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getExit().apply(this);
         }
+        if(node.getExpression() != null)
+        {
+            node.getExpression().apply(this);
+        }
         {
             List<TSemicolon> copy = new ArrayList<TSemicolon>(node.getSemicolon());
             for(TSemicolon e : copy)
@@ -971,6 +888,10 @@ public class DepthFirstAdapter extends AnalysisAdapter
         if(node.getReturn() != null)
         {
             node.getReturn().apply(this);
+        }
+        if(node.getExpression() != null)
+        {
+            node.getExpression().apply(this);
         }
         {
             List<TSemicolon> copy = new ArrayList<TSemicolon>(node.getSemicolon());
@@ -1007,6 +928,10 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getContinue().apply(this);
         }
+        if(node.getName() != null)
+        {
+            node.getName().apply(this);
+        }
         {
             List<TSemicolon> copy = new ArrayList<TSemicolon>(node.getSemicolon());
             for(TSemicolon e : copy)
@@ -1042,6 +967,10 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getBreak().apply(this);
         }
+        if(node.getName() != null)
+        {
+            node.getName().apply(this);
+        }
         {
             List<TSemicolon> copy = new ArrayList<TSemicolon>(node.getSemicolon());
             for(TSemicolon e : copy)
@@ -1057,84 +986,6 @@ public class DepthFirstAdapter extends AnalysisAdapter
             }
         }
         outABreakStopStatement(node);
-    }
-
-    public void inAExitExpressionStopStatement(AExitExpressionStopStatement node)
-    {
-        defaultIn(node);
-    }
-
-    public void outAExitExpressionStopStatement(AExitExpressionStopStatement node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseAExitExpressionStopStatement(AExitExpressionStopStatement node)
-    {
-        inAExitExpressionStopStatement(node);
-        if(node.getExit() != null)
-        {
-            node.getExit().apply(this);
-        }
-        if(node.getExpression() != null)
-        {
-            node.getExpression().apply(this);
-        }
-        {
-            List<TSemicolon> copy = new ArrayList<TSemicolon>(node.getSemicolon());
-            for(TSemicolon e : copy)
-            {
-                e.apply(this);
-            }
-        }
-        {
-            List<PDeadSection> copy = new ArrayList<PDeadSection>(node.getDeadSection());
-            for(PDeadSection e : copy)
-            {
-                e.apply(this);
-            }
-        }
-        outAExitExpressionStopStatement(node);
-    }
-
-    public void inAReturnExpressionStopStatement(AReturnExpressionStopStatement node)
-    {
-        defaultIn(node);
-    }
-
-    public void outAReturnExpressionStopStatement(AReturnExpressionStopStatement node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseAReturnExpressionStopStatement(AReturnExpressionStopStatement node)
-    {
-        inAReturnExpressionStopStatement(node);
-        if(node.getReturn() != null)
-        {
-            node.getReturn().apply(this);
-        }
-        if(node.getExpression() != null)
-        {
-            node.getExpression().apply(this);
-        }
-        {
-            List<TSemicolon> copy = new ArrayList<TSemicolon>(node.getSemicolon());
-            for(TSemicolon e : copy)
-            {
-                e.apply(this);
-            }
-        }
-        {
-            List<PDeadSection> copy = new ArrayList<PDeadSection>(node.getDeadSection());
-            for(PDeadSection e : copy)
-            {
-                e.apply(this);
-            }
-        }
-        outAReturnExpressionStopStatement(node);
     }
 
     public void inADead0DeadSection(ADead0DeadSection node)
@@ -1725,6 +1576,31 @@ public class DepthFirstAdapter extends AnalysisAdapter
             node.getDiscard().apply(this);
         }
         outADiscardIdentifier(node);
+    }
+
+    public void inAIterativeSectionLabel(AIterativeSectionLabel node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAIterativeSectionLabel(AIterativeSectionLabel node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAIterativeSectionLabel(AIterativeSectionLabel node)
+    {
+        inAIterativeSectionLabel(node);
+        if(node.getName() != null)
+        {
+            node.getName().apply(this);
+        }
+        if(node.getColon() != null)
+        {
+            node.getColon().apply(this);
+        }
+        outAIterativeSectionLabel(node);
     }
 
     public void inAExpression(AExpression node)

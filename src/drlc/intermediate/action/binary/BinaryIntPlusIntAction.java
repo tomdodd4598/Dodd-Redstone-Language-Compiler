@@ -5,7 +5,7 @@ import drlc.intermediate.component.data.DataId;
 
 public class BinaryIntPlusIntAction extends BinaryOpAction {
 	
-	BinaryIntPlusIntAction(ASTNode node, DataId target, DataId arg1, DataId arg2) {
+	BinaryIntPlusIntAction(ASTNode<?, ?> node, DataId target, DataId arg1, DataId arg2) {
 		super(node, BinaryActionType.INT_PLUS_INT, target, arg1, arg2);
 	}
 	

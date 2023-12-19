@@ -5,7 +5,7 @@ import drlc.intermediate.component.data.DataId;
 
 public class BinaryCharLessOrEqualCharAction extends BinaryOpAction {
 	
-	BinaryCharLessOrEqualCharAction(ASTNode node, DataId target, DataId arg1, DataId arg2) {
+	BinaryCharLessOrEqualCharAction(ASTNode<?, ?> node, DataId target, DataId arg1, DataId arg2) {
 		super(node, BinaryActionType.CHAR_LESS_OR_EQUAL_CHAR, target, arg1, arg2);
 	}
 	

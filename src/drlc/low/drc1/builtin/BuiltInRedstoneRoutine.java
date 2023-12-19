@@ -1,21 +1,28 @@
 package drlc.low.drc1.builtin;
 
+import java.util.List;
+
+import drlc.Main;
 import drlc.intermediate.component.DeclaratorInfo;
-import drlc.intermediate.routine.RoutineCallType;
+import drlc.intermediate.routine.*;
 import drlc.low.drc1.*;
 
 public abstract class BuiltInRedstoneRoutine extends RedstoneRoutine {
 	
 	protected RoutineCallType type;
 	
-	public BuiltInRedstoneRoutine(RedstoneCode code, String name, RoutineCallType type, DeclaratorInfo[] params) {
+	public BuiltInRedstoneRoutine(RedstoneCode code, String name, RoutineCallType type, List<DeclaratorInfo> params) {
 		super(code, name, type, params);
 		this.type = type;
 		mapParams();
 	}
 	
+	private BuiltInRedstoneRoutine(RedstoneCode code, FunctionRoutine routine) {
+		this(code, routine.name, routine.getType(), routine.getParams());
+	}
+	
 	public BuiltInRedstoneRoutine(RedstoneCode code, String name) {
-		this(code, name, code.program.builtInRoutineMap.get(name).getType(), code.generator.builtInFunctionMap.get(name).params);
+		this(code, Main.program.builtInRoutineMap.get(name));
 	}
 	
 	@Override

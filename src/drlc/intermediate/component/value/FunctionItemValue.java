@@ -11,7 +11,7 @@ public class FunctionItemValue extends Value {
 	
 	public final String name;
 	
-	public FunctionItemValue(ASTNode node, @NonNull FunctionItemTypeInfo typeInfo, String name) {
+	public FunctionItemValue(ASTNode<?, ?> node, @NonNull FunctionItemTypeInfo typeInfo, String name) {
 		super(node, typeInfo);
 		this.name = name;
 	}

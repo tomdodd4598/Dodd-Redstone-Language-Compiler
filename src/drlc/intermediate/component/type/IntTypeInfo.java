@@ -8,16 +8,16 @@ import drlc.intermediate.scope.Scope;
 
 public class IntTypeInfo extends BasicTypeInfo {
 	
-	protected IntTypeInfo(ASTNode node, @NonNull RawType rawType, int referenceLevel) {
+	protected IntTypeInfo(ASTNode<?, ?> node, @NonNull RawType rawType, int referenceLevel) {
 		super(node, rawType, referenceLevel);
 	}
 	
-	public IntTypeInfo(ASTNode node, Scope scope, int referenceLevel) {
+	public IntTypeInfo(ASTNode<?, ?> node, Scope scope, int referenceLevel) {
 		super(node, scope, Global.INT, referenceLevel);
 	}
 	
 	@Override
-	public @NonNull TypeInfo copy(ASTNode node, int newReferenceLevel) {
+	public @NonNull TypeInfo copy(ASTNode<?, ?> node, int newReferenceLevel) {
 		return new IntTypeInfo(node, rawType, newReferenceLevel);
 	}
 	

@@ -2,7 +2,7 @@ package drlc.intermediate.action.unary;
 
 import java.util.Map;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.action.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.data.*;
@@ -12,24 +12,24 @@ public abstract class UnaryOpAction extends Action implements IValueAction {
 	public final UnaryActionType type;
 	public final DataId target, arg;
 	
-	protected UnaryOpAction(ASTNode node, UnaryActionType type, DataId target, DataId arg) {
+	protected UnaryOpAction(ASTNode<?, ?> node, UnaryActionType type, DataId target, DataId arg) {
 		super(node);
 		if (type == null) {
-			throw node.error("Unary op action type was null!");
+			throw Helpers.nodeError(node, "Unary op action type was null!");
 		}
 		else {
 			this.type = type;
 		}
 		
 		if (target == null) {
-			throw node.error("Unary op action target was null!");
+			throw Helpers.nodeError(node, "Unary op action target was null!");
 		}
 		else {
 			this.target = target;
 		}
 		
 		if (arg == null) {
-			throw node.error("Unary op action argument was null!");
+			throw Helpers.nodeError(node, "Unary op action argument was null!");
 		}
 		else {
 			this.arg = arg;
@@ -64,7 +64,7 @@ public abstract class UnaryOpAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRegRvalue(long targetId, DataId rvalueReplacer) {
+	public UnaryOpAction replaceRvalue(DataId targetId, DataId rvalueReplacer) {
 		return copy(target, rvalueReplacer);
 	}
 	
@@ -79,13 +79,13 @@ public abstract class UnaryOpAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRegLvalue(long targetId, DataId lvalueReplacer) {
+	public UnaryOpAction replaceLvalue(DataId targetId, DataId lvalueReplacer) {
 		return copy(lvalueReplacer, arg);
 	}
 	
 	@Override
 	public Action setTransientLvalue() {
-		return copy(target.getTransient(), arg);
+		return copy(target.getTransient(null), arg);
 	}
 	
 	@Override
@@ -110,7 +110,7 @@ public abstract class UnaryOpAction extends Action implements IValueAction {
 	
 	@Override
 	public Action replaceRegIds(Map<Long, Long> regIdMap) {
-		RegReplaceResult targetResult = replaceRegId(target, regIdMap), argResult = replaceRegId(arg, regIdMap);
+		DataIdReplaceResult targetResult = replaceRegId(target, regIdMap), argResult = replaceRegId(arg, regIdMap);
 		if (targetResult.success || argResult.success) {
 			return copy(targetResult.dataId, argResult.dataId);
 		}

@@ -5,7 +5,7 @@ import drlc.intermediate.component.data.DataId;
 
 public class BinaryIntMoreThanIntAction extends BinaryOpAction {
 	
-	BinaryIntMoreThanIntAction(ASTNode node, DataId target, DataId arg1, DataId arg2) {
+	BinaryIntMoreThanIntAction(ASTNode<?, ?> node, DataId target, DataId arg1, DataId arg2) {
 		super(node, BinaryActionType.INT_MORE_THAN_INT, target, arg1, arg2);
 	}
 	

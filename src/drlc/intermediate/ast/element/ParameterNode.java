@@ -6,9 +6,11 @@ import drlc.Global;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.type.TypeNode;
 import drlc.intermediate.component.*;
+import drlc.intermediate.routine.Routine;
+import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
-public class ParameterNode extends ASTNode {
+public class ParameterNode extends ASTNode<Scope, Routine> {
 	
 	public final @NonNull VariableModifier variableModifier;
 	public final @Nullable String name;
@@ -27,19 +29,19 @@ public class ParameterNode extends ASTNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode parent) {
+	public void setScopes(ASTNode<?, ?> parent) {
 		scope = parent.scope;
 		
 		typeNode.setScopes(this);
 	}
 	
 	@Override
-	public void defineTypes(ASTNode parent) {
+	public void defineTypes(ASTNode<?, ?> parent) {
 		typeNode.defineTypes(this);
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode parent) {
+	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 		
 		typeNode.declareExpressions(this);
@@ -48,17 +50,22 @@ public class ParameterNode extends ASTNode {
 	}
 	
 	@Override
-	public void checkTypes(ASTNode parent) {
+	public void checkTypes(ASTNode<?, ?> parent) {
 		typeNode.checkTypes(this);
 	}
 	
 	@Override
-	public void foldConstants(ASTNode parent) {
+	public void foldConstants(ASTNode<?, ?> parent) {
 		typeNode.foldConstants(this);
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode parent) {
+	public void trackFunctions(ASTNode<?, ?> parent) {
+		typeNode.trackFunctions(this);
+	}
+	
+	@Override
+	public void generateIntermediate(ASTNode<?, ?> parent) {
 		typeNode.generateIntermediate(this);
 	}
 	

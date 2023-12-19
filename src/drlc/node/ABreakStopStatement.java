@@ -9,6 +9,7 @@ import drlc.analysis.*;
 public final class ABreakStopStatement extends PStopStatement
 {
     private TBreak _break_;
+    private TName _name_;
     private final LinkedList<TSemicolon> _semicolon_ = new LinkedList<TSemicolon>();
     private final LinkedList<PDeadSection> _deadSection_ = new LinkedList<PDeadSection>();
 
@@ -19,11 +20,14 @@ public final class ABreakStopStatement extends PStopStatement
 
     public ABreakStopStatement(
         @SuppressWarnings("hiding") TBreak _break_,
+        @SuppressWarnings("hiding") TName _name_,
         @SuppressWarnings("hiding") List<?> _semicolon_,
         @SuppressWarnings("hiding") List<?> _deadSection_)
     {
         // Constructor
         setBreak(_break_);
+
+        setName(_name_);
 
         setSemicolon(_semicolon_);
 
@@ -36,6 +40,7 @@ public final class ABreakStopStatement extends PStopStatement
     {
         return new ABreakStopStatement(
             cloneNode(this._break_),
+            cloneNode(this._name_),
             cloneList(this._semicolon_),
             cloneList(this._deadSection_));
     }
@@ -69,6 +74,31 @@ public final class ABreakStopStatement extends PStopStatement
         }
 
         this._break_ = node;
+    }
+
+    public TName getName()
+    {
+        return this._name_;
+    }
+
+    public void setName(TName node)
+    {
+        if(this._name_ != null)
+        {
+            this._name_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._name_ = node;
     }
 
     public LinkedList<TSemicolon> getSemicolon()
@@ -128,6 +158,7 @@ public final class ABreakStopStatement extends PStopStatement
     {
         return ""
             + toString(this._break_)
+            + toString(this._name_)
             + toString(this._semicolon_)
             + toString(this._deadSection_);
     }
@@ -139,6 +170,12 @@ public final class ABreakStopStatement extends PStopStatement
         if(this._break_ == child)
         {
             this._break_ = null;
+            return;
+        }
+
+        if(this._name_ == child)
+        {
+            this._name_ = null;
             return;
         }
 
@@ -162,6 +199,12 @@ public final class ABreakStopStatement extends PStopStatement
         if(this._break_ == oldChild)
         {
             setBreak((TBreak) newChild);
+            return;
+        }
+
+        if(this._name_ == oldChild)
+        {
+            setName((TName) newChild);
             return;
         }
 

@@ -1,5 +1,7 @@
 package drlc.intermediate.component.type;
 
+import java.util.Objects;
+
 import org.eclipse.jdt.annotation.*;
 
 import drlc.*;
@@ -13,20 +15,23 @@ public class ArrayTypeInfo extends TypeInfo {
 	
 	public final @NonNull TypeInfo decayTypeInfo;
 	
-	public ArrayTypeInfo(ASTNode node, int referenceLevel, @NonNull TypeInfo elementTypeInfo, int length) {
+	public ArrayTypeInfo(ASTNode<?, ?> node, int referenceLevel, @NonNull TypeInfo elementTypeInfo, int length) {
 		super(node, referenceLevel);
 		this.elementTypeInfo = elementTypeInfo;
-		
-		if (length < 0) {
-			throw node.error("Length of array type can not be negative!");
-		}
 		this.length = length;
 		
 		decayTypeInfo = elementTypeInfo.modifiedReferenceLevel(node, referenceLevel);
+		
+		if (referenceLevel < 0) {
+			throw Helpers.nodeError(node, "Reference level of array type \"%s\" can not be negative!", rawString());
+		}
+		if (length < 0) {
+			throw Helpers.nodeError(node, "Length of array type \"%s\" can not be negative!", rawString());
+		}
 	}
 	
 	@Override
-	public @NonNull TypeInfo copy(ASTNode node, int newReferenceLevel) {
+	public @NonNull TypeInfo copy(ASTNode<?, ?> node, int newReferenceLevel) {
 		return new ArrayTypeInfo(node, newReferenceLevel, elementTypeInfo, length);
 	}
 	
@@ -62,6 +67,11 @@ public class ArrayTypeInfo extends TypeInfo {
 	@Override
 	public boolean isArray() {
 		return !isAddress();
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(referenceLevel, elementTypeInfo, length);
 	}
 	
 	@Override

@@ -5,7 +5,7 @@ import drlc.intermediate.component.data.DataId;
 
 public class BinaryIntLeftRotateIntAction extends BinaryOpAction {
 	
-	BinaryIntLeftRotateIntAction(ASTNode node, DataId target, DataId arg1, DataId arg2) {
+	BinaryIntLeftRotateIntAction(ASTNode<?, ?> node, DataId target, DataId arg1, DataId arg2) {
 		super(node, BinaryActionType.INT_LEFT_ROTATE_INT, target, arg1, arg2);
 	}
 	

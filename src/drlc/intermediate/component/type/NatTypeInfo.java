@@ -8,16 +8,16 @@ import drlc.intermediate.scope.Scope;
 
 public class NatTypeInfo extends BasicTypeInfo {
 	
-	protected NatTypeInfo(ASTNode node, @NonNull RawType rawType, int referenceLevel) {
+	protected NatTypeInfo(ASTNode<?, ?> node, @NonNull RawType rawType, int referenceLevel) {
 		super(node, rawType, referenceLevel);
 	}
 	
-	public NatTypeInfo(ASTNode node, Scope scope, int referenceLevel) {
+	public NatTypeInfo(ASTNode<?, ?> node, Scope scope, int referenceLevel) {
 		super(node, scope, Global.NAT, referenceLevel);
 	}
 	
 	@Override
-	public @NonNull TypeInfo copy(ASTNode node, int newReferenceLevel) {
+	public @NonNull TypeInfo copy(ASTNode<?, ?> node, int newReferenceLevel) {
 		return new NatTypeInfo(node, rawType, newReferenceLevel);
 	}
 	

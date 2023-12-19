@@ -7,6 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class ALoopIterativeSection extends PIterativeSection
 {
+    private PIterativeSectionLabel _iterativeSectionLabel_;
     private TLoop _loop_;
     private TLBrace _lBrace_;
     private PScopeContents _scopeContents_;
@@ -18,12 +19,15 @@ public final class ALoopIterativeSection extends PIterativeSection
     }
 
     public ALoopIterativeSection(
+        @SuppressWarnings("hiding") PIterativeSectionLabel _iterativeSectionLabel_,
         @SuppressWarnings("hiding") TLoop _loop_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
         @SuppressWarnings("hiding") PScopeContents _scopeContents_,
         @SuppressWarnings("hiding") TRBrace _rBrace_)
     {
         // Constructor
+        setIterativeSectionLabel(_iterativeSectionLabel_);
+
         setLoop(_loop_);
 
         setLBrace(_lBrace_);
@@ -38,6 +42,7 @@ public final class ALoopIterativeSection extends PIterativeSection
     public Object clone()
     {
         return new ALoopIterativeSection(
+            cloneNode(this._iterativeSectionLabel_),
             cloneNode(this._loop_),
             cloneNode(this._lBrace_),
             cloneNode(this._scopeContents_),
@@ -48,6 +53,31 @@ public final class ALoopIterativeSection extends PIterativeSection
     public void apply(Switch sw)
     {
         ((Analysis) sw).caseALoopIterativeSection(this);
+    }
+
+    public PIterativeSectionLabel getIterativeSectionLabel()
+    {
+        return this._iterativeSectionLabel_;
+    }
+
+    public void setIterativeSectionLabel(PIterativeSectionLabel node)
+    {
+        if(this._iterativeSectionLabel_ != null)
+        {
+            this._iterativeSectionLabel_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._iterativeSectionLabel_ = node;
     }
 
     public TLoop getLoop()
@@ -154,6 +184,7 @@ public final class ALoopIterativeSection extends PIterativeSection
     public String toString()
     {
         return ""
+            + toString(this._iterativeSectionLabel_)
             + toString(this._loop_)
             + toString(this._lBrace_)
             + toString(this._scopeContents_)
@@ -164,6 +195,12 @@ public final class ALoopIterativeSection extends PIterativeSection
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
+        if(this._iterativeSectionLabel_ == child)
+        {
+            this._iterativeSectionLabel_ = null;
+            return;
+        }
+
         if(this._loop_ == child)
         {
             this._loop_ = null;
@@ -195,6 +232,12 @@ public final class ALoopIterativeSection extends PIterativeSection
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
+        if(this._iterativeSectionLabel_ == oldChild)
+        {
+            setIterativeSectionLabel((PIterativeSectionLabel) newChild);
+            return;
+        }
+
         if(this._loop_ == oldChild)
         {
             setLoop((TLoop) newChild);

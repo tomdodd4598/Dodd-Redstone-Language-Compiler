@@ -24,8 +24,6 @@ public interface Analysis extends Switch
     void caseAExpressionStatementBasicSection(AExpressionStatementBasicSection node);
     void caseAConditionalSectionBasicSection(AConditionalSectionBasicSection node);
     void caseAIterativeSectionBasicSection(AIterativeSectionBasicSection node);
-    void caseAGotoStatementBasicSection(AGotoStatementBasicSection node);
-    void caseASectionLabelBasicSection(ASectionLabelBasicSection node);
     void caseAFunctionDefinition(AFunctionDefinition node);
     void caseAScopedSection(AScopedSection node);
     void caseAConstantDefinition(AConstantDefinition node);
@@ -39,15 +37,11 @@ public interface Analysis extends Switch
     void caseALoopIterativeSection(ALoopIterativeSection node);
     void caseAConditionalIterativeSection(AConditionalIterativeSection node);
     void caseADoConditionalIterativeSection(ADoConditionalIterativeSection node);
-    void caseAGotoStatement(AGotoStatement node);
-    void caseASectionLabel(ASectionLabel node);
     void caseAScopeContents(AScopeContents node);
     void caseAExitStopStatement(AExitStopStatement node);
     void caseAReturnStopStatement(AReturnStopStatement node);
     void caseAContinueStopStatement(AContinueStopStatement node);
     void caseABreakStopStatement(ABreakStopStatement node);
-    void caseAExitExpressionStopStatement(AExitExpressionStopStatement node);
-    void caseAReturnExpressionStopStatement(AReturnExpressionStopStatement node);
     void caseADead0DeadSection(ADead0DeadSection node);
     void caseADead1DeadSection(ADead1DeadSection node);
     void caseADead2DeadSection(ADead2DeadSection node);
@@ -69,6 +63,7 @@ public interface Analysis extends Switch
     void caseAParameterDeclarator(AParameterDeclarator node);
     void caseANameIdentifier(ANameIdentifier node);
     void caseADiscardIdentifier(ADiscardIdentifier node);
+    void caseAIterativeSectionLabel(AIterativeSectionLabel node);
     void caseAExpression(AExpression node);
     void caseAConstantExpression(AConstantExpression node);
     void caseAAssignmentExpression(AAssignmentExpression node);
@@ -151,7 +146,6 @@ public interface Analysis extends Switch
     void caseTLoop(TLoop node);
     void caseTConditionalIterativeKeyword(TConditionalIterativeKeyword node);
     void caseTDo(TDo node);
-    void caseTGoto(TGoto node);
     void caseTExit(TExit node);
     void caseTReturn(TReturn node);
     void caseTContinue(TContinue node);

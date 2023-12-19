@@ -5,17 +5,12 @@ import drlc.intermediate.ast.ASTNode;
 
 public class ConditionalJumpAction extends Action implements IJumpAction {
 	
-	public final String target;
+	protected int target;
 	public final boolean jumpCondition;
 	
-	public ConditionalJumpAction(ASTNode node, String target, boolean jumpCondition) {
+	public ConditionalJumpAction(ASTNode<?, ?> node, int target, boolean jumpCondition) {
 		super(node);
-		if (target == null) {
-			throw node.error("Conditional jump action target was null!");
-		}
-		else {
-			this.target = target;
-		}
+		this.target = target;
 		this.jumpCondition = jumpCondition;
 	}
 	
@@ -25,17 +20,21 @@ public class ConditionalJumpAction extends Action implements IJumpAction {
 	}
 	
 	@Override
-	public String getTarget() {
+	public int getTarget() {
 		return target;
 	}
 	
+	public void setTarget(int target) {
+		this.target = target;
+	}
+	
 	@Override
-	public ConditionalJumpAction copy(String target) {
+	public ConditionalJumpAction copy(int target) {
 		return new ConditionalJumpAction(null, target, jumpCondition);
 	}
 	
 	@Override
 	public String toString() {
-		return (jumpCondition ? Global.CONDITIONAL_JUMP : Global.CONDITIONAL_NOT_JUMP) + ' ' + target;
+		return (jumpCondition ? Global.CONDITIONAL_JUMP : Global.CONDITIONAL_NOT_JUMP) + ' ' + getTarget();
 	}
 }

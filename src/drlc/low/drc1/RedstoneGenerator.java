@@ -1,5 +1,7 @@
 package drlc.low.drc1;
 
+import java.util.ArrayList;
+
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
@@ -16,24 +18,24 @@ public abstract class RedstoneGenerator extends Generator {
 	}
 	
 	@Override
-	public void addBuiltInDirectives(ASTNode node) {
+	public void addBuiltInDirectives() {
 		directiveMap.put(Global.SETARGC, new Directive(1, Helpers.array(Helpers.builtInParam("x", intTypeInfo))) {
 			
 			@Override
-			public void call(Value[] values) {
-				program.rootScope.addConstant(node, new Constant(Global.ARGC, values[0]), true);
+			public void run(@NonNull Value[] values) {
+				Main.rootScope.addConstant(null, new Constant(Global.ARGC, values[0]), true);
 			}
 		});
 	}
 	
 	@Override
-	public void addBuiltInConstants(ASTNode node) {
-		super.addBuiltInConstants(node);
-		program.rootScope.addConstant(node, new Constant(Global.ARGC, intValue(0)), false);
+	public void addBuiltInConstants() {
+		super.addBuiltInConstants();
+		Main.rootScope.addConstant(null, new Constant(Global.ARGC, intValue(0)), false);
 	}
 	
 	@Override
-	public @NonNull Value intIntBinaryOp(ASTNode node, IntValue left, @NonNull BinaryOpType opType, WordValue right) {
+	public @NonNull Value intIntBinaryOp(ASTNode<?, ?> node, IntValue left, @NonNull BinaryOpType opType, IntValue right) {
 		short leftShort = left.shortValue(node), rightShort = right.shortValue(node);
 		switch (opType) {
 			case EQUAL_TO:
@@ -78,7 +80,7 @@ public abstract class RedstoneGenerator extends Generator {
 	}
 	
 	@Override
-	public @NonNull Value natNatBinaryOp(ASTNode node, NatValue left, @NonNull BinaryOpType opType, WordValue right) {
+	public @NonNull Value natNatBinaryOp(ASTNode<?, ?> node, NatValue left, @NonNull BinaryOpType opType, NatValue right) {
 		short leftShort = left.shortValue(node), rightShort = right.shortValue(node);
 		switch (opType) {
 			case EQUAL_TO:
@@ -123,7 +125,7 @@ public abstract class RedstoneGenerator extends Generator {
 	}
 	
 	@Override
-	public @NonNull Value intUnaryOp(ASTNode node, @NonNull UnaryOpType opType, @NonNull IntValue value) {
+	public @NonNull Value intUnaryOp(ASTNode<?, ?> node, @NonNull UnaryOpType opType, @NonNull IntValue value) {
 		short shortValue = value.shortValue(node);
 		switch (opType) {
 			case MINUS:
@@ -136,7 +138,7 @@ public abstract class RedstoneGenerator extends Generator {
 	}
 	
 	@Override
-	public @NonNull Value natUnaryOp(ASTNode node, @NonNull UnaryOpType opType, @NonNull NatValue value) {
+	public @NonNull Value natUnaryOp(ASTNode<?, ?> node, @NonNull UnaryOpType opType, @NonNull NatValue value) {
 		short shortValue = value.shortValue(node);
 		switch (opType) {
 			case MINUS:
@@ -173,7 +175,7 @@ public abstract class RedstoneGenerator extends Generator {
 		return getWordSize();
 	}
 	
-	public static String rootParamString(int rootParamIndex) {
+	public static @NonNull String rootParamString(int rootParamIndex) {
 		return Global.ARGV_PARAM + rootParamIndex;
 	}
 	
@@ -191,20 +193,20 @@ public abstract class RedstoneGenerator extends Generator {
 	}
 	
 	public DataId rootParamDataId(RootRoutine routine, int rootParamIndex) {
-		return new VariableDataId(0, routine.params[rootParamIndex].variable);
+		return new VariableDataId(0, routine.params.get(rootParamIndex).variable);
 	}
 	
 	@Override
 	public void generateRootParams(RootRoutine routine) {
-		int argc = program.rootScope.getConstant(null, Global.ARGC).value.intValue(null);
-		routine.params = new DeclaratorInfo[argc];
+		int argc = Main.rootScope.getConstant(null, Global.ARGC).value.intValue(null);
+		routine.params = new ArrayList<>();
 		for (int i = 0; i < argc; ++i) {
-			routine.params[i] = new DeclaratorInfo(null, new Variable(rootParamString(i), VariableModifier.ROOT_PARAM, intTypeInfo));
+			routine.params.add(new DeclaratorInfo(null, new Variable(rootParamString(i), VariableModifier.ROOT_PARAM, intTypeInfo)));
 		}
 	}
 	
 	public RedstoneCode generateCode() {
-		RedstoneCode code = new RedstoneCode(this, program);
+		RedstoneCode code = new RedstoneCode(this);
 		code.generate();
 		return code;
 	}

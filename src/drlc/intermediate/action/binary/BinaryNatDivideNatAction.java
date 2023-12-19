@@ -5,7 +5,7 @@ import drlc.intermediate.component.data.DataId;
 
 public class BinaryNatDivideNatAction extends BinaryOpAction {
 	
-	BinaryNatDivideNatAction(ASTNode node, DataId target, DataId arg1, DataId arg2) {
+	BinaryNatDivideNatAction(ASTNode<?, ?> node, DataId target, DataId arg1, DataId arg2) {
 		super(node, BinaryActionType.NAT_DIVIDE_NAT, target, arg1, arg2);
 	}
 	

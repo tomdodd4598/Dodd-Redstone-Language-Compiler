@@ -1,6 +1,6 @@
 package drlc.intermediate.ast.expression;
 
-import org.eclipse.jdt.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.Main;
 import drlc.intermediate.ast.ASTNode;
@@ -22,19 +22,19 @@ public class SizeofExpressionNode extends ConstantExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode parent) {
+	public void setScopes(ASTNode<?, ?> parent) {
 		scope = parent.scope;
 		
 		typeNode.setScopes(this);
 	}
 	
 	@Override
-	public void defineTypes(ASTNode parent) {
+	public void defineTypes(ASTNode<?, ?> parent) {
 		typeNode.defineTypes(this);
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode parent) {
+	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 		
 		typeNode.declareExpressions(this);
@@ -43,19 +43,22 @@ public class SizeofExpressionNode extends ConstantExpressionNode {
 	}
 	
 	@Override
-	public void checkTypes(ASTNode parent) {
+	public void checkTypes(ASTNode<?, ?> parent) {
 		typeNode.checkTypes(this);
 	}
 	
 	@Override
-	public void foldConstants(ASTNode parent) {
+	public void foldConstants(ASTNode<?, ?> parent) {
 		typeNode.foldConstants(this);
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode parent) {
-		typeNode.generateIntermediate(this);
-		
+	public void trackFunctions(ASTNode<?, ?> parent) {
+		typeNode.trackFunctions(this);
+	}
+	
+	@Override
+	public void generateIntermediate(ASTNode<?, ?> parent) {
 		routine.incrementRegId(Main.generator.intTypeInfo);
 		routine.addImmediateRegisterAssignmentAction(this, value);
 	}
@@ -71,7 +74,7 @@ public class SizeofExpressionNode extends ConstantExpressionNode {
 	}
 	
 	@Override
-	protected @Nullable Value getConstantValueInternal() {
+	protected @NonNull Value getConstantValueInternal() {
 		return value;
 	}
 	

@@ -5,17 +5,17 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class ASectionLabel extends PSectionLabel
+public final class AIterativeSectionLabel extends PIterativeSectionLabel
 {
     private TName _name_;
     private TColon _colon_;
 
-    public ASectionLabel()
+    public AIterativeSectionLabel()
     {
         // Constructor
     }
 
-    public ASectionLabel(
+    public AIterativeSectionLabel(
         @SuppressWarnings("hiding") TName _name_,
         @SuppressWarnings("hiding") TColon _colon_)
     {
@@ -29,7 +29,7 @@ public final class ASectionLabel extends PSectionLabel
     @Override
     public Object clone()
     {
-        return new ASectionLabel(
+        return new AIterativeSectionLabel(
             cloneNode(this._name_),
             cloneNode(this._colon_));
     }
@@ -37,7 +37,7 @@ public final class ASectionLabel extends PSectionLabel
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseASectionLabel(this);
+        ((Analysis) sw).caseAIterativeSectionLabel(this);
     }
 
     public TName getName()

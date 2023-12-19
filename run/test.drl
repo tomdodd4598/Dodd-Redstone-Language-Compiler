@@ -1,21 +1,8 @@
 // ITERATIVE FACTORIAL
 
-/*
-let f: Int = 1;
-let a: Int = 1;
-let b: Int = 1;
 
-fn update() {
-	f = a * b;
-	b += 1;
-	a = f;
-}
-
-while f > 0 {
-	outint(f);
-	update();
-}
-*/
+let x: &Int = &1;
+x[0] = 1;
 
 // RECURSIVE FACTORIAL
 
@@ -64,7 +51,7 @@ while f > 0 {
 
 // RECURSIVE FIBONACCI
 
-///*
+/*
 %! setargc 2;
 
 let f: Int = argv(0);
@@ -86,7 +73,7 @@ while f > 0 {
 	outint(f);
 	update();
 }
-//*/
+*/
 
 // PRIME NUMBERS
 
@@ -435,40 +422,6 @@ fn outbool(b: Bool) {
 }
 */
 
-// TESTING PREPROCESSOR
-
-/*
-%! setargc 2;
-
-#def FIBONACCI
-#def FN_TYPE (Int) -> Int #enddef
-
-let f: Int = argv(0);
-let i: Int = 0;
-
-let fib_func: fn FN_TYPE = fib;
-
-fn fib(n: Int) -> Int {
-	if n <= 1 {
-		return argv(n);
-	}
-	return fib(n - 1) + fib(n - 2);
-}
-
-fn update() {
-	i += 1;
-	f = fib_func(i);
-}
-
-while f > 0 {
-	outint(f);
-	update();
-}
-#enddef
-
-FIBONACCI
-*/
-
 // TESTING ARRAYS
 
 /*
@@ -481,15 +434,4 @@ let arr: [[&Int; 2]; 3] = [[&a, &b], [&b, &c], [&c, &a]]; // Initialise array of
 let ptr: &[&Int; 2] = &arr[a]; // Initialise pointer to arrays of integer pointers
 
 let num: Int = *ptr[1][2]; // Get an integer from the indexing the pointer, then indexing the array, and dereferencing the element
-*/
-
-// LINKED LIST
-
-/*
-fn insert_item(start: &&Item, val: &String) {
-	while *start != null && !insert_before(val, start.value) {
-		start = &start.next;
-	}
-	*start = new Item(val, *start);
-}\
 */

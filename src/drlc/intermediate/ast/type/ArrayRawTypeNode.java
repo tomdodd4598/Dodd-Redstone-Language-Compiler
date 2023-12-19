@@ -23,7 +23,7 @@ public class ArrayRawTypeNode extends RawTypeNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode parent) {
+	public void setScopes(ASTNode<?, ?> parent) {
 		scope = parent.scope;
 		
 		typeNode.setScopes(this);
@@ -31,7 +31,7 @@ public class ArrayRawTypeNode extends RawTypeNode {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode parent) {
+	public void defineTypes(ASTNode<?, ?> parent) {
 		typeNode.defineTypes(this);
 		
 		@Nullable Value constantValue = constantExpressionNode.getConstantValue();
@@ -47,7 +47,7 @@ public class ArrayRawTypeNode extends RawTypeNode {
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode parent) {
+	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 		
 		typeNode.declareExpressions(this);
@@ -56,17 +56,22 @@ public class ArrayRawTypeNode extends RawTypeNode {
 	}
 	
 	@Override
-	public void checkTypes(ASTNode parent) {
+	public void checkTypes(ASTNode<?, ?> parent) {
 		typeNode.checkTypes(this);
 	}
 	
 	@Override
-	public void foldConstants(ASTNode parent) {
+	public void foldConstants(ASTNode<?, ?> parent) {
 		typeNode.foldConstants(this);
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode parent) {
+	public void trackFunctions(ASTNode<?, ?> parent) {
+		typeNode.trackFunctions(this);
+	}
+	
+	@Override
+	public void generateIntermediate(ASTNode<?, ?> parent) {
 		typeNode.generateIntermediate(this);
 	}
 	

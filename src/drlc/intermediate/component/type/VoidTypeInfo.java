@@ -8,16 +8,16 @@ import drlc.intermediate.scope.Scope;
 
 public class VoidTypeInfo extends BasicTypeInfo {
 	
-	protected VoidTypeInfo(ASTNode node, @NonNull RawType type, int referenceLevel) {
+	protected VoidTypeInfo(ASTNode<?, ?> node, @NonNull RawType type, int referenceLevel) {
 		super(node, type, referenceLevel);
 	}
 	
-	public VoidTypeInfo(ASTNode node, Scope scope, int referenceLevel) {
+	public VoidTypeInfo(ASTNode<?, ?> node, Scope scope, int referenceLevel) {
 		super(node, scope, Global.VOID, referenceLevel);
 	}
 	
 	@Override
-	public @NonNull TypeInfo copy(ASTNode node, int newReferenceLevel) {
+	public @NonNull TypeInfo copy(ASTNode<?, ?> node, int newReferenceLevel) {
 		return new VoidTypeInfo(node, rawType, newReferenceLevel);
 	}
 	
@@ -27,7 +27,7 @@ public class VoidTypeInfo extends BasicTypeInfo {
 	}
 	
 	@Override
-	public int getAddressOffsetSize(ASTNode node) {
+	public int getAddressOffsetSize(ASTNode<?, ?> node) {
 		return equals(Main.generator.wildcardPtrTypeInfo) ? 1 : super.getAddressOffsetSize(node);
 	}
 	

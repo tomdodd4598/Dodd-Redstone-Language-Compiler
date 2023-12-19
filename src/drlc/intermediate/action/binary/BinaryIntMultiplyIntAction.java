@@ -5,7 +5,7 @@ import drlc.intermediate.component.data.DataId;
 
 public class BinaryIntMultiplyIntAction extends BinaryOpAction {
 	
-	BinaryIntMultiplyIntAction(ASTNode node, DataId target, DataId arg1, DataId arg2) {
+	BinaryIntMultiplyIntAction(ASTNode<?, ?> node, DataId target, DataId arg1, DataId arg2) {
 		super(node, BinaryActionType.INT_MULTIPLY_INT, target, arg1, arg2);
 	}
 	

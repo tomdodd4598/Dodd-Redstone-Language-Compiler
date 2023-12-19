@@ -45,7 +45,7 @@ public enum BinaryOpType {
 	public static @NonNull BinaryOpType get(String str) {
 		BinaryOpType opType = NAME_MAP.get(str);
 		if (opType == null) {
-			throw Helpers.nodeError(null, "Binary operator \"%s\" not defined!", str);
+			throw Helpers.error("Binary operator \"%s\" not defined!", str);
 		}
 		else {
 			return opType;

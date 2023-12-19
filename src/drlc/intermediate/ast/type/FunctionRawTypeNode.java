@@ -22,7 +22,7 @@ public class FunctionRawTypeNode extends RawTypeNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode parent) {
+	public void setScopes(ASTNode<?, ?> parent) {
 		scope = parent.scope;
 		
 		for (TypeNode paramTypeNode : paramTypeNodes) {
@@ -34,7 +34,7 @@ public class FunctionRawTypeNode extends RawTypeNode {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode parent) {
+	public void defineTypes(ASTNode<?, ?> parent) {
 		for (TypeNode paramTypeNode : paramTypeNodes) {
 			paramTypeNode.defineTypes(this);
 		}
@@ -44,7 +44,7 @@ public class FunctionRawTypeNode extends RawTypeNode {
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode parent) {
+	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 		
 		for (TypeNode paramTypeNode : paramTypeNodes) {
@@ -58,7 +58,7 @@ public class FunctionRawTypeNode extends RawTypeNode {
 	}
 	
 	@Override
-	public void checkTypes(ASTNode parent) {
+	public void checkTypes(ASTNode<?, ?> parent) {
 		for (TypeNode paramTypeNode : paramTypeNodes) {
 			paramTypeNode.checkTypes(this);
 		}
@@ -68,7 +68,7 @@ public class FunctionRawTypeNode extends RawTypeNode {
 	}
 	
 	@Override
-	public void foldConstants(ASTNode parent) {
+	public void foldConstants(ASTNode<?, ?> parent) {
 		for (TypeNode paramTypeNode : paramTypeNodes) {
 			paramTypeNode.foldConstants(this);
 		}
@@ -78,7 +78,17 @@ public class FunctionRawTypeNode extends RawTypeNode {
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode parent) {
+	public void trackFunctions(ASTNode<?, ?> parent) {
+		for (TypeNode paramTypeNode : paramTypeNodes) {
+			paramTypeNode.trackFunctions(this);
+		}
+		if (returnTypeNode != null) {
+			returnTypeNode.trackFunctions(this);
+		}
+	}
+	
+	@Override
+	public void generateIntermediate(ASTNode<?, ?> parent) {
 		for (TypeNode paramTypeNode : paramTypeNodes) {
 			paramTypeNode.generateIntermediate(this);
 		}

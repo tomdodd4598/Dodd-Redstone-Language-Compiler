@@ -7,7 +7,7 @@ import drlc.intermediate.ast.ASTNode;
 
 public class VoidValue extends BasicValue {
 	
-	public VoidValue(ASTNode node) {
+	public VoidValue(ASTNode<?, ?> node) {
 		super(node, Main.generator.voidTypeInfo);
 	}
 	

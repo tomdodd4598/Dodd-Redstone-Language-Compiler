@@ -8,12 +8,12 @@ import drlc.intermediate.component.data.DataId;
 
 public class BuiltInFunctionCallAction extends FunctionCallAction {
 	
-	public BuiltInFunctionCallAction(ASTNode node, DataId target, DataId function, List<DataId> args) {
+	public BuiltInFunctionCallAction(ASTNode<?, ?> node, DataId target, DataId function, List<DataId> args) {
 		super(node, target, function, args);
 	}
 	
 	@Override
-	protected BuiltInFunctionCallAction copy(ASTNode node, DataId target, DataId function, List<DataId> args) {
+	protected BuiltInFunctionCallAction copy(ASTNode<?, ?> node, DataId target, DataId function, List<DataId> args) {
 		return new BuiltInFunctionCallAction(node, target, function, args);
 	}
 	

@@ -12,31 +12,31 @@ public class FunctionCallAction extends Action implements IValueAction {
 	public final DataId function;
 	public final List<DataId> args;
 	
-	public FunctionCallAction(ASTNode node, DataId target, DataId function, List<DataId> args) {
+	public FunctionCallAction(ASTNode<?, ?> node, DataId target, DataId function, List<DataId> args) {
 		super(node);
 		if (target == null) {
-			throw node.error("Function call action target was null!");
+			throw Helpers.nodeError(node, "Function call action target was null!");
 		}
 		else {
 			this.target = target;
 		}
 		
 		if (function == null) {
-			throw node.error("Function call action function was null!");
+			throw Helpers.nodeError(node, "Function call action function was null!");
 		}
 		else {
 			this.function = function;
 		}
 		
 		if (args == null) {
-			throw node.error("Function call action argument list was null!");
+			throw Helpers.nodeError(node, "Function call action argument list was null!");
 		}
 		else {
 			this.args = args;
 		}
 	}
 	
-	protected FunctionCallAction copy(ASTNode node, DataId target, DataId function, List<DataId> args) {
+	protected FunctionCallAction copy(ASTNode<?, ?> node, DataId target, DataId function, List<DataId> args) {
 		return new FunctionCallAction(node, target, function, args);
 	}
 	
@@ -72,12 +72,12 @@ public class FunctionCallAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRegRvalue(long targetId, DataId rvalueReplacer) {
-		RegReplaceResult functionResult = replaceRegId(function, targetId, rvalueReplacer);
+	public FunctionCallAction replaceRvalue(DataId targetId, DataId rvalueReplacer) {
+		DataIdReplaceResult functionResult = replaceDataId(function, targetId, rvalueReplacer);
 		boolean success = functionResult.success;
 		List<DataId> replaceArgs = new ArrayList<>();
 		for (DataId arg : args) {
-			RegReplaceResult argResult = replaceRegId(arg, targetId, rvalueReplacer);
+			DataIdReplaceResult argResult = replaceDataId(arg, targetId, rvalueReplacer);
 			success |= argResult.success;
 			replaceArgs.add(argResult.dataId);
 		}
@@ -85,7 +85,7 @@ public class FunctionCallAction extends Action implements IValueAction {
 			return copy(null, target, functionResult.dataId, replaceArgs);
 		}
 		else {
-			throw new IllegalArgumentException(String.format("No function call action rvalue %s, %s matched replacement reg ID %d!", function, Helpers.listString(args), targetId));
+			throw new IllegalArgumentException(String.format("No function call action rvalue %s, %s matched replacement data ID %s!", function, Helpers.listString(args), targetId));
 		}
 	}
 	
@@ -100,13 +100,13 @@ public class FunctionCallAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRegLvalue(long targetId, DataId lvalueReplacer) {
+	public FunctionCallAction replaceLvalue(DataId targetId, DataId lvalueReplacer) {
 		return copy(null, lvalueReplacer, function, new ArrayList<>(args));
 	}
 	
 	@Override
 	public Action setTransientLvalue() {
-		return copy(null, target.getTransient(), function, new ArrayList<>(args));
+		return copy(null, target.getTransient(null), function, new ArrayList<>(args));
 	}
 	
 	@Override
@@ -126,11 +126,11 @@ public class FunctionCallAction extends Action implements IValueAction {
 	
 	@Override
 	public Action replaceRegIds(Map<Long, Long> regIdMap) {
-		RegReplaceResult targetResult = replaceRegId(target, regIdMap), functionResult = replaceRegId(function, regIdMap);
+		DataIdReplaceResult targetResult = replaceRegId(target, regIdMap), functionResult = replaceRegId(function, regIdMap);
 		boolean success = targetResult.success || functionResult.success;
 		List<DataId> replaceArgs = new ArrayList<>();
 		for (DataId arg : args) {
-			RegReplaceResult argResult = replaceRegId(arg, regIdMap);
+			DataIdReplaceResult argResult = replaceRegId(arg, regIdMap);
 			success |= argResult.success;
 			replaceArgs.add(argResult.dataId);
 		}

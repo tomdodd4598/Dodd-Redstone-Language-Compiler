@@ -3,65 +3,67 @@ package drlc.intermediate.ast.section;
 import org.eclipse.jdt.annotation.*;
 
 import drlc.Main;
+import drlc.intermediate.action.*;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.ast.conditional.*;
+import drlc.intermediate.ast.element.ScopeContentsNode;
 import drlc.intermediate.ast.expression.*;
 import drlc.intermediate.component.type.TypeInfo;
+import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.ConditionalScope;
 import drlc.node.Node;
 
-public class ConditionalSectionNode extends BasicSectionNode {
+public class ConditionalSectionNode extends BasicSectionNode<ConditionalScope, Routine> {
 	
 	public final boolean unless;
 	public @NonNull ExpressionNode expressionNode;
-	public final @NonNull ConditionalStartNode conditionalStartNode;
-	public final @Nullable ConditionalEndNode conditionalEndNode;
+	public final @NonNull ScopeContentsNode thenNode;
+	public final @Nullable ASTNode<?, ?> elseNode;
 	
-	public ConditionalSectionNode(Node[] parseNodes, boolean unless, @NonNull ExpressionNode expressionNode, @NonNull ConditionalStartNode conditionalStartNode, @Nullable ConditionalEndNode conditionalEndNode) {
+	public ConditionalSectionNode(Node[] parseNodes, boolean unless, @NonNull ExpressionNode expressionNode, @NonNull ScopeContentsNode thenNode, @Nullable ASTNode<?, ?> elseNode) {
 		super(parseNodes);
 		this.unless = unless;
 		this.expressionNode = expressionNode;
-		this.conditionalStartNode = conditionalStartNode;
-		this.conditionalEndNode = conditionalEndNode;
+		this.thenNode = thenNode;
+		this.elseNode = elseNode;
 	}
 	
 	@Override
-	public void setScopes(ASTNode parent) {
-		scope = new ConditionalScope(parent.scope, conditionalEndNode != null);
+	public void setScopes(ASTNode<?, ?> parent) {
+		scope = new ConditionalScope(parent.scope, elseNode != null);
 		
 		expressionNode.setScopes(this);
-		conditionalStartNode.setScopes(this);
-		if (conditionalEndNode != null) {
-			conditionalEndNode.setScopes(this);
+		thenNode.setScopes(this);
+		if (elseNode != null) {
+			elseNode.setScopes(this);
 		}
 	}
 	
 	@Override
-	public void defineTypes(ASTNode parent) {
+	public void defineTypes(ASTNode<?, ?> parent) {
 		expressionNode.defineTypes(this);
-		conditionalStartNode.defineTypes(this);
-		if (conditionalEndNode != null) {
-			conditionalEndNode.defineTypes(this);
+		thenNode.defineTypes(this);
+		if (elseNode != null) {
+			elseNode.defineTypes(this);
 		}
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode parent) {
+	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 		
 		expressionNode.declareExpressions(this);
-		conditionalStartNode.declareExpressions(this);
-		if (conditionalEndNode != null) {
-			conditionalEndNode.declareExpressions(this);
+		thenNode.declareExpressions(this);
+		if (elseNode != null) {
+			elseNode.declareExpressions(this);
 		}
 	}
 	
 	@Override
-	public void checkTypes(ASTNode parent) {
+	public void checkTypes(ASTNode<?, ?> parent) {
 		expressionNode.checkTypes(this);
-		conditionalStartNode.checkTypes(this);
-		if (conditionalEndNode != null) {
-			conditionalEndNode.checkTypes(this);
+		thenNode.checkTypes(this);
+		if (elseNode != null) {
+			elseNode.checkTypes(this);
 		}
 		
 		@NonNull TypeInfo expressionType = expressionNode.getTypeInfo();
@@ -71,16 +73,47 @@ public class ConditionalSectionNode extends BasicSectionNode {
 	}
 	
 	@Override
-	public void foldConstants(ASTNode parent) {
+	public void foldConstants(ASTNode<?, ?> parent) {
 		expressionNode.foldConstants(this);
-		conditionalStartNode.foldConstants(this);
-		if (conditionalEndNode != null) {
-			conditionalEndNode.foldConstants(this);
+		thenNode.foldConstants(this);
+		if (elseNode != null) {
+			elseNode.foldConstants(this);
 		}
 		
 		@Nullable ConstantExpressionNode constantExpressionNode = expressionNode.constantExpressionNode();
 		if (constantExpressionNode != null) {
 			expressionNode = constantExpressionNode;
+		}
+	}
+	
+	@Override
+	public void trackFunctions(ASTNode<?, ?> parent) {
+		expressionNode.trackFunctions(this);
+		thenNode.trackFunctions(this);
+		if (elseNode != null) {
+			elseNode.trackFunctions(this);
+		}
+	}
+	
+	@Override
+	public void generateIntermediate(ASTNode<?, ?> parent) {
+		expressionNode.generateIntermediate(this);
+		ConditionalJumpAction cja = routine.addConditionalJumpAction(this, -1, unless);
+		thenNode.generateIntermediate(this);
+		
+		if (elseNode != null) {
+			JumpAction ja = routine.addJumpAction(this, -1);
+			
+			routine.incrementSectionId();
+			cja.setTarget(routine.currentSectionId());
+			elseNode.generateIntermediate(this);
+			
+			routine.incrementSectionId();
+			ja.setTarget(routine.currentSectionId());
+		}
+		else {
+			routine.incrementSectionId();
+			cja.setTarget(routine.currentSectionId());
 		}
 	}
 }

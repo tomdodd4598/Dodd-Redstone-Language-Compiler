@@ -2,6 +2,7 @@ package drlc.intermediate.action;
 
 import java.util.Map;
 
+import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.data.DataId;
 
@@ -9,17 +10,17 @@ public class AssignmentAction extends Action implements IValueAction {
 	
 	public final DataId target, arg;
 	
-	public AssignmentAction(ASTNode node, DataId target, DataId arg) {
+	public AssignmentAction(ASTNode<?, ?> node, DataId target, DataId arg) {
 		super(node);
 		if (target == null) {
-			throw node.error("Assignment action target was null!");
+			throw Helpers.nodeError(node, "Assignment action target was null!");
 		}
 		else {
 			this.target = target;
 		}
 		
 		if (arg == null) {
-			throw node.error("Assignment action argument was null!");
+			throw Helpers.nodeError(node, "Assignment action argument was null!");
 		}
 		else {
 			this.arg = arg;
@@ -38,7 +39,7 @@ public class AssignmentAction extends Action implements IValueAction {
 	
 	@Override
 	public boolean canRemove() {
-		return target.dereferenceLevel == 0 && arg.dereferenceLevel == 0;
+		return target.dereferenceLevel == 0 && arg.dereferenceLevel <= 0;
 	}
 	
 	@Override
@@ -52,7 +53,7 @@ public class AssignmentAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRegRvalue(long targetId, DataId rvalueReplacer) {
+	public AssignmentAction replaceRvalue(DataId targetId, DataId rvalueReplacer) {
 		return new AssignmentAction(null, target, rvalueReplacer);
 	}
 	
@@ -67,13 +68,13 @@ public class AssignmentAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRegLvalue(long targetId, DataId lvalueReplacer) {
+	public AssignmentAction replaceLvalue(DataId targetId, DataId lvalueReplacer) {
 		return new AssignmentAction(null, lvalueReplacer, arg);
 	}
 	
 	@Override
 	public Action setTransientLvalue() {
-		return new AssignmentAction(null, target.getTransient(), arg);
+		return new AssignmentAction(null, target.getTransient(null), arg);
 	}
 	
 	@Override
@@ -93,7 +94,7 @@ public class AssignmentAction extends Action implements IValueAction {
 	
 	@Override
 	public Action replaceRegIds(Map<Long, Long> regIdMap) {
-		RegReplaceResult targetResult = replaceRegId(target, regIdMap), argResult = replaceRegId(arg, regIdMap);
+		DataIdReplaceResult targetResult = replaceRegId(target, regIdMap), argResult = replaceRegId(arg, regIdMap);
 		if (targetResult.success || argResult.success) {
 			return new AssignmentAction(null, targetResult.dataId, argResult.dataId);
 		}

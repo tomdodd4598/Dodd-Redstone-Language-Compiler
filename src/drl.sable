@@ -54,8 +54,6 @@ Tokens
 	conditional_iterative_keyword = 'while' | 'until';
 	do = 'do';
 	
-	goto = 'goto';
-	
 	exit = 'exit';
 	return = 'return';
 	continue = 'continue';
@@ -164,9 +162,7 @@ Productions
 		{variable_declaration} variable_declaration |
 		{expression_statement} expression_statement |
 		{conditional_section} conditional_section |
-		{iterative_section} iterative_section |
-		{goto_statement} goto_statement |
-		{section_label} section_label;
+		{iterative_section} iterative_section;
 	
 	
 	
@@ -197,35 +193,25 @@ Productions
 		{including_branch} else conditional_section;
 	
 	iterative_section =
-		{loop} loop l_brace scope_contents r_brace |
-		{conditional} conditional_iterative_keyword expression l_brace scope_contents r_brace |
-		{do_conditional} do l_brace scope_contents r_brace conditional_iterative_keyword expression semicolon+;
-	
-	goto_statement =
-		goto name semicolon+;
-	
-	section_label =
-		name colon;
+		{loop} iterative_section_label? loop l_brace scope_contents r_brace |
+		{conditional} iterative_section_label? conditional_iterative_keyword expression l_brace scope_contents r_brace |
+		{do_conditional} iterative_section_label? do l_brace scope_contents r_brace conditional_iterative_keyword expression semicolon+;
 	
 	scope_contents =
 		basic_section* stop_statement?;
 	
 	stop_statement =
-		{exit} exit semicolon+ dead_section* |
-		{return} return semicolon+ dead_section* |
-		{continue} continue semicolon+ dead_section* |
-		{break} break semicolon+ dead_section* |
-		{exit_expression} exit expression semicolon+ dead_section* |
-		{return_expression} return expression semicolon+ dead_section*;
+		{exit} exit expression? semicolon+ dead_section* |
+		{return} return expression? semicolon+ dead_section* |
+		{continue} continue name? semicolon+ dead_section* |
+		{break} break name? semicolon+ dead_section*;
 	
 	dead_section =
 		{dead0} basic_section |
-		{dead1} exit semicolon+ |
-		{dead2} return semicolon+ |
-		{dead3} continue semicolon+ |
-		{dead4} break semicolon+ |
-		{dead5} exit expression semicolon+ |
-		{dead6} return expression semicolon+;
+		{dead1} exit expression? semicolon+ |
+		{dead2} return expression? semicolon+ |
+		{dead3} continue name? semicolon+ |
+		{dead4} break name? semicolon+;
 	
 	
 	
@@ -266,6 +252,9 @@ Productions
 	identifier =
 		{name} name |
 		{discard} discard;
+	
+	iterative_section_label =
+		name colon;
 	
 	expression =
 		expression0;

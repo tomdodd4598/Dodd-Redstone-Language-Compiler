@@ -4,7 +4,7 @@ public interface IJumpAction {
 	
 	public boolean isConditional();
 	
-	public String getTarget();
+	public int getTarget();
 	
-	public Action copy(String target);
+	public Action copy(int target);
 }

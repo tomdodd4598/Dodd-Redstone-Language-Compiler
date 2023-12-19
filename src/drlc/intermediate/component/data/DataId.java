@@ -3,6 +3,7 @@ package drlc.intermediate.component.data;
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
+import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.scope.Scope;
 
@@ -18,7 +19,7 @@ public abstract class DataId {
 		
 		int minimumDereferenceLevel = minimumDereferenceLevel();
 		if (dereferenceLevel < minimumDereferenceLevel) {
-			throw Helpers.nodeError(null, "Dereference level for data ID \"%s\" can not be less than %d but was equal to %d!", this, minimumDereferenceLevel, dereferenceLevel);
+			throw Helpers.error("Dereference level for data ID \"%s\" can not be less than %d but was equal to %d!", this, minimumDereferenceLevel, dereferenceLevel);
 		}
 		
 		this.typeInfo = typeInfo;
@@ -38,24 +39,28 @@ public abstract class DataId {
 		return scope == null ? null : scope.globalId;
 	}
 	
-	public abstract DataId addAddressPrefix();
+	public abstract DataId addAddressPrefix(ASTNode<?, ?> node);
 	
-	public abstract DataId removeAddressPrefix();
+	public abstract DataId removeAddressPrefix(ASTNode<?, ?> node);
 	
-	public abstract DataId addDereference();
+	public abstract DataId addDereference(ASTNode<?, ?> node);
 	
-	public abstract DataId removeDereference();
+	public abstract DataId removeDereference(ASTNode<?, ?> node);
 	
-	public abstract DataId removeAllDereferences();
+	public abstract DataId removeAllDereferences(ASTNode<?, ?> node);
 	
-	public TransientDataId getTransient() {
+	public TransientDataId getTransient(ASTNode<?, ?> node) {
 		if (dereferenceLevel == 0) {
 			return new TransientDataId(typeInfo);
 		}
 		else {
-			throw Helpers.nodeError(null, "Attempted to replace data ID \"%s\" with transient data ID!", this);
+			throw Helpers.nodeError(node, "Attempted to replace data ID \"%s\" with transient data ID!", this);
 		}
 	}
+	
+	public abstract boolean isCompressable();
+	
+	public abstract boolean isRepeatable();
 	
 	@Override
 	public abstract int hashCode();

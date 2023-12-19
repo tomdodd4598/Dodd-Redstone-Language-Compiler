@@ -4,10 +4,11 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.element.ScopeContentsNode;
-import drlc.intermediate.scope.StandardScope;
+import drlc.intermediate.routine.Routine;
+import drlc.intermediate.scope.*;
 import drlc.node.Node;
 
-public class ScopedSectionNode extends BasicSectionNode {
+public class ScopedSectionNode extends BasicSectionNode<Scope, Routine> {
 	
 	public final @NonNull ScopeContentsNode scopeContentsNode;
 	
@@ -17,31 +18,41 @@ public class ScopedSectionNode extends BasicSectionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode parent) {
+	public void setScopes(ASTNode<?, ?> parent) {
 		scope = new StandardScope(parent.scope);
 		
 		scopeContentsNode.setScopes(this);
 	}
 	
 	@Override
-	public void defineTypes(ASTNode parent) {
+	public void defineTypes(ASTNode<?, ?> parent) {
 		scopeContentsNode.defineTypes(this);
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode parent) {
+	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 		
 		scopeContentsNode.declareExpressions(this);
 	}
 	
 	@Override
-	public void checkTypes(ASTNode parent) {
+	public void checkTypes(ASTNode<?, ?> parent) {
 		scopeContentsNode.checkTypes(this);
 	}
 	
 	@Override
-	public void foldConstants(ASTNode parent) {
+	public void foldConstants(ASTNode<?, ?> parent) {
 		scopeContentsNode.foldConstants(this);
+	}
+	
+	@Override
+	public void trackFunctions(ASTNode<?, ?> parent) {
+		scopeContentsNode.trackFunctions(this);
+	}
+	
+	@Override
+	public void generateIntermediate(ASTNode<?, ?> parent) {
+		scopeContentsNode.generateIntermediate(this);
 	}
 }

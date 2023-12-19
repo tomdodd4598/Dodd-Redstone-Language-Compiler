@@ -9,6 +9,5 @@ import drlc.intermediate.scope.Scope;
 @FunctionalInterface
 public interface TypeInfoFunction {
 	
-	@NonNull
-	TypeInfo create(ASTNode node, Scope scope, int referenceLevel);
+	public @NonNull TypeInfo create(ASTNode<?, ?> node, Scope scope, int referenceLevel);
 }

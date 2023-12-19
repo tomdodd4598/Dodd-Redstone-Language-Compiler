@@ -2,9 +2,10 @@ package drlc.intermediate.scope;
 
 import java.util.*;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import drlc.*;
+import drlc.intermediate.action.JumpAction;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.type.*;
@@ -71,94 +72,94 @@ public abstract class Scope {
 	
 	// Getters
 	
-	public @NonNull RawType getRawType(ASTNode node, String name) {
+	public @NonNull RawType getRawType(ASTNode<?, ?> node, String name) {
 		RawType rawType = rawTypeMap.get(name);
 		if (rawType == null) {
-			throw node.error("Raw type \"%s\" not defined in this scope!", name);
+			throw Helpers.nodeError(node, "Raw type \"%s\" not defined in this scope!", name);
 		}
 		return rawType;
 	}
 	
-	public @NonNull Constant getConstant(ASTNode node, String name) {
+	public @NonNull Constant getConstant(ASTNode<?, ?> node, String name) {
 		Constant constant = constantMap.get(name);
 		if (constant == null) {
-			throw node.error("Constant \"%s\" not defined in this scope!", name);
+			throw Helpers.nodeError(node, "Constant \"%s\" not defined in this scope!", name);
 		}
 		return constant;
 	}
 	
-	public @NonNull Variable getVariable(ASTNode node, String name) {
+	public @NonNull Variable getVariable(ASTNode<?, ?> node, String name) {
 		name = Helpers.removeAllDereferences(name);
 		Variable variable = variableMap.get(name);
 		if (variable == null) {
-			throw node.error("Variable \"%s\" not defined in this scope!", name);
+			throw Helpers.nodeError(node, "Variable \"%s\" not defined in this scope!", name);
 		}
 		return variable;
 	}
 	
-	public @NonNull Function getFunction(ASTNode node, String name) {
+	public @NonNull Function getFunction(ASTNode<?, ?> node, String name) {
 		Function function = functionMap.get(name);
 		if (function == null) {
-			throw node.error("Function \"%s\" not defined in this scope!", name);
+			throw Helpers.nodeError(node, "Function \"%s\" not defined in this scope!", name);
 		}
 		return function;
 	}
 	
 	// Adders
 	
-	public void addRawType(ASTNode node, @NonNull RawType rawType) {
+	public void addRawType(ASTNode<?, ?> node, @NonNull RawType rawType) {
 		String name = rawType.name;
 		if (rawTypeNameCollision(name)) {
-			throw node.error("Raw type name \"%s\" already used in this scope!", rawType);
+			throw Helpers.nodeError(node, "Raw type name \"%s\" already used in this scope!", rawType);
 		}
 		rawTypeMap.put(name, rawType, true);
 	}
 	
-	public void addConstant(ASTNode node, @NonNull Constant constant, boolean replace) {
+	public void addConstant(ASTNode<?, ?> node, @NonNull Constant constant, boolean replace) {
 		String name = constant.name;
 		if (!replace && valueNameCollision(name)) {
-			throw node.error("Name \"%s\" already used in this scope!", name);
+			throw Helpers.nodeError(node, "Name \"%s\" already used in this scope!", name);
 		}
 		
 		TypeInfo typeInfo = constant.value.typeInfo;
 		if (!typeInfo.exists(this)) {
-			throw node.error("Type \"%s\" not defined in this scope!", typeInfo.copy(node, 0));
+			throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", typeInfo.copy(node, 0));
 		}
 		
 		constant.scope = this;
 		constantMap.put(name, constant, true);
 	}
 	
-	public void addVariable(ASTNode node, @NonNull Variable variable, boolean replace) {
+	public void addVariable(ASTNode<?, ?> node, @NonNull Variable variable, boolean replace) {
 		String name = variable.name;
 		if (!replace && valueNameCollision(name)) {
-			throw node.error("Name \"%s\" already used in this scope!", name);
+			throw Helpers.nodeError(node, "Name \"%s\" already used in this scope!", name);
 		}
 		
 		TypeInfo typeInfo = variable.typeInfo;
 		if (!typeInfo.exists(this)) {
-			throw node.error("Type \"%s\" not defined in this scope!", typeInfo.copy(node, 0));
+			throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", typeInfo.copy(node, 0));
 		}
 		
 		variable.scope = this;
 		variableMap.put(name, variable, true);
 	}
 	
-	public void addFunction(ASTNode node, @NonNull Function function, boolean replace) {
+	public void addFunction(ASTNode<?, ?> node, @NonNull Function function, boolean replace) {
 		String functionName = function.name;
 		if (!replace && valueNameCollision(functionName)) {
-			throw node.error("Name \"%s\" already used in this scope!", functionName);
+			throw Helpers.nodeError(node, "Name \"%s\" already used in this scope!", functionName);
 		}
 		
 		for (TypeInfo paramTypeInfo : function.paramTypeInfos) {
 			if (!paramTypeInfo.exists(this)) {
-				throw node.error("Type \"%s\" not defined in this scope!", paramTypeInfo.copy(node, 0));
+				throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", paramTypeInfo.copy(node, 0));
 			}
 		}
 		
 		TypeInfo returnTypeInfo = function.returnTypeInfo;
 		if (!returnTypeInfo.exists(this)) {
-			throw node.error("Type \"%s\" not defined in this scope!", returnTypeInfo.copy(node, 0));
+			throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", returnTypeInfo.copy(node, 0));
 		}
 		
 		functionMap.put(functionName, function, true);
@@ -169,7 +170,15 @@ public abstract class Scope {
 	
 	public abstract boolean checkCompleteReturn();
 	
-	public boolean isBreakable() {
-		return parent != null && parent.isBreakable();
+	public boolean isBreakable(@Nullable String label) {
+		return parent != null && parent.isBreakable(label);
+	}
+	
+	public @NonNull JumpAction getContinueJump(ASTNode<?, ?> node, @Nullable String label) {
+		return parent.getContinueJump(node, label);
+	}
+	
+	public @NonNull JumpAction getBreakJump(ASTNode<?, ?> node, @Nullable String label) {
+		return parent.getBreakJump(node, label);
 	}
 }

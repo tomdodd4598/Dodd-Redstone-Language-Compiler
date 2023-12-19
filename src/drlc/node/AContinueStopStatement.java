@@ -9,6 +9,7 @@ import drlc.analysis.*;
 public final class AContinueStopStatement extends PStopStatement
 {
     private TContinue _continue_;
+    private TName _name_;
     private final LinkedList<TSemicolon> _semicolon_ = new LinkedList<TSemicolon>();
     private final LinkedList<PDeadSection> _deadSection_ = new LinkedList<PDeadSection>();
 
@@ -19,11 +20,14 @@ public final class AContinueStopStatement extends PStopStatement
 
     public AContinueStopStatement(
         @SuppressWarnings("hiding") TContinue _continue_,
+        @SuppressWarnings("hiding") TName _name_,
         @SuppressWarnings("hiding") List<?> _semicolon_,
         @SuppressWarnings("hiding") List<?> _deadSection_)
     {
         // Constructor
         setContinue(_continue_);
+
+        setName(_name_);
 
         setSemicolon(_semicolon_);
 
@@ -36,6 +40,7 @@ public final class AContinueStopStatement extends PStopStatement
     {
         return new AContinueStopStatement(
             cloneNode(this._continue_),
+            cloneNode(this._name_),
             cloneList(this._semicolon_),
             cloneList(this._deadSection_));
     }
@@ -69,6 +74,31 @@ public final class AContinueStopStatement extends PStopStatement
         }
 
         this._continue_ = node;
+    }
+
+    public TName getName()
+    {
+        return this._name_;
+    }
+
+    public void setName(TName node)
+    {
+        if(this._name_ != null)
+        {
+            this._name_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._name_ = node;
     }
 
     public LinkedList<TSemicolon> getSemicolon()
@@ -128,6 +158,7 @@ public final class AContinueStopStatement extends PStopStatement
     {
         return ""
             + toString(this._continue_)
+            + toString(this._name_)
             + toString(this._semicolon_)
             + toString(this._deadSection_);
     }
@@ -139,6 +170,12 @@ public final class AContinueStopStatement extends PStopStatement
         if(this._continue_ == child)
         {
             this._continue_ = null;
+            return;
+        }
+
+        if(this._name_ == child)
+        {
+            this._name_ = null;
             return;
         }
 
@@ -162,6 +199,12 @@ public final class AContinueStopStatement extends PStopStatement
         if(this._continue_ == oldChild)
         {
             setContinue((TContinue) newChild);
+            return;
+        }
+
+        if(this._name_ == oldChild)
+        {
+            setName((TName) newChild);
             return;
         }
 

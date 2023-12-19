@@ -9,6 +9,7 @@ import drlc.analysis.*;
 public final class AExitStopStatement extends PStopStatement
 {
     private TExit _exit_;
+    private PExpression _expression_;
     private final LinkedList<TSemicolon> _semicolon_ = new LinkedList<TSemicolon>();
     private final LinkedList<PDeadSection> _deadSection_ = new LinkedList<PDeadSection>();
 
@@ -19,11 +20,14 @@ public final class AExitStopStatement extends PStopStatement
 
     public AExitStopStatement(
         @SuppressWarnings("hiding") TExit _exit_,
+        @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") List<?> _semicolon_,
         @SuppressWarnings("hiding") List<?> _deadSection_)
     {
         // Constructor
         setExit(_exit_);
+
+        setExpression(_expression_);
 
         setSemicolon(_semicolon_);
 
@@ -36,6 +40,7 @@ public final class AExitStopStatement extends PStopStatement
     {
         return new AExitStopStatement(
             cloneNode(this._exit_),
+            cloneNode(this._expression_),
             cloneList(this._semicolon_),
             cloneList(this._deadSection_));
     }
@@ -69,6 +74,31 @@ public final class AExitStopStatement extends PStopStatement
         }
 
         this._exit_ = node;
+    }
+
+    public PExpression getExpression()
+    {
+        return this._expression_;
+    }
+
+    public void setExpression(PExpression node)
+    {
+        if(this._expression_ != null)
+        {
+            this._expression_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._expression_ = node;
     }
 
     public LinkedList<TSemicolon> getSemicolon()
@@ -128,6 +158,7 @@ public final class AExitStopStatement extends PStopStatement
     {
         return ""
             + toString(this._exit_)
+            + toString(this._expression_)
             + toString(this._semicolon_)
             + toString(this._deadSection_);
     }
@@ -139,6 +170,12 @@ public final class AExitStopStatement extends PStopStatement
         if(this._exit_ == child)
         {
             this._exit_ = null;
+            return;
+        }
+
+        if(this._expression_ == child)
+        {
+            this._expression_ = null;
             return;
         }
 
@@ -162,6 +199,12 @@ public final class AExitStopStatement extends PStopStatement
         if(this._exit_ == oldChild)
         {
             setExit((TExit) newChild);
+            return;
+        }
+
+        if(this._expression_ == oldChild)
+        {
+            setExpression((PExpression) newChild);
             return;
         }
 

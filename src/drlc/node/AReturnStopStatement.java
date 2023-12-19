@@ -9,6 +9,7 @@ import drlc.analysis.*;
 public final class AReturnStopStatement extends PStopStatement
 {
     private TReturn _return_;
+    private PExpression _expression_;
     private final LinkedList<TSemicolon> _semicolon_ = new LinkedList<TSemicolon>();
     private final LinkedList<PDeadSection> _deadSection_ = new LinkedList<PDeadSection>();
 
@@ -19,11 +20,14 @@ public final class AReturnStopStatement extends PStopStatement
 
     public AReturnStopStatement(
         @SuppressWarnings("hiding") TReturn _return_,
+        @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") List<?> _semicolon_,
         @SuppressWarnings("hiding") List<?> _deadSection_)
     {
         // Constructor
         setReturn(_return_);
+
+        setExpression(_expression_);
 
         setSemicolon(_semicolon_);
 
@@ -36,6 +40,7 @@ public final class AReturnStopStatement extends PStopStatement
     {
         return new AReturnStopStatement(
             cloneNode(this._return_),
+            cloneNode(this._expression_),
             cloneList(this._semicolon_),
             cloneList(this._deadSection_));
     }
@@ -69,6 +74,31 @@ public final class AReturnStopStatement extends PStopStatement
         }
 
         this._return_ = node;
+    }
+
+    public PExpression getExpression()
+    {
+        return this._expression_;
+    }
+
+    public void setExpression(PExpression node)
+    {
+        if(this._expression_ != null)
+        {
+            this._expression_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._expression_ = node;
     }
 
     public LinkedList<TSemicolon> getSemicolon()
@@ -128,6 +158,7 @@ public final class AReturnStopStatement extends PStopStatement
     {
         return ""
             + toString(this._return_)
+            + toString(this._expression_)
             + toString(this._semicolon_)
             + toString(this._deadSection_);
     }
@@ -139,6 +170,12 @@ public final class AReturnStopStatement extends PStopStatement
         if(this._return_ == child)
         {
             this._return_ = null;
+            return;
+        }
+
+        if(this._expression_ == child)
+        {
+            this._expression_ = null;
             return;
         }
 
@@ -162,6 +199,12 @@ public final class AReturnStopStatement extends PStopStatement
         if(this._return_ == oldChild)
         {
             setReturn((TReturn) newChild);
+            return;
+        }
+
+        if(this._expression_ == oldChild)
+        {
+            setExpression((PExpression) newChild);
             return;
         }
 

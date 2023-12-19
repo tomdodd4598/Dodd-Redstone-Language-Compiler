@@ -8,16 +8,16 @@ import drlc.intermediate.scope.Scope;
 
 public class BoolTypeInfo extends BasicTypeInfo {
 	
-	protected BoolTypeInfo(ASTNode node, @NonNull RawType rawType, int referenceLevel) {
+	protected BoolTypeInfo(ASTNode<?, ?> node, @NonNull RawType rawType, int referenceLevel) {
 		super(node, rawType, referenceLevel);
 	}
 	
-	public BoolTypeInfo(ASTNode node, Scope scope, int referenceLevel) {
+	public BoolTypeInfo(ASTNode<?, ?> node, Scope scope, int referenceLevel) {
 		super(node, scope, Global.BOOL, referenceLevel);
 	}
 	
 	@Override
-	public @NonNull TypeInfo copy(ASTNode node, int newReferenceLevel) {
+	public @NonNull TypeInfo copy(ASTNode<?, ?> node, int newReferenceLevel) {
 		return new BoolTypeInfo(node, rawType, newReferenceLevel);
 	}
 }

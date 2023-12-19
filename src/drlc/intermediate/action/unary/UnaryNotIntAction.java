@@ -5,7 +5,7 @@ import drlc.intermediate.component.data.DataId;
 
 public class UnaryNotIntAction extends UnaryOpAction {
 	
-	UnaryNotIntAction(ASTNode node, DataId target, DataId arg) {
+	UnaryNotIntAction(ASTNode<?, ?> node, DataId target, DataId arg) {
 		super(node, UnaryActionType.NOT_INT, target, arg);
 	}
 	

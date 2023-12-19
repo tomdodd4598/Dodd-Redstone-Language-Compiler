@@ -1,11 +1,13 @@
 package drlc.intermediate;
 
-import java.util.List;
+import java.util.*;
+
+import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
 import drlc.intermediate.action.Action;
-import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
+import drlc.intermediate.component.value.Value;
 import drlc.intermediate.routine.*;
 
 public class IntermediateGenerator extends Generator {
@@ -15,14 +17,18 @@ public class IntermediateGenerator extends Generator {
 	}
 	
 	@Override
-	public void addBuiltInDirectives(ASTNode node) {
-		directiveMap.put(Global.SETARGC, new Directive(1, Helpers.array(Helpers.builtInParam("x", intTypeInfo))) {});
+	public void addBuiltInDirectives() {
+		directiveMap.put(Global.SETARGC, new Directive(1, Helpers.array(Helpers.builtInParam("x", intTypeInfo))) {
+			
+			@Override
+			public void run(@NonNull Value[] values) {}
+		});
 	}
 	
 	@Override
-	public void addBuiltInVariables(ASTNode node) {
-		super.addBuiltInVariables(node);
-		program.rootScope.addVariable(node, new Variable(Global.ARGC, VariableModifier.ROOT_PARAM, intTypeInfo), false);
+	public void addBuiltInVariables() {
+		super.addBuiltInVariables();
+		Main.rootScope.addVariable(null, new Variable(Global.ARGC, VariableModifier.ROOT_PARAM, intTypeInfo), false);
 	}
 	
 	@Override
@@ -42,19 +48,16 @@ public class IntermediateGenerator extends Generator {
 	
 	@Override
 	public void generateRootParams(RootRoutine routine) {
-		routine.params = new DeclaratorInfo[2];
-		routine.params[0] = new DeclaratorInfo(null, new Variable(Global.ARGC, VariableModifier.ROOT_PARAM, intTypeInfo));
-		routine.params[1] = new DeclaratorInfo(null, new Variable(Global.ARGV_PARAM, VariableModifier.ROOT_PARAM, charTypeInfo(2)));
+		routine.params = new ArrayList<>();
+		routine.params.add(new DeclaratorInfo(null, new Variable(Global.ARGC, VariableModifier.ROOT_PARAM, intTypeInfo)));
+		routine.params.add(new DeclaratorInfo(null, new Variable(Global.ARGV_PARAM, VariableModifier.ROOT_PARAM, charTypeInfo(2))));
 	}
 	
 	@Override
 	public void generate() {
-		optimizeIntermediate();
-		program.finalizeRoutines();
-		
 		StringBuilder sb = new StringBuilder();
 		boolean begin = true;
-		for (Routine routine : program.routineMap.values()) {
+		for (Routine routine : Main.program.routineMap.values()) {
 			if (!routine.isBuiltInFunctionRoutine()) {
 				if (begin) {
 					begin = false;
@@ -65,7 +68,7 @@ public class IntermediateGenerator extends Generator {
 				sb.append(routine.getType()).append(' ').append(routine).append(":\n");
 				List<List<Action>> list = routine.getBodyActionLists();
 				for (int i = 0; i < list.size(); ++i) {
-					sb.append(Helpers.sectionIdString(i)).append(":\n");
+					sb.append(Global.SECTION_ID_START).append(i).append(Global.SECTION_ID_END).append(":\n");
 					for (Action action : list.get(i)) {
 						sb.append('\t').append(action).append('\n');
 					}

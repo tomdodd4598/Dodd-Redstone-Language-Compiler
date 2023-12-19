@@ -11,17 +11,17 @@ public class CompoundAssignmentAction extends Action implements IValueAction {
 	public final DataId target;
 	public final List<DataId> args;
 	
-	public CompoundAssignmentAction(ASTNode node, DataId target, List<DataId> args) {
+	public CompoundAssignmentAction(ASTNode<?, ?> node, DataId target, List<DataId> args) {
 		super(node);
 		if (target == null) {
-			throw node.error("Compound assignment action target was null!");
+			throw Helpers.nodeError(node, "Compound assignment action target was null!");
 		}
 		else {
 			this.target = target;
 		}
 		
 		if (args == null) {
-			throw node.error("Compound assignment action argument list was null!");
+			throw Helpers.nodeError(node, "Compound assignment action argument list was null!");
 		}
 		else {
 			this.args = args;
@@ -54,11 +54,11 @@ public class CompoundAssignmentAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRegRvalue(long targetId, DataId rvalueReplacer) {
+	public CompoundAssignmentAction replaceRvalue(DataId targetId, DataId rvalueReplacer) {
 		boolean success = false;
 		List<DataId> replaceArgs = new ArrayList<>();
 		for (DataId arg : args) {
-			RegReplaceResult argResult = replaceRegId(arg, targetId, rvalueReplacer);
+			DataIdReplaceResult argResult = replaceDataId(arg, targetId, rvalueReplacer);
 			success |= argResult.success;
 			replaceArgs.add(argResult.dataId);
 		}
@@ -66,7 +66,7 @@ public class CompoundAssignmentAction extends Action implements IValueAction {
 			return new CompoundAssignmentAction(null, target, replaceArgs);
 		}
 		else {
-			throw new IllegalArgumentException(String.format("No compound assignment action argument %s matched replacement reg ID %d!", Helpers.listString(args), targetId));
+			throw new IllegalArgumentException(String.format("No compound assignment action argument %s matched replacement data ID %s!", Helpers.listString(args), targetId));
 		}
 	}
 	
@@ -81,13 +81,13 @@ public class CompoundAssignmentAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRegLvalue(long targetId, DataId lvalueReplacer) {
+	public CompoundAssignmentAction replaceLvalue(DataId targetId, DataId lvalueReplacer) {
 		return new CompoundAssignmentAction(null, lvalueReplacer, new ArrayList<>(args));
 	}
 	
 	@Override
 	public Action setTransientLvalue() {
-		return new CompoundAssignmentAction(null, target.getTransient(), new ArrayList<>(args));
+		return new CompoundAssignmentAction(null, target.getTransient(null), new ArrayList<>(args));
 	}
 	
 	@Override
@@ -107,11 +107,11 @@ public class CompoundAssignmentAction extends Action implements IValueAction {
 	
 	@Override
 	public Action replaceRegIds(Map<Long, Long> regIdMap) {
-		RegReplaceResult targetResult = replaceRegId(target, regIdMap);
+		DataIdReplaceResult targetResult = replaceRegId(target, regIdMap);
 		boolean success = targetResult.success;
 		List<DataId> replaceArgs = new ArrayList<>();
 		for (DataId arg : args) {
-			RegReplaceResult argResult = replaceRegId(arg, regIdMap);
+			DataIdReplaceResult argResult = replaceRegId(arg, regIdMap);
 			success |= argResult.success;
 			replaceArgs.add(argResult.dataId);
 		}

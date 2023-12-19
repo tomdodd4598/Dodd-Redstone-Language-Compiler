@@ -16,13 +16,13 @@ public interface IValueAction {
 	
 	public DataId getRvalueReplacer();
 	
-	public Action replaceRegRvalue(long targetId, DataId rvalueReplacer);
+	public <T extends Action & IValueAction> T replaceRvalue(DataId targetId, DataId rvalueReplacer);
 	
 	public boolean canReplaceLvalue();
 	
 	public DataId getLvalueReplacer();
 	
-	public Action replaceRegLvalue(long targetId, DataId lvalueReplacer);
+	public <T extends Action & IValueAction> T replaceLvalue(DataId targetId, DataId lvalueReplacer);
 	
 	public Action setTransientLvalue();
 	
@@ -34,30 +34,27 @@ public interface IValueAction {
 	
 	public Action replaceRegIds(Map<Long, Long> regIdMap);
 	
-	public static class RegReplaceResult {
+	public static class DataIdReplaceResult {
 		
 		public final DataId dataId;
 		public final boolean success;
 		
-		public RegReplaceResult(DataId dataId, boolean success) {
+		public DataIdReplaceResult(DataId dataId, boolean success) {
 			this.dataId = dataId;
 			this.success = success;
 		}
 	}
 	
-	public default RegReplaceResult replaceRegId(DataId dataId, long targetId, DataId replacer) {
+	public default DataIdReplaceResult replaceDataId(DataId dataId, DataId targetId, DataId replacer) {
 		boolean success = false;
-		if (dataId instanceof RegDataId) {
-			RegDataId regDataId = (RegDataId) dataId;
-			if (regDataId.regId == targetId) {
-				dataId = replacer;
-				success = true;
-			}
+		if (dataId.equals(targetId)) {
+			dataId = replacer;
+			success = true;
 		}
-		return new RegReplaceResult(dataId, success);
+		return new DataIdReplaceResult(dataId, success);
 	}
 	
-	public default RegReplaceResult replaceRegId(DataId dataId, Map<Long, Long> regIdMap) {
+	public default DataIdReplaceResult replaceRegId(DataId dataId, Map<Long, Long> regIdMap) {
 		boolean success = false;
 		if (dataId instanceof RegDataId) {
 			RegDataId regDataId = (RegDataId) dataId;
@@ -70,6 +67,6 @@ public interface IValueAction {
 				}
 			}
 		}
-		return new RegReplaceResult(dataId, success);
+		return new DataIdReplaceResult(dataId, success);
 	}
 }

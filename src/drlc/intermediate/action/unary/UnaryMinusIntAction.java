@@ -5,7 +5,7 @@ import drlc.intermediate.component.data.DataId;
 
 public class UnaryMinusIntAction extends UnaryOpAction {
 	
-	UnaryMinusIntAction(ASTNode node, DataId target, DataId arg) {
+	UnaryMinusIntAction(ASTNode<?, ?> node, DataId target, DataId arg) {
 		super(node, UnaryActionType.MINUS_INT, target, arg);
 	}
 	

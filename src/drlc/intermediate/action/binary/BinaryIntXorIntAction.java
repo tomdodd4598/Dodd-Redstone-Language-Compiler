@@ -5,7 +5,7 @@ import drlc.intermediate.component.data.DataId;
 
 public class BinaryIntXorIntAction extends BinaryOpAction {
 	
-	BinaryIntXorIntAction(ASTNode node, DataId target, DataId arg1, DataId arg2) {
+	BinaryIntXorIntAction(ASTNode<?, ?> node, DataId target, DataId arg1, DataId arg2) {
 		super(node, BinaryActionType.INT_XOR_INT, target, arg1, arg2);
 	}
 	

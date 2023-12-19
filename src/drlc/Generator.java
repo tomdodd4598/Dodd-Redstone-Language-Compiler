@@ -6,7 +6,6 @@ import java.util.Map.Entry;
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.intermediate.*;
-import drlc.intermediate.action.AssignmentAction;
 import drlc.intermediate.action.binary.BinaryActionType;
 import drlc.intermediate.action.unary.UnaryActionType;
 import drlc.intermediate.ast.ASTNode;
@@ -64,19 +63,20 @@ public abstract class Generator {
 		this.outputFile = outputFile;
 	}
 	
-	public void interpretFinalize() {
-		for (Routine routine : program.routineMap.values()) {
-			routine.flattenSections();
-			routine.fixUpLabelJumps();
-		}
+	public void init() {
+		addBuiltInTypes();
+		addBuiltInDirectives();
+		addBuiltInConstants();
+		addBuiltInVariables();
+		addBuiltInFunctions();
 	}
 	
-	public void addBuiltInTypes(ASTNode node) {
-		program.rootScope.addRawType(node, new RawType(Global.VOID, 0, VoidTypeInfo::new));
-		program.rootScope.addRawType(node, new RawType(Global.BOOL, 1, BoolTypeInfo::new));
-		program.rootScope.addRawType(node, new RawType(Global.INT, getWordSize(), IntTypeInfo::new));
-		program.rootScope.addRawType(node, new RawType(Global.NAT, getWordSize(), NatTypeInfo::new));
-		program.rootScope.addRawType(node, new RawType(Global.CHAR, 1, CharTypeInfo::new));
+	public void addBuiltInTypes() {
+		Main.rootScope.addRawType(null, new RawType(Global.VOID, 0, VoidTypeInfo::new));
+		Main.rootScope.addRawType(null, new RawType(Global.BOOL, 1, BoolTypeInfo::new));
+		Main.rootScope.addRawType(null, new RawType(Global.INT, getWordSize(), IntTypeInfo::new));
+		Main.rootScope.addRawType(null, new RawType(Global.NAT, getWordSize(), NatTypeInfo::new));
+		Main.rootScope.addRawType(null, new RawType(Global.CHAR, 1, CharTypeInfo::new));
 		
 		voidTypeInfo = voidTypeInfo(0);
 		boolTypeInfo = boolTypeInfo(0);
@@ -87,48 +87,44 @@ public abstract class Generator {
 		wildcardPtrTypeInfo = voidTypeInfo(1);
 		indexTypeInfo = intTypeInfo;
 		
-		emptyArrayTypeInfo = new ArrayTypeInfo(node, 0, wildcardPtrTypeInfo, 0);
+		emptyArrayTypeInfo = new ArrayTypeInfo(null, 0, wildcardPtrTypeInfo, 0);
 		
 		rootReturnTypeInfo = intTypeInfo;
 		
-		voidValue = new VoidValue(node);
+		voidValue = new VoidValue(null);
 		nullValue = voidAddressValue(1, 0);
 		
-		emptyArrayValue = new ArrayValue(node, emptyArrayTypeInfo, new ArrayList<>());
+		emptyArrayValue = new ArrayValue(null, emptyArrayTypeInfo, new ArrayList<>());
 		
 		falseValue = boolValue(false);
 		trueValue = boolValue(true);
 	}
 	
-	public void addBuiltInDirectives(ASTNode node) {}
+	public void addBuiltInDirectives() {}
 	
-	public void addBuiltInConstants(ASTNode node) {}
+	public void addBuiltInConstants() {}
 	
-	public void addBuiltInVariables(ASTNode node) {}
+	public void addBuiltInVariables() {}
 	
 	protected void addBuiltInFunction(@NonNull String name, @NonNull TypeInfo returnTypeInfo, DeclaratorInfo... params) {
-		builtInFunctionMap.put(name, new Function(null, name, true, returnTypeInfo, Helpers.list(params)));
+		Function function = new Function(null, name, true, returnTypeInfo, Helpers.list(params));
+		builtInFunctionMap.put(name, function);
+		Main.rootScope.addFunction(null, function, false);
+		
+		FunctionRoutine routine = new FunctionRoutine(null, function);
+		Main.program.builtInRoutineMap.put(name, routine);
+		Main.program.routineMap.put(name, routine);
 	}
 	
-	public void addBuiltInFunctions(ASTNode node) {
+	public void addBuiltInFunctions() {
 		addBuiltInFunction(Global.INCHAR, charTypeInfo);
 		addBuiltInFunction(Global.ININT, intTypeInfo);
 		addBuiltInFunction(Global.OUTCHAR, voidTypeInfo, Helpers.builtInParam("c", charTypeInfo));
 		addBuiltInFunction(Global.OUTINT, voidTypeInfo, Helpers.builtInParam("x", intTypeInfo));
 		addBuiltInFunction(Global.ARGV_FUNCTION, intTypeInfo, Helpers.builtInParam("index", indexTypeInfo));
-		
-		for (Entry<String, Function> entry : builtInFunctionMap.entrySet()) {
-			addBuiltInFunction(node, entry.getKey(), entry.getValue());
-		}
 	}
 	
-	protected void addBuiltInFunction(ASTNode node, String name, Function function) {
-		program.rootScope.addFunction(node, function, false);
-		Routine routine = new FunctionRoutine(node, function);
-		program.builtInRoutineMap.put(name, routine);
-	}
-	
-	public @NonNull Value binaryOp(ASTNode node, @NonNull Value left, @NonNull BinaryOpType opType, @NonNull Value right) {
+	public @NonNull Value binaryOp(ASTNode<?, ?> node, @NonNull Value left, @NonNull BinaryOpType opType, @NonNull Value right) {
 		TypeInfo leftType = left.typeInfo, rightType = right.typeInfo;
 		
 		if (left instanceof AddressValue || right instanceof AddressValue) {
@@ -185,7 +181,7 @@ public abstract class Generator {
 					throw undefinedBinaryOp(node, leftType, opType, rightType);
 				}
 				else {
-					return intIntBinaryOp(node, (IntValue) left, opType, (WordValue) right);
+					return intIntBinaryOp(node, (IntValue) left, opType, right.toInt(node));
 				}
 			}
 			else if (leftType.equals(natTypeInfo)) {
@@ -193,7 +189,7 @@ public abstract class Generator {
 					throw undefinedBinaryOp(node, leftType, opType, rightType);
 				}
 				else {
-					return natNatBinaryOp(node, (NatValue) left, opType, (WordValue) right);
+					return natNatBinaryOp(node, (NatValue) left, opType, right.toNat(node));
 				}
 			}
 			else if (leftType.equals(charTypeInfo)) {
@@ -223,7 +219,7 @@ public abstract class Generator {
 		throw undefinedBinaryOp(node, leftType, opType, rightType);
 	}
 	
-	protected @NonNull Value addressBinaryOp(ASTNode node, @NonNull Value left, @NonNull BinaryOpType opType, @NonNull Value right) {
+	protected @NonNull Value addressBinaryOp(ASTNode<?, ?> node, @NonNull Value left, @NonNull BinaryOpType opType, @NonNull Value right) {
 		TypeInfo leftType = left.typeInfo, rightType = right.typeInfo;
 		boolean plusOrMinus = opType == BinaryOpType.PLUS || opType == BinaryOpType.MINUS;
 		
@@ -291,12 +287,12 @@ public abstract class Generator {
 				}
 			}
 			else {
-				throw node.error("Unexpectedly used address binary op \"%s\" on expressions of types \"%s\" and \"%s\"!", opType, leftType, rightType);
+				throw Helpers.nodeError(node, "Unexpectedly used address binary op \"%s\" on expressions of types \"%s\" and \"%s\"!", opType, leftType, rightType);
 			}
 		}
 	}
 	
-	public @NonNull Value intIntBinaryOp(ASTNode node, IntValue left, @NonNull BinaryOpType opType, WordValue right) {
+	public @NonNull Value intIntBinaryOp(ASTNode<?, ?> node, IntValue left, @NonNull BinaryOpType opType, IntValue right) {
 		switch (opType) {
 			case EQUAL_TO:
 				return boolValue(left.value == right.value);
@@ -339,7 +335,7 @@ public abstract class Generator {
 		}
 	}
 	
-	public @NonNull Value natNatBinaryOp(ASTNode node, NatValue left, @NonNull BinaryOpType opType, WordValue right) {
+	public @NonNull Value natNatBinaryOp(ASTNode<?, ?> node, NatValue left, @NonNull BinaryOpType opType, NatValue right) {
 		switch (opType) {
 			case EQUAL_TO:
 				return boolValue(left.value == right.value);
@@ -382,13 +378,13 @@ public abstract class Generator {
 		}
 	}
 	
-	public @NonNull Value unaryOp(ASTNode node, @NonNull UnaryOpType opType, @NonNull Value value) {
+	public @NonNull Value unaryOp(ASTNode<?, ?> node, @NonNull UnaryOpType opType, @NonNull Value value) {
 		TypeInfo typeInfo = value.typeInfo;
-		if (typeInfo instanceof BasicTypeInfo) {
-			if (value instanceof AddressValue) {
-				throw undefinedUnaryOp(node, opType, typeInfo);
-			}
-			else if (typeInfo.equals(voidTypeInfo)) {
+		if (value instanceof AddressValue) {
+			throw undefinedUnaryOp(node, opType, typeInfo);
+		}
+		else if (typeInfo instanceof BasicTypeInfo) {
+			if (typeInfo.equals(voidTypeInfo)) {
 				throw undefinedUnaryOp(node, opType, typeInfo);
 			}
 			else if (typeInfo.equals(boolTypeInfo)) {
@@ -412,13 +408,10 @@ public abstract class Generator {
 				throw undefinedUnaryOp(node, opType, typeInfo);
 			}
 		}
-		else if (typeInfo.isFunction()) {
-			throw undefinedUnaryOp(node, opType, typeInfo);
-		}
 		throw undefinedUnaryOp(node, opType, typeInfo);
 	}
 	
-	public @NonNull Value intUnaryOp(ASTNode node, @NonNull UnaryOpType opType, @NonNull IntValue value) {
+	public @NonNull Value intUnaryOp(ASTNode<?, ?> node, @NonNull UnaryOpType opType, @NonNull IntValue value) {
 		switch (opType) {
 			case MINUS:
 				return intValue(-value.value);
@@ -429,7 +422,7 @@ public abstract class Generator {
 		}
 	}
 	
-	public @NonNull Value natUnaryOp(ASTNode node, @NonNull UnaryOpType opType, @NonNull NatValue value) {
+	public @NonNull Value natUnaryOp(ASTNode<?, ?> node, @NonNull UnaryOpType opType, @NonNull NatValue value) {
 		switch (opType) {
 			case MINUS:
 				throw undefinedUnaryOp(node, opType, value.typeInfo);
@@ -492,14 +485,14 @@ public abstract class Generator {
 		return intValue(value);
 	}
 	
-	public @NonNull TypeInfo binaryOpTypeInfo(ASTNode node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType) {
-		if (leftType instanceof BasicTypeInfo) {
+	public @NonNull TypeInfo binaryOpTypeInfo(ASTNode<?, ?> node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType) {
+		if (leftType.isAddress() || rightType.isAddress()) {
+			return addressBinaryOpTypeInfo(node, leftType, opType, rightType);
+		}
+		else if (leftType instanceof BasicTypeInfo) {
 			checkBasicBinaryOp(node, leftType, opType, rightType);
 			
-			if (leftType.isAddress() || rightType.isAddress()) {
-				return addressBinaryOpTypeInfo(node, leftType, opType, rightType);
-			}
-			else if (leftType.equals(voidTypeInfo)) {
+			if (leftType.equals(voidTypeInfo)) {
 				throw undefinedBinaryOp(node, leftType, opType, rightType);
 			}
 			else if (leftType.equals(boolTypeInfo)) {
@@ -582,18 +575,10 @@ public abstract class Generator {
 				}
 			}
 		}
-		else if (leftType.isFunction()) {
-			if (leftType.isAddress() || rightType.isAddress()) {
-				return addressBinaryOpTypeInfo(node, leftType, opType, rightType);
-			}
-			else {
-				throw undefinedBinaryOp(node, leftType, opType, rightType);
-			}
-		}
 		throw undefinedBinaryOp(node, leftType, opType, rightType);
 	}
 	
-	protected @NonNull TypeInfo addressBinaryOpTypeInfo(ASTNode node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType) {
+	protected @NonNull TypeInfo addressBinaryOpTypeInfo(ASTNode<?, ?> node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType) {
 		boolean plusOrMinus = opType == BinaryOpType.PLUS || opType == BinaryOpType.MINUS;
 		
 		if (leftType.isAddress()) {
@@ -648,20 +633,20 @@ public abstract class Generator {
 				}
 			}
 			else {
-				throw node.error("Unexpectedly used address binary op \"%s\" on expressions of types \"%s\" and \"%s\"!", opType, leftType, rightType);
+				throw Helpers.nodeError(node, "Unexpectedly used address binary op \"%s\" on expressions of types \"%s\" and \"%s\"!", opType, leftType, rightType);
 			}
 		}
 	}
 	
-	public void binaryOp(ASTNode node, @NonNull Routine routine, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType, DataId target, DataId arg1, DataId arg2) {
-		if (leftType instanceof BasicTypeInfo) {
+	public void binaryOp(ASTNode<?, ?> node, @NonNull Routine routine, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType, DataId target, DataId arg1, DataId arg2) {
+		if (leftType.isAddress() || rightType.isAddress()) {
+			addressBinaryOp(node, routine, leftType, opType, rightType, target, arg1, arg2);
+			return;
+		}
+		else if (leftType instanceof BasicTypeInfo) {
 			checkBasicBinaryOp(node, leftType, opType, rightType);
 			
-			if (leftType.isAddress() || rightType.isAddress()) {
-				addressBinaryOp(node, routine, leftType, opType, rightType, target, arg1, arg2);
-				return;
-			}
-			else if (leftType.equals(voidTypeInfo)) {
+			if (leftType.equals(voidTypeInfo)) {
 				throw undefinedBinaryOp(node, leftType, opType, rightType);
 			}
 			else if (leftType.equals(boolTypeInfo)) {
@@ -869,19 +854,10 @@ public abstract class Generator {
 				}
 			}
 		}
-		else if (leftType.isFunction()) {
-			if (leftType.isAddress() || rightType.isAddress()) {
-				addressBinaryOp(node, routine, leftType, opType, rightType, target, arg1, arg2);
-				return;
-			}
-			else {
-				throw undefinedBinaryOp(node, leftType, opType, rightType);
-			}
-		}
 		throw undefinedBinaryOp(node, leftType, opType, rightType);
 	}
 	
-	protected void addressBinaryOp(ASTNode node, @NonNull Routine routine, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType, DataId target, DataId arg1, DataId arg2) {
+	protected void addressBinaryOp(ASTNode<?, ?> node, @NonNull Routine routine, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType, DataId target, DataId arg1, DataId arg2) {
 		boolean plusOrMinus = opType == BinaryOpType.PLUS || opType == BinaryOpType.MINUS;
 		
 		if (leftType.isAddress()) {
@@ -915,16 +891,10 @@ public abstract class Generator {
 					case XOR:
 						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					case MINUS:
-						routine.addAction(BinaryActionType.INT_MINUS_INT.action(node, target, arg1, arg2));
+						routine.incrementRegId(intTypeInfo);
 						DataId raw = routine.currentRegId(node);
-						
-						routine.incrementRegId();
-						routine.addImmediateRegisterAssignmentAction(node, sizeValue(leftType.getAddressOffsetSize(node)));
-						DataId size = routine.currentRegId(node);
-						
-						routine.incrementRegId();
-						routine.addAction(BinaryActionType.INT_DIVIDE_INT.action(node, routine.currentRegId(node), raw, size));
-						
+						routine.addAction(BinaryActionType.INT_MINUS_INT.action(node, raw, arg1, arg2));
+						routine.addAction(BinaryActionType.INT_DIVIDE_INT.action(node, target, raw, new ValueDataId(sizeValue(leftType.getAddressOffsetSize(node)))));
 						return;
 					case LEFT_SHIFT:
 					case RIGHT_SHIFT:
@@ -940,16 +910,10 @@ public abstract class Generator {
 			}
 			else {
 				if (plusOrMinus && rightType.isWord()) {
-					routine.addAction(new AssignmentAction(node, target, new ValueDataId(sizeValue(leftType.getAddressOffsetSize(node)))));
-					DataId size = routine.currentRegId(node);
-					
-					routine.incrementRegId();
-					routine.addAction(BinaryActionType.INT_MULTIPLY_INT.action(node, routine.currentRegId(node), arg2, size));
+					routine.incrementRegId(intTypeInfo);
 					DataId offset = routine.currentRegId(node);
-					
-					routine.incrementRegId();
-					routine.addAction((opType == BinaryOpType.PLUS ? BinaryActionType.INT_PLUS_INT : BinaryActionType.INT_MINUS_INT).action(node, routine.currentRegId(node), arg1, offset));
-					
+					routine.addAction(BinaryActionType.INT_MULTIPLY_INT.action(node, offset, arg2, new ValueDataId(sizeValue(leftType.getAddressOffsetSize(node)))));
+					routine.addAction((opType == BinaryOpType.PLUS ? BinaryActionType.INT_PLUS_INT : BinaryActionType.INT_MINUS_INT).action(node, target, arg1, offset));
 					return;
 				}
 				else {
@@ -960,16 +924,10 @@ public abstract class Generator {
 		else {
 			if (rightType.isAddress()) {
 				if (plusOrMinus && leftType.isWord()) {
-					routine.addAction(new AssignmentAction(node, target, new ValueDataId(sizeValue(rightType.getAddressOffsetSize(node)))));
-					DataId size = routine.currentRegId(node);
-					
-					routine.incrementRegId();
-					routine.addAction(BinaryActionType.INT_MULTIPLY_INT.action(node, routine.currentRegId(node), arg1, size));
+					routine.incrementRegId(intTypeInfo);
 					DataId offset = routine.currentRegId(node);
-					
-					routine.incrementRegId();
-					routine.addAction((opType == BinaryOpType.PLUS ? BinaryActionType.INT_PLUS_INT : BinaryActionType.INT_MINUS_INT).action(node, routine.currentRegId(node), offset, arg2));
-					
+					routine.addAction(BinaryActionType.INT_MULTIPLY_INT.action(node, offset, arg1, new ValueDataId(sizeValue(rightType.getAddressOffsetSize(node)))));
+					routine.addAction((opType == BinaryOpType.PLUS ? BinaryActionType.INT_PLUS_INT : BinaryActionType.INT_MINUS_INT).action(node, target, offset, arg2));
 					return;
 				}
 				else {
@@ -977,12 +935,12 @@ public abstract class Generator {
 				}
 			}
 			else {
-				throw node.error("Unexpectedly used address binary op \"%s\" on expressions of types \"%s\" and \"%s\"!", opType, leftType, rightType);
+				throw Helpers.nodeError(node, "Unexpectedly used address binary op \"%s\" on expressions of types \"%s\" and \"%s\"!", opType, leftType, rightType);
 			}
 		}
 	}
 	
-	public void checkBasicBinaryOp(ASTNode node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType) {
+	public void checkBasicBinaryOp(ASTNode<?, ?> node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType) {
 		switch (opType) {
 			case EQUAL_TO:
 			case NOT_EQUAL_TO:
@@ -1019,20 +977,20 @@ public abstract class Generator {
 		}
 	}
 	
-	protected RuntimeException undefinedBinaryOp(ASTNode node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType) {
-		return node.error("Binary op \"%s\" can not act on expressions of types \"%s\" and \"%s\"!", opType, leftType, rightType);
+	protected RuntimeException undefinedBinaryOp(ASTNode<?, ?> node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType) {
+		return Helpers.nodeError(node, "Binary op \"%s\" can not act on expressions of types \"%s\" and \"%s\"!", opType, leftType, rightType);
 	}
 	
-	protected RuntimeException unknownBinaryOpType(ASTNode node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType) {
-		return node.error("Attempted to write an expression including a binary op of unknown type!");
+	protected RuntimeException unknownBinaryOpType(ASTNode<?, ?> node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType) {
+		return Helpers.nodeError(node, "Attempted to write an expression including a binary op of unknown type!");
 	}
 	
-	public @NonNull TypeInfo unaryOpTypeInfo(ASTNode node, @NonNull UnaryOpType opType, @NonNull TypeInfo typeInfo) {
-		if (typeInfo instanceof BasicTypeInfo) {
-			if (typeInfo.isAddress()) {
-				throw undefinedUnaryOp(node, opType, typeInfo);
-			}
-			else if (typeInfo.equals(voidTypeInfo)) {
+	public @NonNull TypeInfo unaryOpTypeInfo(ASTNode<?, ?> node, @NonNull UnaryOpType opType, @NonNull TypeInfo typeInfo) {
+		if (typeInfo.isAddress()) {
+			throw undefinedUnaryOp(node, opType, typeInfo);
+		}
+		else if (typeInfo instanceof BasicTypeInfo) {
+			if (typeInfo.equals(voidTypeInfo)) {
 				throw undefinedUnaryOp(node, opType, typeInfo);
 			}
 			else if (typeInfo.equals(boolTypeInfo)) {
@@ -1041,6 +999,15 @@ public abstract class Generator {
 						throw undefinedUnaryOp(node, opType, typeInfo);
 					case NOT:
 						return boolTypeInfo;
+					default:
+						throw unknownUnaryOpType(node, opType, typeInfo);
+				}
+			}
+			else if (typeInfo.equals(intTypeInfo)) {
+				switch (opType) {
+					case MINUS:
+					case NOT:
+						return intTypeInfo;
 					default:
 						throw unknownUnaryOpType(node, opType, typeInfo);
 				}
@@ -1055,32 +1022,19 @@ public abstract class Generator {
 						throw unknownUnaryOpType(node, opType, typeInfo);
 				}
 			}
-			else if (typeInfo.isWord()) {
-				switch (opType) {
-					case MINUS:
-						return intTypeInfo;
-					case NOT:
-						return typeInfo;
-					default:
-						throw unknownUnaryOpType(node, opType, typeInfo);
-				}
-			}
 			else if (typeInfo.equals(charTypeInfo)) {
 				throw undefinedUnaryOp(node, opType, typeInfo);
 			}
 		}
-		else if (typeInfo.isFunction()) {
-			throw undefinedUnaryOp(node, opType, typeInfo);
-		}
 		throw undefinedUnaryOp(node, opType, typeInfo);
 	}
 	
-	public void unaryOp(ASTNode node, @NonNull Routine routine, @NonNull UnaryOpType opType, @NonNull TypeInfo typeInfo, DataId target, DataId arg) {
-		if (typeInfo instanceof BasicTypeInfo) {
-			if (typeInfo.isAddress()) {
-				throw undefinedUnaryOp(node, opType, typeInfo);
-			}
-			else if (typeInfo.equals(voidTypeInfo)) {
+	public void unaryOp(ASTNode<?, ?> node, @NonNull Routine routine, @NonNull UnaryOpType opType, @NonNull TypeInfo typeInfo, DataId target, DataId arg) {
+		if (typeInfo.isAddress()) {
+			throw undefinedUnaryOp(node, opType, typeInfo);
+		}
+		else if (typeInfo instanceof BasicTypeInfo) {
+			if (typeInfo.equals(voidTypeInfo)) {
 				throw undefinedUnaryOp(node, opType, typeInfo);
 			}
 			else if (typeInfo.equals(boolTypeInfo)) {
@@ -1121,18 +1075,15 @@ public abstract class Generator {
 				throw undefinedUnaryOp(node, opType, typeInfo);
 			}
 		}
-		else if (typeInfo.isFunction()) {
-			throw undefinedUnaryOp(node, opType, typeInfo);
-		}
 		throw undefinedUnaryOp(node, opType, typeInfo);
 	}
 	
-	protected RuntimeException undefinedUnaryOp(ASTNode node, @NonNull UnaryOpType opType, @NonNull TypeInfo typeInfo) {
-		return node.error("Unary op \"%s\" can not act on an expression of type \"%s\"!", opType, typeInfo);
+	protected RuntimeException undefinedUnaryOp(ASTNode<?, ?> node, @NonNull UnaryOpType opType, @NonNull TypeInfo typeInfo) {
+		return Helpers.nodeError(node, "Unary op \"%s\" can not act on an expression of type \"%s\"!", opType, typeInfo);
 	}
 	
-	protected RuntimeException unknownUnaryOpType(ASTNode node, @NonNull UnaryOpType opType, @NonNull TypeInfo typeInfo) {
-		return node.error("Attempted to write an expression including a unary op of unknown type!");
+	protected RuntimeException unknownUnaryOpType(ASTNode<?, ?> node, @NonNull UnaryOpType opType, @NonNull TypeInfo typeInfo) {
+		return Helpers.nodeError(node, "Attempted to write an expression including a unary op of unknown type!");
 	}
 	
 	public abstract int getWordSize();
@@ -1142,23 +1093,23 @@ public abstract class Generator {
 	public abstract int getAddressSize();
 	
 	public @NonNull VoidTypeInfo voidTypeInfo(int referenceLevel) {
-		return new VoidTypeInfo(null, program.rootScope, referenceLevel);
+		return new VoidTypeInfo(null, Main.rootScope, referenceLevel);
 	}
 	
 	public @NonNull BoolTypeInfo boolTypeInfo(int referenceLevel) {
-		return new BoolTypeInfo(null, program.rootScope, referenceLevel);
+		return new BoolTypeInfo(null, Main.rootScope, referenceLevel);
 	}
 	
 	public @NonNull IntTypeInfo intTypeInfo(int referenceLevel) {
-		return new IntTypeInfo(null, program.rootScope, referenceLevel);
+		return new IntTypeInfo(null, Main.rootScope, referenceLevel);
 	}
 	
 	public @NonNull NatTypeInfo natTypeInfo(int referenceLevel) {
-		return new NatTypeInfo(null, program.rootScope, referenceLevel);
+		return new NatTypeInfo(null, Main.rootScope, referenceLevel);
 	}
 	
 	public @NonNull CharTypeInfo charTypeInfo(int referenceLevel) {
-		return new CharTypeInfo(null, program.rootScope, referenceLevel);
+		return new CharTypeInfo(null, Main.rootScope, referenceLevel);
 	}
 	
 	public abstract void generateRootParams(RootRoutine routine);
@@ -1166,26 +1117,26 @@ public abstract class Generator {
 	public abstract void generate();
 	
 	public void optimizeIntermediate() {
-		for (String name : new HashSet<>(program.routineMap.keySet())) {
-			Routine routine = program.routineMap.get(name);
+		for (Entry<String, Routine> entry : new LinkedHashSet<>(Main.program.routineMap.entrySet())) {
+			Routine routine = entry.getValue();
 			if (routine.isFunctionRoutine() && !routine.getFunction().required) {
-				program.routineMap.remove(name);
+				Main.program.routineMap.remove(entry.getKey());
 			}
 		}
-		for (Routine routine : program.routineMap.values()) {
+		for (Routine routine : Main.program.routineMap.values()) {
 			boolean flag = true;
 			while (flag) {
 				flag = IntermediateOptimization.removeNoOps(routine);
 				flag |= IntermediateOptimization.removeDeadActions(routine);
-				flag |= IntermediateOptimization.simplifySections(routine);
+				flag |= IntermediateOptimization.removeEmptySections(routine);
+				flag |= IntermediateOptimization.concatenateJumps(routine);
+				flag |= IntermediateOptimization.concatenateSections(routine);
 				flag |= IntermediateOptimization.simplifyJumps(routine);
-				flag |= IntermediateOptimization.shiftActions(routine);
-				flag |= IntermediateOptimization.replaceJumps(routine);
 				flag |= IntermediateOptimization.compressRegisters(routine);
 				flag |= IntermediateOptimization.reorderRvalues(routine);
 				flag |= IntermediateOptimization.foldRvalues(routine);
+				flag |= IntermediateOptimization.simplifyDereferences(routine);
 				flag |= IntermediateOptimization.orderRegisters(routine);
-				flag |= IntermediateOptimization.simplifyAddressDereferences(routine);
 			}
 		}
 	}

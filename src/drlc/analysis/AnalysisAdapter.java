@@ -147,18 +147,6 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAGotoStatementBasicSection(AGotoStatementBasicSection node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseASectionLabelBasicSection(ASectionLabelBasicSection node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
     public void caseAFunctionDefinition(AFunctionDefinition node)
     {
         defaultCase(node);
@@ -237,18 +225,6 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAGotoStatement(AGotoStatement node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseASectionLabel(ASectionLabel node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
     public void caseAScopeContents(AScopeContents node)
     {
         defaultCase(node);
@@ -274,18 +250,6 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseABreakStopStatement(ABreakStopStatement node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAExitExpressionStopStatement(AExitExpressionStopStatement node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAReturnExpressionStopStatement(AReturnExpressionStopStatement node)
     {
         defaultCase(node);
     }
@@ -412,6 +376,12 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseADiscardIdentifier(ADiscardIdentifier node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAIterativeSectionLabel(AIterativeSectionLabel node)
     {
         defaultCase(node);
     }
@@ -898,12 +868,6 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTDo(TDo node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTGoto(TGoto node)
     {
         defaultCase(node);
     }

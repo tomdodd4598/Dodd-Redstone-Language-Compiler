@@ -9,14 +9,24 @@ public class NatValue extends BasicValue {
 	
 	public final long value;
 	
-	public NatValue(ASTNode node, long value) {
+	public NatValue(ASTNode<?, ?> node, long value) {
 		super(node, Main.generator.natTypeInfo);
 		this.value = value;
 	}
 	
 	@Override
-	public long longValue(ASTNode node) {
+	public long longValue(ASTNode<?, ?> node) {
 		return value;
+	}
+	
+	@Override
+	public IntValue toInt(ASTNode<?, ?> node) {
+		return new IntValue(node, value);
+	}
+	
+	@Override
+	public NatValue toNat(ASTNode<?, ?> node) {
+		return this;
 	}
 	
 	@Override

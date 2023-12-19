@@ -1,5 +1,7 @@
 package drlc.intermediate.component.type;
 
+import java.util.Objects;
+
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.intermediate.ast.ASTNode;
@@ -19,8 +21,13 @@ public class RawType {
 		this.supplier = supplier;
 	}
 	
-	public @NonNull TypeInfo getTypeInfo(ASTNode node, Scope scope, int referenceLevel) {
+	public @NonNull TypeInfo getTypeInfo(ASTNode<?, ?> node, Scope scope, int referenceLevel) {
 		return supplier.create(node, scope, referenceLevel);
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(name, size);
 	}
 	
 	@Override

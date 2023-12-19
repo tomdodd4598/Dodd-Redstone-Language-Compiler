@@ -36,7 +36,7 @@ public enum AssignmentOpType {
 	public static @NonNull AssignmentOpType get(String str) {
 		AssignmentOpType opType = NAME_MAP.get(str);
 		if (opType == null) {
-			throw Helpers.nodeError(null, "Assignment operator \"%s\" not defined!", str);
+			throw Helpers.error("Assignment operator \"%s\" not defined!", str);
 		}
 		else {
 			return opType;

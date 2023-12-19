@@ -13,7 +13,7 @@ public abstract class FunctionTypeInfo extends TypeInfo {
 	public final @NonNull TypeInfo returnTypeInfo;
 	public final List<TypeInfo> paramTypeInfos;
 	
-	protected FunctionTypeInfo(ASTNode node, int referenceLevel, @NonNull TypeInfo returnTypeInfo, List<TypeInfo> paramTypeInfos) {
+	protected FunctionTypeInfo(ASTNode<?, ?> node, int referenceLevel, @NonNull TypeInfo returnTypeInfo, List<TypeInfo> paramTypeInfos) {
 		super(node, referenceLevel);
 		this.returnTypeInfo = returnTypeInfo;
 		this.paramTypeInfos = paramTypeInfos;

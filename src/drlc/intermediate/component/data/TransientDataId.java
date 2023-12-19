@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
+import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.TypeInfo;
 
 public class TransientDataId extends DataId {
@@ -19,28 +20,38 @@ public class TransientDataId extends DataId {
 	}
 	
 	@Override
-	public TransientDataId addAddressPrefix() {
-		throw Helpers.nodeError(null, "Attempted to add address prefix to data ID \"%s\"!", this);
+	public TransientDataId addAddressPrefix(ASTNode<?, ?> node) {
+		throw Helpers.nodeError(node, "Attempted to add address prefix to data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public TransientDataId removeAddressPrefix() {
-		throw Helpers.nodeError(null, "Attempted to remove address prefix from data ID \"%s\"!", this);
+	public TransientDataId removeAddressPrefix(ASTNode<?, ?> node) {
+		throw Helpers.nodeError(node, "Attempted to remove address prefix from data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public TransientDataId addDereference() {
-		throw Helpers.nodeError(null, "Attempted to add dereference to data ID \"%s\"!", this);
+	public TransientDataId addDereference(ASTNode<?, ?> node) {
+		throw Helpers.nodeError(node, "Attempted to add dereference to data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public TransientDataId removeDereference() {
-		throw Helpers.nodeError(null, "Attempted to remove dereference from data ID \"%s\"!", this);
+	public TransientDataId removeDereference(ASTNode<?, ?> node) {
+		throw Helpers.nodeError(node, "Attempted to remove dereference from data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public TransientDataId removeAllDereferences() {
+	public TransientDataId removeAllDereferences(ASTNode<?, ?> node) {
 		return new TransientDataId(typeInfo);
+	}
+	
+	@Override
+	public boolean isCompressable() {
+		return false;
+	}
+	
+	@Override
+	public boolean isRepeatable() {
+		return true;
 	}
 	
 	@Override

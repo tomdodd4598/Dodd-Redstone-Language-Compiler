@@ -1,5 +1,7 @@
 package drlc.intermediate.component;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import drlc.intermediate.component.value.Value;
 
 public abstract class Directive {
@@ -12,5 +14,5 @@ public abstract class Directive {
 		this.params = params;
 	}
 	
-	public void call(Value[] values) {}
+	public abstract void run(@NonNull Value[] values);
 }

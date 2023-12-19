@@ -21,23 +21,27 @@ public class VariableExpressionNode extends ExpressionNode {
 	
 	public boolean isLvalue = false;
 	
+	public boolean setDirectFunction = false;
+	
+	public @Nullable Function directFunction = null;
+	
 	public VariableExpressionNode(Node[] parseNodes, @NonNull String name) {
 		super(parseNodes);
 		this.name = name;
 	}
 	
 	@Override
-	public void setScopes(ASTNode parent) {
+	public void setScopes(ASTNode<?, ?> parent) {
 		scope = parent.scope;
 	}
 	
 	@Override
-	public void defineTypes(ASTNode parent) {
+	public void defineTypes(ASTNode<?, ?> parent) {
 		
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode parent) {
+	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 		
 		setConstantValue();
@@ -50,19 +54,26 @@ public class VariableExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void checkTypes(ASTNode parent) {
+	public void checkTypes(ASTNode<?, ?> parent) {
 		
 	}
 	
 	@Override
-	public void foldConstants(ASTNode parent) {
+	public void foldConstants(ASTNode<?, ?> parent) {
 		
+	}
+	
+	@Override
+	public void trackFunctions(ASTNode<?, ?> parent) {
+		if (directFunction != null) {
+			routine.onNonLocalFunctionItemExpression(this, directFunction);
+		}
 	}
 	
 	@SuppressWarnings("null")
 	@Override
-	public void generateIntermediate(ASTNode parent) {
-		routine.incrementRegId(typeInfo);
+	public void generateIntermediate(ASTNode<?, ?> parent) {
+		routine.incrementRegId(typeInfo.modifiedReferenceLevel(this, value == null && isLvalue ? 1 : 0));
 		
 		if (value != null) {
 			routine.addImmediateRegisterAssignmentAction(this, value);
@@ -124,11 +135,12 @@ public class VariableExpressionNode extends ExpressionNode {
 	
 	@Override
 	public @Nullable Function getDirectFunction() {
-		if (value instanceof FunctionItemValue) {
-			return scope.getFunction(this, name);
+		if (!setDirectFunction) {
+			if (value instanceof FunctionItemValue) {
+				directFunction = scope.getFunction(this, name);
+			}
+			setDirectFunction = true;
 		}
-		else {
-			return null;
-		}
+		return directFunction;
 	}
 }

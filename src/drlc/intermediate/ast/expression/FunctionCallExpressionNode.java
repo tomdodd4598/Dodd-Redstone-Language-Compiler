@@ -24,7 +24,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode parent) {
+	public void setScopes(ASTNode<?, ?> parent) {
 		scope = parent.scope;
 		
 		expressionNode.setScopes(this);
@@ -34,7 +34,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode parent) {
+	public void defineTypes(ASTNode<?, ?> parent) {
 		expressionNode.defineTypes(this);
 		for (ExpressionNode argExpressionNode : argExpressionNodes) {
 			argExpressionNode.defineTypes(this);
@@ -42,7 +42,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode parent) {
+	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 		
 		expressionNode.declareExpressions(this);
@@ -54,7 +54,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void checkTypes(ASTNode parent) {
+	public void checkTypes(ASTNode<?, ?> parent) {
 		expressionNode.checkTypes(this);
 		for (ExpressionNode argExpressionNode : argExpressionNodes) {
 			argExpressionNode.checkTypes(this);
@@ -81,7 +81,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void foldConstants(ASTNode parent) {
+	public void foldConstants(ASTNode<?, ?> parent) {
 		expressionNode.foldConstants(this);
 		for (ExpressionNode argExpressionNode : argExpressionNodes) {
 			argExpressionNode.foldConstants(this);
@@ -102,7 +102,17 @@ public class FunctionCallExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode parent) {
+	public void trackFunctions(ASTNode<?, ?> parent) {
+		if (expressionNode.getDirectFunction() == null) {
+			expressionNode.trackFunctions(this);
+		}
+		for (ExpressionNode argExpressionNode : argExpressionNodes) {
+			argExpressionNode.trackFunctions(this);
+		}
+	}
+	
+	@Override
+	public void generateIntermediate(ASTNode<?, ?> parent) {
 		expressionNode.generateIntermediate(this);
 		
 		routine.pushCurrentRegId(this);

@@ -1,4 +1,4 @@
-package drlc.intermediate.interpreter;
+package drlc;
 
 import static drlc.Helpers.array;
 
@@ -6,10 +6,8 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.*;
 import drlc.analysis.AnalysisAdapter;
 import drlc.intermediate.ast.*;
-import drlc.intermediate.ast.conditional.*;
 import drlc.intermediate.ast.element.*;
 import drlc.intermediate.ast.expression.*;
 import drlc.intermediate.ast.section.*;
@@ -18,7 +16,7 @@ import drlc.intermediate.ast.type.*;
 import drlc.intermediate.component.*;
 import drlc.node.*;
 
-public class ParseTreeInterpreter extends AnalysisAdapter {
+public class ASTBuilder extends AnalysisAdapter {
 	
 	public StartNode ast;
 	
@@ -29,13 +27,13 @@ public class ParseTreeInterpreter extends AnalysisAdapter {
 	
 	public final Deque<DirectiveNode> directiveStack = new ArrayDeque<>();
 	
-	public final Deque<ProgramSectionNode> programSectionStack = new ArrayDeque<>();
+	public final Deque<ProgramSectionNode<?, ?>> programSectionStack = new ArrayDeque<>();
 	
-	public final Deque<BasicSectionNode> basicSectionStack = new ArrayDeque<>();
+	public final Deque<BasicSectionNode<?, ?>> basicSectionStack = new ArrayDeque<>();
 	
 	public final Deque<ScopeContentsNode> scopeContentsStack = new ArrayDeque<>();
 	
-	public final Deque<ConditionalEndNode> conditionalEndStack = new ArrayDeque<>();
+	public final Deque<ASTNode<?, ?>> conditionalEndStack = new ArrayDeque<>();
 	public final Deque<ConditionalSectionNode> conditionalSectionStack = new ArrayDeque<>();
 	
 	public final Deque<StopNode> stopStack = new ArrayDeque<>();
@@ -61,10 +59,6 @@ public class ParseTreeInterpreter extends AnalysisAdapter {
 	
 	private @NonNull ScopeContentsNode scope(Node node) {
 		return traverse(node, scopeContentsStack);
-	}
-	
-	private @NonNull ConditionalStartNode conditionalStart(Node node) {
-		return new ConditionalStartNode(array(node), scope(node));
 	}
 	
 	private @NonNull TypeNode type(Node node) {
@@ -147,6 +141,14 @@ public class ParseTreeInterpreter extends AnalysisAdapter {
 	@SuppressWarnings("null")
 	private @NonNull String text(Token token) {
 		return token.getText();
+	}
+	
+	private @Nullable String textNullable(Token token) {
+		return token == null ? null : token.getText();
+	}
+	
+	private @Nullable String label(PIterativeSectionLabel label) {
+		return label == null ? null : text(((AIterativeSectionLabel) label).getName());
 	}
 	
 	private @Nullable String identifier(PIdentifier identifier) {
@@ -237,16 +239,6 @@ public class ParseTreeInterpreter extends AnalysisAdapter {
 	}
 	
 	@Override
-	public void caseAGotoStatementBasicSection(AGotoStatementBasicSection node) {
-		node.getGotoStatement().apply(this);
-	}
-	
-	@Override
-	public void caseASectionLabelBasicSection(ASectionLabelBasicSection node) {
-		node.getSectionLabel().apply(this);
-	}
-	
-	@Override
 	public void caseAFunctionDefinition(AFunctionDefinition node) {
 		programSectionStack.push(new FunctionDefinitionNode(array(node), text(node.getName()), parameterList(node.getParameterList()), returnType(node.getReturnType()), scope(node.getScopeContents())));
 	}
@@ -283,77 +275,57 @@ public class ParseTreeInterpreter extends AnalysisAdapter {
 	
 	@Override
 	public void caseAConditionalSection(AConditionalSection node) {
-		conditionalSectionStack.push(new ConditionalSectionNode(array(node), unless(node.getConditionalBranchKeyword()), expression(node.getExpression()), conditionalStart(node.getScopeContents()), traverseNullable(node.getElseSection(), conditionalEndStack)));
+		conditionalSectionStack.push(new ConditionalSectionNode(array(node), unless(node.getConditionalBranchKeyword()), expression(node.getExpression()), scope(node.getScopeContents()), traverseNullable(node.getElseSection(), conditionalEndStack)));
 	}
 	
 	@Override
 	public void caseAExcludingBranchElseSection(AExcludingBranchElseSection node) {
-		conditionalEndStack.push(new ElseNode(array(node), scope(node.getScopeContents())));
+		conditionalEndStack.push(new ScopedSectionNode(array(node), scope(node.getScopeContents())));
 	}
 	
 	@Override
 	public void caseAIncludingBranchElseSection(AIncludingBranchElseSection node) {
-		conditionalEndStack.push(new ConditionalElseNode(array(node), traverse(node.getConditionalSection(), conditionalSectionStack)));
+		conditionalEndStack.push(traverse(node.getConditionalSection(), conditionalSectionStack));
 	}
 	
 	@Override
 	public void caseALoopIterativeSection(ALoopIterativeSection node) {
-		basicSectionStack.push(new LoopIterativeSectionNode(array(node), scope(node.getScopeContents())));
+		basicSectionStack.push(new LoopIterativeSectionNode(array(node), label(node.getIterativeSectionLabel()), scope(node.getScopeContents())));
 	}
 	
 	@Override
 	public void caseAConditionalIterativeSection(AConditionalIterativeSection node) {
-		basicSectionStack.push(new ConditionalIterativeSectionNode(array(node), until(node.getConditionalIterativeKeyword()), expression(node.getExpression()), scope(node.getScopeContents())));
+		basicSectionStack.push(new ConditionalIterativeSectionNode(array(node), label(node.getIterativeSectionLabel()), false, until(node.getConditionalIterativeKeyword()), expression(node.getExpression()), scope(node.getScopeContents())));
 	}
 	
 	@Override
 	public void caseADoConditionalIterativeSection(ADoConditionalIterativeSection node) {
-		basicSectionStack.push(new DoConditionalIterativeSectionNode(array(node), scope(node.getScopeContents()), until(node.getConditionalIterativeKeyword()), expression(node.getExpression())));
-	}
-	
-	@Override
-	public void caseAGotoStatement(AGotoStatement node) {
-		basicSectionStack.push(new GotoSectionNode(array(node), text(node.getName())));
-	}
-	
-	@Override
-	public void caseASectionLabel(ASectionLabel node) {
-		basicSectionStack.push(new SectionLabelNode(array(node), text(node.getName())));
+		basicSectionStack.push(new ConditionalIterativeSectionNode(array(node), label(node.getIterativeSectionLabel()), true, until(node.getConditionalIterativeKeyword()), expression(node.getExpression()), scope(node.getScopeContents())));
 	}
 	
 	@Override
 	public void caseAScopeContents(AScopeContents node) {
-		basicSectionStack.push(new ScopeContentsNode(array(node), traverseList(node.getBasicSection(), basicSectionStack), traverseNullable(node.getStopStatement(), stopStack)));
+		scopeContentsStack.push(new ScopeContentsNode(array(node), traverseList(node.getBasicSection(), basicSectionStack), traverseNullable(node.getStopStatement(), stopStack)));
 	}
 	
 	@Override
 	public void caseAExitStopStatement(AExitStopStatement node) {
-		stopStack.push(new ExitNode(array(node)));
+		stopStack.push(new ExitNode(array(node), traverseNullable(node.getExpression(), expressionStack)));
 	}
 	
 	@Override
 	public void caseAReturnStopStatement(AReturnStopStatement node) {
-		stopStack.push(new ReturnNode(array(node)));
+		stopStack.push(new ReturnNode(array(node), traverseNullable(node.getExpression(), expressionStack)));
 	}
 	
 	@Override
 	public void caseAContinueStopStatement(AContinueStopStatement node) {
-		stopStack.push(new ContinueNode(array(node)));
+		stopStack.push(new ContinueNode(array(node), textNullable(node.getName())));
 	}
 	
 	@Override
 	public void caseABreakStopStatement(ABreakStopStatement node) {
-		stopStack.push(new BreakNode(array(node)));
-	}
-	
-	@Override
-	public void caseAExitExpressionStopStatement(AExitExpressionStopStatement node) {
-		stopStack.push(new ExitExpressionNode(array(node), expression(node.getExpression())));
-	}
-	
-	@Override
-	public void caseAReturnExpressionStopStatement(AReturnExpressionStopStatement node) {
-		stopStack.push(new ReturnExpressionNode(array(node), expression(node.getExpression())));
+		stopStack.push(new BreakNode(array(node), textNullable(node.getName())));
 	}
 	
 	@Override

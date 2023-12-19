@@ -24,7 +24,7 @@ public class RedstoneRoutine {
 	public final RedstoneCode code;
 	public final Routine intermediateRoutine;
 	public final String name;
-	public final DeclaratorInfo[] params;
+	public final List<DeclaratorInfo> params;
 	
 	public final Map<Short, List<Instruction>> textSectionMap = new TreeMap<>();
 	
@@ -38,7 +38,7 @@ public class RedstoneRoutine {
 	public final Map<RedstoneAddressKey, Short> dataAddressMap;
 	public final Map<RedstoneAddressKey, Short> tempAddressMap = new HashMap<>();
 	
-	public RedstoneRoutine(RedstoneCode code, String name, RoutineCallType type, DeclaratorInfo[] params) {
+	public RedstoneRoutine(RedstoneCode code, String name, RoutineCallType type, List<DeclaratorInfo> params) {
 		this.code = code;
 		intermediateRoutine = null;
 		this.name = name;
@@ -180,7 +180,7 @@ public class RedstoneRoutine {
 						throw new IllegalArgumentException(String.format("Root routine can not return! Use an exit statement!"));
 					}
 					else if (isStackRoutine()) {
-						text.add(new InstructionJump((short) body.size()));
+						text.add(new InstructionJump(body.size()));
 					}
 					else {
 						text.add(new InstructionReturnFromSubroutine());
@@ -195,7 +195,7 @@ public class RedstoneRoutine {
 						ReturnValueAction rva = (ReturnValueAction) action;
 						load(text, rva.arg);
 						if (isStackRoutine()) {
-							text.add(new InstructionJump((short) body.size()));
+							text.add(new InstructionJump(body.size()));
 						}
 						else {
 							text.add(new InstructionReturnFromSubroutine());
@@ -1220,18 +1220,17 @@ public class RedstoneRoutine {
 		onRequiresNesting();
 	}
 	
-	protected void conditionalJump(List<Instruction> text, String section, boolean jumpCondition) {
-		short sect = Helpers.parseSectionId(section).shortValue();
+	protected void conditionalJump(List<Instruction> text, int section, boolean jumpCondition) {
 		if (jumpCondition) {
-			text.add(new InstructionConditionalJumpIfNotZero(sect));
+			text.add(new InstructionConditionalJumpIfNotZero(section));
 		}
 		else {
-			text.add(new InstructionConditionalJumpIfZero(sect));
+			text.add(new InstructionConditionalJumpIfZero(section));
 		}
 	}
 	
-	protected void jump(List<Instruction> text, String section) {
-		text.add(new InstructionJump(Helpers.parseSectionId(section).shortValue()));
+	protected void jump(List<Instruction> text, int section) {
+		text.add(new InstructionJump(section));
 	}
 	
 	protected void dereference(List<Instruction> text, int dereferenceLevel, DataId arg) {
@@ -1395,7 +1394,7 @@ public class RedstoneRoutine {
 		else if (functionName.equals(Global.ARGV_FUNCTION)) {
 			DataId arg = action.args.get(0);
 			if (Helpers.isImmediateValue(arg.name)) {
-				load(text, code.generator.rootParamDataId(code.program.rootRoutine, Helpers.parseImmediateValue(arg.name).intValue()));
+				load(text, code.generator.rootParamDataId(Main.program.rootRoutine, Helpers.parseImmediateValue(arg.name).intValue()));
 			}
 			else {
 				load(text, arg);

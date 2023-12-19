@@ -10,7 +10,7 @@ public class DeclaratorInfo {
 	
 	public final @NonNull Variable variable;
 	
-	public DeclaratorInfo(ASTNode node, @NonNull Variable variable) {
+	public DeclaratorInfo(ASTNode<?, ?> node, @NonNull Variable variable) {
 		this.variable = variable;
 	}
 	

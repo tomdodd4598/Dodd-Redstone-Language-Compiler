@@ -2,6 +2,7 @@ package drlc.intermediate.action.unary;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.UnaryOpType;
 import drlc.intermediate.component.data.DataId;
@@ -18,7 +19,7 @@ public enum UnaryActionType {
 		this.opType = opType;
 	}
 	
-	public UnaryOpAction action(ASTNode node, DataId target, DataId arg) {
+	public UnaryOpAction action(ASTNode<?, ?> node, DataId target, DataId arg) {
 		switch (this) {
 			case MINUS_INT:
 				return new UnaryMinusIntAction(node, target, arg);
@@ -27,7 +28,7 @@ public enum UnaryActionType {
 			case NOT_INT:
 				return new UnaryNotIntAction(node, target, arg);
 			default:
-				throw node.error("Attempted to write an expression including a unary op of unknown type!");
+				throw Helpers.nodeError(node, "Attempted to write an expression including a unary op of unknown type!");
 		}
 	}
 }

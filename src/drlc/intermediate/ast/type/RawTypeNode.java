@@ -4,9 +4,11 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.TypeInfo;
+import drlc.intermediate.routine.Routine;
+import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
-public abstract class RawTypeNode extends ASTNode {
+public abstract class RawTypeNode extends ASTNode<Scope, Routine> {
 	
 	public boolean setTypeInfo = false;
 	

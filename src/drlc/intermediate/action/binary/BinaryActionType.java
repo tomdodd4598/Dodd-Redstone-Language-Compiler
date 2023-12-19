@@ -2,6 +2,7 @@ package drlc.intermediate.action.binary;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.BinaryOpType;
 import drlc.intermediate.component.data.DataId;
@@ -58,7 +59,7 @@ public enum BinaryActionType {
 		this.opType = opType;
 	}
 	
-	public BinaryOpAction action(ASTNode node, DataId target, DataId arg1, DataId arg2) {
+	public BinaryOpAction action(ASTNode<?, ?> node, DataId target, DataId arg1, DataId arg2) {
 		switch (this) {
 			case BOOL_EQUAL_TO_BOOL:
 				return new BinaryBoolEqualToBoolAction(node, target, arg1, arg2);
@@ -144,7 +145,7 @@ public enum BinaryActionType {
 			case CHAR_MORE_OR_EQUAL_CHAR:
 				return new BinaryCharMoreOrEqualCharAction(node, target, arg1, arg2);
 			default:
-				throw node.error("Attempted to write an expression including a binary op of unknown type!");
+				throw Helpers.nodeError(node, "Attempted to write an expression including a binary op of unknown type!");
 		}
 	}
 }

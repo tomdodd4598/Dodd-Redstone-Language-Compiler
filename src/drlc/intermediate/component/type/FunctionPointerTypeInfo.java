@@ -1,20 +1,30 @@
 package drlc.intermediate.component.type;
 
-import java.util.List;
+import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
 
 public class FunctionPointerTypeInfo extends FunctionTypeInfo {
 	
-	public FunctionPointerTypeInfo(ASTNode node, int referenceLevel, @NonNull TypeInfo returnTypeInfo, List<TypeInfo> paramTypeInfos) {
+	public FunctionPointerTypeInfo(ASTNode<?, ?> node, int referenceLevel, @NonNull TypeInfo returnTypeInfo, List<TypeInfo> paramTypeInfos) {
 		super(node, referenceLevel, returnTypeInfo, paramTypeInfos);
+		
+		if (referenceLevel < 0) {
+			throw Helpers.nodeError(node, "Reference level of function pointer type \"%s\" can not be negative!", rawString());
+		}
 	}
 	
 	@Override
-	public @NonNull TypeInfo copy(ASTNode node, int newReferenceLevel) {
+	public @NonNull TypeInfo copy(ASTNode<?, ?> node, int newReferenceLevel) {
 		return new FunctionPointerTypeInfo(node, newReferenceLevel, returnTypeInfo, paramTypeInfos);
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(referenceLevel, returnTypeInfo, paramTypeInfos);
 	}
 	
 	@Override

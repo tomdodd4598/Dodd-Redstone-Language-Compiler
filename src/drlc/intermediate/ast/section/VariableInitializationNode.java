@@ -6,9 +6,11 @@ import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.element.VariableDeclaratorNode;
 import drlc.intermediate.ast.expression.*;
 import drlc.intermediate.component.type.TypeInfo;
+import drlc.intermediate.routine.Routine;
+import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
-public class VariableInitializationNode extends BasicSectionNode {
+public class VariableInitializationNode extends BasicSectionNode<Scope, Routine> {
 	
 	public final @NonNull VariableDeclaratorNode declaratorNode;
 	public @NonNull ExpressionNode expressionNode;
@@ -20,7 +22,7 @@ public class VariableInitializationNode extends BasicSectionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode parent) {
+	public void setScopes(ASTNode<?, ?> parent) {
 		scope = parent.scope;
 		
 		expressionNode.setScopes(this);
@@ -28,13 +30,13 @@ public class VariableInitializationNode extends BasicSectionNode {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode parent) {
+	public void defineTypes(ASTNode<?, ?> parent) {
 		expressionNode.defineTypes(this);
 		declaratorNode.defineTypes(this);
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode parent) {
+	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 		
 		expressionNode.declareExpressions(this);
@@ -44,7 +46,7 @@ public class VariableInitializationNode extends BasicSectionNode {
 	}
 	
 	@Override
-	public void checkTypes(ASTNode parent) {
+	public void checkTypes(ASTNode<?, ?> parent) {
 		expressionNode.checkTypes(this);
 		declaratorNode.checkTypes(this);
 		
@@ -55,7 +57,7 @@ public class VariableInitializationNode extends BasicSectionNode {
 	}
 	
 	@Override
-	public void foldConstants(ASTNode parent) {
+	public void foldConstants(ASTNode<?, ?> parent) {
 		expressionNode.foldConstants(this);
 		declaratorNode.foldConstants(this);
 		
@@ -66,7 +68,13 @@ public class VariableInitializationNode extends BasicSectionNode {
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode parent) {
+	public void trackFunctions(ASTNode<?, ?> parent) {
+		expressionNode.trackFunctions(this);
+		declaratorNode.trackFunctions(this);
+	}
+	
+	@Override
+	public void generateIntermediate(ASTNode<?, ?> parent) {
 		expressionNode.generateIntermediate(this);
 		declaratorNode.generateIntermediate(this);
 		

@@ -1,10 +1,12 @@
 package drlc;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import drlc.intermediate.ast.StartNode;
-import drlc.intermediate.interpreter.*;
+import drlc.intermediate.routine.RootRoutine;
+import drlc.intermediate.scope.*;
 import drlc.lexer.Lexer;
 import drlc.node.Start;
 import drlc.parser.Parser;
@@ -55,10 +57,15 @@ public class Main {
 		}
 	}
 	
-	private static boolean first = true;
+	public static String source;
 	
 	public static Generator generator;
-	public static String source;
+	public static Program program;
+	
+	public static Scope rootScope;
+	public static RootRoutine rootRoutine;
+	
+	private static boolean first = true;
 	
 	private static void generate(String target, String outputFile, String inputFile) throws Exception {
 		if (!Generator.CONSTRUCTOR_MAP.containsKey(target)) {
@@ -66,6 +73,13 @@ public class Main {
 		}
 		
 		generator = Generator.CONSTRUCTOR_MAP.get(target).apply(outputFile);
+		program = new Program();
+		
+		rootScope = new StandardScope(null);
+		rootRoutine = new RootRoutine();
+		program.routineMap.put(Global.ROOT_ROUTINE, rootRoutine);
+		
+		generator.init();
 		
 		if (first) {
 			first = false;
@@ -76,44 +90,48 @@ public class Main {
 		
 		System.out.printf("Compilation target: %s\n", Generator.NAME_MAP.get(target));
 		
-		long currentTime, previousTime = System.nanoTime();
+		long[] currentTime = {0}, previousTime = {System.nanoTime()};
 		
-		/* Form parse tree */
+		Consumer<String> printTime = x -> {
+			currentTime[0] = System.nanoTime();
+			System.out.printf("%s time: %.2f ms\n", x, (currentTime[0] - previousTime[0]) / 1E6);
+			previousTime[0] = currentTime[0];
+		};
+		
+		/* Create parse tree */
 		source = Helpers.readFile(inputFile);
 		Lexer lexer = Helpers.stringLexer(source);
 		Parser parser = new Parser(lexer);
 		Start parseTree = parser.parse();
 		
-		currentTime = System.nanoTime();
-		System.out.printf("Parsing time: %.2f ms\n", (currentTime - previousTime) / 1E6);
-		previousTime = currentTime;
+		printTime.accept("Parsing");
 		
-		/* Form AST */
-		ParseTreeInterpreter interpreter = new ParseTreeInterpreter();
-		parseTree.apply(interpreter);
-		StartNode ast = interpreter.ast;
+		/* Build AST */
+		ASTBuilder astBuilder = new ASTBuilder();
+		parseTree.apply(astBuilder);
+		StartNode ast = astBuilder.ast;
 		
-		/* Run interpreters */
+		printTime.accept("Building");
+		
+		/* Traverse AST */
 		ast.setScopes(null);
 		ast.defineTypes(null);
+		ast.declareExpressions(null);
 		ast.checkTypes(null);
-		ast.resolveExpressions(null);
-		ast.generate(null);
+		ast.foldConstants(null);
+		ast.trackFunctions(null);
+		ast.generateIntermediate(null);
 		
-		parseTree.apply(new FirstPassInterpreter(generator, program));
-		parseTree.apply(new SecondPassInterpreter(generator, program));
+		program.flattenRoutines();
+		generator.optimizeIntermediate();
+		program.finalizeRoutines();
 		
-		generator.interpretFinalize();
-		
-		currentTime = System.nanoTime();
-		System.out.printf("Interpreting time: %.2f ms\n", (currentTime - previousTime) / 1E6);
-		previousTime = currentTime;
+		printTime.accept("Traversing");
 		
 		/* Generate code */
 		generator.generate();
 		
-		currentTime = System.nanoTime();
-		System.out.printf("Generating time: %.2f ms\n", (currentTime - previousTime) / 1E6);
+		printTime.accept("Generating");
 	}
 	
 	private static void err(String string, Object... args) {

@@ -9,14 +9,24 @@ public class IntValue extends BasicValue {
 	
 	public final long value;
 	
-	public IntValue(ASTNode node, long value) {
+	public IntValue(ASTNode<?, ?> node, long value) {
 		super(node, Main.generator.intTypeInfo);
 		this.value = value;
 	}
 	
 	@Override
-	public long longValue(ASTNode node) {
+	public long longValue(ASTNode<?, ?> node) {
 		return value;
+	}
+	
+	@Override
+	public IntValue toInt(ASTNode<?, ?> node) {
+		return this;
+	}
+	
+	@Override
+	public NatValue toNat(ASTNode<?, ?> node) {
+		return new NatValue(node, value);
 	}
 	
 	@Override

@@ -1,6 +1,6 @@
 package drlc.intermediate.ast.expression;
 
-import org.eclipse.jdt.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.Main;
 import drlc.intermediate.ast.ASTNode;
@@ -18,32 +18,37 @@ public class BoolExpressionNode extends ConstantExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode parent) {
+	public void setScopes(ASTNode<?, ?> parent) {
 		scope = parent.scope;
 	}
 	
 	@Override
-	public void defineTypes(ASTNode parent) {
+	public void defineTypes(ASTNode<?, ?> parent) {
 		
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode parent) {
+	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 	}
 	
 	@Override
-	public void checkTypes(ASTNode parent) {
+	public void checkTypes(ASTNode<?, ?> parent) {
 		
 	}
 	
 	@Override
-	public void foldConstants(ASTNode parent) {
+	public void foldConstants(ASTNode<?, ?> parent) {
 		
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode parent) {
+	public void trackFunctions(ASTNode<?, ?> parent) {
+		
+	}
+	
+	@Override
+	public void generateIntermediate(ASTNode<?, ?> parent) {
 		routine.incrementRegId(Main.generator.boolTypeInfo);
 		routine.addImmediateRegisterAssignmentAction(this, value);
 	}
@@ -59,7 +64,7 @@ public class BoolExpressionNode extends ConstantExpressionNode {
 	}
 	
 	@Override
-	protected @Nullable Value getConstantValueInternal() {
+	protected @NonNull Value getConstantValueInternal() {
 		return value;
 	}
 	

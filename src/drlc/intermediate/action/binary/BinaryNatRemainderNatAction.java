@@ -5,7 +5,7 @@ import drlc.intermediate.component.data.DataId;
 
 public class BinaryNatRemainderNatAction extends BinaryOpAction {
 	
-	BinaryNatRemainderNatAction(ASTNode node, DataId target, DataId arg1, DataId arg2) {
+	BinaryNatRemainderNatAction(ASTNode<?, ?> node, DataId target, DataId arg1, DataId arg2) {
 		super(node, BinaryActionType.NAT_REMAINDER_NAT, target, arg1, arg2);
 	}
 	

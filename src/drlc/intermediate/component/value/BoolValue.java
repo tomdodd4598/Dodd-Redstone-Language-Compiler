@@ -9,7 +9,7 @@ public class BoolValue extends BasicValue {
 	
 	public final boolean value;
 	
-	public BoolValue(ASTNode node, boolean value) {
+	public BoolValue(ASTNode<?, ?> node, boolean value) {
 		super(node, Main.generator.boolTypeInfo);
 		this.value = value;
 	}

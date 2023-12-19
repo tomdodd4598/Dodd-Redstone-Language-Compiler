@@ -2,7 +2,7 @@ package drlc.intermediate.action;
 
 import java.util.Map;
 
-import drlc.Global;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
@@ -12,16 +12,16 @@ public class DeclarationAction extends Action implements IValueAction {
 	public final DataId target;
 	public final TypeInfo targetTypeInfo;
 	
-	public DeclarationAction(ASTNode node, DataId target, TypeInfo targetTypeInfo) {
+	public DeclarationAction(ASTNode<?, ?> node, DataId target, TypeInfo targetTypeInfo) {
 		super(node);
 		if (target == null) {
-			throw node.error("Declaration action target was null!");
+			throw Helpers.nodeError(node, "Declaration action target was null!");
 		}
 		else {
 			this.target = target;
 		}
 		if (targetTypeInfo == null) {
-			throw node.error("Declaration action target type info was null!");
+			throw Helpers.nodeError(node, "Declaration action target type info was null!");
 		}
 		else {
 			this.targetTypeInfo = targetTypeInfo;
@@ -54,7 +54,7 @@ public class DeclarationAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRegRvalue(long targetId, DataId rvalueReplacer) {
+	public DeclarationAction replaceRvalue(DataId targetId, DataId rvalueReplacer) {
 		return null;
 	}
 	
@@ -69,7 +69,7 @@ public class DeclarationAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRegLvalue(long targetId, DataId lvalueReplacer) {
+	public DeclarationAction replaceLvalue(DataId targetId, DataId lvalueReplacer) {
 		return null;
 	}
 	
@@ -95,7 +95,7 @@ public class DeclarationAction extends Action implements IValueAction {
 	
 	@Override
 	public Action replaceRegIds(Map<Long, Long> regIdMap) {
-		RegReplaceResult targetResult = replaceRegId(target, regIdMap);
+		DataIdReplaceResult targetResult = replaceRegId(target, regIdMap);
 		if (targetResult.success) {
 			return new DeclarationAction(null, targetResult.dataId, targetTypeInfo);
 		}

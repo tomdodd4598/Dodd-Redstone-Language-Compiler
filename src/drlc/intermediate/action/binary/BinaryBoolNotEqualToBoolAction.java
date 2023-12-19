@@ -5,7 +5,7 @@ import drlc.intermediate.component.data.DataId;
 
 public class BinaryBoolNotEqualToBoolAction extends BinaryOpAction {
 	
-	BinaryBoolNotEqualToBoolAction(ASTNode node, DataId target, DataId arg1, DataId arg2) {
+	BinaryBoolNotEqualToBoolAction(ASTNode<?, ?> node, DataId target, DataId arg1, DataId arg2) {
 		super(node, BinaryActionType.BOOL_NOT_EQUAL_TO_BOOL, target, arg1, arg2);
 	}
 	

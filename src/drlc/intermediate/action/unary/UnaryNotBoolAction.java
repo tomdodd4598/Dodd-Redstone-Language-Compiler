@@ -5,7 +5,7 @@ import drlc.intermediate.component.data.DataId;
 
 public class UnaryNotBoolAction extends UnaryOpAction {
 	
-	UnaryNotBoolAction(ASTNode node, DataId target, DataId arg) {
+	UnaryNotBoolAction(ASTNode<?, ?> node, DataId target, DataId arg) {
 		super(node, UnaryActionType.NOT_BOOL, target, arg);
 	}
 	

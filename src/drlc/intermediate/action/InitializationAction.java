@@ -2,7 +2,7 @@ package drlc.intermediate.action;
 
 import java.util.Map;
 
-import drlc.Global;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
@@ -12,22 +12,22 @@ public class InitializationAction extends Action implements IValueAction {
 	public final DataId target, arg;
 	public final TypeInfo targetTypeInfo;
 	
-	public InitializationAction(ASTNode node, DataId target, TypeInfo targetTypeInfo, DataId arg) {
+	public InitializationAction(ASTNode<?, ?> node, DataId target, TypeInfo targetTypeInfo, DataId arg) {
 		super(node);
 		if (target == null) {
-			throw node.error("Initialization action target was null!");
+			throw Helpers.nodeError(node, "Initialization action target was null!");
 		}
 		else {
 			this.target = target;
 		}
 		if (targetTypeInfo == null) {
-			throw node.error("Initialization action target type info was null!");
+			throw Helpers.nodeError(node, "Initialization action target type info was null!");
 		}
 		else {
 			this.targetTypeInfo = targetTypeInfo;
 		}
 		if (arg == null) {
-			throw node.error("Initialization action argument was null!");
+			throw Helpers.nodeError(node, "Initialization action argument was null!");
 		}
 		else {
 			this.arg = arg;
@@ -60,7 +60,7 @@ public class InitializationAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRegRvalue(long targetId, DataId rvalueReplacer) {
+	public InitializationAction replaceRvalue(DataId targetId, DataId rvalueReplacer) {
 		return new InitializationAction(null, target, targetTypeInfo, rvalueReplacer);
 	}
 	
@@ -75,7 +75,7 @@ public class InitializationAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public Action replaceRegLvalue(long targetId, DataId lvalueReplacer) {
+	public InitializationAction replaceLvalue(DataId targetId, DataId lvalueReplacer) {
 		return null;
 	}
 	
@@ -101,7 +101,7 @@ public class InitializationAction extends Action implements IValueAction {
 	
 	@Override
 	public Action replaceRegIds(Map<Long, Long> regIdMap) {
-		RegReplaceResult targetResult = replaceRegId(target, regIdMap), argResult = replaceRegId(arg, regIdMap);
+		DataIdReplaceResult targetResult = replaceRegId(target, regIdMap), argResult = replaceRegId(arg, regIdMap);
 		if (targetResult.success || argResult.success) {
 			return new InitializationAction(null, targetResult.dataId, targetTypeInfo, argResult.dataId);
 		}

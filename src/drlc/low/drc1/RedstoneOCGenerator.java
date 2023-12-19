@@ -13,9 +13,6 @@ public class RedstoneOCGenerator extends RedstoneGenerator {
 	
 	@Override
 	public void generate() {
-		optimizeIntermediate();
-		program.finalizeRoutines();
-		
 		RedstoneCode code = generateCode();
 		
 		StringBuilder sb = new StringBuilder();

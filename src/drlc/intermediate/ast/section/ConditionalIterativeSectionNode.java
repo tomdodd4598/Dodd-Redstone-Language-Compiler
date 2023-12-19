@@ -10,45 +10,46 @@ import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.scope.IterativeScope;
 import drlc.node.Node;
 
-public class ConditionalIterativeSectionNode extends BasicSectionNode {
+public class ConditionalIterativeSectionNode extends IterativeSectionNode {
 	
-	public final boolean until;
+	public final boolean _do, until;
 	public @NonNull ExpressionNode expressionNode;
-	public final @NonNull ScopeContentsNode scopedSectionNode;
+	public final @NonNull ScopeContentsNode bodyNode;
 	
-	public ConditionalIterativeSectionNode(Node[] parseNodes, boolean until, @NonNull ExpressionNode expressionNode, @NonNull ScopeContentsNode scopedSectionNode) {
-		super(parseNodes);
+	public ConditionalIterativeSectionNode(Node[] parseNodes, @Nullable String label, boolean _do, boolean until, @NonNull ExpressionNode expressionNode, @NonNull ScopeContentsNode bodyNode) {
+		super(parseNodes, label);
+		this._do = _do;
 		this.until = until;
 		this.expressionNode = expressionNode;
-		this.scopedSectionNode = scopedSectionNode;
+		this.bodyNode = bodyNode;
 	}
 	
 	@Override
-	public void setScopes(ASTNode parent) {
-		scope = new IterativeScope(parent.scope, false);
+	public void setScopes(ASTNode<?, ?> parent) {
+		scope = new IterativeScope(parent.scope, label, _do);
 		
 		expressionNode.setScopes(this);
-		scopedSectionNode.setScopes(this);
+		bodyNode.setScopes(this);
 	}
 	
 	@Override
-	public void defineTypes(ASTNode parent) {
+	public void defineTypes(ASTNode<?, ?> parent) {
 		expressionNode.defineTypes(this);
-		scopedSectionNode.defineTypes(this);
+		bodyNode.defineTypes(this);
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode parent) {
+	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 		
 		expressionNode.declareExpressions(this);
-		scopedSectionNode.declareExpressions(this);
+		bodyNode.declareExpressions(this);
 	}
 	
 	@Override
-	public void checkTypes(ASTNode parent) {
+	public void checkTypes(ASTNode<?, ?> parent) {
 		expressionNode.checkTypes(this);
-		scopedSectionNode.checkTypes(this);
+		bodyNode.checkTypes(this);
 		
 		@NonNull TypeInfo expressionType = expressionNode.getTypeInfo();
 		if (!expressionType.canImplicitCastTo(Main.generator.boolTypeInfo)) {
@@ -57,13 +58,37 @@ public class ConditionalIterativeSectionNode extends BasicSectionNode {
 	}
 	
 	@Override
-	public void foldConstants(ASTNode parent) {
+	public void foldConstants(ASTNode<?, ?> parent) {
 		expressionNode.foldConstants(this);
-		scopedSectionNode.foldConstants(this);
+		bodyNode.foldConstants(this);
 		
 		@Nullable ConstantExpressionNode constantExpressionNode = expressionNode.constantExpressionNode();
 		if (constantExpressionNode != null) {
 			expressionNode = constantExpressionNode;
 		}
+	}
+	
+	@Override
+	public void trackFunctions(ASTNode<?, ?> parent) {
+		expressionNode.trackFunctions(this);
+		bodyNode.trackFunctions(this);
+	}
+	
+	@Override
+	public void generateIntermediate(ASTNode<?, ?> parent) {
+		if (!_do) {
+			routine.addAction(scope.continueJump);
+		}
+		routine.incrementSectionId();
+		int cjTarget = routine.currentSectionId();
+		bodyNode.generateIntermediate(this);
+		
+		routine.incrementSectionId();
+		scope.continueJump.setTarget(routine.currentSectionId());
+		expressionNode.generateIntermediate(this);
+		routine.addConditionalJumpAction(this, cjTarget, !until);
+		
+		routine.incrementSectionId();
+		scope.breakJump.setTarget(routine.currentSectionId());
 	}
 }

@@ -5,7 +5,7 @@ import drlc.intermediate.component.data.DataId;
 
 public class BinaryIntDivideIntAction extends BinaryOpAction {
 	
-	BinaryIntDivideIntAction(ASTNode node, DataId target, DataId arg1, DataId arg2) {
+	BinaryIntDivideIntAction(ASTNode<?, ?> node, DataId target, DataId arg1, DataId arg2) {
 		super(node, BinaryActionType.INT_DIVIDE_INT, target, arg1, arg2);
 	}
 	

@@ -5,7 +5,7 @@ import drlc.intermediate.component.data.DataId;
 
 public class BinaryIntEqualToIntAction extends BinaryOpAction {
 	
-	BinaryIntEqualToIntAction(ASTNode node, DataId target, DataId arg1, DataId arg2) {
+	BinaryIntEqualToIntAction(ASTNode<?, ?> node, DataId target, DataId arg1, DataId arg2) {
 		super(node, BinaryActionType.INT_EQUAL_TO_INT, target, arg1, arg2);
 	}
 	

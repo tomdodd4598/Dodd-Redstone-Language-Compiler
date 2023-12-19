@@ -10,16 +10,13 @@ public abstract class TypeInfo {
 	
 	public final int referenceLevel;
 	
-	protected TypeInfo(ASTNode node, int referenceLevel) {
-		if (referenceLevel < 0) {
-			throw node.error("Reference level of type \"%s\" can not be negative!", rawString());
-		}
+	protected TypeInfo(ASTNode<?, ?> node, int referenceLevel) {
 		this.referenceLevel = referenceLevel;
 	}
 	
-	public abstract @NonNull TypeInfo copy(ASTNode node, int newReferenceLevel);
+	public abstract @NonNull TypeInfo copy(ASTNode<?, ?> node, int newReferenceLevel);
 	
-	public @NonNull TypeInfo modifiedReferenceLevel(ASTNode node, int referenceLevelDiff) {
+	public @NonNull TypeInfo modifiedReferenceLevel(ASTNode<?, ?> node, int referenceLevelDiff) {
 		return copy(node, referenceLevel + referenceLevelDiff);
 	}
 	
@@ -39,7 +36,7 @@ public abstract class TypeInfo {
 	
 	public abstract int getSize();
 	
-	public int getAddressOffsetSize(ASTNode node) {
+	public int getAddressOffsetSize(ASTNode<?, ?> node) {
 		return modifiedReferenceLevel(node, -1).getSize();
 	}
 	
@@ -63,6 +60,9 @@ public abstract class TypeInfo {
 	public boolean isArray() {
 		return false;
 	}
+	
+	@Override
+	public abstract int hashCode();
 	
 	public abstract boolean equalsOther(Object obj, boolean ignoreReferenceLevels);
 	

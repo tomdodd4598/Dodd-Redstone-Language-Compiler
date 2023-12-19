@@ -22,7 +22,7 @@ public enum UnaryOpType {
 	public static @NonNull UnaryOpType get(String str) {
 		UnaryOpType opType = NAME_MAP.get(str);
 		if (opType == null) {
-			throw Helpers.nodeError(null, "Unary operator \"%s\" not defined!", str);
+			throw Helpers.error("Unary operator \"%s\" not defined!", str);
 		}
 		else {
 			return opType;

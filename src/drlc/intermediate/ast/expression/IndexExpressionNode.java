@@ -32,7 +32,7 @@ public class IndexExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode parent) {
+	public void setScopes(ASTNode<?, ?> parent) {
 		scope = parent.scope;
 		
 		expressionNode.setScopes(this);
@@ -40,13 +40,13 @@ public class IndexExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode parent) {
+	public void defineTypes(ASTNode<?, ?> parent) {
 		expressionNode.defineTypes(this);
 		indexExpressionNode.defineTypes(this);
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode parent) {
+	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 		
 		expressionNode.declareExpressions(this);
@@ -56,7 +56,7 @@ public class IndexExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void checkTypes(ASTNode parent) {
+	public void checkTypes(ASTNode<?, ?> parent) {
 		expressionNode.checkTypes(this);
 		indexExpressionNode.checkTypes(this);
 		
@@ -66,7 +66,7 @@ public class IndexExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void foldConstants(ASTNode parent) {
+	public void foldConstants(ASTNode<?, ?> parent) {
 		expressionNode.foldConstants(this);
 		indexExpressionNode.foldConstants(this);
 		
@@ -84,7 +84,13 @@ public class IndexExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode parent) {
+	public void trackFunctions(ASTNode<?, ?> parent) {
+		expressionNode.trackFunctions(this);
+		indexExpressionNode.trackFunctions(this);
+	}
+	
+	@Override
+	public void generateIntermediate(ASTNode<?, ?> parent) {
 		expressionNode.generateIntermediate(this);
 		
 		if (innerArray && !expressionNode.getIsLvalue()) {

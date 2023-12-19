@@ -7,9 +7,11 @@ import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.expression.*;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.type.TypeInfo;
+import drlc.intermediate.routine.Routine;
+import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
-public class AssignmentStatementNode extends BasicSectionNode {
+public class AssignmentStatementNode extends BasicSectionNode<Scope, Routine> {
 	
 	public final @NonNull ExpressionNode lvalueExpressionNode;
 	public final @NonNull AssignmentOpType assignmentOpType;
@@ -23,7 +25,7 @@ public class AssignmentStatementNode extends BasicSectionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode parent) {
+	public void setScopes(ASTNode<?, ?> parent) {
 		scope = parent.scope;
 		
 		rvalueExpressionNode.setScopes(this);
@@ -31,13 +33,13 @@ public class AssignmentStatementNode extends BasicSectionNode {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode parent) {
+	public void defineTypes(ASTNode<?, ?> parent) {
 		rvalueExpressionNode.defineTypes(this);
 		lvalueExpressionNode.defineTypes(this);
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode parent) {
+	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 		
 		rvalueExpressionNode.declareExpressions(this);
@@ -45,7 +47,7 @@ public class AssignmentStatementNode extends BasicSectionNode {
 	}
 	
 	@Override
-	public void checkTypes(ASTNode parent) {
+	public void checkTypes(ASTNode<?, ?> parent) {
 		rvalueExpressionNode.checkTypes(this);
 		lvalueExpressionNode.checkTypes(this);
 		
@@ -65,7 +67,7 @@ public class AssignmentStatementNode extends BasicSectionNode {
 	}
 	
 	@Override
-	public void foldConstants(ASTNode parent) {
+	public void foldConstants(ASTNode<?, ?> parent) {
 		rvalueExpressionNode.foldConstants(this);
 		lvalueExpressionNode.foldConstants(this);
 		
@@ -76,7 +78,13 @@ public class AssignmentStatementNode extends BasicSectionNode {
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode parent) {
+	public void trackFunctions(ASTNode<?, ?> parent) {
+		rvalueExpressionNode.trackFunctions(this);
+		lvalueExpressionNode.trackFunctions(this);
+	}
+	
+	@Override
+	public void generateIntermediate(ASTNode<?, ?> parent) {
 		rvalueExpressionNode.generateIntermediate(this);
 		
 		routine.pushCurrentRegId(this);

@@ -5,7 +5,7 @@ import drlc.intermediate.component.data.DataId;
 
 public class BinaryNatLessThanNatAction extends BinaryOpAction {
 	
-	BinaryNatLessThanNatAction(ASTNode node, DataId target, DataId arg1, DataId arg2) {
+	BinaryNatLessThanNatAction(ASTNode<?, ?> node, DataId target, DataId arg1, DataId arg2) {
 		super(node, BinaryActionType.NAT_LESS_THAN_NAT, target, arg1, arg2);
 	}
 	
