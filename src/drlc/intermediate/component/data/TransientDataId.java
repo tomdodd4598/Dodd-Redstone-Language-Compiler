@@ -50,8 +50,8 @@ public class TransientDataId extends DataId {
 	}
 	
 	@Override
-	public boolean isRepeatable() {
-		return true;
+	public boolean isRepeatable(boolean lvalue) {
+		return false;
 	}
 	
 	@Override

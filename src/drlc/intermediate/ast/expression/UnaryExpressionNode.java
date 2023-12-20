@@ -69,11 +69,7 @@ public class UnaryExpressionNode extends ExpressionNode {
 	@Override
 	public void generateIntermediate(ASTNode<?, ?> parent) {
 		expressionNode.generateIntermediate(this);
-		
-		routine.pushCurrentRegId(this);
-		
-		routine.incrementRegId(typeInfo);
-		routine.addUnaryOpAction(this, unaryOpType, expressionNode.getTypeInfo());
+		routine.addUnaryOpAction(this, unaryOpType, expressionNode.getTypeInfo(), dataId = routine.nextRegId(typeInfo), expressionNode.dataId);
 	}
 	
 	@Override

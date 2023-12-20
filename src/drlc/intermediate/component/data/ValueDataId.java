@@ -49,11 +49,11 @@ public class ValueDataId extends DataId {
 	
 	@Override
 	public boolean isCompressable() {
-		return false;
+		return true;
 	}
 	
 	@Override
-	public boolean isRepeatable() {
+	public boolean isRepeatable(boolean lvalue) {
 		return true;
 	}
 	

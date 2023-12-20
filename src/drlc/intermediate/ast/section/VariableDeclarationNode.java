@@ -57,6 +57,6 @@ public class VariableDeclarationNode extends BasicSectionNode<Scope, Routine> {
 	public void generateIntermediate(ASTNode<?, ?> parent) {
 		declaratorNode.generateIntermediate(this);
 		
-		routine.addStackDeclarationAction(this, declaratorNode.declaratorInfo);
+		routine.addDeclarationAction(this, declaratorNode.declaratorInfo);
 	}
 }

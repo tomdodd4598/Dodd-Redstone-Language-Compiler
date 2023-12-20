@@ -64,11 +64,11 @@ public class AddressExpressionNode extends ExpressionNode {
 	public void generateIntermediate(ASTNode<?, ?> parent) {
 		expressionNode.generateIntermediate(this);
 		
-		if (!expressionNode.getIsLvalue()) {
-			routine.pushCurrentRegId(this);
-			
-			routine.incrementRegId(typeInfo);
-			routine.addAddressOfStackAssignmentAction(this);
+		if (expressionNode.getIsLvalue()) {
+			dataId = expressionNode.dataId;
+		}
+		else {
+			routine.addAddressAssignmentAction(this, dataId = routine.nextRegId(typeInfo), expressionNode.dataId);
 		}
 	}
 	

@@ -86,17 +86,14 @@ public class AssignmentStatementNode extends BasicSectionNode<Scope, Routine> {
 	@Override
 	public void generateIntermediate(ASTNode<?, ?> parent) {
 		rvalueExpressionNode.generateIntermediate(this);
-		
-		routine.pushCurrentRegId(this);
-		
 		lvalueExpressionNode.generateIntermediate(this);
 		
 		@Nullable BinaryOpType binaryOpType = assignmentOpType.binaryOpType;
 		if (binaryOpType != null) {
-			routine.addStackLvalueAssignmentOpAction(this, lvalueExpressionNode.getTypeInfo(), binaryOpType, rvalueExpressionNode.getTypeInfo());
+			routine.addLvalueAssignmentOpAction(this, lvalueExpressionNode.getTypeInfo(), binaryOpType, rvalueExpressionNode.getTypeInfo(), lvalueExpressionNode.dataId, rvalueExpressionNode.dataId);
 		}
 		else {
-			routine.addStackLvalueAssignmentAction(this);
+			routine.addLvalueAssignmentAction(this, lvalueExpressionNode.dataId, rvalueExpressionNode.dataId);
 		}
 	}
 }

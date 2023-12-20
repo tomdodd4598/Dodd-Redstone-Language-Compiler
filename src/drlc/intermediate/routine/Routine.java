@@ -9,7 +9,7 @@ import drlc.intermediate.action.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.data.*;
-import drlc.intermediate.component.type.*;
+import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.*;
 
 public abstract class Routine {
@@ -24,8 +24,6 @@ public abstract class Routine {
 	public int sectionId = 0;
 	
 	private long regId = 0;
-	private RegDataId regDataId = null;
-	public final Deque<RegDataId> regDataIdStack = new ArrayDeque<>();
 	
 	protected Routine(String name) {
 		this.name = name;
@@ -149,117 +147,69 @@ public abstract class Routine {
 		currentSection().add(action);
 	}
 	
-	public void addImmediateRegisterAssignmentAction(ASTNode<?, ?> node, @NonNull Value value) {
-		addAction(new AssignmentAction(node, currentRegId(node), new ValueDataId(value)));
+	public void addValueAssignmentAction(ASTNode<?, ?> node, DataId target, @NonNull Value value) {
+		addAction(new AssignmentAction(node, target, new ValueDataId(value)));
 	}
 	
-	public void addAddressOfRegisterAssignmentAction(ASTNode<?, ?> node, @NonNull Variable variable) {
-		addAction(new AssignmentAction(node, currentRegId(node), new VariableDataId(-1, variable)));
+	public void addAddressVariableAssignmentAction(ASTNode<?, ?> node, DataId target, @NonNull Variable variable) {
+		addAction(new AssignmentAction(node, target, new VariableDataId(-1, variable)));
 	}
 	
-	public void addRegisterAssignmentAction(ASTNode<?, ?> node, @NonNull Variable variable) {
-		addAction(new AssignmentAction(node, currentRegId(node), new VariableDataId(0, variable)));
+	public void addVariableAssignmentAction(ASTNode<?, ?> node, DataId target, @NonNull Variable variable) {
+		addAction(new AssignmentAction(node, target, new VariableDataId(0, variable)));
 	}
 	
-	public void addAddressOfStackAssignmentAction(ASTNode<?, ?> node) {
-		addAction(new AssignmentAction(node, currentRegId(node), regDataIdStack.pop().addAddressPrefix(node)));
+	public void addAddressAssignmentAction(ASTNode<?, ?> node, DataId target, DataId arg) {
+		addAction(new AssignmentAction(node, target, arg.addAddressPrefix(node)));
 	}
 	
-	public void addStackAssignmentAction(ASTNode<?, ?> node) {
-		addAction(new AssignmentAction(node, currentRegId(node), regDataIdStack.pop()));
+	public void addAssignmentAction(ASTNode<?, ?> node, DataId target, DataId arg) {
+		addAction(new AssignmentAction(node, target, arg));
 	}
 	
-	public void addStackCompoundAssignmentAction(ASTNode<?, ?> node, int length) {
-		if (length == 0) {
-			return;
-		}
-		else if (length == 1) {
-			addStackAssignmentAction(node);
-		}
-		else {
-			addAction(new CompoundAssignmentAction(node, currentRegId(node), Arrays.asList(popRegIds(length))));
-		}
+	public void addCompoundAssignmentAction(ASTNode<?, ?> node, DataId target, List<DataId> args) {
+		addAction(new CompoundAssignmentAction(node, target, args));
 	}
 	
-	public void addStackArrayRepeatAssignmentAction(ASTNode<?, ?> node, int length, DataId repeat, @NonNull ArrayTypeInfo typeInfo) {
-		if (length == 0) {
-			return;
-		}
-		else if (length == 1) {
-			incrementRegId(typeInfo);
-			addAction(new AssignmentAction(node, currentRegId(node), repeat));
-		}
-		else {
-			// TODO
-			@NonNull TypeInfo offsetTypeInfo = typeInfo.elementTypeInfo.modifiedReferenceLevel(node, 1);
-			
-			incrementRegId(offsetTypeInfo);
-			DataId arrayStart = currentRegId(node);
-			
-			incrementRegId(offsetTypeInfo);
-			addAction(new AssignmentAction(node, currentRegId(node), arrayStart));
-			incrementRegId(offsetTypeInfo);
-			DataId arrayEnd = currentRegId(node);
-			Main.generator.binaryOp(node, this, offsetTypeInfo, BinaryOpType.PLUS, Main.generator.intTypeInfo, arrayEnd, arrayStart, new ValueDataId(Main.generator.sizeValue(length)));
-			JumpAction ja = addJumpAction(node, -1);
-			
-			incrementSectionId();
-			int cjTarget = currentSectionId();
-			addAction(new AssignmentAction(node, currentRegId(node), repeat));
-			
-			incrementSectionId();
-			ja.setTarget(currentSectionId());
-			
-			addConditionalJumpAction(node, cjTarget, true);
-		}
-	}
-	
-	public void addStackDeclarationAction(ASTNode<?, ?> node, DeclaratorInfo declaratorInfo) {
+	public void addDeclarationAction(ASTNode<?, ?> node, DeclaratorInfo declaratorInfo) {
 		addAction(new DeclarationAction(node, declaratorInfo.dataId(), declaratorInfo.getTypeInfo()));
 	}
 	
-	public void addStackInitializationAction(ASTNode<?, ?> node, DeclaratorInfo declaratorInfo) {
-		addAction(new InitializationAction(node, declaratorInfo.dataId(), declaratorInfo.getTypeInfo(), regDataIdStack.pop()));
+	public void addInitializationAction(ASTNode<?, ?> node, DeclaratorInfo declaratorInfo, DataId arg) {
+		addAction(new InitializationAction(node, declaratorInfo.dataId(), declaratorInfo.getTypeInfo(), arg));
 	}
 	
-	public void addStackLvalueAssignmentAction(ASTNode<?, ?> node) {
-		addAction(new AssignmentAction(node, currentRegId(node).addDereference(node), regDataIdStack.pop()));
+	public void addLvalueAssignmentAction(ASTNode<?, ?> node, DataId target, DataId arg) {
+		addAction(new AssignmentAction(node, target.addDereference(node), arg));
 	}
 	
-	public void addStackLvalueAssignmentOpAction(ASTNode<?, ?> node, @NonNull TypeInfo lvalueType, @NonNull BinaryOpType opType, @NonNull TypeInfo rvalueType) {
-		DataId address = currentRegId(node), deref = address.addDereference(node);
+	public void addLvalueAssignmentOpAction(ASTNode<?, ?> node, @NonNull TypeInfo lvalueType, @NonNull BinaryOpType opType, @NonNull TypeInfo rvalueType, DataId target, DataId arg) {
+		target = target.addDereference(node);
 		
-		incrementRegId(lvalueType);
-		DataId value = currentRegId(node);
+		DataId original = nextRegId(lvalueType);
+		addAction(new AssignmentAction(node, original, target));
 		
-		addAction(new AssignmentAction(node, value, deref));
-		
-		incrementRegId(rvalueType);
-		DataId result = currentRegId(node);
-		
-		Main.generator.binaryOp(node, this, lvalueType, opType, rvalueType, result, value, regDataIdStack.pop());
-		addAction(new AssignmentAction(node, deref, result));
+		Main.generator.binaryOp(node, this, lvalueType, opType, rvalueType, target, original, arg);
 	}
 	
-	public void addBinaryOpAction(ASTNode<?, ?> node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType) {
-		DataId[] values = popRegIds(2);
-		Main.generator.binaryOp(node, this, leftType, opType, rightType, currentRegId(node), values[0], values[1]);
+	public void addBinaryOpAction(ASTNode<?, ?> node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType, DataId target, DataId arg1, DataId arg2) {
+		Main.generator.binaryOp(node, this, leftType, opType, rightType, target, arg1, arg2);
 	}
 	
-	public void addUnaryOpAction(ASTNode<?, ?> node, @NonNull UnaryOpType opType, @NonNull TypeInfo typeInfo) {
-		Main.generator.unaryOp(node, this, opType, typeInfo, currentRegId(node), regDataIdStack.pop());
+	public void addUnaryOpAction(ASTNode<?, ?> node, @NonNull UnaryOpType opType, @NonNull TypeInfo typeInfo, DataId target, DataId arg) {
+		Main.generator.unaryOp(node, this, opType, typeInfo, target, arg);
 	}
 	
-	public void addDereferenceAction(ASTNode<?, ?> node) {
-		addAction(new AssignmentAction(node, currentRegId(node), regDataIdStack.pop().addDereference(node)));
+	public void addDereferenceAssignmentAction(ASTNode<?, ?> node, DataId target, DataId arg) {
+		addAction(new AssignmentAction(node, target, arg.addDereference(node)));
 	}
 	
 	public void addExitAction(ASTNode<?, ?> node) {
 		addAction(Global.EXIT_PROGRAM);
 	}
 	
-	public void addExitValueAction(ASTNode<?, ?> node) {
-		addAction(new ExitValueAction(node, currentRegId(node)));
+	public void addExitValueAction(ASTNode<?, ?> node, DataId arg) {
+		addAction(new ExitValueAction(node, arg));
 	}
 	
 	public void addReturnAction(ASTNode<?, ?> node) {
@@ -271,8 +221,8 @@ public abstract class Routine {
 		}
 	}
 	
-	public void addReturnValueAction(ASTNode<?, ?> node) {
-		addAction(new ReturnValueAction(node, currentRegId(node)));
+	public void addReturnValueAction(ASTNode<?, ?> node, DataId arg) {
+		addAction(new ReturnValueAction(node, arg));
 	}
 	
 	public JumpAction addJumpAction(ASTNode<?, ?> node, int target) {
@@ -287,13 +237,10 @@ public abstract class Routine {
 		return cja;
 	}
 	
-	public void addFunctionAction(ASTNode<?, ?> node, Function directFunction, int argc) {
+	public void addFunctionAction(ASTNode<?, ?> node, Function directFunction, DataId target, DataId function, List<DataId> args) {
 		if (directFunction != null) {
 			directFunction.required = true;
 		}
-		
-		List<DataId> args = Arrays.asList(popRegIds(argc));
-		DataId function = regDataIdStack.pop(), target = currentRegId(node);
 		
 		if (directFunction != null && directFunction.builtIn) {
 			addAction(new BuiltInFunctionCallAction(node, target, function, args));
@@ -330,29 +277,8 @@ public abstract class Routine {
 		return sectionId;
 	}
 	
-	public void incrementRegId(@NonNull TypeInfo typeInfo) {
-		regDataId = new RegDataId(typeInfo, regId++);
-	}
-	
-	public RegDataId currentRegId(ASTNode<?, ?> node) {
-		if (regDataId == null) {
-			throw Helpers.nodeError(node, "Current register is null!");
-		}
-		else {
-			return regDataId;
-		}
-	}
-	
-	public void pushCurrentRegId(ASTNode<?, ?> node) {
-		regDataIdStack.push(currentRegId(node));
-	}
-	
-	public RegDataId[] popRegIds(int count) {
-		RegDataId[] out = new RegDataId[count];
-		for (int i = 0; i < count; ++i) {
-			out[count - i - 1] = regDataIdStack.pop();
-		}
-		return out;
+	public @NonNull RegDataId nextRegId(@NonNull TypeInfo typeInfo) {
+		return new RegDataId(typeInfo, regId++);
 	}
 	
 	@Override

@@ -78,8 +78,6 @@ public class VariableInitializationNode extends BasicSectionNode<Scope, Routine>
 		expressionNode.generateIntermediate(this);
 		declaratorNode.generateIntermediate(this);
 		
-		routine.pushCurrentRegId(this);
-		
-		routine.addStackInitializationAction(this, declaratorNode.declaratorInfo);
+		routine.addInitializationAction(this, declaratorNode.declaratorInfo, expressionNode.dataId);
 	}
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.eclipse.jdt.annotation.*;
 
+import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.Value;
@@ -115,16 +116,11 @@ public class FunctionCallExpressionNode extends ExpressionNode {
 	public void generateIntermediate(ASTNode<?, ?> parent) {
 		expressionNode.generateIntermediate(this);
 		
-		routine.pushCurrentRegId(this);
-		
 		for (ExpressionNode argExpressionNode : argExpressionNodes) {
 			argExpressionNode.generateIntermediate(this);
-			
-			routine.pushCurrentRegId(this);
 		}
 		
-		routine.incrementRegId(functionTypeInfo.returnTypeInfo);
-		routine.addFunctionAction(this, expressionNode.getDirectFunction(), argExpressionNodes.size());
+		routine.addFunctionAction(this, expressionNode.getDirectFunction(), dataId = routine.nextRegId(functionTypeInfo.returnTypeInfo), expressionNode.dataId, Helpers.map(argExpressionNodes, x -> x.dataId));
 	}
 	
 	@Override

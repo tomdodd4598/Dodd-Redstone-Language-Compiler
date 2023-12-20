@@ -1,10 +1,11 @@
 package drlc.intermediate.ast.expression;
 
+import java.util.Collections;
+
 import org.eclipse.jdt.annotation.*;
 
 import drlc.Main;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
 import drlc.node.Node;
@@ -84,9 +85,7 @@ public class ArrayRepeatExpressionNode extends ExpressionNode {
 	public void generateIntermediate(ASTNode<?, ?> parent) {
 		repeatExpressionNode.generateIntermediate(this);
 		
-		DataId repeat = routine.currentRegId(this);
-		
-		routine.addStackArrayRepeatAssignmentAction(this, length, repeat, typeInfo);
+		routine.addCompoundAssignmentAction(this, dataId = routine.nextRegId(typeInfo), Collections.nCopies(length, repeatExpressionNode.dataId));
 	}
 	
 	@Override

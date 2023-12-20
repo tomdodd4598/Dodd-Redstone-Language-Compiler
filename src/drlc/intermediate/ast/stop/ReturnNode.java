@@ -92,7 +92,7 @@ public class ReturnNode extends StopNode {
 		if (expressionNode != null) {
 			expressionNode.generateIntermediate(this);
 			
-			routine.addReturnValueAction(this);
+			routine.addReturnValueAction(this, expressionNode.dataId);
 		}
 		else {
 			routine.addReturnAction(this);

@@ -69,11 +69,11 @@ public class VariableDataId extends DataId {
 	
 	@Override
 	public boolean isCompressable() {
-		return false;
+		return dereferenceLevel <= 0;
 	}
 	
 	@Override
-	public boolean isRepeatable() {
+	public boolean isRepeatable(boolean lvalue) {
 		return true;
 	}
 	

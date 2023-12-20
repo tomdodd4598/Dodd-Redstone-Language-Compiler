@@ -80,7 +80,7 @@ public class ExitNode extends StopNode {
 		if (expressionNode != null) {
 			expressionNode.generateIntermediate(this);
 			
-			routine.addExitValueAction(this);
+			routine.addExitValueAction(this, expressionNode.dataId);
 		}
 		else {
 			routine.addExitAction(this);

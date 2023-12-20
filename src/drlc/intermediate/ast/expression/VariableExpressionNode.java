@@ -73,17 +73,15 @@ public class VariableExpressionNode extends ExpressionNode {
 	@SuppressWarnings("null")
 	@Override
 	public void generateIntermediate(ASTNode<?, ?> parent) {
-		routine.incrementRegId(typeInfo.modifiedReferenceLevel(this, value == null && isLvalue ? 1 : 0));
-		
 		if (value != null) {
-			routine.addImmediateRegisterAssignmentAction(this, value);
+			routine.addValueAssignmentAction(this, dataId = routine.nextRegId(typeInfo), value);
 		}
 		else {
 			if (isLvalue) {
-				routine.addAddressOfRegisterAssignmentAction(this, variable);
+				routine.addAddressVariableAssignmentAction(this, dataId = routine.nextRegId(typeInfo.modifiedReferenceLevel(this, 1)), variable);
 			}
 			else {
-				routine.addRegisterAssignmentAction(this, variable);
+				routine.addVariableAssignmentAction(this, dataId = routine.nextRegId(typeInfo), variable);
 			}
 		}
 	}

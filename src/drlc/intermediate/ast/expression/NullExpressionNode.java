@@ -46,8 +46,7 @@ public class NullExpressionNode extends ConstantExpressionNode {
 	
 	@Override
 	public void generateIntermediate(ASTNode<?, ?> parent) {
-		routine.incrementRegId(Main.generator.wildcardPtrTypeInfo);
-		routine.addImmediateRegisterAssignmentAction(this, Main.generator.nullValue);
+		routine.addValueAssignmentAction(this, dataId = routine.nextRegId(Main.generator.wildcardPtrTypeInfo), Main.generator.nullValue);
 	}
 	
 	@Override

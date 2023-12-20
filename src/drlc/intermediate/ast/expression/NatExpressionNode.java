@@ -49,8 +49,7 @@ public class NatExpressionNode extends ConstantExpressionNode {
 	
 	@Override
 	public void generateIntermediate(ASTNode<?, ?> parent) {
-		routine.incrementRegId(Main.generator.natTypeInfo);
-		routine.addImmediateRegisterAssignmentAction(this, value);
+		routine.addValueAssignmentAction(this, dataId = routine.nextRegId(Main.generator.natTypeInfo), value);
 	}
 	
 	@Override

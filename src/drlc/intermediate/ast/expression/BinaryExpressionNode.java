@@ -82,15 +82,8 @@ public class BinaryExpressionNode extends ExpressionNode {
 	@Override
 	public void generateIntermediate(ASTNode<?, ?> parent) {
 		leftExpressionNode.generateIntermediate(this);
-		
-		routine.pushCurrentRegId(this);
-		
 		rightExpressionNode.generateIntermediate(this);
-		
-		routine.pushCurrentRegId(this);
-		
-		routine.incrementRegId(typeInfo);
-		routine.addBinaryOpAction(this, leftExpressionNode.getTypeInfo(), binaryOpType, rightExpressionNode.getTypeInfo());
+		routine.addBinaryOpAction(this, leftExpressionNode.getTypeInfo(), binaryOpType, rightExpressionNode.getTypeInfo(), dataId = routine.nextRegId(typeInfo), leftExpressionNode.dataId, rightExpressionNode.dataId);
 	}
 	
 	@Override

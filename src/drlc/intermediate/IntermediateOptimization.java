@@ -221,10 +221,10 @@ public class IntermediateOptimization {
 		return flag;
 	}
 	
-	private static void fillCompressMap(IValueAction iva, int index, Map<DataId, Integer> map, DataId[] dataIds) {
-		for (DataId dataId : dataIds) {
+	private static void fillCompressMap(IValueAction iva, int index, boolean lvalues, Map<DataId, Integer> map) {
+		for (DataId dataId : lvalues ? iva.lvalues() : iva.rvalues()) {
 			if (dataId.isCompressable()) {
-				if (!dataId.isRepeatable() && map.containsKey(dataId)) {
+				if (!dataId.isRepeatable(lvalues) && map.containsKey(dataId)) {
 					throw new IllegalArgumentException(String.format("Found unexpected repeated use of register %s! %s", dataId, iva));
 				}
 				else {
@@ -244,8 +244,8 @@ public class IntermediateOptimization {
 				Action action = list.get(j);
 				if (action instanceof IValueAction) {
 					IValueAction valAction = (IValueAction) action;
-					fillCompressMap(valAction, j, lMap, valAction.lvalues());
-					fillCompressMap(valAction, j, rMap, valAction.rvalues());
+					fillCompressMap(valAction, j, true, lMap);
+					fillCompressMap(valAction, j, false, rMap);
 				}
 			}
 			
@@ -389,14 +389,14 @@ public class IntermediateOptimization {
 					IValueAction iva = (IValueAction) action;
 					if (iva instanceof AssignmentAction || iva instanceof InitializationAction) {
 						DataId lvalue = iva.lvalues()[0], rvalue = iva.rvalues()[0];
-						if (!lvalue.isRepeatable() && rvalue.dereferenceLevel == -1) {
+						if (!lvalue.isRepeatable(true) && rvalue.dereferenceLevel <= 0) {
 							DataId deref = lvalue.addDereference(null);
 							if (replacerInfoMap.containsKey(deref)) {
 								throw new IllegalArgumentException(String.format("Found unexpected repeated use of register %s! %s", lvalue, iva));
 							}
 							else {
 								indices.add(j);
-								replacerInfoMap.put(deref, new Pair<>(rvalue.removeAddressPrefix(null), j));
+								replacerInfoMap.put(deref, new Pair<>(rvalue.addDereference(null), j));
 							}
 						}
 					}

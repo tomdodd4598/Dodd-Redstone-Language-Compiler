@@ -1,11 +1,10 @@
 package drlc.intermediate.ast.type;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.*;
 import drlc.node.Node;
@@ -107,6 +106,6 @@ public class FunctionRawTypeNode extends RawTypeNode {
 		}
 		
 		@NonNull TypeInfo returnType = returnTypeNode != null ? returnTypeNode.typeInfo : Main.generator.voidTypeInfo;
-		typeInfo = new FunctionPointerTypeInfo(this, 0, returnType, paramTypeNodes.stream().map(x -> x.typeInfo).collect(Collectors.toList()));
+		typeInfo = new FunctionPointerTypeInfo(this, 0, returnType, Helpers.map(paramTypeNodes, x -> x.typeInfo));
 	}
 }

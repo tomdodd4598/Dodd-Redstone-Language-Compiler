@@ -1,6 +1,7 @@
 leaf fn \root(static mut argc: Int, static mut \argv: &&Char) -> Int:
 {0}:
-	%0: Int = $1: Int
-	let x: &Int = &%0: &Int
-	x: &Int = x: &Int + $8: Int
+	let x: Int = $0: Int
+	let y: &Int = &x: &Int
+	x: Int = $1: Int
+	*y: Int = $2: Int
 	exit

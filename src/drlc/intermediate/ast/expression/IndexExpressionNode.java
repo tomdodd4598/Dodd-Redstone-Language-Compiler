@@ -4,30 +4,31 @@ import org.eclipse.jdt.annotation.*;
 
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.BinaryOpType;
+import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
 import drlc.node.Node;
 
 public class IndexExpressionNode extends ExpressionNode {
 	
-	public @NonNull ExpressionNode expressionNode;
+	public @NonNull ExpressionNode baseExpressionNode;
 	public @NonNull ExpressionNode indexExpressionNode;
 	
 	@SuppressWarnings("null")
-	public @NonNull TypeInfo typeInfo = null;
+	public @NonNull TypeInfo baseTypeInfo = null;
 	
 	@SuppressWarnings("null")
 	public @NonNull TypeInfo offsetTypeInfo = null;
 	
-	public boolean innerArray = false;
+	public boolean baseArray = false;
 	
 	public @Nullable Value constantValue = null;
 	
 	public boolean isLvalue = false;
 	
-	public IndexExpressionNode(Node[] parseNodes, @NonNull ExpressionNode expressionNode, @NonNull ExpressionNode indexExpressionNode) {
+	public IndexExpressionNode(Node[] parseNodes, @NonNull ExpressionNode baseExpressionNode, @NonNull ExpressionNode indexExpressionNode) {
 		super(parseNodes);
-		this.expressionNode = expressionNode;
+		this.baseExpressionNode = baseExpressionNode;
 		this.indexExpressionNode = indexExpressionNode;
 	}
 	
@@ -35,13 +36,13 @@ public class IndexExpressionNode extends ExpressionNode {
 	public void setScopes(ASTNode<?, ?> parent) {
 		scope = parent.scope;
 		
-		expressionNode.setScopes(this);
+		baseExpressionNode.setScopes(this);
 		indexExpressionNode.setScopes(this);
 	}
 	
 	@Override
 	public void defineTypes(ASTNode<?, ?> parent) {
-		expressionNode.defineTypes(this);
+		baseExpressionNode.defineTypes(this);
 		indexExpressionNode.defineTypes(this);
 	}
 	
@@ -49,7 +50,7 @@ public class IndexExpressionNode extends ExpressionNode {
 	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 		
-		expressionNode.declareExpressions(this);
+		baseExpressionNode.declareExpressions(this);
 		indexExpressionNode.declareExpressions(this);
 		
 		setTypeInfo();
@@ -57,23 +58,23 @@ public class IndexExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void checkTypes(ASTNode<?, ?> parent) {
-		expressionNode.checkTypes(this);
+		baseExpressionNode.checkTypes(this);
 		indexExpressionNode.checkTypes(this);
 		
-		if (innerArray && expressionNode.isValidLvalue()) {
-			expressionNode.setIsLvalue();
+		if (baseArray && baseExpressionNode.isValidLvalue()) {
+			baseExpressionNode.setIsLvalue();
 		}
 	}
 	
 	@Override
 	public void foldConstants(ASTNode<?, ?> parent) {
-		expressionNode.foldConstants(this);
+		baseExpressionNode.foldConstants(this);
 		indexExpressionNode.foldConstants(this);
 		
 		if (!isLvalue) {
-			@Nullable ConstantExpressionNode constantExpressionNode = expressionNode.constantExpressionNode();
+			@Nullable ConstantExpressionNode constantExpressionNode = baseExpressionNode.constantExpressionNode();
 			if (constantExpressionNode != null) {
-				expressionNode = constantExpressionNode;
+				baseExpressionNode = constantExpressionNode;
 			}
 		}
 		
@@ -85,55 +86,52 @@ public class IndexExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void trackFunctions(ASTNode<?, ?> parent) {
-		expressionNode.trackFunctions(this);
+		baseExpressionNode.trackFunctions(this);
 		indexExpressionNode.trackFunctions(this);
 	}
 	
 	@Override
 	public void generateIntermediate(ASTNode<?, ?> parent) {
-		expressionNode.generateIntermediate(this);
+		baseExpressionNode.generateIntermediate(this);
 		
-		if (innerArray && !expressionNode.getIsLvalue()) {
-			routine.pushCurrentRegId(this);
-			
-			routine.incrementRegId(offsetTypeInfo);
-			routine.addAddressOfStackAssignmentAction(this);
+		DataId baseDataId;
+		if (baseArray && !baseExpressionNode.getIsLvalue()) {
+			routine.addAddressAssignmentAction(this, baseDataId = routine.nextRegId(offsetTypeInfo), baseExpressionNode.dataId);
 		}
-		
-		routine.pushCurrentRegId(this);
+		else {
+			baseDataId = baseExpressionNode.dataId;
+		}
 		
 		indexExpressionNode.generateIntermediate(this);
 		
-		routine.pushCurrentRegId(this);
+		DataId target = routine.nextRegId(offsetTypeInfo);
+		routine.addBinaryOpAction(this, offsetTypeInfo, BinaryOpType.PLUS, indexExpressionNode.getTypeInfo(), target, baseDataId, indexExpressionNode.dataId);
 		
-		routine.incrementRegId(offsetTypeInfo);
-		routine.addBinaryOpAction(this, offsetTypeInfo, BinaryOpType.PLUS, indexExpressionNode.getTypeInfo());
-		
-		if (!isLvalue) {
-			routine.pushCurrentRegId(this);
-			
-			routine.incrementRegId(typeInfo);
-			routine.addDereferenceAction(this);
+		if (isLvalue) {
+			dataId = target;
+		}
+		else {
+			routine.addDereferenceAssignmentAction(this, dataId = routine.nextRegId(baseTypeInfo), target);
 		}
 		
 	}
 	
 	@Override
 	protected @NonNull TypeInfo getTypeInfoInternal() {
-		return typeInfo;
+		return baseTypeInfo;
 	}
 	
 	@Override
 	protected void setTypeInfoInternal() {
-		@NonNull TypeInfo expressionType = expressionNode.getTypeInfo();
+		@NonNull TypeInfo expressionType = baseExpressionNode.getTypeInfo();
 		if (expressionType.isAddress()) {
-			typeInfo = expressionType.modifiedReferenceLevel(this, -1);
+			baseTypeInfo = expressionType.modifiedReferenceLevel(this, -1);
 			offsetTypeInfo = expressionType;
 		}
 		else if (expressionType.isArray()) {
-			typeInfo = ((ArrayTypeInfo) expressionType).elementTypeInfo;
-			offsetTypeInfo = typeInfo.modifiedReferenceLevel(this, 1);
-			innerArray = true;
+			baseTypeInfo = ((ArrayTypeInfo) expressionType).elementTypeInfo;
+			offsetTypeInfo = baseTypeInfo.modifiedReferenceLevel(this, 1);
+			baseArray = true;
 		}
 		else {
 			throw error("Attempted to use expression of incompatible type \"%s\" as indexable expression!", expressionType);
@@ -150,7 +148,7 @@ public class IndexExpressionNode extends ExpressionNode {
 		if (!isLvalue) {
 			@Nullable Value indexConstantValue = indexExpressionNode.getConstantValue();
 			if (indexConstantValue != null) {
-				@Nullable Value innerConstantValue = expressionNode.getConstantValue();
+				@Nullable Value innerConstantValue = baseExpressionNode.getConstantValue();
 				if (innerConstantValue instanceof ArrayValue) {
 					constantValue = ((ArrayValue) innerConstantValue).values.get(indexConstantValue.intValue(this));
 				}

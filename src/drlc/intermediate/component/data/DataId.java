@@ -60,7 +60,7 @@ public abstract class DataId {
 	
 	public abstract boolean isCompressable();
 	
-	public abstract boolean isRepeatable();
+	public abstract boolean isRepeatable(boolean lvalue);
 	
 	@Override
 	public abstract int hashCode();

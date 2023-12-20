@@ -1,11 +1,10 @@
 package drlc.intermediate.ast.section;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.element.*;
 import drlc.intermediate.ast.type.TypeNode;
@@ -71,7 +70,7 @@ public class FunctionDefinitionNode extends ProgramSectionNode<Scope, FunctionRo
 		
 		@NonNull TypeInfo returnType = returnTypeNode != null ? returnTypeNode.typeInfo : Main.generator.voidTypeInfo;
 		
-		function = new Function(this, name, false, returnType, paramNodes.stream().map(x -> x.declaratorInfo).collect(Collectors.toList()));
+		function = new Function(this, name, false, returnType, Helpers.map(paramNodes, x -> x.declaratorInfo));
 		scope.parent.addFunction(this, function, false);
 		
 		routine = new FunctionRoutine(this, function);

@@ -6,6 +6,7 @@ import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.stream.*;
 
 import org.apache.commons.text.translate.*;
@@ -317,7 +318,7 @@ public class Helpers {
 	}
 	
 	public static List<TypeInfo> paramTypeInfos(List<DeclaratorInfo> params) {
-		return params.stream().map(DeclaratorInfo::getTypeInfo).collect(Collectors.toList());
+		return Helpers.map(params, DeclaratorInfo::getTypeInfo);
 	}
 	
 	public static String charLine(char c, int length) {
@@ -351,6 +352,14 @@ public class Helpers {
 	
 	public static <T> @NonNull Set<T> set(T... objects) {
 		return new HashSet<>(Arrays.asList(objects));
+	}
+	
+	public static <T, U> List<U> map(List<T> list, Function<? super T, ? extends U> function) {
+		return list.stream().map(function).collect(Collectors.toList());
+	}
+	
+	public static <T, U> Set<U> map(Set<T> set, Function<? super T, ? extends U> function) {
+		return set.stream().map(function).collect(Collectors.toSet());
 	}
 	
 	public static String toBinary(long value, int length) {

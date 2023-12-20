@@ -1,7 +1,6 @@
 package drlc.intermediate.ast.expression;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.*;
 
@@ -87,12 +86,9 @@ public class ArrayListExpressionNode extends ExpressionNode {
 	public void generateIntermediate(ASTNode<?, ?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.generateIntermediate(this);
-			
-			routine.pushCurrentRegId(this);
 		}
 		
-		routine.incrementRegId(typeInfo);
-		routine.addStackCompoundAssignmentAction(this, length);
+		routine.addCompoundAssignmentAction(this, dataId = routine.nextRegId(typeInfo), Helpers.map(expressionNodes, x -> x.dataId));
 	}
 	
 	@Override
@@ -102,7 +98,7 @@ public class ArrayListExpressionNode extends ExpressionNode {
 	
 	@Override
 	protected void setTypeInfoInternal() {
-		List<TypeInfo> expressionTypes = expressionNodes.stream().map(ExpressionNode::getTypeInfo).collect(Collectors.toList());
+		List<TypeInfo> expressionTypes = Helpers.map(expressionNodes, ExpressionNode::getTypeInfo);
 		@Nullable TypeInfo elementTypeInfo = Helpers.getCommonTypeInfo(expressionTypes);
 		if (elementTypeInfo != null) {
 			for (ExpressionNode expressionNode : expressionNodes) {

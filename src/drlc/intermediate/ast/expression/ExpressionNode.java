@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.*;
 
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Function;
+import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
 import drlc.intermediate.routine.Routine;
@@ -14,6 +15,9 @@ public abstract class ExpressionNode extends ASTNode<Scope, Routine> {
 	
 	public boolean setTypeInfo = false;
 	public boolean setConstantValue = false;
+	
+	@SuppressWarnings("null")
+	public @NonNull DataId dataId = null;
 	
 	protected ExpressionNode(Node[] parseNodes) {
 		super(parseNodes);

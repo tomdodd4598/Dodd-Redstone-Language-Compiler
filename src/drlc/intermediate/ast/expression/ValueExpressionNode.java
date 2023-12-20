@@ -60,8 +60,7 @@ public class ValueExpressionNode extends ConstantExpressionNode {
 	
 	@Override
 	public void generateIntermediate(ASTNode<?, ?> parent) {
-		routine.incrementRegId(value.typeInfo);
-		routine.addImmediateRegisterAssignmentAction(this, value);
+		routine.addValueAssignmentAction(this, dataId = routine.nextRegId(value.typeInfo), value);
 	}
 	
 	@Override

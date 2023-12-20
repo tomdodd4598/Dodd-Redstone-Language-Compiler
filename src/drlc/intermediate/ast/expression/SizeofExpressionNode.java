@@ -59,8 +59,7 @@ public class SizeofExpressionNode extends ConstantExpressionNode {
 	
 	@Override
 	public void generateIntermediate(ASTNode<?, ?> parent) {
-		routine.incrementRegId(Main.generator.intTypeInfo);
-		routine.addImmediateRegisterAssignmentAction(this, value);
+		routine.addValueAssignmentAction(this, dataId = routine.nextRegId(Main.generator.intTypeInfo), value);
 	}
 	
 	@Override

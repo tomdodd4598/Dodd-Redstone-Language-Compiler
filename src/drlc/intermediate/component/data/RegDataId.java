@@ -81,8 +81,8 @@ public class RegDataId extends DataId {
 	}
 	
 	@Override
-	public boolean isRepeatable() {
-		return false;
+	public boolean isRepeatable(boolean lvalue) {
+		return !lvalue || dereferenceLevel > 0;
 	}
 	
 	@Override

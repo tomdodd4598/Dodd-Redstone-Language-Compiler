@@ -62,11 +62,11 @@ public class DereferenceExpressionNode extends ExpressionNode {
 	public void generateIntermediate(ASTNode<?, ?> parent) {
 		expressionNode.generateIntermediate(this);
 		
-		if (!isLvalue) {
-			routine.pushCurrentRegId(this);
-			
-			routine.incrementRegId(typeInfo);
-			routine.addDereferenceAction(this);
+		if (isLvalue) {
+			dataId = expressionNode.dataId;
+		}
+		else {
+			routine.addDereferenceAssignmentAction(this, dataId = routine.nextRegId(typeInfo), expressionNode.dataId);
 		}
 	}
 	

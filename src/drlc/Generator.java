@@ -891,8 +891,7 @@ public abstract class Generator {
 					case XOR:
 						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					case MINUS:
-						routine.incrementRegId(intTypeInfo);
-						DataId raw = routine.currentRegId(node);
+						DataId raw = routine.nextRegId(intTypeInfo);
 						routine.addAction(BinaryActionType.INT_MINUS_INT.action(node, raw, arg1, arg2));
 						routine.addAction(BinaryActionType.INT_DIVIDE_INT.action(node, target, raw, new ValueDataId(sizeValue(leftType.getAddressOffsetSize(node)))));
 						return;
@@ -910,8 +909,7 @@ public abstract class Generator {
 			}
 			else {
 				if (plusOrMinus && rightType.isWord()) {
-					routine.incrementRegId(intTypeInfo);
-					DataId offset = routine.currentRegId(node);
+					DataId offset = routine.nextRegId(intTypeInfo);
 					routine.addAction(BinaryActionType.INT_MULTIPLY_INT.action(node, offset, arg2, new ValueDataId(sizeValue(leftType.getAddressOffsetSize(node)))));
 					routine.addAction((opType == BinaryOpType.PLUS ? BinaryActionType.INT_PLUS_INT : BinaryActionType.INT_MINUS_INT).action(node, target, arg1, offset));
 					return;
@@ -924,8 +922,7 @@ public abstract class Generator {
 		else {
 			if (rightType.isAddress()) {
 				if (plusOrMinus && leftType.isWord()) {
-					routine.incrementRegId(intTypeInfo);
-					DataId offset = routine.currentRegId(node);
+					DataId offset = routine.nextRegId(intTypeInfo);
 					routine.addAction(BinaryActionType.INT_MULTIPLY_INT.action(node, offset, arg1, new ValueDataId(sizeValue(rightType.getAddressOffsetSize(node)))));
 					routine.addAction((opType == BinaryOpType.PLUS ? BinaryActionType.INT_PLUS_INT : BinaryActionType.INT_MINUS_INT).action(node, target, offset, arg2));
 					return;
