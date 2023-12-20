@@ -1,7 +1,5 @@
 package drlc;
 
-import drlc.intermediate.action.*;
-
 public final class Global {
 	
 	public static final String SETARGC = "setargc";
@@ -18,13 +16,16 @@ public final class Global {
 	public static final String TYPE_ANNOTATION_PREFIX = ":";
 	
 	public static final String ARGC = "argc";
-	public static final String ARGV_PARAM = "\\argv";
+	public static final String ARGV = "argv";
 	
-	public static final String INCHAR = "inchar";
+	public static final String INBOOL = "inbool";
 	public static final String ININT = "inint";
-	public static final String OUTCHAR = "outchar";
+	public static final String INNAT = "innat";
+	public static final String INCHAR = "inchar";
+	public static final String OUTBOOL = "outbool";
 	public static final String OUTINT = "outint";
-	public static final String ARGV_FUNCTION = "argv";
+	public static final String OUTNAT = "outnat";
+	public static final String OUTCHAR = "outchar";
 	
 	public static final String ROOT_ROUTINE = "\\root";
 	
@@ -32,6 +33,8 @@ public final class Global {
 	
 	public static final String SECTION_ID_START = "{";
 	public static final String SECTION_ID_END = "}";
+	public static final String SCOPE_ID_START = "<";
+	public static final String SCOPE_ID_END = ">";
 	public static final String REG = "%";
 	public static final String EXTRA_REG = "%%";
 	public static final String TRANSIENT = "%t";
@@ -75,9 +78,6 @@ public final class Global {
 	public static final String ARRAY_TYPE_DELIMITER = "; ";
 	public static final String ARRAY_START = "[";
 	public static final String ARRAY_END = "]";
-	
-	public static final Action RETURN_FROM_FUNCTION = new ReturnAction();
-	public static final Action EXIT_PROGRAM = new ExitAction();
 	
 	public static final String LOGICAL_RIGHT_SHIFT = "\\logical_right_shift";
 	public static final String CIRCULAR_LEFT_SHIFT = "\\circular_left_shift";

@@ -69,7 +69,7 @@ public class VariableDataId extends DataId {
 	
 	@Override
 	public boolean isCompressable() {
-		return dereferenceLevel <= 0;
+		return dereferenceLevel < 0;
 	}
 	
 	@Override

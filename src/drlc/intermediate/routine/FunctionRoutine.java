@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import drlc.Global;
+import drlc.intermediate.action.ReturnAction;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.type.TypeInfo;
@@ -18,7 +18,7 @@ public class FunctionRoutine extends Routine {
 		super(function.name);
 		this.function = function;
 		if (function.returnTypeInfo.isVoid()) {
-			getDestructionActionList().add(Global.RETURN_FROM_FUNCTION);
+			getDestructionActionList().add(new ReturnAction());
 		}
 	}
 	

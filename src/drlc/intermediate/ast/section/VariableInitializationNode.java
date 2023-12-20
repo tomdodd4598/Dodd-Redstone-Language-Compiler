@@ -50,7 +50,7 @@ public class VariableInitializationNode extends BasicSectionNode<Scope, Routine>
 		expressionNode.checkTypes(this);
 		declaratorNode.checkTypes(this);
 		
-		@NonNull TypeInfo expressionType = expressionNode.getTypeInfo(), variableType = declaratorNode.declaratorInfo.variable.typeInfo;
+		@NonNull TypeInfo expressionType = expressionNode.getTypeInfo(), variableType = declaratorNode.declaratorInfo.getTypeInfo();
 		if (!expressionType.canImplicitCastTo(variableType)) {
 			throw castError("initialization value", expressionType, variableType);
 		}
@@ -78,6 +78,8 @@ public class VariableInitializationNode extends BasicSectionNode<Scope, Routine>
 		expressionNode.generateIntermediate(this);
 		declaratorNode.generateIntermediate(this);
 		
-		routine.addInitializationAction(this, declaratorNode.declaratorInfo, expressionNode.dataId);
+		routine.declarations.add(declaratorNode.declaratorInfo);
+		
+		routine.addAssignmentAction(this, declaratorNode.declaratorInfo.dataId(), expressionNode.dataId);
 	}
 }

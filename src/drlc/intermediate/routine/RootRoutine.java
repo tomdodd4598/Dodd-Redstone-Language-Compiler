@@ -5,6 +5,7 @@ import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
+import drlc.intermediate.action.ExitAction;
 import drlc.intermediate.component.DeclaratorInfo;
 import drlc.intermediate.component.type.TypeInfo;
 
@@ -14,7 +15,7 @@ public class RootRoutine extends Routine {
 	
 	public RootRoutine() {
 		super(Global.ROOT_ROUTINE);
-		getDestructionActionList().add(Global.EXIT_PROGRAM);
+		getDestructionActionList().add(new ExitAction());
 	}
 	
 	@Override

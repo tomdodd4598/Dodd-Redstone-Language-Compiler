@@ -87,33 +87,6 @@ public class IntermediateOptimization {
 		return flag;
 	}
 	
-	public static boolean concatenateJumps(Routine routine) {
-		boolean flag = false;
-		List<List<Action>> body = routine.getBodyActionLists();
-		for (int i = 0; i < body.size(); ++i) {
-			List<Action> list = body.get(i);
-			for (int j = 0; j < list.size(); ++j) {
-				Action action = list.get(j);
-				if (action instanceof IJumpAction) {
-					IJumpAction jump = (IJumpAction) action;
-					int target = jump.getTarget();
-					List<Action> section = body.get(target);
-					if (section.size() == 1) {
-						Action single = section.get(0);
-						if (single instanceof IJumpAction) {
-							IJumpAction other = (IJumpAction) single;
-							if (!other.isConditional()) {
-								flag = true;
-								list.set(j, jump.copy(other.getTarget()));
-							}
-						}
-					}
-				}
-			}
-		}
-		return flag;
-	}
-	
 	public static boolean concatenateSections(Routine routine) {
 		boolean flag = false;
 		List<List<Action>> body = routine.getBodyActionLists();
@@ -146,7 +119,6 @@ public class IntermediateOptimization {
 	public static boolean simplifyJumps(Routine routine) {
 		boolean flag = false;
 		List<List<Action>> body = routine.getBodyActionLists();
-		final Map<List<Action>, Boolean> clearMap = new HashMap<>();
 		for (int i = 0; i < body.size(); ++i) {
 			List<Action> list = body.get(i);
 			for (int j = 0; j < list.size(); ++j) {
@@ -163,17 +135,9 @@ public class IntermediateOptimization {
 								flag = true;
 								list.set(j, single);
 							}
-							clearMap.put(section, clearMap.containsKey(section) ? clearMap.get(section) || conditional : conditional);
 						}
 					}
 				}
-			}
-		}
-		
-		for (Entry<List<Action>, Boolean> entry : clearMap.entrySet()) {
-			if (!entry.getValue()) {
-				flag = true;
-				entry.getKey().clear();
 			}
 		}
 		
@@ -184,7 +148,7 @@ public class IntermediateOptimization {
 				if (action instanceof ConditionalJumpAction) {
 					if (previous instanceof IValueAction) {
 						IValueAction iva = (IValueAction) previous;
-						if (iva instanceof AssignmentAction || iva instanceof InitializationAction) {
+						if (iva instanceof AssignmentAction) {
 							DataId arg = iva.rvalues()[0];
 							if (arg instanceof ValueDataId) {
 								flag = true;
@@ -387,9 +351,9 @@ public class IntermediateOptimization {
 				Action action = list.get(j);
 				if (action instanceof IValueAction) {
 					IValueAction iva = (IValueAction) action;
-					if (iva instanceof AssignmentAction || iva instanceof InitializationAction) {
+					if (iva instanceof AssignmentAction) {
 						DataId lvalue = iva.lvalues()[0], rvalue = iva.rvalues()[0];
-						if (!lvalue.isRepeatable(true) && rvalue.dereferenceLevel <= 0) {
+						if (!lvalue.isRepeatable(true) && lvalue.typeInfo.isAddress() && rvalue.dereferenceLevel <= 0) {
 							DataId deref = lvalue.addDereference(null);
 							if (replacerInfoMap.containsKey(deref)) {
 								throw new IllegalArgumentException(String.format("Found unexpected repeated use of register %s! %s", lvalue, iva));

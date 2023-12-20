@@ -2,7 +2,7 @@ package drlc.intermediate.component.data;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import drlc.*;
+import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.scope.Scope;
@@ -19,7 +19,7 @@ public abstract class DataId {
 		
 		int minimumDereferenceLevel = minimumDereferenceLevel();
 		if (dereferenceLevel < minimumDereferenceLevel) {
-			throw Helpers.error("Dereference level for data ID \"%s\" can not be less than %d but was equal to %d!", this, minimumDereferenceLevel, dereferenceLevel);
+			throw Helpers.error("Dereference level for data ID \"%s\" can not be less than %d, but was equal to %d!", this, minimumDereferenceLevel, dereferenceLevel);
 		}
 		
 		this.typeInfo = typeInfo;
@@ -76,19 +76,6 @@ public abstract class DataId {
 	
 	@Override
 	public String toString() {
-		return (dereferenceLevel >= 0 ? Helpers.addDereferences(rawString(), dereferenceLevel) : Helpers.addAddressPrefix(rawString())) + ": " + typeInfo;
-	}
-	
-	public String fullString() {
-		if (scope == null) {
-			return toString();
-		}
-		else {
-			return toString() + Global.DOUBLE_COLON + scope.globalId;
-		}
-	}
-	
-	public String declarationString() {
-		return toString();
+		return dereferenceLevel >= 0 ? Helpers.addDereferences(rawString(), dereferenceLevel) : Helpers.addAddressPrefix(rawString());
 	}
 }

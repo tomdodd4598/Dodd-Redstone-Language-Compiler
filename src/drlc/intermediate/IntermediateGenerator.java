@@ -50,7 +50,7 @@ public class IntermediateGenerator extends Generator {
 	public void generateRootParams(RootRoutine routine) {
 		routine.params = new ArrayList<>();
 		routine.params.add(new DeclaratorInfo(null, new Variable(Global.ARGC, VariableModifier.ROOT_PARAM, intTypeInfo)));
-		routine.params.add(new DeclaratorInfo(null, new Variable(Global.ARGV_PARAM, VariableModifier.ROOT_PARAM, charTypeInfo(2))));
+		routine.params.add(new DeclaratorInfo(null, new Variable(Global.ARGV, VariableModifier.ROOT_PARAM, charTypeInfo(2))));
 	}
 	
 	@Override
@@ -65,7 +65,10 @@ public class IntermediateGenerator extends Generator {
 				else {
 					sb.append('\n');
 				}
-				sb.append(routine.getType()).append(' ').append(routine).append(":\n");
+				sb.append(routine.getType()).append(' ').append(routine).append(":\n{decl}:\n");
+				for (DeclaratorInfo info : routine.declarations) {
+					sb.append('\t').append(info).append('\n');
+				}
 				List<List<Action>> list = routine.getBodyActionLists();
 				for (int i = 0; i < list.size(); ++i) {
 					sb.append(Global.SECTION_ID_START).append(i).append(Global.SECTION_ID_END).append(":\n");

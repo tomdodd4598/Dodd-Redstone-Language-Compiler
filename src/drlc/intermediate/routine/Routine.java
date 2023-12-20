@@ -18,6 +18,8 @@ public abstract class Routine {
 	
 	protected RoutineCallType type = RoutineCallType.LEAF;
 	
+	public final List<DeclaratorInfo> declarations = new ArrayList<>();
+	
 	private final List<List<Action>> body = new ArrayList<>();
 	private final List<Action> destruction = new ArrayList<>();
 	
@@ -171,14 +173,6 @@ public abstract class Routine {
 		addAction(new CompoundAssignmentAction(node, target, args));
 	}
 	
-	public void addDeclarationAction(ASTNode<?, ?> node, DeclaratorInfo declaratorInfo) {
-		addAction(new DeclarationAction(node, declaratorInfo.dataId(), declaratorInfo.getTypeInfo()));
-	}
-	
-	public void addInitializationAction(ASTNode<?, ?> node, DeclaratorInfo declaratorInfo, DataId arg) {
-		addAction(new InitializationAction(node, declaratorInfo.dataId(), declaratorInfo.getTypeInfo(), arg));
-	}
-	
 	public void addLvalueAssignmentAction(ASTNode<?, ?> node, DataId target, DataId arg) {
 		addAction(new AssignmentAction(node, target.addDereference(node), arg));
 	}
@@ -205,7 +199,7 @@ public abstract class Routine {
 	}
 	
 	public void addExitAction(ASTNode<?, ?> node) {
-		addAction(Global.EXIT_PROGRAM);
+		addAction(new ExitAction());
 	}
 	
 	public void addExitValueAction(ASTNode<?, ?> node, DataId arg) {

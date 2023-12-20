@@ -2,6 +2,7 @@ package drlc.intermediate.component;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import drlc.Global;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.data.*;
 import drlc.intermediate.component.type.TypeInfo;
@@ -24,6 +25,11 @@ public class DeclaratorInfo {
 	
 	@Override
 	public String toString() {
-		return variable.toString();
+		if (variable.scope == null) {
+			return variable.toString();
+		}
+		else {
+			return Global.SCOPE_ID_START + variable.scope.globalId + Global.SCOPE_ID_END + " " + variable.toString();
+		}
 	}
 }

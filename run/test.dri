@@ -1,7 +1,44 @@
 leaf fn \root(static mut argc: Int, static mut \argv: &&Char) -> Int:
+{decl}:
+	<0> l: Int
+	<0> r: Int
+	<0> a: Int
+	<0> b: Int
+	<0> a_sal: Int
+	<0> b_sal: Int
+	<0> a_sar: Int
+	<0> b_sar: Int
+	<0> a_shr: Int
+	<0> b_shr: Int
+	<0> a_rotl: Int
+	<0> b_rotl: Int
+	<0> a_rotr: Int
+	<0> b_rotr: Int
 {0}:
-	let x: Int = $0: Int
-	let y: &Int = &x: &Int
-	x: Int = $1: Int
-	*y: Int = $2: Int
+	l = $65280
+	r = $255
+	a = l
+	b = r
+	a_sal = l << $4
+	b_sal = r << $4
+	a_sar = l >> $4
+	b_sar = r >> $4
+	a_shr = l >>> $4
+	b_shr = r >>> $4
+	a_rotl = l <<< $4
+	b_rotl = r <<< $4
+	a_rotr = l >>> $4
+	b_rotr = r >>> $4
+	%0 = call builtin $outint(a)
+	%1 = call builtin $outint(b)
+	%2 = call builtin $outint(a_sal)
+	%3 = call builtin $outint(b_sal)
+	%4 = call builtin $outint(a_sar)
+	%5 = call builtin $outint(b_sar)
+	%6 = call builtin $outint(a_shr)
+	%7 = call builtin $outint(b_shr)
+	%8 = call builtin $outint(a_rotl)
+	%9 = call builtin $outint(b_rotl)
+	%10 = call builtin $outint(a_rotr)
+	%11 = call builtin $outint(b_rotr)
 	exit

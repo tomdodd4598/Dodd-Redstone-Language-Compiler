@@ -1,9 +1,21 @@
 // ITERATIVE FACTORIAL
 
+/*
+let f: Int = 1;
+let a: Int = 1;
+let b: Int = 1;
 
-let x: [Int; 3] = [1, 2, 3];
-let y: [Int; 3] = [3; 3];
+fn update() {
+	f = a * b;
+	b += 1;
+	a = f;
+}
 
+while f > 0 {
+	outint(f);
+	update();
+}
+*/
 
 // RECURSIVE FACTORIAL
 
@@ -182,34 +194,18 @@ fn func() {
 		outint(7);
 	}
 	
-	loop {
+	outer: loop {
 		if c == 1 {
 			outint(8);
 		}
 		else {
-			outint(9);
-			goto later;
+			inner: do {
+				outint(9);
+				break outer;
+			}
+			until c == 2;
 		}
 	}
-	
-	earlier:
-	while a == 2 {
-		outint(10);
-	}
-	goto end;
-	
-	later:
-	do {
-		outint(11);
-	}
-	while b == 2;
-	goto earlier;
-	
-	end:
-	do {
-		outint(12);
-	}
-	until c == 2;
 }
 
 func();
@@ -278,10 +274,7 @@ outint(*****f);
 // TESTING DEREFERENCE ASSIGNMENT
 
 /*
-let a___: Int;
-let a__: &Int = &a___;
-let a_: &&Int = &a__;
-let a: &&&Int = &a_;
+let a: &&&Int;
 
 fn ptr1(modify: Bool) -> &Int {
 	if modify {
@@ -348,7 +341,7 @@ outint(a_rotr); outint(b_rotr);
 
 // TESTING FUNCTION POINTERS
 
-/*
+
 fn add(a: Int, b: Int) -> Int {
 	return a + b;
 }
@@ -421,7 +414,7 @@ fn outbool(b: Bool) {
 		outint(0);
 	}
 }
-*/
+
 
 // TESTING ARRAYS
 

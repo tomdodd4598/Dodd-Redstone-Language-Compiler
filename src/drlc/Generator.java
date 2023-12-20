@@ -117,11 +117,14 @@ public abstract class Generator {
 	}
 	
 	public void addBuiltInFunctions() {
-		addBuiltInFunction(Global.INCHAR, charTypeInfo);
+		addBuiltInFunction(Global.INBOOL, boolTypeInfo);
 		addBuiltInFunction(Global.ININT, intTypeInfo);
+		addBuiltInFunction(Global.INNAT, natTypeInfo);
+		addBuiltInFunction(Global.INCHAR, charTypeInfo);
+		addBuiltInFunction(Global.OUTBOOL, voidTypeInfo, Helpers.builtInParam("b", boolTypeInfo));
+		addBuiltInFunction(Global.OUTINT, voidTypeInfo, Helpers.builtInParam("i", intTypeInfo));
+		addBuiltInFunction(Global.OUTNAT, voidTypeInfo, Helpers.builtInParam("n", natTypeInfo));
 		addBuiltInFunction(Global.OUTCHAR, voidTypeInfo, Helpers.builtInParam("c", charTypeInfo));
-		addBuiltInFunction(Global.OUTINT, voidTypeInfo, Helpers.builtInParam("x", intTypeInfo));
-		addBuiltInFunction(Global.ARGV_FUNCTION, intTypeInfo, Helpers.builtInParam("index", indexTypeInfo));
 	}
 	
 	public @NonNull Value binaryOp(ASTNode<?, ?> node, @NonNull Value left, @NonNull BinaryOpType opType, @NonNull Value right) {
@@ -1120,13 +1123,13 @@ public abstract class Generator {
 				Main.program.routineMap.remove(entry.getKey());
 			}
 		}
+		
 		for (Routine routine : Main.program.routineMap.values()) {
 			boolean flag = true;
 			while (flag) {
 				flag = IntermediateOptimization.removeNoOps(routine);
 				flag |= IntermediateOptimization.removeDeadActions(routine);
 				flag |= IntermediateOptimization.removeEmptySections(routine);
-				flag |= IntermediateOptimization.concatenateJumps(routine);
 				flag |= IntermediateOptimization.concatenateSections(routine);
 				flag |= IntermediateOptimization.simplifyJumps(routine);
 				flag |= IntermediateOptimization.compressRegisters(routine);
