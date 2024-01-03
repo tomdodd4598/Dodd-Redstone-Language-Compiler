@@ -14,7 +14,8 @@ import org.eclipse.jdt.annotation.*;
 
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
-import drlc.intermediate.component.type.TypeInfo;
+import drlc.intermediate.component.type.*;
+import drlc.intermediate.scope.Scope;
 import drlc.lexer.Lexer;
 import drlc.node.Node;
 import drlc.node.Token;
@@ -134,19 +135,15 @@ public class Helpers {
 		}
 	}
 	
-	public static long parseInt(String str) {
-		return parseBigInt(str).longValue();
-	}
-	
 	public static String substring(String s, int minLine, int minPos, int maxLine, int maxPos) {
 		String[] lines = s.split("\\R", -1);
 		if (minLine == maxLine) {
 			return lines[minLine].substring(minPos, maxPos);
 		}
 		else {
-			StringBuilder sb = new StringBuilder(lines[minLine].substring(minPos));
+			StringBuilder sb = new StringBuilder(lines[minLine].substring(minPos)).append("\n");
 			for (int i = 1 + minLine; i < maxLine; ++i) {
-				sb.append(lines[i]);
+				sb.append(lines[i]).append("\n");
 			}
 			return sb.append(lines[maxLine].substring(0, maxPos)).toString();
 		}
@@ -181,8 +178,8 @@ public class Helpers {
 		Token min = mm.min, max = mm.max;
 		int minLine = min.getLine(), minPos = min.getPos(), maxLine = max.getLine(), maxPos = max.getPos() + max.getText().length();
 		
-		String range = String.format("(%s:%s -> %s:%s)", minLine, minPos, maxLine, 1 + maxPos);
-		String source = substring(Main.source, minLine - 1, minPos - 1, maxLine - 1, maxPos);
+		String range = String.format("%s:%s -> %s:%s", minLine, minPos, maxLine, maxPos);
+		String source = substring(Main.source, minLine - 1, minPos - 1, maxLine - 1, maxPos - 1);
 		
 		return new Pair<>(range, source);
 	}
@@ -191,9 +188,13 @@ public class Helpers {
 		StringBuilder sb = new StringBuilder(String.format(s, args));
 		if (parseNodes != null && parseNodes.length > 0) {
 			Pair<String, String> info = nodeInfo(parseNodes);
-			sb.append("\n -> ").append(info.left).append("\n\n").append(info.right).append("\n\n");
+			sb.append("\n\n").append(info.left).append("\n\n").append(info.right).append("\n");
 		}
 		return new IllegalArgumentException(sb.toString());
+	}
+	
+	public static RuntimeException nodeError(Node parseNode, String s, Object... args) {
+		return nodeError(array(parseNode), s, args);
 	}
 	
 	public static RuntimeException nodeError(ASTNode<?, ?> node, String s, Object... args) {
@@ -280,6 +281,10 @@ public class Helpers {
 		return (short) (Short.toUnsignedInt(dividend) % Short.toUnsignedInt(divisor));
 	}
 	
+	public static @NonNull String scopeStringPrefix(@Nullable Scope scope) {
+		return scope == null || scope.globalId == 0 ? "" : Global.POINTY_START + scope.globalId + Global.POINTY_END + " ";
+	}
+	
 	public static String addAddressPrefix(String s) {
 		return Global.ADDRESS_OF + s.trim();
 	}
@@ -297,12 +302,18 @@ public class Helpers {
 		return dereferenced.trim();
 	}
 	
-	public static boolean isDiscardParam(String discardParamString) {
-		return discardParamString.startsWith(Global.DISCARD_PARAM_PREFIX);
+	public static @NonNull Variable rootVariable(@NonNull String name, @NonNull TypeInfo typeInfo) {
+		return new Variable(name, VariableModifier.ROOT, typeInfo);
 	}
 	
-	public static DeclaratorInfo builtInParam(@NonNull String name, @NonNull TypeInfo typeInfo) {
-		return new DeclaratorInfo(null, new Variable(Global.BUILT_IN_PARAM_PREFIX + name, VariableModifier.DEFAULT_PARAM, typeInfo));
+	public static @NonNull DeclaratorInfo builtInDeclarator(@NonNull String name, @NonNull TypeInfo typeInfo) {
+		return new DeclaratorInfo(new Variable(name, VariableModifier.BUILT_IN, typeInfo));
+	}
+	
+	public static String charLine(char c, int length) {
+		char[] charArray = new char[length];
+		Arrays.fill(charArray, c);
+		return new String(charArray);
 	}
 	
 	public static <T> String collectionString(Collection<T> collection, String delimiter, String prefix, String suffix) {
@@ -317,41 +328,16 @@ public class Helpers {
 		return collectionString(collection, Global.LIST_SEPARATOR, Global.ARRAY_START, Global.ARRAY_END);
 	}
 	
-	public static List<TypeInfo> paramTypeInfos(List<DeclaratorInfo> params) {
-		return Helpers.map(params, DeclaratorInfo::getTypeInfo);
+	public static <T> String tupleString(Collection<T> collection) {
+		return collection.size() == 1 ? Global.LIST_START + collection.iterator().next() + Global.LIST_SEPARATOR + Global.LIST_END : listString(collection);
 	}
 	
-	public static String charLine(char c, int length) {
-		char[] charArray = new char[length];
-		Arrays.fill(charArray, c);
-		return new String(charArray);
-	}
-	
-	public static <T> boolean allEqual(Collection<T> collection) {
-		T object = null;
-		Iterator<T> iter = collection.iterator();
-		while (iter.hasNext()) {
-			T next = iter.next();
-			if (object == null) {
-				object = next;
-			}
-			else if (!object.equals(next)) {
-				return false;
-			}
-		}
-		return true;
+	public static <T> String structString(@NonNull RawType rawType, Collection<T> collection) {
+		return rawType + " " + collectionString(collection, Global.LIST_SEPARATOR, Global.BRACE_START, Global.BRACE_END);
 	}
 	
 	public static <T> T[] array(T... objects) {
 		return objects;
-	}
-	
-	public static <T> @NonNull List<T> list(T... objects) {
-		return new ArrayList<>(Arrays.asList(objects));
-	}
-	
-	public static <T> @NonNull Set<T> set(T... objects) {
-		return new HashSet<>(Arrays.asList(objects));
 	}
 	
 	public static <T, U> List<U> map(List<T> list, Function<? super T, ? extends U> function) {

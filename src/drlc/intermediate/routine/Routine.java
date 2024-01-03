@@ -11,6 +11,7 @@ import drlc.intermediate.component.*;
 import drlc.intermediate.component.data.*;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.*;
+import drlc.intermediate.scope.Scope;
 
 public abstract class Routine {
 	
@@ -18,7 +19,8 @@ public abstract class Routine {
 	
 	protected RoutineCallType type = RoutineCallType.LEAF;
 	
-	public final List<DeclaratorInfo> declarations = new ArrayList<>();
+	public final Map<String, TypeInfo> typedefMap = new LinkedHashMap<>();
+	public final List<DeclaratorInfo> declaratorList = new ArrayList<>();
 	
 	private final List<List<Action>> body = new ArrayList<>();
 	private final List<Action> destruction = new ArrayList<>();
@@ -26,6 +28,8 @@ public abstract class Routine {
 	public int sectionId = 0;
 	
 	private long regId = 0;
+	
+	public Scope scope;
 	
 	protected Routine(String name) {
 		this.name = name;
@@ -64,12 +68,12 @@ public abstract class Routine {
 		return false;
 	}
 	
-	public boolean isDefined() {
-		return true;
-	}
-	
 	public Function getFunction() {
 		return null;
+	}
+	
+	public @NonNull VariableModifier routineModifier(@NonNull VariableModifier modifier) {
+		return modifier;
 	}
 	
 	public abstract @NonNull TypeInfo getReturnTypeInfo();
@@ -133,7 +137,7 @@ public abstract class Routine {
 						ValueDataId valueData = (ValueDataId) aa.arg;
 						if (valueData.value instanceof FunctionItemValue) {
 							String functionName = ((FunctionItemValue) valueData.value).name;
-							if (Main.rootScope.functionExists(functionName) && !Main.program.routineExists(functionName)) {
+							if (Main.rootScope.functionExists(functionName, false) && !Main.rootScope.routineExists(functionName, false)) {
 								throw Helpers.error("Function \"%s\" was not defined! %s", functionName, aa);
 							}
 						}
@@ -198,25 +202,12 @@ public abstract class Routine {
 		addAction(new AssignmentAction(node, target, arg.addDereference(node)));
 	}
 	
-	public void addExitAction(ASTNode<?, ?> node) {
-		addAction(new ExitAction());
+	public void addExitAction(ASTNode<?, ?> node, DataId arg) {
+		addAction(new ExitAction(node, arg));
 	}
 	
-	public void addExitValueAction(ASTNode<?, ?> node, DataId arg) {
-		addAction(new ExitValueAction(node, arg));
-	}
-	
-	public void addReturnAction(ASTNode<?, ?> node) {
-		if (isRootRoutine()) {
-			throw Helpers.nodeError(node, "Root routine can not return! Use an exit statement!");
-		}
-		else {
-			addAction(new JumpAction(node, Integer.MAX_VALUE));
-		}
-	}
-	
-	public void addReturnValueAction(ASTNode<?, ?> node, DataId arg) {
-		addAction(new ReturnValueAction(node, arg));
+	public void addReturnAction(ASTNode<?, ?> node, DataId arg) {
+		addAction(new ReturnAction(node, arg));
 	}
 	
 	public JumpAction addJumpAction(ASTNode<?, ?> node, int target) {
@@ -231,24 +222,23 @@ public abstract class Routine {
 		return cja;
 	}
 	
-	public void addFunctionAction(ASTNode<?, ?> node, Function directFunction, DataId target, DataId function, List<DataId> args) {
+	public void addFunctionAction(ASTNode<?, ?> node, Function directFunction, DataId target, DataId function, List<DataId> args, Scope scope) {
 		if (directFunction != null) {
-			directFunction.required = true;
+			directFunction.setRequired(false);
 		}
 		
 		if (directFunction != null && directFunction.builtIn) {
-			addAction(new BuiltInFunctionCallAction(node, target, function, args));
+			addAction(new BuiltInFunctionCallAction(node, target, function, args, scope));
 		}
 		else {
-			addAction(new FunctionCallAction(node, target, function, args));
+			addAction(new FunctionCallAction(node, target, function, args, scope));
 		}
 	}
 	
 	public void onNonLocalFunctionItemExpression(ASTNode<?, ?> node, Function function) {
-		function.required = true;
-		Routine functionRoutine = Main.program.getRoutine(function.name);
-		if (functionRoutine != null) {
-			functionRoutine.onRequiresStack();
+		function.setRequired(true);
+		if (Main.rootScope.routineExists(function.name, false)) {
+			Main.rootScope.getRoutine(node, function.name).onRequiresStack();
 		}
 	}
 	
@@ -272,7 +262,21 @@ public abstract class Routine {
 	}
 	
 	public @NonNull RegDataId nextRegId(@NonNull TypeInfo typeInfo) {
-		return new RegDataId(typeInfo, regId++);
+		return new RegDataId(0, typeInfo, regId++);
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(name, scope);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Routine) {
+			Routine other = (Routine) obj;
+			return name.equals(other.name) && Objects.equals(scope, other.scope);
+		}
+		return false;
 	}
 	
 	@Override

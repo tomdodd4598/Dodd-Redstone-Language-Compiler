@@ -42,6 +42,11 @@ public class ValueExpressionNode extends ConstantExpressionNode {
 	}
 	
 	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		
+	}
+	
+	@Override
 	public void checkTypes(ASTNode<?, ?> parent) {
 		
 	}
@@ -53,6 +58,7 @@ public class ValueExpressionNode extends ConstantExpressionNode {
 	
 	@Override
 	public void trackFunctions(ASTNode<?, ?> parent) {
+		Function directFunction = getDirectFunction();
 		if (directFunction != null) {
 			routine.onNonLocalFunctionItemExpression(this, directFunction);
 		}

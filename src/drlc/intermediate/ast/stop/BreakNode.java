@@ -34,6 +34,11 @@ public class BreakNode extends StopNode {
 	}
 	
 	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		
+	}
+	
+	@Override
 	public void checkTypes(ASTNode<?, ?> parent) {
 		
 	}

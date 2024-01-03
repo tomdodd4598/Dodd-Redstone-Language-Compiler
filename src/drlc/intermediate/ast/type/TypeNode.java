@@ -1,68 +1,24 @@
 package drlc.intermediate.ast.type;
 
+import java.util.Set;
+
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.component.type.TypeInfo;
+import drlc.intermediate.component.type.*;
 import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
-public class TypeNode extends ASTNode<Scope, Routine> {
-	
-	public final int referenceLevel;
-	public final @NonNull RawTypeNode rawTypeNode;
+public abstract class TypeNode extends ASTNode<Scope, Routine> {
 	
 	public boolean setTypeInfo = false;
 	
 	@SuppressWarnings("null")
 	public @NonNull TypeInfo typeInfo = null;
 	
-	public TypeNode(Node[] parseNodes, int referenceLevel, @NonNull RawTypeNode rawTypeNode) {
+	protected TypeNode(Node[] parseNodes) {
 		super(parseNodes);
-		this.referenceLevel = referenceLevel;
-		this.rawTypeNode = rawTypeNode;
-	}
-	
-	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
-		scope = parent.scope;
-		
-		rawTypeNode.setScopes(this);
-	}
-	
-	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
-		rawTypeNode.defineTypes(this);
-	}
-	
-	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
-		routine = parent.routine;
-		
-		rawTypeNode.declareExpressions(this);
-		
-		setTypeInfo();
-	}
-	
-	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
-		rawTypeNode.checkTypes(this);
-	}
-	
-	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
-		rawTypeNode.foldConstants(this);
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
-		rawTypeNode.trackFunctions(this);
-	}
-	
-	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
-		rawTypeNode.generateIntermediate(this);
 	}
 	
 	public void setTypeInfo() {
@@ -72,8 +28,7 @@ public class TypeNode extends ASTNode<Scope, Routine> {
 		setTypeInfo = true;
 	}
 	
-	protected void setTypeInfoInternal() {
-		rawTypeNode.setTypeInfo();
-		typeInfo = rawTypeNode.typeInfo.copy(this, referenceLevel);
-	}
+	protected abstract void setTypeInfoInternal();
+	
+	public abstract void collectRawTypes(Set<RawType> rawTypes);
 }

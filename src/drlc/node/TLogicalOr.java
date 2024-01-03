@@ -9,12 +9,12 @@ public final class TLogicalOr extends Token
 {
     public TLogicalOr()
     {
-        super.setText("|?");
+        super.setText("||");
     }
 
     public TLogicalOr(int line, int pos)
     {
-        super.setText("|?");
+        super.setText("||");
         setLine(line);
         setPos(pos);
     }

@@ -39,6 +39,11 @@ public class DereferenceExpressionNode extends ExpressionNode {
 		routine = parent.routine;
 		
 		expressionNode.declareExpressions(this);
+	}
+	
+	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		expressionNode.defineExpressions(this);
 		
 		setTypeInfo();
 	}
@@ -93,6 +98,11 @@ public class DereferenceExpressionNode extends ExpressionNode {
 	@Override
 	public boolean isValidLvalue() {
 		return true;
+	}
+	
+	@Override
+	public boolean isMutableLvalue() {
+		return expressionNode.getTypeInfo().IS_MUTABLE_REFERENCE;
 	}
 	
 	@Override

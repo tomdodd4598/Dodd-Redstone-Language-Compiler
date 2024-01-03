@@ -2,14 +2,14 @@
 
 package drlc.node;
 
-import java.util.*;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
 public final class ADead2DeadSection extends PDeadSection
 {
     private TReturn _return_;
-    private final LinkedList<TSemicolon> _semicolon_ = new LinkedList<TSemicolon>();
+    private PExpression _expression_;
+    private TSemicolon _semicolon_;
 
     public ADead2DeadSection()
     {
@@ -18,10 +18,13 @@ public final class ADead2DeadSection extends PDeadSection
 
     public ADead2DeadSection(
         @SuppressWarnings("hiding") TReturn _return_,
-        @SuppressWarnings("hiding") List<?> _semicolon_)
+        @SuppressWarnings("hiding") PExpression _expression_,
+        @SuppressWarnings("hiding") TSemicolon _semicolon_)
     {
         // Constructor
         setReturn(_return_);
+
+        setExpression(_expression_);
 
         setSemicolon(_semicolon_);
 
@@ -32,7 +35,8 @@ public final class ADead2DeadSection extends PDeadSection
     {
         return new ADead2DeadSection(
             cloneNode(this._return_),
-            cloneList(this._semicolon_));
+            cloneNode(this._expression_),
+            cloneNode(this._semicolon_));
     }
 
     @Override
@@ -66,30 +70,54 @@ public final class ADead2DeadSection extends PDeadSection
         this._return_ = node;
     }
 
-    public LinkedList<TSemicolon> getSemicolon()
+    public PExpression getExpression()
+    {
+        return this._expression_;
+    }
+
+    public void setExpression(PExpression node)
+    {
+        if(this._expression_ != null)
+        {
+            this._expression_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._expression_ = node;
+    }
+
+    public TSemicolon getSemicolon()
     {
         return this._semicolon_;
     }
 
-    public void setSemicolon(List<?> list)
+    public void setSemicolon(TSemicolon node)
     {
-        for(TSemicolon e : this._semicolon_)
+        if(this._semicolon_ != null)
         {
-            e.parent(null);
+            this._semicolon_.parent(null);
         }
-        this._semicolon_.clear();
 
-        for(Object obj_e : list)
+        if(node != null)
         {
-            TSemicolon e = (TSemicolon) obj_e;
-            if(e.parent() != null)
+            if(node.parent() != null)
             {
-                e.parent().removeChild(e);
+                node.parent().removeChild(node);
             }
 
-            e.parent(this);
-            this._semicolon_.add(e);
+            node.parent(this);
         }
+
+        this._semicolon_ = node;
     }
 
     @Override
@@ -97,6 +125,7 @@ public final class ADead2DeadSection extends PDeadSection
     {
         return ""
             + toString(this._return_)
+            + toString(this._expression_)
             + toString(this._semicolon_);
     }
 
@@ -110,8 +139,15 @@ public final class ADead2DeadSection extends PDeadSection
             return;
         }
 
-        if(this._semicolon_.remove(child))
+        if(this._expression_ == child)
         {
+            this._expression_ = null;
+            return;
+        }
+
+        if(this._semicolon_ == child)
+        {
+            this._semicolon_ = null;
             return;
         }
 
@@ -128,22 +164,16 @@ public final class ADead2DeadSection extends PDeadSection
             return;
         }
 
-        for(ListIterator<TSemicolon> i = this._semicolon_.listIterator(); i.hasNext();)
+        if(this._expression_ == oldChild)
         {
-            if(i.next() == oldChild)
-            {
-                if(newChild != null)
-                {
-                    i.set((TSemicolon) newChild);
-                    newChild.parent(this);
-                    oldChild.parent(null);
-                    return;
-                }
+            setExpression((PExpression) newChild);
+            return;
+        }
 
-                i.remove();
-                oldChild.parent(null);
-                return;
-            }
+        if(this._semicolon_ == oldChild)
+        {
+            setSemicolon((TSemicolon) newChild);
+            return;
         }
 
         throw new RuntimeException("Not a child.");

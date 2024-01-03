@@ -39,11 +39,15 @@ Helpers
 Tokens
 	directive_prefix = '%!';
 	
-	variable_modifier = 'static' | 'mut';
+	typealias = 'typealias';
+	struct = 'struct';
 	
 	fn = 'fn';
 	const = 'const';
 	let = 'let';
+	
+	static = 'static';
+	mut = 'mut';
 	
 	arrow = '->';
 	
@@ -70,6 +74,7 @@ Tokens
 	comma = ',';
 	colon = ':';
 	semicolon = ';';
+	full_stop = '.';
 	
 	equals = '=';
 	
@@ -88,8 +93,8 @@ Tokens
 	divide_equals = '/=';
 	remainder_equals = '%=';
 	
-	logical_and = '&?';
-	logical_or = '|?';
+	logical_and = '&&';
+	logical_or = '||';
 	
 	equal_to = '==';
 	not_equal_to = '!=';
@@ -118,15 +123,12 @@ Tokens
 	
 	bool_value = 'false' | 'true';
 	
-	name = letter (digit | letter | '_')*;
-	discard = '_';
+	name = (letter | '_') (digit | letter | '_')*;
 	
 	int_value = integer ('I' | 'i')?;
 	nat_value = integer ('N' | 'n');
 	
 	char_value = apostrophe c_char apostrophe;
-	
-	null = 'null';
 	
 	blank = (' ' | 9 | 11 | eol)+;
 	comment = line_comment | block_comment;
@@ -143,23 +145,26 @@ Productions
 		directive*;
 	
 	program =
-		program_section*;
+		static_section*;
 	
 	
 	
 	/* UNIT SPECIFICATION */
 	
 	directive =
-		directive_prefix name expression_list? semicolon+;
+		directive_prefix name expression_list? semicolon;
 	
-	program_section =
+	static_section =
 		{function_definition} function_definition |
-		{basic_section} basic_section;
-	
-	basic_section =
-		{scoped_section} scoped_section |
+		{typealias_definition} typealias_definition |
+		{struct_definition} struct_definition |
 		{constant_definition} constant_definition |
 		{variable_declaration} variable_declaration |
+		{empty_section} empty_section;
+	
+	runtime_section =
+		{static_section} static_section |
+		{scoped_section} scoped_section |
 		{expression_statement} expression_statement |
 		{conditional_section} conditional_section |
 		{iterative_section} iterative_section;
@@ -169,24 +174,33 @@ Productions
 	/* SECTION SPECIFICATIONS */
 	
 	function_definition =
-		fn name l_par parameter_list? r_par return_type? l_brace scope_contents r_brace;
+		fn name l_par declarator_list? r_par return_type? l_brace scope_contents r_brace;
+	
+	typealias_definition =
+		typealias name equals type semicolon;
+	
+	struct_definition =
+		struct name l_brace declarator_list? r_brace;
+	
+	constant_definition =
+		const name type_annotation? equals constant_expression semicolon;
+	
+	variable_declaration =
+		{excluding_initialization} let declarator semicolon |
+		{including_initialization} let declarator equals expression semicolon;
+	
+	empty_section =
+		semicolon;
 	
 	scoped_section =
 		l_brace scope_contents r_brace;
 	
-	constant_definition =
-		const name type_annotation equals constant_expression semicolon+;
-	
-	variable_declaration =
-		{excluding_initialization} let variable_declarator semicolon+ |
-		{including_initialization} let variable_declarator equals expression semicolon+;
-	
 	expression_statement =
-		{basic} expression semicolon+ |
-		{assignment} assignment_expression assignment_op expression semicolon+;
+		{basic} expression semicolon |
+		{assignment} assignment_expression assignment_op expression semicolon;
 	
 	conditional_section =
-		conditional_branch_keyword expression l_brace scope_contents r_brace else_section?;
+		conditional_branch_keyword conditional_expression l_brace scope_contents r_brace else_section?;
 	
 	else_section =
 		{excluding_branch} else l_brace scope_contents r_brace |
@@ -194,36 +208,42 @@ Productions
 	
 	iterative_section =
 		{loop} iterative_section_label? loop l_brace scope_contents r_brace |
-		{conditional} iterative_section_label? conditional_iterative_keyword expression l_brace scope_contents r_brace |
-		{do_conditional} iterative_section_label? do l_brace scope_contents r_brace conditional_iterative_keyword expression semicolon+;
+		{conditional} iterative_section_label? conditional_iterative_keyword conditional_expression l_brace scope_contents r_brace |
+		{do_conditional} iterative_section_label? do l_brace scope_contents r_brace conditional_iterative_keyword expression semicolon;
 	
 	scope_contents =
-		basic_section* stop_statement?;
+		runtime_section* stop_statement?;
 	
 	stop_statement =
-		{exit} exit expression? semicolon+ dead_section* |
-		{return} return expression? semicolon+ dead_section* |
-		{continue} continue name? semicolon+ dead_section* |
-		{break} break name? semicolon+ dead_section*;
+		{exit} exit expression? semicolon dead_section* |
+		{return} return expression? semicolon dead_section* |
+		{continue} continue name? semicolon dead_section* |
+		{break} break name? semicolon dead_section*;
 	
 	dead_section =
-		{dead0} basic_section |
-		{dead1} exit expression? semicolon+ |
-		{dead2} return expression? semicolon+ |
-		{dead3} continue name? semicolon+ |
-		{dead4} break name? semicolon+;
+		{dead0} runtime_section |
+		{dead1} exit expression? semicolon |
+		{dead2} return expression? semicolon |
+		{dead3} continue name? semicolon |
+		{dead4} break name? semicolon;
 	
 	
 	
 	/* COMPONENT SPECIFICATIONS */
 	
 	type =
-		and* raw_type;
+		{raw} raw_type |
+		{address_of} and mut? type |
+		{double_address_of} logical_and mut? type;
 	
 	raw_type =
-		{basic} name |
+		{nominal} name |
 		{array} l_bracket type semicolon constant_expression r_bracket |
+		{tuple} l_par tuple_type_list? r_par |
 		{function} fn l_par type_list? r_par return_type?;
+	
+	tuple_type_list =
+		type comma type_list?;
 	
 	type_list =
 		type type_list_tail* comma?;
@@ -234,24 +254,21 @@ Productions
 	return_type =
 		arrow type;
 	
-	variable_declarator =
-		variable_modifier* name type_annotation;
-	
 	type_annotation =
 		colon type;
 	
-	parameter_list =
-		parameter_declarator parameter_list_tail* comma?;
+	declarator =
+		variable_modifier* name type_annotation?;
 	
-	parameter_list_tail =
-		comma parameter_declarator;
+	variable_modifier =
+		{static} static |
+		{mut} mut;
 	
-	parameter_declarator =
-		variable_modifier* identifier type_annotation;
+	declarator_list =
+		declarator declarator_list_tail* comma?;
 	
-	identifier =
-		{name} name |
-		{discard} discard;
+	declarator_list_tail =
+		comma declarator;
 	
 	iterative_section_label =
 		name colon;
@@ -264,6 +281,9 @@ Productions
 	
 	assignment_expression =
 		expression0;
+	
+	conditional_expression =
+		conditional_expression0;
 	
 	expression0 =
 		{prioritized} expression1 |
@@ -283,24 +303,39 @@ Productions
 	
 	expression4 =
 		{prioritized} expression5 |
-		{binary} expression4 shift_binary_op expression5;
+		{binary} expression4 multiplicative_binary_op expression5;
 	
 	expression5 =
 		{prioritized} expression6 |
-		{binary} expression5 multiplicative_binary_op expression6;
+		{binary} expression5 shift_binary_op expression6;
 	
 	expression6 =
 		{prioritized} expression7 |
 		{unary} unary_op expression6 |
 		{dereference} multiply expression6 |
-		{address_of} and expression6;
+		{address_of} and mut? expression6 |
+		{double_address_of} logical_and mut? expression6;
 	
 	expression7 =
-		{prioritized} expression8 |
+		{parentheses} parentheses_expression |
+		{simple} simple_expression |
 		{array_list} l_bracket expression_list? r_bracket |
 		{array_repeat} l_bracket expression semicolon constant_expression r_bracket |
 		{index} expression7 l_bracket expression r_bracket |
+		{tuple} l_par tuple_expression_list? r_par |
+		{struct} name l_brace expression_list? r_brace |
+		{member} expression7 full_stop simple_expression |
 		{function} expression7 l_par expression_list? r_par;
+	
+	parentheses_expression =
+		l_par expression r_par;
+	
+	simple_expression =
+		{value} value |
+		{variable} name;
+	
+	tuple_expression_list =
+		expression comma expression_list?;
 	
 	expression_list =
 		expression expression_list_tail* comma?;
@@ -308,18 +343,53 @@ Productions
 	expression_list_tail =
 		comma expression;
 	
-	expression8 =
-		{value} value |
-		{variable} name |
-		{parentheses} l_par expression r_par;
-	
 	value =
 		{bool} bool_value |
 		{int} int_value |
 		{nat} nat_value |
 		{char} char_value |
-		{null} null |
 		{sizeof} sizeof type;
+	
+	conditional_expression0 =
+		{prioritized} conditional_expression1 |
+		{binary} conditional_expression0 logical_binary_op conditional_expression1;
+	
+	conditional_expression1 =
+		{prioritized} conditional_expression2 |
+		{binary} conditional_expression1 equality_binary_op conditional_expression2;
+	
+	conditional_expression2 =
+		{prioritized} conditional_expression3 |
+		{binary} conditional_expression2 comparative_binary_op conditional_expression3;
+	
+	conditional_expression3 =
+		{prioritized} conditional_expression4 |
+		{binary} conditional_expression3 additive_binary_op conditional_expression4;
+	
+	conditional_expression4 =
+		{prioritized} conditional_expression5 |
+		{binary} conditional_expression4 multiplicative_binary_op conditional_expression5;
+	
+	conditional_expression5 =
+		{prioritized} conditional_expression6 |
+		{binary} conditional_expression5 shift_binary_op conditional_expression6;
+	
+	conditional_expression6 =
+		{prioritized} conditional_expression7 |
+		{unary} unary_op conditional_expression6 |
+		{dereference} multiply conditional_expression6 |
+		{address_of} and mut? conditional_expression6 |
+		{double_address_of} logical_and mut? conditional_expression6;
+	
+	conditional_expression7 =
+		{parentheses} parentheses_expression |
+		{simple} simple_expression |
+		{array_list} l_bracket expression_list? r_bracket |
+		{array_repeat} l_bracket expression semicolon constant_expression r_bracket |
+		{index} conditional_expression7 l_bracket expression r_bracket |
+		{tuple} l_par tuple_expression_list? r_par |
+		{member} conditional_expression7 full_stop simple_expression |
+		{function} conditional_expression7 l_par expression_list? r_par;
 	
 	
 	
@@ -332,13 +402,13 @@ Productions
 		{or} or_equals |
 		{xor} xor_equals |
 		{minus} minus_equals |
+		{multiply} multiply_equals |
+		{divide} divide_equals |
+		{remainder} remainder_equals |
 		{left_shift} left_shift_equals |
 		{right_shift} right_shift_equals |
 		{left_rotate} left_rotate_equals |
-		{right_rotate} right_rotate_equals |
-		{multiply} multiply_equals |
-		{divide} divide_equals |
-		{remainder} remainder_equals;
+		{right_rotate} right_rotate_equals;
 	
 	logical_binary_op =
 		{logical_and} logical_and |
@@ -361,16 +431,16 @@ Productions
 		{xor} xor |
 		{minus} minus;
 	
+	multiplicative_binary_op =
+		{multiply} multiply |
+		{divide} divide |
+		{remainder} remainder;
+	
 	shift_binary_op =
 		{left_shift} left_shift |
 		{right_shift} right_shift |
 		{left_rotate} left_rotate |
 		{right_rotate} right_rotate;
-	
-	multiplicative_binary_op =
-		{multiply} multiply |
-		{divide} divide |
-		{remainder} remainder;
 	
 	unary_op =
 		{minus} minus |

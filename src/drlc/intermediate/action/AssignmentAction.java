@@ -38,8 +38,8 @@ public class AssignmentAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public boolean canRemove() {
-		return target.dereferenceLevel == 0 && arg.dereferenceLevel <= 0;
+	public boolean canRemove(boolean compoundReplacement) {
+		return !compoundReplacement && target.dereferenceLevel == 0 && arg.dereferenceLevel <= 0;
 	}
 	
 	@Override

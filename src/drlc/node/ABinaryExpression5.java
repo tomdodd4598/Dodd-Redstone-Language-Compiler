@@ -8,7 +8,7 @@ import drlc.analysis.*;
 public final class ABinaryExpression5 extends PExpression5
 {
     private PExpression5 _expression5_;
-    private PMultiplicativeBinaryOp _multiplicativeBinaryOp_;
+    private PShiftBinaryOp _shiftBinaryOp_;
     private PExpression6 _expression6_;
 
     public ABinaryExpression5()
@@ -18,13 +18,13 @@ public final class ABinaryExpression5 extends PExpression5
 
     public ABinaryExpression5(
         @SuppressWarnings("hiding") PExpression5 _expression5_,
-        @SuppressWarnings("hiding") PMultiplicativeBinaryOp _multiplicativeBinaryOp_,
+        @SuppressWarnings("hiding") PShiftBinaryOp _shiftBinaryOp_,
         @SuppressWarnings("hiding") PExpression6 _expression6_)
     {
         // Constructor
         setExpression5(_expression5_);
 
-        setMultiplicativeBinaryOp(_multiplicativeBinaryOp_);
+        setShiftBinaryOp(_shiftBinaryOp_);
 
         setExpression6(_expression6_);
 
@@ -35,7 +35,7 @@ public final class ABinaryExpression5 extends PExpression5
     {
         return new ABinaryExpression5(
             cloneNode(this._expression5_),
-            cloneNode(this._multiplicativeBinaryOp_),
+            cloneNode(this._shiftBinaryOp_),
             cloneNode(this._expression6_));
     }
 
@@ -70,16 +70,16 @@ public final class ABinaryExpression5 extends PExpression5
         this._expression5_ = node;
     }
 
-    public PMultiplicativeBinaryOp getMultiplicativeBinaryOp()
+    public PShiftBinaryOp getShiftBinaryOp()
     {
-        return this._multiplicativeBinaryOp_;
+        return this._shiftBinaryOp_;
     }
 
-    public void setMultiplicativeBinaryOp(PMultiplicativeBinaryOp node)
+    public void setShiftBinaryOp(PShiftBinaryOp node)
     {
-        if(this._multiplicativeBinaryOp_ != null)
+        if(this._shiftBinaryOp_ != null)
         {
-            this._multiplicativeBinaryOp_.parent(null);
+            this._shiftBinaryOp_.parent(null);
         }
 
         if(node != null)
@@ -92,7 +92,7 @@ public final class ABinaryExpression5 extends PExpression5
             node.parent(this);
         }
 
-        this._multiplicativeBinaryOp_ = node;
+        this._shiftBinaryOp_ = node;
     }
 
     public PExpression6 getExpression6()
@@ -125,7 +125,7 @@ public final class ABinaryExpression5 extends PExpression5
     {
         return ""
             + toString(this._expression5_)
-            + toString(this._multiplicativeBinaryOp_)
+            + toString(this._shiftBinaryOp_)
             + toString(this._expression6_);
     }
 
@@ -139,9 +139,9 @@ public final class ABinaryExpression5 extends PExpression5
             return;
         }
 
-        if(this._multiplicativeBinaryOp_ == child)
+        if(this._shiftBinaryOp_ == child)
         {
-            this._multiplicativeBinaryOp_ = null;
+            this._shiftBinaryOp_ = null;
             return;
         }
 
@@ -164,9 +164,9 @@ public final class ABinaryExpression5 extends PExpression5
             return;
         }
 
-        if(this._multiplicativeBinaryOp_ == oldChild)
+        if(this._shiftBinaryOp_ == oldChild)
         {
-            setMultiplicativeBinaryOp((PMultiplicativeBinaryOp) newChild);
+            setShiftBinaryOp((PShiftBinaryOp) newChild);
             return;
         }
 

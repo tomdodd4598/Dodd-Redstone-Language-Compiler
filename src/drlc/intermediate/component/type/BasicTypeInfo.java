@@ -1,6 +1,6 @@
 package drlc.intermediate.component.type;
 
-import java.util.Objects;
+import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNull;
 
@@ -12,27 +12,34 @@ public abstract class BasicTypeInfo extends TypeInfo {
 	
 	public final @NonNull RawType rawType;
 	
-	protected BasicTypeInfo(ASTNode<?, ?> node, @NonNull RawType rawType, int referenceLevel) {
+	protected BasicTypeInfo(ASTNode<?, ?> node, int referenceLevel, @NonNull RawType rawType) {
 		super(node, referenceLevel);
 		this.rawType = rawType;
 		
 		if (referenceLevel < 0) {
-			throw Helpers.nodeError(node, "Reference level of basic type \"%s\" can not be negative!", rawString());
+			throw Helpers.nodeError(node, "Reference level of type \"%s\" can not be negative!", rawString());
 		}
 	}
 	
-	public BasicTypeInfo(ASTNode<?, ?> node, Scope scope, @NonNull String rawTypeName, int referenceLevel) {
-		this(node, scope.getRawType(node, rawTypeName), referenceLevel);
+	public BasicTypeInfo(ASTNode<?, ?> node, int referenceLevel, Scope scope, @NonNull String rawTypeName) {
+		this(node, referenceLevel, scope.getRawType(node, rawTypeName));
 	}
 	
 	@Override
 	public boolean exists(Scope scope) {
-		return scope.rawTypeExists(rawType.name);
+		return scope.rawTypeExists(rawType.name, false);
 	}
 	
 	@Override
 	public int getSize() {
 		return isAddress() ? Main.generator.getAddressSize() : rawType.size;
+	}
+	
+	@Override
+	public void collectRawTypes(Set<RawType> rawTypes) {
+		if (!isAddress()) {
+			rawTypes.add(rawType);
+		}
 	}
 	
 	@Override

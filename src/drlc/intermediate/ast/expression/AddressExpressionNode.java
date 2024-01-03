@@ -10,13 +10,15 @@ import drlc.node.Node;
 
 public class AddressExpressionNode extends ExpressionNode {
 	
+	public final boolean mutable;
 	public final @NonNull ExpressionNode expressionNode;
 	
 	@SuppressWarnings("null")
 	public @NonNull TypeInfo typeInfo = null;
 	
-	public AddressExpressionNode(Node[] parseNodes, @NonNull ExpressionNode expressionNode) {
+	public AddressExpressionNode(Node[] parseNodes, boolean mutable, @NonNull ExpressionNode expressionNode) {
 		super(parseNodes);
+		this.mutable = mutable;
 		this.expressionNode = expressionNode;
 	}
 	
@@ -37,6 +39,11 @@ public class AddressExpressionNode extends ExpressionNode {
 		routine = parent.routine;
 		
 		expressionNode.declareExpressions(this);
+	}
+	
+	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		expressionNode.defineExpressions(this);
 		
 		setTypeInfo();
 	}

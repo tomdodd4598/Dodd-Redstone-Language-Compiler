@@ -8,7 +8,7 @@ import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.*;
 import drlc.node.Node;
 
-public class ScopedSectionNode extends BasicSectionNode<Scope, Routine> {
+public class ScopedSectionNode extends RuntimeSectionNode<Scope, Routine> {
 	
 	public final @NonNull ScopeContentsNode scopeContentsNode;
 	
@@ -34,6 +34,11 @@ public class ScopedSectionNode extends BasicSectionNode<Scope, Routine> {
 		routine = parent.routine;
 		
 		scopeContentsNode.declareExpressions(this);
+	}
+	
+	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		scopeContentsNode.defineExpressions(this);
 	}
 	
 	@Override

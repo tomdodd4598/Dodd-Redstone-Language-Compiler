@@ -35,6 +35,6 @@ public class ConditionalJumpAction extends Action implements IJumpAction {
 	
 	@Override
 	public String toString() {
-		return (jumpCondition ? Global.CONDITIONAL_JUMP : Global.CONDITIONAL_NOT_JUMP) + ' ' + getTarget();
+		return (jumpCondition ? Global.CONDITIONAL_JUMP : Global.CONDITIONAL_NOT_JUMP) + " " + getTarget();
 	}
 }

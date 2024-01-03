@@ -57,6 +57,11 @@ public class ArrayRepeatExpressionNode extends ExpressionNode {
 		routine = parent.routine;
 		
 		repeatExpressionNode.declareExpressions(this);
+	}
+	
+	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		repeatExpressionNode.defineExpressions(this);
 		
 		setTypeInfo();
 	}
@@ -105,17 +110,17 @@ public class ArrayRepeatExpressionNode extends ExpressionNode {
 	
 	@Override
 	protected void setConstantValueInternal() {
-		/*if (length == 0) {
-			constantValue = new ArrayValue(this, typeInfo, new ArrayList<>());
+		if (length == 0) {
+			constantValue = Main.generator.emptyArrayValue;
 			return;
 		}
 		
 		@Nullable Value repeatConstantValue = repeatExpressionNode.getConstantValue();
 		if (repeatConstantValue != null) {
-			constantValue = new ArrayValue(this, typeInfo, repeatConstantValue, length);
+			constantValue = new ArrayValue(this, typeInfo, Collections.nCopies(length, repeatConstantValue));
 		}
 		else {
 			constantValue = null;
-		}*/
+		}
 	}
 }

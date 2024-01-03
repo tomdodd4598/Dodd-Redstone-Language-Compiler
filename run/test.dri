@@ -1,44 +1,99 @@
-leaf fn \root(static mut argc: Int, static mut \argv: &&Char) -> Int:
-{decl}:
-	<0> l: Int
-	<0> r: Int
-	<0> a: Int
-	<0> b: Int
-	<0> a_sal: Int
-	<0> b_sal: Int
-	<0> a_sar: Int
-	<0> b_sar: Int
-	<0> a_shr: Int
-	<0> b_shr: Int
-	<0> a_rotl: Int
-	<0> b_rotl: Int
-	<0> a_rotr: Int
-	<0> b_rotr: Int
+nesting fn \root() -> Int:
+{def}:
+	Item: Item {Int, &Item}
+{dec}:
+	static start: &Item {Int, &Item}
 {0}:
-	l = $65280
-	r = $255
-	a = l
-	b = r
-	a_sal = l << $4
-	b_sal = r << $4
-	a_sar = l >> $4
-	b_sar = r >> $4
-	a_shr = l >>> $4
-	b_shr = r >>> $4
-	a_rotl = l <<< $4
-	b_rotl = r <<< $4
-	a_rotr = l >>> $4
-	b_rotr = r >>> $4
-	%0 = call builtin $outint(a)
-	%1 = call builtin $outint(b)
-	%2 = call builtin $outint(a_sal)
-	%3 = call builtin $outint(b_sal)
-	%4 = call builtin $outint(a_sar)
-	%5 = call builtin $outint(b_sar)
-	%6 = call builtin $outint(a_shr)
-	%7 = call builtin $outint(b_shr)
-	%8 = call builtin $outint(a_rotl)
-	%9 = call builtin $outint(b_rotl)
-	%10 = call builtin $outint(a_rotr)
-	%11 = call builtin $outint(b_rotr)
-	exit
+	start = $0x0
+	%0 = call $main()
+	exit $0
+
+leaf fn insertItem(<1> mut tracer: &&Item {Int, &Item}, <1> val: Int) -> ():
+{dec}:
+	<2> mut \r0: Bool
+{0}:
+	jmp 2
+{1}:
+	%0 = *tracer
+	tracer = %0.8
+{2}:
+	%1 = *tracer
+	%t = %1 != $0x0
+	cnj 3
+	%2 = *tracer
+	%3 = *%2
+	\r0 = %3 <= val
+	jmp 4
+{3}:
+	\r0 = $false
+{4}:
+	%t = \r0
+	cj 1
+	%5 = *tracer
+	%6 = (val, %5)
+	*tracer = &%6
+	ret $()
+
+leaf fn removeItem(<3> mut tracer: &&Item {Int, &Item}, <3> val: Int) -> ():
+{dec}:
+	<3> present: Bool
+	<4> mut \r0: Bool
+{0}:
+	present = $false
+	jmp 2
+{1}:
+	%0 = *tracer
+	tracer = %0.8
+{2}:
+	%1 = *tracer
+	%t = %1 != $0x0
+	cnj 3
+	%2 = *tracer
+	%3 = *%2
+	\r0 = %3 != val
+	jmp 4
+{3}:
+	\r0 = $false
+{4}:
+	%t = \r0
+	cj 1
+	%5 = *tracer
+	%t = %5 != $0x0
+	cnj 5
+	%7 = *tracer
+	%8 = *%7.8
+	*tracer = %8
+{5}:
+	ret $()
+
+nesting fn print(<6> mut tracer: &&Item {Int, &Item}) -> ():
+{0}:
+	jmp 2
+{1}:
+	%0 = *tracer
+	%1 = *%0
+	%2 = call builtin $outint(%1)
+	%3 = *tracer
+	tracer = %3.8
+{2}:
+	%4 = *tracer
+	%t = %4 != $0x0
+	cj 1
+	ret $()
+
+nesting fn main() -> ():
+{0}:
+	%0 = call $insertItem(&start, $3)
+	%1 = call $insertItem(&start, $6)
+	%2 = call $insertItem(&start, $2)
+	%3 = call $insertItem(&start, $1)
+	%4 = call $insertItem(&start, $4)
+	%5 = call $insertItem(&start, $7)
+	%6 = call $insertItem(&start, $2)
+	%7 = call $insertItem(&start, $5)
+	%8 = call $print(&start)
+	%9 = call $removeItem(&start, $4)
+	%10 = call $removeItem(&start, $7)
+	%11 = call $removeItem(&start, $2)
+	%12 = call $print(&start)
+	ret $()

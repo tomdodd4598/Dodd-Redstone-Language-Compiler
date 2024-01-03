@@ -8,7 +8,7 @@ import drlc.low.drc1.instruction.set.*;
 
 public class InstructionConditionalJumpIfLessThanZero extends InstructionConditionalJump {
 	
-	public InstructionConditionalJumpIfLessThanZero(int section) {
+	public InstructionConditionalJumpIfLessThanZero(short section) {
 		super(section);
 	}
 	

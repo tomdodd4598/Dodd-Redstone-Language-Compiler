@@ -47,6 +47,12 @@ public class ConditionalIterativeSectionNode extends IterativeSectionNode {
 	}
 	
 	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		expressionNode.defineExpressions(this);
+		bodyNode.defineExpressions(this);
+	}
+	
+	@Override
 	public void checkTypes(ASTNode<?, ?> parent) {
 		expressionNode.checkTypes(this);
 		bodyNode.checkTypes(this);

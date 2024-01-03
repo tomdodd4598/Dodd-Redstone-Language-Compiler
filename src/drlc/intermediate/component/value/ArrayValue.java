@@ -10,14 +10,15 @@ import drlc.intermediate.component.type.*;
 
 public class ArrayValue extends Value {
 	
-	public final List<Value> values;
+	protected final List<Value> values;
+	protected final int length;
 	
 	public ArrayValue(ASTNode<?, ?> node, @NonNull ArrayTypeInfo typeInfo, List<Value> values) {
 		super(node, typeInfo);
 		
-		int valueCount = values.size();
-		if (typeInfo.length != valueCount) {
-			throw Helpers.nodeError(node, "Array value of type \"%s\" can not be created with %d values!", typeInfo, valueCount);
+		length = values.size();
+		if (typeInfo.length != length) {
+			throw Helpers.nodeError(node, "Array value of type \"%s\" can not be created with %d values!", typeInfo, length);
 		}
 		
 		@NonNull TypeInfo elementType = typeInfo.elementTypeInfo;
@@ -30,8 +31,10 @@ public class ArrayValue extends Value {
 		this.values = values;
 	}
 	
-	public ArrayValue(ASTNode<?, ?> node, @NonNull ArrayTypeInfo typeInfo, @NonNull Value value, int length) {
-		this(node, typeInfo, Collections.nCopies(length, value));
+	@SuppressWarnings("null")
+	@Override
+	public @NonNull Value atIndex(ASTNode<?, ?> node, int index) {
+		return values.get(index);
 	}
 	
 	@Override
@@ -52,6 +55,6 @@ public class ArrayValue extends Value {
 	
 	@Override
 	public String valueString() {
-		return Helpers.arrayString(values);
+		return Helpers.arrayString(Helpers.map(values, Value::valueString));
 	}
 }

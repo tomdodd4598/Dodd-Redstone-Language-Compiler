@@ -1,40 +1,48 @@
 package drlc.intermediate.component.type;
 
-import java.util.Objects;
+import java.util.*;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
+import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.component.TypeInfoFunction;
+import drlc.intermediate.component.*;
 import drlc.intermediate.scope.Scope;
 
 public class RawType {
 	
 	public final @NonNull String name;
-	public final int size;
+	public int size;
+	public Map<String, MemberInfo> memberMap;
+	public @NonNull TypeInfoFunction supplier;
 	
-	private final @NonNull TypeInfoFunction supplier;
+	public Scope scope = null;
 	
-	public RawType(@NonNull String name, int size, @NonNull TypeInfoFunction supplier) {
+	public RawType(@NonNull String name, int size, Map<String, MemberInfo> memberMap, @NonNull TypeInfoFunction supplier) {
 		this.name = name;
 		this.size = size;
+		this.memberMap = memberMap;
 		this.supplier = supplier;
 	}
 	
-	public @NonNull TypeInfo getTypeInfo(ASTNode<?, ?> node, Scope scope, int referenceLevel) {
-		return supplier.create(node, scope, referenceLevel);
+	public @NonNull TypeInfo getTypeInfo(ASTNode<?, ?> node, int referenceLevel, Scope scope) {
+		return supplier.create(node, referenceLevel, scope);
+	}
+	
+	public @Nullable MemberInfo getMemberInfo(@NonNull String memberName) {
+		return memberMap.get(memberName);
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, size);
+		return Objects.hash(name, size, memberMap);
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof RawType) {
 			RawType other = (RawType) obj;
-			return name.equals(other.name) && size == other.size;
+			return name.equals(other.name) && size == other.size && memberMap.equals(other.memberMap) && Objects.equals(scope, other.scope);
 		}
 		else {
 			return false;
@@ -43,6 +51,6 @@ public class RawType {
 	
 	@Override
 	public String toString() {
-		return name;
+		return Helpers.scopeStringPrefix(scope) + name;
 	}
 }

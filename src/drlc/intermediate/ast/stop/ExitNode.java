@@ -5,6 +5,7 @@ import org.eclipse.jdt.annotation.*;
 import drlc.Main;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.expression.*;
+import drlc.intermediate.component.data.ValueDataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.node.Node;
 
@@ -45,6 +46,13 @@ public class ExitNode extends StopNode {
 	}
 	
 	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		if (expressionNode != null) {
+			expressionNode.defineExpressions(this);
+		}
+	}
+	
+	@Override
 	public void checkTypes(ASTNode<?, ?> parent) {
 		if (expressionNode != null) {
 			expressionNode.checkTypes(this);
@@ -80,10 +88,10 @@ public class ExitNode extends StopNode {
 		if (expressionNode != null) {
 			expressionNode.generateIntermediate(this);
 			
-			routine.addExitValueAction(this, expressionNode.dataId);
+			routine.addExitAction(this, expressionNode.dataId);
 		}
 		else {
-			routine.addExitAction(this);
+			routine.addExitAction(this, new ValueDataId(Main.generator.intValue(0)));
 		}
 	}
 }

@@ -3,8 +3,10 @@ package drlc.intermediate.ast.expression;
 import org.eclipse.jdt.annotation.*;
 
 import drlc.Main;
+import drlc.intermediate.action.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.BinaryOpType;
+import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
 import drlc.node.Node;
@@ -47,6 +49,12 @@ public class BinaryExpressionNode extends ExpressionNode {
 		
 		leftExpressionNode.declareExpressions(this);
 		rightExpressionNode.declareExpressions(this);
+	}
+	
+	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		leftExpressionNode.defineExpressions(this);
+		rightExpressionNode.defineExpressions(this);
 		
 		setTypeInfo();
 	}
@@ -81,9 +89,30 @@ public class BinaryExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void generateIntermediate(ASTNode<?, ?> parent) {
-		leftExpressionNode.generateIntermediate(this);
-		rightExpressionNode.generateIntermediate(this);
-		routine.addBinaryOpAction(this, leftExpressionNode.getTypeInfo(), binaryOpType, rightExpressionNode.getTypeInfo(), dataId = routine.nextRegId(typeInfo), leftExpressionNode.dataId, rightExpressionNode.dataId);
+		boolean logicalAnd = binaryOpType.equals(BinaryOpType.LOGICAL_AND), logicalOr = binaryOpType.equals(BinaryOpType.LOGICAL_OR);
+		if (logicalAnd || logicalOr) {
+			leftExpressionNode.generateIntermediate(this);
+			DataId temp = scope.nextLocalDataId(routine, Main.generator.boolTypeInfo);
+			routine.addAssignmentAction(this, temp, leftExpressionNode.dataId);
+			ConditionalJumpAction cja = routine.addConditionalJumpAction(this, -1, logicalOr);
+			
+			rightExpressionNode.generateIntermediate(this);
+			routine.addAssignmentAction(this, temp, rightExpressionNode.dataId);
+			JumpAction ja = routine.addJumpAction(this, -1);
+			
+			routine.incrementSectionId();
+			cja.setTarget(routine.currentSectionId());
+			routine.addValueAssignmentAction(this, temp, Main.generator.boolValue(logicalOr));
+			
+			routine.incrementSectionId();
+			ja.setTarget(routine.currentSectionId());
+			routine.addAssignmentAction(this, dataId = routine.nextRegId(typeInfo), temp);
+		}
+		else {
+			leftExpressionNode.generateIntermediate(this);
+			rightExpressionNode.generateIntermediate(this);
+			routine.addBinaryOpAction(this, leftExpressionNode.getTypeInfo(), binaryOpType, rightExpressionNode.getTypeInfo(), dataId = routine.nextRegId(typeInfo), leftExpressionNode.dataId, rightExpressionNode.dataId);
+		}
 	}
 	
 	@Override

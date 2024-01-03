@@ -8,16 +8,16 @@ import drlc.intermediate.scope.Scope;
 
 public class CharTypeInfo extends BasicTypeInfo {
 	
-	protected CharTypeInfo(ASTNode<?, ?> node, @NonNull RawType rawType, int referenceLevel) {
-		super(node, rawType, referenceLevel);
+	protected CharTypeInfo(ASTNode<?, ?> node, int referenceLevel, @NonNull RawType type) {
+		super(node, referenceLevel, type);
 	}
 	
-	public CharTypeInfo(ASTNode<?, ?> node, Scope scope, int referenceLevel) {
-		super(node, scope, Global.CHAR, referenceLevel);
+	public CharTypeInfo(ASTNode<?, ?> node, int referenceLevel, Scope scope) {
+		super(node, referenceLevel, scope, Global.CHAR);
 	}
 	
 	@Override
 	public @NonNull TypeInfo copy(ASTNode<?, ?> node, int newReferenceLevel) {
-		return new CharTypeInfo(node, rawType, newReferenceLevel);
+		return new CharTypeInfo(node, newReferenceLevel, rawType);
 	}
 }

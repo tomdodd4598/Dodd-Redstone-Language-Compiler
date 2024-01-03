@@ -6,7 +6,7 @@ import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.IterativeScope;
 import drlc.node.Node;
 
-public abstract class IterativeSectionNode extends BasicSectionNode<IterativeScope, Routine> {
+public abstract class IterativeSectionNode extends RuntimeSectionNode<IterativeScope, Routine> {
 	
 	public final @Nullable String label;
 	

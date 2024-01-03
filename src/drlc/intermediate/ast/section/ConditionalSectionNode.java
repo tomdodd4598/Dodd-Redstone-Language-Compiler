@@ -12,7 +12,7 @@ import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.ConditionalScope;
 import drlc.node.Node;
 
-public class ConditionalSectionNode extends BasicSectionNode<ConditionalScope, Routine> {
+public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope, Routine> {
 	
 	public final boolean unless;
 	public @NonNull ExpressionNode expressionNode;
@@ -55,6 +55,15 @@ public class ConditionalSectionNode extends BasicSectionNode<ConditionalScope, R
 		thenNode.declareExpressions(this);
 		if (elseNode != null) {
 			elseNode.declareExpressions(this);
+		}
+	}
+	
+	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		expressionNode.defineExpressions(this);
+		thenNode.defineExpressions(this);
+		if (elseNode != null) {
+			elseNode.defineExpressions(this);
 		}
 	}
 	

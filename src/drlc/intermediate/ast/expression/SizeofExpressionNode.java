@@ -38,6 +38,11 @@ public class SizeofExpressionNode extends ConstantExpressionNode {
 		routine = parent.routine;
 		
 		typeNode.declareExpressions(this);
+	}
+	
+	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		typeNode.defineExpressions(this);
 		
 		setConstantValue();
 	}

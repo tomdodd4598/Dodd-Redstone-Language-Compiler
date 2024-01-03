@@ -42,6 +42,11 @@ public class UnaryExpressionNode extends ExpressionNode {
 		routine = parent.routine;
 		
 		expressionNode.declareExpressions(this);
+	}
+	
+	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		expressionNode.defineExpressions(this);
 		
 		setTypeInfo();
 	}

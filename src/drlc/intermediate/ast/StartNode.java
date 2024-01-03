@@ -36,6 +36,11 @@ public class StartNode extends ASTNode<Scope, RootRoutine> {
 	}
 	
 	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		unitNode.defineExpressions(this);
+	}
+	
+	@Override
 	public void checkTypes(ASTNode<?, ?> parent) {
 		unitNode.checkTypes(this);
 	}

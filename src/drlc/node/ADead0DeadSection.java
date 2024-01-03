@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class ADead0DeadSection extends PDeadSection
 {
-    private PBasicSection _basicSection_;
+    private PRuntimeSection _runtimeSection_;
 
     public ADead0DeadSection()
     {
@@ -15,10 +15,10 @@ public final class ADead0DeadSection extends PDeadSection
     }
 
     public ADead0DeadSection(
-        @SuppressWarnings("hiding") PBasicSection _basicSection_)
+        @SuppressWarnings("hiding") PRuntimeSection _runtimeSection_)
     {
         // Constructor
-        setBasicSection(_basicSection_);
+        setRuntimeSection(_runtimeSection_);
 
     }
 
@@ -26,7 +26,7 @@ public final class ADead0DeadSection extends PDeadSection
     public Object clone()
     {
         return new ADead0DeadSection(
-            cloneNode(this._basicSection_));
+            cloneNode(this._runtimeSection_));
     }
 
     @Override
@@ -35,16 +35,16 @@ public final class ADead0DeadSection extends PDeadSection
         ((Analysis) sw).caseADead0DeadSection(this);
     }
 
-    public PBasicSection getBasicSection()
+    public PRuntimeSection getRuntimeSection()
     {
-        return this._basicSection_;
+        return this._runtimeSection_;
     }
 
-    public void setBasicSection(PBasicSection node)
+    public void setRuntimeSection(PRuntimeSection node)
     {
-        if(this._basicSection_ != null)
+        if(this._runtimeSection_ != null)
         {
-            this._basicSection_.parent(null);
+            this._runtimeSection_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class ADead0DeadSection extends PDeadSection
             node.parent(this);
         }
 
-        this._basicSection_ = node;
+        this._runtimeSection_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._basicSection_);
+            + toString(this._runtimeSection_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._basicSection_ == child)
+        if(this._runtimeSection_ == child)
         {
-            this._basicSection_ = null;
+            this._runtimeSection_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class ADead0DeadSection extends PDeadSection
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._basicSection_ == oldChild)
+        if(this._runtimeSection_ == oldChild)
         {
-            setBasicSection((PBasicSection) newChild);
+            setRuntimeSection((PRuntimeSection) newChild);
             return;
         }
 

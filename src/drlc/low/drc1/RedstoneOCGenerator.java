@@ -24,7 +24,7 @@ public class RedstoneOCGenerator extends RedstoneGenerator {
 						begin = false;
 					}
 					else {
-						sb.append(' ');
+						sb.append(" ");
 					}
 					sb.append(Integer.parseUnsignedInt(instruction.binaryString(), 2));
 				}

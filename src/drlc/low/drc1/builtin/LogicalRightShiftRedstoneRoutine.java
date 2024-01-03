@@ -15,7 +15,7 @@ import drlc.low.drc1.instruction.subroutine.InstructionReturnFromSubroutine;
 public class LogicalRightShiftRedstoneRoutine extends BuiltInRedstoneRoutine {
 	
 	public LogicalRightShiftRedstoneRoutine(RedstoneCode code, String name) {
-		super(code, name, RoutineCallType.LEAF, Helpers.params(Helpers.builtInParam("x", Global.INT_TYPE_INFO), Helpers.builtInParam("y", Global.INT_TYPE_INFO)));
+		super(code, name, RoutineCallType.LEAF, Helpers.params(Helpers.builtInDeclarator("x", Global.INT_TYPE_INFO), Helpers.builtInDeclarator("y", Global.INT_TYPE_INFO)));
 	}
 	
 	@Override

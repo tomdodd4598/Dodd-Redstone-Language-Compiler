@@ -1,8 +1,8 @@
 package drlc.intermediate.component.data;
 
-import java.util.Objects;
+import java.util.*;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
@@ -11,14 +11,19 @@ import drlc.intermediate.component.type.TypeInfo;
 public class RegDataId extends DataId {
 	
 	public final long regId;
+	public final int offset;
+	
+	protected final List<RegDataId> offsetFrom;
 	
 	public RegDataId(int dereferenceLevel, @NonNull TypeInfo typeInfo, long regId) {
-		super(null, dereferenceLevel, typeInfo);
-		this.regId = regId;
+		this(dereferenceLevel, typeInfo, regId, 0, new ArrayList<>());
 	}
 	
-	public RegDataId(@NonNull TypeInfo typeInfo, long regId) {
-		this(0, typeInfo, regId);
+	protected RegDataId(int dereferenceLevel, @NonNull TypeInfo typeInfo, long regId, int offset, List<RegDataId> offsetFrom) {
+		super(null, dereferenceLevel, typeInfo);
+		this.regId = regId;
+		this.offset = offset;
+		this.offsetFrom = offsetFrom;
 	}
 	
 	@Override
@@ -27,13 +32,13 @@ public class RegDataId extends DataId {
 	}
 	
 	public RegDataId replaceId(long regId) {
-		return new RegDataId(dereferenceLevel, typeInfo, regId);
+		return new RegDataId(dereferenceLevel, typeInfo, regId, offset, offsetFrom);
 	}
 	
 	@Override
-	public RegDataId addAddressPrefix(ASTNode<?, ?> node) {
+	public @NonNull RegDataId addAddressPrefix(ASTNode<?, ?> node) {
 		if (dereferenceLevel == 0) {
-			return new RegDataId(-1, typeInfo.modifiedReferenceLevel(node, 1), regId);
+			return new RegDataId(-1, typeInfo.modifiedReferenceLevel(node, 1), regId, offset, offsetFrom);
 		}
 		else {
 			throw Helpers.nodeError(node, "Attempted to add address prefix to data ID \"%s\"!", this);
@@ -41,9 +46,9 @@ public class RegDataId extends DataId {
 	}
 	
 	@Override
-	public RegDataId removeAddressPrefix(ASTNode<?, ?> node) {
+	public @NonNull RegDataId removeAddressPrefix(ASTNode<?, ?> node) {
 		if (isAddress()) {
-			return new RegDataId(dereferenceLevel + 1, typeInfo.modifiedReferenceLevel(node, -1), regId);
+			return new RegDataId(dereferenceLevel + 1, typeInfo.modifiedReferenceLevel(node, -1), regId, offset, offsetFrom);
 		}
 		else {
 			throw Helpers.nodeError(node, "Attempted to remove address prefix from data ID \"%s\"!", this);
@@ -51,27 +56,60 @@ public class RegDataId extends DataId {
 	}
 	
 	@Override
-	public RegDataId addDereference(ASTNode<?, ?> node) {
-		return new RegDataId(dereferenceLevel + 1, typeInfo.modifiedReferenceLevel(node, -1), regId);
+	public @NonNull RegDataId addDereference(ASTNode<?, ?> node) {
+		return new RegDataId(dereferenceLevel + 1, typeInfo.modifiedReferenceLevel(node, -1), regId, offset, offsetFrom);
 	}
 	
 	@Override
-	public RegDataId removeDereference(ASTNode<?, ?> node) {
+	public @NonNull RegDataId removeDereference(ASTNode<?, ?> node) {
 		if (!isDereferenced()) {
 			throw Helpers.nodeError(node, "Attempted to remove dereference from data ID \"%s\"!", this);
 		}
 		else {
-			return new RegDataId(dereferenceLevel - 1, typeInfo.modifiedReferenceLevel(node, 1), regId);
+			return new RegDataId(dereferenceLevel - 1, typeInfo.modifiedReferenceLevel(node, 1), regId, offset, offsetFrom);
 		}
 	}
 	
 	@Override
-	public RegDataId removeAllDereferences(ASTNode<?, ?> node) {
+	public @NonNull RegDataId removeAllDereferences(ASTNode<?, ?> node) {
 		if (isAddress()) {
 			throw Helpers.nodeError(node, "Attempted to remove all dereferences from data ID \"%s\"!", this);
 		}
 		else {
-			return new RegDataId(0, typeInfo.modifiedReferenceLevel(node, dereferenceLevel), regId);
+			return new RegDataId(0, typeInfo.modifiedReferenceLevel(node, dereferenceLevel), regId, offset, offsetFrom);
+		}
+	}
+	
+	protected List<RegDataId> nextIndexFrom() {
+		List<RegDataId> nextIndexFrom = new ArrayList<>();
+		nextIndexFrom.addAll(offsetFrom);
+		nextIndexFrom.add(this);
+		return nextIndexFrom;
+	}
+	
+	@Override
+	public boolean isIndexed() {
+		return !offsetFrom.isEmpty();
+	}
+	
+	@Override
+	public @NonNull RegDataId atOffset(ASTNode<?, ?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
+		@NonNull TypeInfo offsetType = typeInfo.atOffset(node, offset, expectedTypeInfo);
+		return new RegDataId(dereferenceLevel, offsetType, regId, this.offset + offset, nextIndexFrom());
+	}
+	
+	@Override
+	public @Nullable DataId getRawReplacer(ASTNode<?, ?> node, DataId rawInternal) {
+		if (rawInternal instanceof RegDataId) {
+			RegDataId raw = (RegDataId) rawInternal;
+			return new RegDataId(raw.dereferenceLevel, raw.typeInfo.atOffset(node, offset, typeInfo.copy(node, raw.dereferenceLevel)), raw.regId, offset, new ArrayList<>());
+		}
+		else if (rawInternal instanceof VariableDataId) {
+			VariableDataId raw = (VariableDataId) rawInternal;
+			return new VariableDataId(raw.dereferenceLevel, raw.variable.atOffset(node, offset, typeInfo.modifiedReferenceLevel(node, raw.dereferenceLevel)), offset, new ArrayList<>());
+		}
+		else {
+			return null;
 		}
 	}
 	
@@ -86,16 +124,27 @@ public class RegDataId extends DataId {
 	}
 	
 	@Override
-	public int hashCode() {
-		return Objects.hash(Global.REG, scope, dereferenceLevel, typeInfo, regId);
+	public int hashCode(boolean raw) {
+		return Objects.hash(Global.REG, scope, raw ? 0 : dereferenceLevel, raw ? null : typeInfo, regId, raw ? 0 : offset);
+	}
+	
+	protected boolean matchTypeInfos(RegDataId other, boolean raw) {
+		if (raw) {
+			return typeInfo.equalsOther(other.typeInfo, true) || offsetFrom.stream().anyMatch(x -> x.typeInfo.equalsOther(other.typeInfo, true));
+		}
+		else {
+			return typeInfo.equalsOther(other.typeInfo, false);
+		}
 	}
 	
 	@Override
-	public boolean equalsOther(Object obj, boolean ignoreDereferenceLevels) {
+	public boolean equalsOther(Object obj, boolean raw) {
 		if (obj instanceof RegDataId) {
 			RegDataId other = (RegDataId) obj;
-			boolean equalDereferenceLevels = ignoreDereferenceLevels || dereferenceLevel == other.dereferenceLevel;
-			return Objects.equals(scope, other.scope) && equalDereferenceLevels && typeInfo.equalsOther(other.typeInfo, ignoreDereferenceLevels) && regId == other.regId;
+			boolean equalDereferenceLevels = raw || dereferenceLevel == other.dereferenceLevel;
+			boolean equalTypeInfos = matchTypeInfos(other, raw);
+			boolean equalOffsets = raw || offset == other.offset;
+			return Objects.equals(scope, other.scope) && equalDereferenceLevels && equalTypeInfos && regId == other.regId && equalOffsets;
 		}
 		else {
 			return false;
@@ -104,6 +153,11 @@ public class RegDataId extends DataId {
 	
 	@Override
 	protected String rawString() {
-		return Global.REG + regId;
+		if (offset == 0) {
+			return Global.REG + regId;
+		}
+		else {
+			return Global.REG + regId + Global.FULL_STOP + offset;
+		}
 	}
 }

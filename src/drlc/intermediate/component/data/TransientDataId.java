@@ -2,7 +2,7 @@ package drlc.intermediate.component.data;
 
 import java.util.Objects;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
@@ -20,28 +20,43 @@ public class TransientDataId extends DataId {
 	}
 	
 	@Override
-	public TransientDataId addAddressPrefix(ASTNode<?, ?> node) {
+	public @NonNull TransientDataId addAddressPrefix(ASTNode<?, ?> node) {
 		throw Helpers.nodeError(node, "Attempted to add address prefix to data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public TransientDataId removeAddressPrefix(ASTNode<?, ?> node) {
+	public @NonNull TransientDataId removeAddressPrefix(ASTNode<?, ?> node) {
 		throw Helpers.nodeError(node, "Attempted to remove address prefix from data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public TransientDataId addDereference(ASTNode<?, ?> node) {
+	public @NonNull TransientDataId addDereference(ASTNode<?, ?> node) {
 		throw Helpers.nodeError(node, "Attempted to add dereference to data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public TransientDataId removeDereference(ASTNode<?, ?> node) {
+	public @NonNull TransientDataId removeDereference(ASTNode<?, ?> node) {
 		throw Helpers.nodeError(node, "Attempted to remove dereference from data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public TransientDataId removeAllDereferences(ASTNode<?, ?> node) {
+	public @NonNull TransientDataId removeAllDereferences(ASTNode<?, ?> node) {
 		return new TransientDataId(typeInfo);
+	}
+	
+	@Override
+	public boolean isIndexed() {
+		return false;
+	}
+	
+	@Override
+	public @NonNull TransientDataId atOffset(ASTNode<?, ?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
+		throw Helpers.nodeError(node, "Attempted to index data ID \"%s\"!", this);
+	}
+	
+	@Override
+	public @Nullable DataId getRawReplacer(ASTNode<?, ?> node, DataId rawInternal) {
+		return null;
 	}
 	
 	@Override
@@ -55,16 +70,17 @@ public class TransientDataId extends DataId {
 	}
 	
 	@Override
-	public int hashCode() {
-		return Objects.hash(scope, dereferenceLevel, typeInfo);
+	public int hashCode(boolean raw) {
+		return Objects.hash(scope, raw ? 0 : dereferenceLevel, raw ? null : typeInfo);
 	}
 	
 	@Override
-	public boolean equalsOther(Object obj, boolean ignoreDereferenceLevels) {
+	public boolean equalsOther(Object obj, boolean raw) {
 		if (obj instanceof TransientDataId) {
 			TransientDataId other = (TransientDataId) obj;
-			boolean equalDereferenceLevels = ignoreDereferenceLevels || dereferenceLevel == other.dereferenceLevel;
-			return Objects.equals(scope, other.scope) && equalDereferenceLevels && typeInfo.equalsOther(other.typeInfo, ignoreDereferenceLevels);
+			boolean equalDereferenceLevels = raw || dereferenceLevel == other.dereferenceLevel;
+			boolean equalTypeInfos = raw || typeInfo.equalsOther(other.typeInfo, false);
+			return Objects.equals(scope, other.scope) && equalDereferenceLevels && equalTypeInfos;
 		}
 		else {
 			return false;

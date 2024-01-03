@@ -4,16 +4,19 @@ public final class Global {
 	
 	public static final String SETARGC = "setargc";
 	
-	public static final String VOID = "Void";
 	public static final String BOOL = "Bool";
 	public static final String INT = "Int";
 	public static final String NAT = "Nat";
 	public static final String CHAR = "Char";
 	
 	public static final String FN = "fn";
+	public static final String CONST = "const";
 	public static final String LET = "let";
 	
-	public static final String TYPE_ANNOTATION_PREFIX = ":";
+	public static final String STATIC = "static";
+	public static final String MUT = "mut";
+	
+	public static final String NULL = "null";
 	
 	public static final String ARGC = "argc";
 	public static final String ARGV = "argv";
@@ -22,28 +25,23 @@ public final class Global {
 	public static final String ININT = "inint";
 	public static final String INNAT = "innat";
 	public static final String INCHAR = "inchar";
+	
 	public static final String OUTBOOL = "outbool";
 	public static final String OUTINT = "outint";
 	public static final String OUTNAT = "outnat";
 	public static final String OUTCHAR = "outchar";
 	
 	public static final String ROOT_ROUTINE = "\\root";
+	public static final String MAIN_ROUTINE = "main";
 	
-	public static final String DOUBLE_COLON = "::";
+	public static final String BRACE_START = "{";
+	public static final String BRACE_END = "}";
+	public static final String POINTY_START = "<";
+	public static final String POINTY_END = ">";
 	
-	public static final String SECTION_ID_START = "{";
-	public static final String SECTION_ID_END = "}";
-	public static final String SCOPE_ID_START = "<";
-	public static final String SCOPE_ID_END = ">";
 	public static final String REG = "%";
-	public static final String EXTRA_REG = "%%";
 	public static final String TRANSIENT = "%t";
 	public static final String IMMEDIATE = "$";
-	public static final String DISCARD = "_";
-	
-	public static final String CONST = "const";
-	public static final String STATIC = "static";
-	public static final String MUT = "mut";
 	
 	public static final String EQUALS = "=";
 	
@@ -68,16 +66,18 @@ public final class Global {
 	public static final String NESTING = "nesting";
 	public static final String STACK = "stack";
 	
-	public static final String BUILT_IN_PARAM_PREFIX = "\\";
-	public static final String DISCARD_PARAM_PREFIX = "\\_";
-	
 	public static final String LIST_SEPARATOR = ", ";
 	public static final String LIST_START = "(";
 	public static final String LIST_END = ")";
 	
-	public static final String ARRAY_TYPE_DELIMITER = "; ";
+	public static final String ARRAY_TYPE_DELIMITER = ";";
 	public static final String ARRAY_START = "[";
 	public static final String ARRAY_END = "]";
+	
+	public static final String TYPE_ANNOTATION_PREFIX = ":";
+	
+	public static final String FULL_STOP = ".";
+	public static final String ARROW = "->";
 	
 	public static final String LOGICAL_RIGHT_SHIFT = "\\logical_right_shift";
 	public static final String CIRCULAR_LEFT_SHIFT = "\\circular_left_shift";

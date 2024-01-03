@@ -1,14 +1,17 @@
 package drlc.intermediate;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
 import drlc.intermediate.action.Action;
-import drlc.intermediate.component.*;
+import drlc.intermediate.component.DeclaratorInfo;
+import drlc.intermediate.component.data.ValueDataId;
+import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
-import drlc.intermediate.routine.*;
+import drlc.intermediate.routine.Routine;
 
 public class IntermediateGenerator extends Generator {
 	
@@ -18,17 +21,20 @@ public class IntermediateGenerator extends Generator {
 	
 	@Override
 	public void addBuiltInDirectives() {
-		directiveMap.put(Global.SETARGC, new Directive(1, Helpers.array(Helpers.builtInParam("x", intTypeInfo))) {
-			
-			@Override
-			public void run(@NonNull Value[] values) {}
-		});
+		super.addBuiltInDirectives();
+	}
+	
+	@Override
+	public void addBuiltInConstants() {
+		super.addBuiltInConstants();
 	}
 	
 	@Override
 	public void addBuiltInVariables() {
 		super.addBuiltInVariables();
-		Main.rootScope.addVariable(null, new Variable(Global.ARGC, VariableModifier.ROOT_PARAM, intTypeInfo), false);
+		
+		Main.rootScope.addVariable(null, Helpers.rootVariable(Global.ARGC, intTypeInfo), false);
+		Main.rootScope.addVariable(null, Helpers.rootVariable(Global.ARGV, charTypeInfo(2)), false);
 	}
 	
 	@Override
@@ -47,17 +53,10 @@ public class IntermediateGenerator extends Generator {
 	}
 	
 	@Override
-	public void generateRootParams(RootRoutine routine) {
-		routine.params = new ArrayList<>();
-		routine.params.add(new DeclaratorInfo(null, new Variable(Global.ARGC, VariableModifier.ROOT_PARAM, intTypeInfo)));
-		routine.params.add(new DeclaratorInfo(null, new Variable(Global.ARGV, VariableModifier.ROOT_PARAM, charTypeInfo(2))));
-	}
-	
-	@Override
 	public void generate() {
 		StringBuilder sb = new StringBuilder();
 		boolean begin = true;
-		for (Routine routine : Main.program.routineMap.values()) {
+		for (Routine routine : Main.rootScope.routineIterable(true)) {
 			if (!routine.isBuiltInFunctionRoutine()) {
 				if (begin) {
 					begin = false;
@@ -65,13 +64,25 @@ public class IntermediateGenerator extends Generator {
 				else {
 					sb.append('\n');
 				}
-				sb.append(routine.getType()).append(' ').append(routine).append(":\n{decl}:\n");
-				for (DeclaratorInfo info : routine.declarations) {
-					sb.append('\t').append(info).append('\n');
+				sb.append(routine.getType()).append(" ").append(routine).append(":\n");
+				
+				if (!routine.typedefMap.isEmpty()) {
+					sb.append("{def}:\n");
+					for (Entry<String, TypeInfo> entry : routine.typedefMap.entrySet()) {
+						sb.append('\t').append(entry.getKey()).append(Global.TYPE_ANNOTATION_PREFIX).append(" ").append(entry.getValue()).append('\n');
+					}
 				}
+				
+				if (!routine.declaratorList.isEmpty()) {
+					sb.append("{dec}:\n");
+					for (DeclaratorInfo info : routine.declaratorList) {
+						sb.append('\t').append(info).append('\n');
+					}
+				}
+				
 				List<List<Action>> list = routine.getBodyActionLists();
 				for (int i = 0; i < list.size(); ++i) {
-					sb.append(Global.SECTION_ID_START).append(i).append(Global.SECTION_ID_END).append(":\n");
+					sb.append(Global.BRACE_START).append(i).append(Global.BRACE_END).append(":\n");
 					for (Action action : list.get(i)) {
 						sb.append('\t').append(action).append('\n');
 					}
@@ -80,5 +91,19 @@ public class IntermediateGenerator extends Generator {
 		}
 		
 		Helpers.writeFile(outputFile, sb.toString());
+	}
+	
+	@Override
+	public void generateRootRoutine() {
+		if (!Main.rootScope.routineExists(Global.MAIN_ROUTINE, true)) {
+			throw Helpers.error("Main function not found in root scope!");
+		}
+		
+		@NonNull Value main = Main.rootScope.getConstant(null, Global.MAIN_ROUTINE).value;
+		if (!main.typeInfo.canImplicitCastTo(mainFunctionTypeInfo)) {
+			throw Helpers.error("Main function must have type \"%s\"!", mainFunctionTypeInfo);
+		}
+		
+		Main.rootRoutine.addFunctionAction(null, Main.rootScope.getFunction(null, Global.MAIN_ROUTINE), Main.rootRoutine.nextRegId(voidTypeInfo), new ValueDataId(main), new ArrayList<>(), Main.rootScope);
 	}
 }

@@ -8,7 +8,7 @@ import drlc.analysis.*;
 public final class AConditionalSection extends PConditionalSection
 {
     private TConditionalBranchKeyword _conditionalBranchKeyword_;
-    private PExpression _expression_;
+    private PConditionalExpression _conditionalExpression_;
     private TLBrace _lBrace_;
     private PScopeContents _scopeContents_;
     private TRBrace _rBrace_;
@@ -21,7 +21,7 @@ public final class AConditionalSection extends PConditionalSection
 
     public AConditionalSection(
         @SuppressWarnings("hiding") TConditionalBranchKeyword _conditionalBranchKeyword_,
-        @SuppressWarnings("hiding") PExpression _expression_,
+        @SuppressWarnings("hiding") PConditionalExpression _conditionalExpression_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
         @SuppressWarnings("hiding") PScopeContents _scopeContents_,
         @SuppressWarnings("hiding") TRBrace _rBrace_,
@@ -30,7 +30,7 @@ public final class AConditionalSection extends PConditionalSection
         // Constructor
         setConditionalBranchKeyword(_conditionalBranchKeyword_);
 
-        setExpression(_expression_);
+        setConditionalExpression(_conditionalExpression_);
 
         setLBrace(_lBrace_);
 
@@ -47,7 +47,7 @@ public final class AConditionalSection extends PConditionalSection
     {
         return new AConditionalSection(
             cloneNode(this._conditionalBranchKeyword_),
-            cloneNode(this._expression_),
+            cloneNode(this._conditionalExpression_),
             cloneNode(this._lBrace_),
             cloneNode(this._scopeContents_),
             cloneNode(this._rBrace_),
@@ -85,16 +85,16 @@ public final class AConditionalSection extends PConditionalSection
         this._conditionalBranchKeyword_ = node;
     }
 
-    public PExpression getExpression()
+    public PConditionalExpression getConditionalExpression()
     {
-        return this._expression_;
+        return this._conditionalExpression_;
     }
 
-    public void setExpression(PExpression node)
+    public void setConditionalExpression(PConditionalExpression node)
     {
-        if(this._expression_ != null)
+        if(this._conditionalExpression_ != null)
         {
-            this._expression_.parent(null);
+            this._conditionalExpression_.parent(null);
         }
 
         if(node != null)
@@ -107,7 +107,7 @@ public final class AConditionalSection extends PConditionalSection
             node.parent(this);
         }
 
-        this._expression_ = node;
+        this._conditionalExpression_ = node;
     }
 
     public TLBrace getLBrace()
@@ -215,7 +215,7 @@ public final class AConditionalSection extends PConditionalSection
     {
         return ""
             + toString(this._conditionalBranchKeyword_)
-            + toString(this._expression_)
+            + toString(this._conditionalExpression_)
             + toString(this._lBrace_)
             + toString(this._scopeContents_)
             + toString(this._rBrace_)
@@ -232,9 +232,9 @@ public final class AConditionalSection extends PConditionalSection
             return;
         }
 
-        if(this._expression_ == child)
+        if(this._conditionalExpression_ == child)
         {
-            this._expression_ = null;
+            this._conditionalExpression_ = null;
             return;
         }
 
@@ -275,9 +275,9 @@ public final class AConditionalSection extends PConditionalSection
             return;
         }
 
-        if(this._expression_ == oldChild)
+        if(this._conditionalExpression_ == oldChild)
         {
-            setExpression((PExpression) newChild);
+            setConditionalExpression((PConditionalExpression) newChild);
             return;
         }
 

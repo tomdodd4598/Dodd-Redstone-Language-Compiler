@@ -6,8 +6,7 @@ import java.util.Map.Entry;
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.intermediate.*;
-import drlc.intermediate.action.binary.BinaryActionType;
-import drlc.intermediate.action.unary.UnaryActionType;
+import drlc.intermediate.action.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.data.*;
@@ -36,22 +35,23 @@ public abstract class Generator {
 	protected final String outputFile;
 	
 	public final Map<String, Directive> directiveMap = new HashMap<>();
-	public final Map<String, Function> builtInFunctionMap = new HashMap<>();
 	
-	public @SuppressWarnings("null") @NonNull VoidTypeInfo voidTypeInfo = null;
 	public @SuppressWarnings("null") @NonNull BoolTypeInfo boolTypeInfo = null;
 	public @SuppressWarnings("null") @NonNull IntTypeInfo intTypeInfo = null;
 	public @SuppressWarnings("null") @NonNull NatTypeInfo natTypeInfo = null;
 	public @SuppressWarnings("null") @NonNull CharTypeInfo charTypeInfo = null;
 	
-	public @SuppressWarnings("null") @NonNull VoidTypeInfo wildcardPtrTypeInfo = null;
-	public @SuppressWarnings("null") @NonNull IntTypeInfo indexTypeInfo = null;
+	public @SuppressWarnings("null") @NonNull TupleTypeInfo voidTypeInfo = null;
+	public @SuppressWarnings("null") @NonNull TupleTypeInfo wildcardPtrTypeInfo = null;
 	
 	public @SuppressWarnings("null") @NonNull ArrayTypeInfo emptyArrayTypeInfo = null;
 	
-	public @SuppressWarnings("null") @NonNull IntTypeInfo rootReturnTypeInfo = null;
+	public @SuppressWarnings("null") @NonNull IntTypeInfo indexTypeInfo = null;
 	
-	public @SuppressWarnings("null") @NonNull VoidValue voidValue = null;
+	public @SuppressWarnings("null") @NonNull IntTypeInfo rootReturnTypeInfo = null;
+	public @SuppressWarnings("null") @NonNull FunctionPointerTypeInfo mainFunctionTypeInfo = null;
+	
+	public @SuppressWarnings("null") @NonNull TupleValue unitValue = null;
 	public @SuppressWarnings("null") @NonNull AddressValue nullValue = null;
 	
 	public @SuppressWarnings("null") @NonNull ArrayValue emptyArrayValue = null;
@@ -72,27 +72,27 @@ public abstract class Generator {
 	}
 	
 	public void addBuiltInTypes() {
-		Main.rootScope.addRawType(null, new RawType(Global.VOID, 0, VoidTypeInfo::new));
-		Main.rootScope.addRawType(null, new RawType(Global.BOOL, 1, BoolTypeInfo::new));
-		Main.rootScope.addRawType(null, new RawType(Global.INT, getWordSize(), IntTypeInfo::new));
-		Main.rootScope.addRawType(null, new RawType(Global.NAT, getWordSize(), NatTypeInfo::new));
-		Main.rootScope.addRawType(null, new RawType(Global.CHAR, 1, CharTypeInfo::new));
+		Main.rootScope.addRawType(null, new RawType(Global.BOOL, 1, new HashMap<>(), BoolTypeInfo::new));
+		Main.rootScope.addRawType(null, new RawType(Global.INT, getWordSize(), new HashMap<>(), IntTypeInfo::new));
+		Main.rootScope.addRawType(null, new RawType(Global.NAT, getWordSize(), new HashMap<>(), NatTypeInfo::new));
+		Main.rootScope.addRawType(null, new RawType(Global.CHAR, 1, new HashMap<>(), CharTypeInfo::new));
 		
-		voidTypeInfo = voidTypeInfo(0);
 		boolTypeInfo = boolTypeInfo(0);
 		intTypeInfo = intTypeInfo(0);
 		natTypeInfo = natTypeInfo(0);
 		charTypeInfo = charTypeInfo(0);
 		
-		wildcardPtrTypeInfo = voidTypeInfo(1);
-		indexTypeInfo = intTypeInfo;
+		voidTypeInfo = new TupleTypeInfo(null, 0, new ArrayList<>());
+		wildcardPtrTypeInfo = new TupleTypeInfo(null, 1, new ArrayList<>());
 		
 		emptyArrayTypeInfo = new ArrayTypeInfo(null, 0, wildcardPtrTypeInfo, 0);
 		
-		rootReturnTypeInfo = intTypeInfo;
+		indexTypeInfo = intTypeInfo;
 		
-		voidValue = new VoidValue(null);
-		nullValue = voidAddressValue(1, 0);
+		rootReturnTypeInfo = intTypeInfo;
+		mainFunctionTypeInfo = new FunctionPointerTypeInfo(null, 0, voidTypeInfo, new ArrayList<>());
+		
+		unitValue = new TupleValue(null, voidTypeInfo, new ArrayList<>());
 		
 		emptyArrayValue = new ArrayValue(null, emptyArrayTypeInfo, new ArrayList<>());
 		
@@ -102,18 +102,16 @@ public abstract class Generator {
 	
 	public void addBuiltInDirectives() {}
 	
-	public void addBuiltInConstants() {}
+	public void addBuiltInConstants() {
+		Main.rootScope.addConstant(null, new Constant(Global.NULL, wildcardAddressValue(0)), false);
+	}
 	
 	public void addBuiltInVariables() {}
 	
 	protected void addBuiltInFunction(@NonNull String name, @NonNull TypeInfo returnTypeInfo, DeclaratorInfo... params) {
-		Function function = new Function(null, name, true, returnTypeInfo, Helpers.list(params));
-		builtInFunctionMap.put(name, function);
+		Function function = new Function(null, name, true, returnTypeInfo, Arrays.asList(params));
 		Main.rootScope.addFunction(null, function, false);
-		
-		FunctionRoutine routine = new FunctionRoutine(null, function);
-		Main.program.builtInRoutineMap.put(name, routine);
-		Main.program.routineMap.put(name, routine);
+		Main.rootScope.addRoutine(null, new FunctionRoutine(null, function));
 	}
 	
 	public void addBuiltInFunctions() {
@@ -121,10 +119,11 @@ public abstract class Generator {
 		addBuiltInFunction(Global.ININT, intTypeInfo);
 		addBuiltInFunction(Global.INNAT, natTypeInfo);
 		addBuiltInFunction(Global.INCHAR, charTypeInfo);
-		addBuiltInFunction(Global.OUTBOOL, voidTypeInfo, Helpers.builtInParam("b", boolTypeInfo));
-		addBuiltInFunction(Global.OUTINT, voidTypeInfo, Helpers.builtInParam("i", intTypeInfo));
-		addBuiltInFunction(Global.OUTNAT, voidTypeInfo, Helpers.builtInParam("n", natTypeInfo));
-		addBuiltInFunction(Global.OUTCHAR, voidTypeInfo, Helpers.builtInParam("c", charTypeInfo));
+		
+		addBuiltInFunction(Global.OUTBOOL, voidTypeInfo, Helpers.builtInDeclarator("b", boolTypeInfo));
+		addBuiltInFunction(Global.OUTINT, voidTypeInfo, Helpers.builtInDeclarator("i", intTypeInfo));
+		addBuiltInFunction(Global.OUTNAT, voidTypeInfo, Helpers.builtInDeclarator("n", natTypeInfo));
+		addBuiltInFunction(Global.OUTCHAR, voidTypeInfo, Helpers.builtInDeclarator("c", charTypeInfo));
 	}
 	
 	public @NonNull Value binaryOp(ASTNode<?, ?> node, @NonNull Value left, @NonNull BinaryOpType opType, @NonNull Value right) {
@@ -136,16 +135,17 @@ public abstract class Generator {
 		else if (leftType instanceof BasicTypeInfo) {
 			checkBasicBinaryOp(node, leftType, opType, rightType);
 			
-			if (leftType.equals(voidTypeInfo)) {
-				throw undefinedBinaryOp(node, leftType, opType, rightType);
-			}
-			else if (leftType.equals(boolTypeInfo)) {
+			if (leftType.equals(boolTypeInfo)) {
 				if (!rightType.equals(boolTypeInfo)) {
 					throw undefinedBinaryOp(node, leftType, opType, rightType);
 				}
 				
 				BoolValue boolLeft = (BoolValue) left, boolRight = (BoolValue) right;
 				switch (opType) {
+					case LOGICAL_AND:
+						return boolValue(boolLeft.value && boolRight.value);
+					case LOGICAL_OR:
+						return boolValue(boolLeft.value || boolRight.value);
 					case EQUAL_TO:
 						return boolValue(boolLeft.value == boolRight.value);
 					case NOT_EQUAL_TO:
@@ -161,19 +161,19 @@ public abstract class Generator {
 					case PLUS:
 						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					case AND:
-						return boolValue(boolLeft.value && boolRight.value);
+						return boolValue(boolLeft.value & boolRight.value);
 					case OR:
-						return boolValue(boolLeft.value || boolRight.value);
+						return boolValue(boolLeft.value | boolRight.value);
 					case XOR:
 						return boolValue(boolLeft.value ^ boolRight.value);
 					case MINUS:
+					case MULTIPLY:
+					case DIVIDE:
+					case REMAINDER:
 					case LEFT_SHIFT:
 					case RIGHT_SHIFT:
 					case LEFT_ROTATE:
 					case RIGHT_ROTATE:
-					case MULTIPLY:
-					case DIVIDE:
-					case REMAINDER:
 						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					default:
 						throw unknownBinaryOpType(node, leftType, opType, rightType);
@@ -237,6 +237,9 @@ public abstract class Generator {
 				AddressValue rightAddress = (AddressValue) right;
 				
 				switch (opType) {
+					case LOGICAL_AND:
+					case LOGICAL_OR:
+						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					case EQUAL_TO:
 						return boolValue(leftAddress.address == rightAddress.address);
 					case NOT_EQUAL_TO:
@@ -256,13 +259,13 @@ public abstract class Generator {
 						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					case MINUS:
 						return indexValue((leftAddress.address - rightAddress.address) / leftType.getAddressOffsetSize(node));
+					case MULTIPLY:
+					case DIVIDE:
+					case REMAINDER:
 					case LEFT_SHIFT:
 					case RIGHT_SHIFT:
 					case LEFT_ROTATE:
 					case RIGHT_ROTATE:
-					case MULTIPLY:
-					case DIVIDE:
-					case REMAINDER:
 						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					default:
 						throw unknownBinaryOpType(node, leftType, opType, rightType);
@@ -319,6 +322,12 @@ public abstract class Generator {
 				return intValue(left.value ^ right.value);
 			case MINUS:
 				return intValue(left.value - right.value);
+			case MULTIPLY:
+				return intValue(left.value * right.value);
+			case DIVIDE:
+				return intValue(left.value / right.value);
+			case REMAINDER:
+				return intValue(left.value % right.value);
 			case LEFT_SHIFT:
 				return intValue(left.value << right.intValue(node));
 			case RIGHT_SHIFT:
@@ -327,12 +336,6 @@ public abstract class Generator {
 				return intValue(Long.rotateLeft(left.value, right.intValue(node)));
 			case RIGHT_ROTATE:
 				return intValue(Long.rotateRight(left.value, right.intValue(node)));
-			case MULTIPLY:
-				return intValue(left.value * right.value);
-			case DIVIDE:
-				return intValue(left.value / right.value);
-			case REMAINDER:
-				return intValue(left.value % right.value);
 			default:
 				throw unknownBinaryOpType(node, left.typeInfo, opType, right.typeInfo);
 		}
@@ -362,6 +365,12 @@ public abstract class Generator {
 				return natValue(left.value ^ right.value);
 			case MINUS:
 				return natValue(left.value - right.value);
+			case MULTIPLY:
+				return natValue(left.value * right.value);
+			case DIVIDE:
+				return natValue(Long.divideUnsigned(left.value, right.value));
+			case REMAINDER:
+				return natValue(Long.remainderUnsigned(left.value, right.value));
 			case LEFT_SHIFT:
 				return natValue(left.value << right.intValue(node));
 			case RIGHT_SHIFT:
@@ -370,12 +379,6 @@ public abstract class Generator {
 				return natValue(Long.rotateLeft(left.value, right.intValue(node)));
 			case RIGHT_ROTATE:
 				return natValue(Long.rotateRight(left.value, right.intValue(node)));
-			case MULTIPLY:
-				return natValue(left.value * right.value);
-			case DIVIDE:
-				return natValue(Long.divideUnsigned(left.value, right.value));
-			case REMAINDER:
-				return natValue(Long.remainderUnsigned(left.value, right.value));
 			default:
 				throw unknownBinaryOpType(node, left.typeInfo, opType, right.typeInfo);
 		}
@@ -387,10 +390,7 @@ public abstract class Generator {
 			throw undefinedUnaryOp(node, opType, typeInfo);
 		}
 		else if (typeInfo instanceof BasicTypeInfo) {
-			if (typeInfo.equals(voidTypeInfo)) {
-				throw undefinedUnaryOp(node, opType, typeInfo);
-			}
-			else if (typeInfo.equals(boolTypeInfo)) {
+			if (typeInfo.equals(boolTypeInfo)) {
 				BoolValue boolValue = (BoolValue) value;
 				switch (opType) {
 					case MINUS:
@@ -452,26 +452,6 @@ public abstract class Generator {
 		return new CharValue(null, value);
 	}
 	
-	public @NonNull AddressValue voidAddressValue(int referenceLevel, long address) {
-		return new AddressValue(null, voidTypeInfo(referenceLevel), address);
-	}
-	
-	public @NonNull AddressValue boolAddressValue(int referenceLevel, long address) {
-		return new AddressValue(null, boolTypeInfo(referenceLevel), address);
-	}
-	
-	public @NonNull AddressValue intAddressValue(int referenceLevel, long address) {
-		return new AddressValue(null, intTypeInfo(referenceLevel), address);
-	}
-	
-	public @NonNull AddressValue natAddressValue(int referenceLevel, long address) {
-		return new AddressValue(null, natTypeInfo(referenceLevel), address);
-	}
-	
-	public @NonNull AddressValue charAddressValue(int referenceLevel, long address) {
-		return new AddressValue(null, charTypeInfo(referenceLevel), address);
-	}
-	
 	public @NonNull AddressValue addressValue(@NonNull TypeInfo typeInfo, long address) {
 		return new AddressValue(null, typeInfo, address);
 	}
@@ -495,15 +475,14 @@ public abstract class Generator {
 		else if (leftType instanceof BasicTypeInfo) {
 			checkBasicBinaryOp(node, leftType, opType, rightType);
 			
-			if (leftType.equals(voidTypeInfo)) {
-				throw undefinedBinaryOp(node, leftType, opType, rightType);
-			}
-			else if (leftType.equals(boolTypeInfo)) {
+			if (leftType.equals(boolTypeInfo)) {
 				if (!rightType.equals(boolTypeInfo)) {
 					throw undefinedBinaryOp(node, leftType, opType, rightType);
 				}
 				
 				switch (opType) {
+					case LOGICAL_AND:
+					case LOGICAL_OR:
 					case EQUAL_TO:
 					case NOT_EQUAL_TO:
 					case LESS_THAN:
@@ -518,13 +497,13 @@ public abstract class Generator {
 					case XOR:
 						return boolTypeInfo;
 					case MINUS:
+					case MULTIPLY:
+					case DIVIDE:
+					case REMAINDER:
 					case LEFT_SHIFT:
 					case RIGHT_SHIFT:
 					case LEFT_ROTATE:
 					case RIGHT_ROTATE:
-					case MULTIPLY:
-					case DIVIDE:
-					case REMAINDER:
 						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					default:
 						throw unknownBinaryOpType(node, leftType, opType, rightType);
@@ -536,6 +515,9 @@ public abstract class Generator {
 				}
 				
 				switch (opType) {
+					case LOGICAL_AND:
+					case LOGICAL_OR:
+						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					case EQUAL_TO:
 					case NOT_EQUAL_TO:
 					case LESS_THAN:
@@ -548,13 +530,13 @@ public abstract class Generator {
 					case OR:
 					case XOR:
 					case MINUS:
+					case MULTIPLY:
+					case DIVIDE:
+					case REMAINDER:
 					case LEFT_SHIFT:
 					case RIGHT_SHIFT:
 					case LEFT_ROTATE:
 					case RIGHT_ROTATE:
-					case MULTIPLY:
-					case DIVIDE:
-					case REMAINDER:
 						return leftType;
 					default:
 						throw unknownBinaryOpType(node, leftType, opType, rightType);
@@ -566,6 +548,9 @@ public abstract class Generator {
 				}
 				
 				switch (opType) {
+					case LOGICAL_AND:
+					case LOGICAL_OR:
+						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					case EQUAL_TO:
 					case NOT_EQUAL_TO:
 					case LESS_THAN:
@@ -573,6 +558,19 @@ public abstract class Generator {
 					case MORE_THAN:
 					case MORE_OR_EQUAL:
 						return boolTypeInfo;
+					case PLUS:
+					case AND:
+					case OR:
+					case XOR:
+					case MINUS:
+					case MULTIPLY:
+					case DIVIDE:
+					case REMAINDER:
+					case LEFT_SHIFT:
+					case RIGHT_SHIFT:
+					case LEFT_ROTATE:
+					case RIGHT_ROTATE:
+						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					default:
 						throw unknownBinaryOpType(node, leftType, opType, rightType);
 				}
@@ -591,6 +589,9 @@ public abstract class Generator {
 				}
 				
 				switch (opType) {
+					case LOGICAL_AND:
+					case LOGICAL_OR:
+						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					case EQUAL_TO:
 					case NOT_EQUAL_TO:
 					case LESS_THAN:
@@ -605,13 +606,13 @@ public abstract class Generator {
 						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					case MINUS:
 						return indexTypeInfo;
+					case MULTIPLY:
+					case DIVIDE:
+					case REMAINDER:
 					case LEFT_SHIFT:
 					case RIGHT_SHIFT:
 					case LEFT_ROTATE:
 					case RIGHT_ROTATE:
-					case MULTIPLY:
-					case DIVIDE:
-					case REMAINDER:
 						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					default:
 						throw unknownBinaryOpType(node, leftType, opType, rightType);
@@ -649,10 +650,7 @@ public abstract class Generator {
 		else if (leftType instanceof BasicTypeInfo) {
 			checkBasicBinaryOp(node, leftType, opType, rightType);
 			
-			if (leftType.equals(voidTypeInfo)) {
-				throw undefinedBinaryOp(node, leftType, opType, rightType);
-			}
-			else if (leftType.equals(boolTypeInfo)) {
+			if (leftType.equals(boolTypeInfo)) {
 				if (!rightType.equals(boolTypeInfo)) {
 					throw undefinedBinaryOp(node, leftType, opType, rightType);
 				}
@@ -688,13 +686,13 @@ public abstract class Generator {
 						routine.addAction(BinaryActionType.BOOL_XOR_BOOL.action(node, target, arg1, arg2));
 						return;
 					case MINUS:
+					case MULTIPLY:
+					case DIVIDE:
+					case REMAINDER:
 					case LEFT_SHIFT:
 					case RIGHT_SHIFT:
 					case LEFT_ROTATE:
 					case RIGHT_ROTATE:
-					case MULTIPLY:
-					case DIVIDE:
-					case REMAINDER:
 						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					default:
 						throw unknownBinaryOpType(node, leftType, opType, rightType);
@@ -739,6 +737,15 @@ public abstract class Generator {
 					case MINUS:
 						routine.addAction(BinaryActionType.INT_MINUS_INT.action(node, target, arg1, arg2));
 						return;
+					case MULTIPLY:
+						routine.addAction(BinaryActionType.INT_MULTIPLY_INT.action(node, target, arg1, arg2));
+						return;
+					case DIVIDE:
+						routine.addAction(BinaryActionType.INT_DIVIDE_INT.action(node, target, arg1, arg2));
+						return;
+					case REMAINDER:
+						routine.addAction(BinaryActionType.INT_REMAINDER_INT.action(node, target, arg1, arg2));
+						return;
 					case LEFT_SHIFT:
 						routine.addAction(BinaryActionType.INT_LEFT_SHIFT_INT.action(node, target, arg1, arg2));
 						return;
@@ -750,15 +757,6 @@ public abstract class Generator {
 						return;
 					case RIGHT_ROTATE:
 						routine.addAction(BinaryActionType.INT_RIGHT_ROTATE_INT.action(node, target, arg1, arg2));
-						return;
-					case MULTIPLY:
-						routine.addAction(BinaryActionType.INT_MULTIPLY_INT.action(node, target, arg1, arg2));
-						return;
-					case DIVIDE:
-						routine.addAction(BinaryActionType.INT_DIVIDE_INT.action(node, target, arg1, arg2));
-						return;
-					case REMAINDER:
-						routine.addAction(BinaryActionType.INT_REMAINDER_INT.action(node, target, arg1, arg2));
 						return;
 					default:
 						throw unknownBinaryOpType(node, leftType, opType, rightType);
@@ -803,6 +801,15 @@ public abstract class Generator {
 					case MINUS:
 						routine.addAction(BinaryActionType.INT_MINUS_INT.action(node, target, arg1, arg2));
 						return;
+					case MULTIPLY:
+						routine.addAction(BinaryActionType.INT_MULTIPLY_INT.action(node, target, arg1, arg2));
+						return;
+					case DIVIDE:
+						routine.addAction(BinaryActionType.NAT_DIVIDE_NAT.action(node, target, arg1, arg2));
+						return;
+					case REMAINDER:
+						routine.addAction(BinaryActionType.NAT_REMAINDER_NAT.action(node, target, arg1, arg2));
+						return;
 					case LEFT_SHIFT:
 						routine.addAction(BinaryActionType.INT_LEFT_SHIFT_INT.action(node, target, arg1, arg2));
 						return;
@@ -814,15 +821,6 @@ public abstract class Generator {
 						return;
 					case RIGHT_ROTATE:
 						routine.addAction(BinaryActionType.INT_RIGHT_ROTATE_INT.action(node, target, arg1, arg2));
-						return;
-					case MULTIPLY:
-						routine.addAction(BinaryActionType.INT_MULTIPLY_INT.action(node, target, arg1, arg2));
-						return;
-					case DIVIDE:
-						routine.addAction(BinaryActionType.NAT_DIVIDE_NAT.action(node, target, arg1, arg2));
-						return;
-					case REMAINDER:
-						routine.addAction(BinaryActionType.NAT_REMAINDER_NAT.action(node, target, arg1, arg2));
 						return;
 					default:
 						throw unknownBinaryOpType(node, leftType, opType, rightType);
@@ -852,6 +850,19 @@ public abstract class Generator {
 					case MORE_OR_EQUAL:
 						routine.addAction(BinaryActionType.CHAR_MORE_OR_EQUAL_CHAR.action(node, target, arg1, arg2));
 						return;
+					case PLUS:
+					case AND:
+					case OR:
+					case XOR:
+					case MINUS:
+					case MULTIPLY:
+					case DIVIDE:
+					case REMAINDER:
+					case LEFT_SHIFT:
+					case RIGHT_SHIFT:
+					case LEFT_ROTATE:
+					case RIGHT_ROTATE:
+						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					default:
 						throw unknownBinaryOpType(node, leftType, opType, rightType);
 				}
@@ -898,13 +909,13 @@ public abstract class Generator {
 						routine.addAction(BinaryActionType.INT_MINUS_INT.action(node, raw, arg1, arg2));
 						routine.addAction(BinaryActionType.INT_DIVIDE_INT.action(node, target, raw, new ValueDataId(sizeValue(leftType.getAddressOffsetSize(node)))));
 						return;
+					case MULTIPLY:
+					case DIVIDE:
+					case REMAINDER:
 					case LEFT_SHIFT:
 					case RIGHT_SHIFT:
 					case LEFT_ROTATE:
 					case RIGHT_ROTATE:
-					case MULTIPLY:
-					case DIVIDE:
-					case REMAINDER:
 						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					default:
 						throw unknownBinaryOpType(node, leftType, opType, rightType);
@@ -942,6 +953,12 @@ public abstract class Generator {
 	
 	public void checkBasicBinaryOp(ASTNode<?, ?> node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType) {
 		switch (opType) {
+			case LOGICAL_AND:
+			case LOGICAL_OR:
+				if (leftType.isAddress() || rightType.isAddress()) {
+					throw undefinedBinaryOp(node, leftType, opType, rightType);
+				}
+				break;
 			case EQUAL_TO:
 			case NOT_EQUAL_TO:
 			case LESS_THAN:
@@ -963,17 +980,19 @@ public abstract class Generator {
 				break;
 			case MINUS:
 				break;
+			case MULTIPLY:
+			case DIVIDE:
+			case REMAINDER:
 			case LEFT_SHIFT:
 			case RIGHT_SHIFT:
 			case LEFT_ROTATE:
 			case RIGHT_ROTATE:
-			case MULTIPLY:
-			case DIVIDE:
-			case REMAINDER:
 				if (leftType.isAddress() || rightType.isAddress()) {
 					throw undefinedBinaryOp(node, leftType, opType, rightType);
 				}
 				break;
+			default:
+				throw unknownBinaryOpType(node, leftType, opType, rightType);
 		}
 	}
 	
@@ -990,10 +1009,7 @@ public abstract class Generator {
 			throw undefinedUnaryOp(node, opType, typeInfo);
 		}
 		else if (typeInfo instanceof BasicTypeInfo) {
-			if (typeInfo.equals(voidTypeInfo)) {
-				throw undefinedUnaryOp(node, opType, typeInfo);
-			}
-			else if (typeInfo.equals(boolTypeInfo)) {
+			if (typeInfo.equals(boolTypeInfo)) {
 				switch (opType) {
 					case MINUS:
 						throw undefinedUnaryOp(node, opType, typeInfo);
@@ -1034,10 +1050,7 @@ public abstract class Generator {
 			throw undefinedUnaryOp(node, opType, typeInfo);
 		}
 		else if (typeInfo instanceof BasicTypeInfo) {
-			if (typeInfo.equals(voidTypeInfo)) {
-				throw undefinedUnaryOp(node, opType, typeInfo);
-			}
-			else if (typeInfo.equals(boolTypeInfo)) {
+			if (typeInfo.equals(boolTypeInfo)) {
 				switch (opType) {
 					case MINUS:
 						throw undefinedUnaryOp(node, opType, typeInfo);
@@ -1092,40 +1105,45 @@ public abstract class Generator {
 	
 	public abstract int getAddressSize();
 	
-	public @NonNull VoidTypeInfo voidTypeInfo(int referenceLevel) {
-		return new VoidTypeInfo(null, Main.rootScope, referenceLevel);
-	}
-	
 	public @NonNull BoolTypeInfo boolTypeInfo(int referenceLevel) {
-		return new BoolTypeInfo(null, Main.rootScope, referenceLevel);
+		return new BoolTypeInfo(null, referenceLevel, Main.rootScope);
 	}
 	
 	public @NonNull IntTypeInfo intTypeInfo(int referenceLevel) {
-		return new IntTypeInfo(null, Main.rootScope, referenceLevel);
+		return new IntTypeInfo(null, referenceLevel, Main.rootScope);
 	}
 	
 	public @NonNull NatTypeInfo natTypeInfo(int referenceLevel) {
-		return new NatTypeInfo(null, Main.rootScope, referenceLevel);
+		return new NatTypeInfo(null, referenceLevel, Main.rootScope);
 	}
 	
 	public @NonNull CharTypeInfo charTypeInfo(int referenceLevel) {
-		return new CharTypeInfo(null, Main.rootScope, referenceLevel);
+		return new CharTypeInfo(null, referenceLevel, Main.rootScope);
 	}
-	
-	public abstract void generateRootParams(RootRoutine routine);
 	
 	public abstract void generate();
 	
+	public abstract void generateRootRoutine();
+	
 	public void optimizeIntermediate() {
-		for (Entry<String, Routine> entry : new LinkedHashSet<>(Main.program.routineMap.entrySet())) {
-			Routine routine = entry.getValue();
-			if (routine.isFunctionRoutine() && !routine.getFunction().required) {
-				Main.program.routineMap.remove(entry.getKey());
+		boolean flag = true;
+		while (flag) {
+			flag = false;
+			Set<Entry<String, Routine>> entrySet = new LinkedHashSet<>();
+			Main.rootScope.routineEntryIterable(true).forEach(entrySet::add);
+			
+			for (Entry<String, Routine> entry : entrySet) {
+				Routine routine = entry.getValue();
+				if (routine.isFunctionRoutine() && !routine.getFunction().isRequired()) {
+					flag = true;
+					routine.scope.removeRoutine(null, entry.getKey(), routine);
+					((FunctionRoutine) routine).function.setUnused();
+				}
 			}
 		}
 		
-		for (Routine routine : Main.program.routineMap.values()) {
-			boolean flag = true;
+		for (Routine routine : Main.rootScope.routineIterable(true)) {
+			flag = true;
 			while (flag) {
 				flag = IntermediateOptimization.removeNoOps(routine);
 				flag |= IntermediateOptimization.removeDeadActions(routine);

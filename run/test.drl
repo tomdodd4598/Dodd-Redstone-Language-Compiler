@@ -1,9 +1,9 @@
 // ITERATIVE FACTORIAL
 
 /*
-let f: Int = 1;
-let a: Int = 1;
-let b: Int = 1;
+let f = 1;
+let a = 1;
+let b = 1;
 
 fn update() {
 	f = a * b;
@@ -20,8 +20,8 @@ while f > 0 {
 // RECURSIVE FACTORIAL
 
 /*
-let f: Int = 1;
-let i: Int = 1;
+let f = 1;
+let i = 1;
 
 fn fact(n: Int) -> Int {
 	if n <= 1 {
@@ -46,9 +46,9 @@ while f > 0 {
 /*
 %! setargc 2;
 
-let f: Int = argv(0);
-let a: Int = argv(1);
-let b: Int = 0;
+let f = argv[0];
+let a = argv[1];
+let b = 0;
 
 fn update() {
 	f = a + b;
@@ -67,12 +67,12 @@ while f > 0 {
 /*
 %! setargc 2;
 
-let f: Int = argv(0);
-let i: Int = 0;
+let f = argv[0];
+let i = 0;
 
 fn fib(n: Int) -> Int {
 	if n <= 1 {
-		return argv(n);
+		return argv[n];
 	}
 	return fib(n - 1) + fib(n - 2);
 }
@@ -91,14 +91,14 @@ while f > 0 {
 // PRIME NUMBERS
 
 /*
-const MAX: Int = 100;
-const FAIL: Int = MAX + 1;
+const MAX = 100;
+const FAIL = MAX + 1;
 
-let n: Int = 1;
+let n = 1;
 
 fn sqrt(m: Int) -> Int {
-	let a: Int = m;
-	let b: Int = 1;
+	let a = m;
+	let b = 1;
 	
 	while a > b {
 		a = (a + b) >> 1;
@@ -110,8 +110,8 @@ fn sqrt(m: Int) -> Int {
 
 while n < MAX {
 	n += 1;
-	let i: Int = 2;
-	let s: Int = sqrt(n);
+	let i = 2;
+	let s = sqrt(n);
 	
 	while i <= s {
 		if n % i == 0 {
@@ -131,9 +131,9 @@ while n < MAX {
 // TESTING LITERALS
 
 /*
-let x: Int = 8 * 5 / 20;
-let y: Int = 12 + 8 + 2 * x;
-let z: Int = x * y - 6 + 10 / 5;
+let x = 8 * 5 / 20;
+let y = 12 + 8 + 2 * x;
+let z = x * y - 6 + 10 / 5;
 
 outint(z);
 */
@@ -141,34 +141,22 @@ outint(z);
 // TESTING PRINTING
 
 /*
-let a: Char = 'H';
-let b: Char = 'e';
-let c: Char = 'l';
-let d: Char = 'l';
-let e: Char = 'o';
-let f: Char = ' ';
+let str = ['H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd', '!', '\n'];
 
-let g: Char = 'W';
-let h: Char = 'o';
-let i: Char = 'r';
-let j: Char = 'l';
-let k: Char = 'd';
-let l: Char = '!';
-let m: Char = '\n';
-
-outchar(a); outchar(b); outchar(c); outchar(d); outchar(e);
-outchar(f);
-outchar(g); outchar(h); outchar(i); outchar(j); outchar(k); outchar(l);
-outchar(m);
+let i = 0;
+while i < 13 {
+	outchar(str[i]);
+	i += 1;
+}
 */
 
 // TESTING BRANCHES
 
 /*
 fn func() {
-	let a: Int = 0;
-	let b: Int = 1;
-	let c: Int = 2;
+	let a = 0;
+	let b = 1;
+	let c = 2;
 	
 	if a == 0 {
 		outint(1);
@@ -214,14 +202,9 @@ func();
 // TESTING POINTERS
 
 /*
-let a: Int = 1;
-
-let b_: Int = 2;
-let b: &Int = &b_;
-
-let c__: Int = 3;
-let c_: &Int = &c__;
-let c: &&Int = &c_;
+let a = 1;
+let b = &2;
+let c = &&3;
 
 fn update(x: &Int, y: &&Int, z: &&&Int) {
 	*x = *x + 501;
@@ -242,14 +225,9 @@ outint(*b);
 //outint(&c); outint(c); outint(*c);
 outint(**c);
 
-let d: &Int = &a;
-
-let e_: &&Int = &b;
-let e: &&&Int = &e_;
-
-let f__: &&&Int = &c;
-let f_: &&&&Int = &f__;
-let f: &&&&&Int = &f_;
+let d = &a;
+let e = &&b;
+let f = &&&c;
 
 fn update2(x: &&Int, y: &&&&Int, z: &&&&&&Int) {
 	**x = 1001;
@@ -310,26 +288,26 @@ fn ptr3(modify: Bool) -> &&&Int {
 // TESTING CONSTANTS AND SOFTWARE BINARY OPERATORS
 
 /*
-let l: Int = 0b11111111_00000000;
-let r: Int = 0b00000000_11111111;
+let l = 0b11111111_00000000;
+let r = 0b00000000_11111111;
 
-let a: Int = l;
-let b: Int = r;
+let a = l;
+let b = r;
 
-let a_sal: Int = l << 4;
-let b_sal: Int = r << 4;
+let a_sal = l << 4;
+let b_sal = r << 4;
 
-let a_sar: Int = l >> 4;
-let b_sar: Int = r >> 4;
+let a_sar = l >> 4;
+let b_sar = r >> 4;
 
-let a_shr: Int = l >>> 4;
-let b_shr: Int = r >>> 4;
+let a_shr = l >>> 4;
+let b_shr = r >>> 4;
 
-let a_rotl: Int = l <<< 4;
-let b_rotl: Int = r <<< 4;
+let a_rotl = l <<< 4;
+let b_rotl = r <<< 4;
 
-let a_rotr: Int = l >>> 4;
-let b_rotr: Int = r >>> 4;
+let a_rotr = l >>> 4;
+let b_rotr = r >>> 4;
 
 outint(a); outint(b);
 outint(a_sal); outint(b_sal);
@@ -341,7 +319,7 @@ outint(a_rotr); outint(b_rotr);
 
 // TESTING FUNCTION POINTERS
 
-
+/*
 fn add(a: Int, b: Int) -> Int {
 	return a + b;
 }
@@ -360,13 +338,12 @@ fn divide(a: Int, b: Int) -> Int {
 	return a / b;
 }
 
-let i1: Int = 12;
-let i2: Int = 4;
+let i1 = 12;
+let i2 = 4;
 
-let s: Bool = false;
+let s = false;
 
-let binary_op_: fn(Int, Int) -> Int = subtract;
-let binary_op: &fn(Int, Int) -> Int = &binary_op_;
+let binary_op = &subtract;
 
 fn get_op_ptr() -> &&fn(Int, Int) -> Int {
 	return &binary_op;
@@ -394,7 +371,7 @@ fn choose_ptr(cond: Bool, p1: &Int, p2: &Int) -> &Int {
 }
 
 fn do_binary_op(loc: &Bool, a: Int, b: Int, bin_op: &fn(Int, Int) -> Int) {
-	*loc = int_to_bool(bin_op(a, b));
+	*loc = int_to_bool((*bin_op)(a, b));
 }
 
 fn int_to_bool(x: Int) -> Bool {
@@ -405,27 +382,106 @@ fn int_to_bool(x: Int) -> Bool {
 		return true;
 	}
 }
-
-fn outbool(b: Bool) {
-	if b {
-		outint(1);
-	}
-	else {
-		outint(0);
-	}
-}
-
+*/
 
 // TESTING ARRAYS
 
 /*
-let a: Int = 1;
-let b: Int = 2;
-let c: Int = 3;
+let a = 1;
+let b = 2;
+let c = 3;
 
-let arr: [[&Int; 2]; 3] = [[&a, &b], [&b, &c], [&c, &a]]; // Initialise array of arrays of integer pointers
+let arr = [[&a, &b], [&b, &c], [&c, &a]]; // Initialise array of arrays of integer pointers
 
-let ptr: &[&Int; 2] = &arr[a]; // Initialise pointer to arrays of integer pointers
+let ptr = &arr[a]; // Initialise pointer to arrays of integer pointers
 
-let num: Int = *ptr[1][2]; // Get an integer from the indexing the pointer, then indexing the array, and dereferencing the element
+let num = *ptr[1][1]; // Get an integer from the indexing the pointer, then indexing the array, and dereferencing the element
+
+arr[2][1] = &b;
+
+arr[1] = [&1, &2];
+
+c = 4;
+*/
+
+// TESTING STRUCTS
+
+struct Item {
+	val: Int,
+	next: &Item,
+}
+
+let start: &Item = null;
+
+fn insertItem(mut tracer: &&Item, val: Int) {
+	while *tracer != null && val >= (**tracer).val {
+		tracer = &(**tracer).next;
+	}
+	
+	*tracer = &Item { val, *tracer };
+}
+
+fn removeItem(mut tracer: &&Item, val: Int) {
+	while *tracer != null && val != (**tracer).val {
+		tracer = &(**tracer).next;
+	}
+	
+	if *tracer != null {
+		*tracer = (**tracer).next;
+	}
+}
+
+fn print(mut tracer: &&Item) {
+	while *tracer != null {
+		outint((**tracer).val);
+		tracer = &(**tracer).next;
+	}
+}
+
+fn main() {
+	insertItem(&start, 3);
+	insertItem(&start, 6);
+	insertItem(&start, 2);
+	insertItem(&start, 1);
+	insertItem(&start, 4);
+	insertItem(&start, 7);
+	insertItem(&start, 2);
+	insertItem(&start, 5);
+
+	print(&start);
+
+	removeItem(&start, 4);
+	removeItem(&start, 7);
+	removeItem(&start, 2);
+
+	print(&start);
+}
+
+// TESTING TYPEALIASES
+
+/*
+fn main() {
+	outint(sum(&(1, 2, 3)));
+	
+	printInfo(&&Info { 5n, true });
+	printInfo(&Tracer { 5n, true });
+	
+	fn sum(p: &Pos) -> Int {
+		return (*p).0 + (*p).1 + (*p).2;
+	}
+
+	fn printInfo(tracer: &Tracer) {
+		outnat((**tracer).num);
+		outbool((**tracer).cond);
+	}
+}
+
+typealias Pos = (Int, Int, Int);
+
+struct Info {
+	num: Nat,
+	cond: Bool,
+}
+
+typealias Tracer = &Info;
 */

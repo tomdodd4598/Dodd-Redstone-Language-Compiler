@@ -6,7 +6,8 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.component.type.*;
+import drlc.intermediate.component.type.TypeInfo;
+import drlc.intermediate.scope.Scope;
 
 public class Function {
 	
@@ -19,41 +20,61 @@ public class Function {
 	
 	public final List<TypeInfo> paramTypeInfos;
 	
-	public boolean required;
+	protected boolean localRequired = false;
+	protected Boolean globalRequired = null;
+	
+	public Scope scope;
 	
 	public Function(ASTNode<?, ?> node, @NonNull String name, boolean builtIn, @NonNull TypeInfo returnTypeInfo, List<DeclaratorInfo> params) {
 		this.name = name;
 		this.builtIn = builtIn;
 		this.returnTypeInfo = returnTypeInfo;
 		this.params = params;
-		paramTypeInfos = Helpers.paramTypeInfos(params);
-		required = false;
+		paramTypeInfos = Helpers.map(params, DeclaratorInfo::getTypeInfo);
 	}
 	
-	public int getArgumentCount() {
-		return params.size();
+	public void setUnused() {
+		globalRequired = false;
 	}
 	
-	public boolean typeEquals(FunctionTypeInfo functionTypeInfo) {
-		return returnTypeInfo.equals(functionTypeInfo.returnTypeInfo) && paramTypeInfos.equals(functionTypeInfo.paramTypeInfos);
+	public void setRequired(boolean global) {
+		if (global) {
+			globalRequired = true;
+		}
+		else {
+			localRequired = true;
+		}
+	}
+	
+	public boolean isRequired() {
+		if (globalRequired != null) {
+			return globalRequired;
+		}
+		else if (localRequired) {
+			Function outerFunction = scope.getContextFunction();
+			return outerFunction == null || outerFunction.isRequired();
+		}
+		else {
+			return false;
+		}
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, returnTypeInfo, paramTypeInfos);
+		return Objects.hash(name, scope, returnTypeInfo, paramTypeInfos);
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Function) {
 			Function other = (Function) obj;
-			return name.equals(other.name) && returnTypeInfo.equals(other.returnTypeInfo) && paramTypeInfos.equals(other.paramTypeInfos);
+			return name.equals(other.name) && Objects.equals(scope, other.scope) && returnTypeInfo.equals(other.returnTypeInfo) && paramTypeInfos.equals(other.paramTypeInfos);
 		}
 		return false;
 	}
 	
 	@Override
 	public String toString() {
-		return Global.FN + ' ' + name + Helpers.listString(params) + " -> " + returnTypeInfo;
+		return Helpers.scopeStringPrefix(scope) + Global.FN + " " + name + Helpers.listString(params) + " " + Global.ARROW + " " + returnTypeInfo;
 	}
 }

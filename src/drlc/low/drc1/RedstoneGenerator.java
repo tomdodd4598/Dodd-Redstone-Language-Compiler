@@ -1,15 +1,11 @@
 package drlc.low.drc1;
 
-import java.util.ArrayList;
-
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
-import drlc.intermediate.component.data.*;
 import drlc.intermediate.component.value.*;
-import drlc.intermediate.routine.RootRoutine;
 
 public abstract class RedstoneGenerator extends Generator {
 	
@@ -19,7 +15,9 @@ public abstract class RedstoneGenerator extends Generator {
 	
 	@Override
 	public void addBuiltInDirectives() {
-		directiveMap.put(Global.SETARGC, new Directive(1, Helpers.array(Helpers.builtInParam("x", intTypeInfo))) {
+		super.addBuiltInDirectives();
+		
+		directiveMap.put(Global.SETARGC, new Directive(1, Helpers.array(Helpers.builtInDeclarator("x", intTypeInfo))) {
 			
 			@Override
 			public void run(@NonNull Value[] values) {
@@ -31,7 +29,13 @@ public abstract class RedstoneGenerator extends Generator {
 	@Override
 	public void addBuiltInConstants() {
 		super.addBuiltInConstants();
+		
 		Main.rootScope.addConstant(null, new Constant(Global.ARGC, intValue(0)), false);
+	}
+	
+	@Override
+	public void addBuiltInVariables() {
+		super.addBuiltInVariables();
 	}
 	
 	@Override
@@ -60,6 +64,12 @@ public abstract class RedstoneGenerator extends Generator {
 				return intValue(leftShort ^ rightShort);
 			case MINUS:
 				return intValue(leftShort - rightShort);
+			case MULTIPLY:
+				return intValue(leftShort * rightShort);
+			case DIVIDE:
+				return intValue(leftShort / rightShort);
+			case REMAINDER:
+				return intValue(leftShort % rightShort);
 			case LEFT_SHIFT:
 				return intValue(leftShort << rightShort);
 			case RIGHT_SHIFT:
@@ -68,12 +78,6 @@ public abstract class RedstoneGenerator extends Generator {
 				return intValue((leftShort << rightShort) | (leftShort >>> (short) -rightShort));
 			case RIGHT_ROTATE:
 				return intValue((leftShort >>> rightShort) | (leftShort << (short) -rightShort));
-			case MULTIPLY:
-				return intValue(leftShort * rightShort);
-			case DIVIDE:
-				return intValue(leftShort / rightShort);
-			case REMAINDER:
-				return intValue(leftShort % rightShort);
 			default:
 				throw unknownBinaryOpType(node, left.typeInfo, opType, right.typeInfo);
 		}
@@ -105,6 +109,12 @@ public abstract class RedstoneGenerator extends Generator {
 				return natValue(leftShort ^ rightShort);
 			case MINUS:
 				return natValue(leftShort - rightShort);
+			case MULTIPLY:
+				return natValue(leftShort * rightShort);
+			case DIVIDE:
+				return natValue(Helpers.shortDivideUnsigned(leftShort, rightShort));
+			case REMAINDER:
+				return natValue(Helpers.shortRemainderUnsigned(leftShort, rightShort));
 			case LEFT_SHIFT:
 				return natValue(leftShort << rightShort);
 			case RIGHT_SHIFT:
@@ -113,12 +123,6 @@ public abstract class RedstoneGenerator extends Generator {
 				return natValue((leftShort << rightShort) | (leftShort >>> (short) -rightShort));
 			case RIGHT_ROTATE:
 				return natValue((leftShort >>> rightShort) | (leftShort << (short) -rightShort));
-			case MULTIPLY:
-				return natValue(leftShort * rightShort);
-			case DIVIDE:
-				return natValue(Helpers.shortDivideUnsigned(leftShort, rightShort));
-			case REMAINDER:
-				return natValue(Helpers.shortRemainderUnsigned(leftShort, rightShort));
 			default:
 				throw unknownBinaryOpType(node, left.typeInfo, opType, right.typeInfo);
 		}
@@ -173,36 +177,6 @@ public abstract class RedstoneGenerator extends Generator {
 	@Override
 	public int getAddressSize() {
 		return getWordSize();
-	}
-	
-	public static @NonNull String rootParamString(int rootParamIndex) {
-		return Global.ARGV_PARAM + rootParamIndex;
-	}
-	
-	public static boolean isRootParam(String rootParamString) {
-		return rootParamString.startsWith(Global.ARGV_PARAM);
-	}
-	
-	public static Integer parseRootParam(String rootParamString) {
-		if (isRootParam(rootParamString)) {
-			return Integer.parseInt(rootParamString.substring(Global.ARGV_PARAM.length()));
-		}
-		else {
-			return null;
-		}
-	}
-	
-	public DataId rootParamDataId(RootRoutine routine, int rootParamIndex) {
-		return new VariableDataId(0, routine.params.get(rootParamIndex).variable);
-	}
-	
-	@Override
-	public void generateRootParams(RootRoutine routine) {
-		int argc = Main.rootScope.getConstant(null, Global.ARGC).value.intValue(null);
-		routine.params = new ArrayList<>();
-		for (int i = 0; i < argc; ++i) {
-			routine.params.add(new DeclaratorInfo(null, new Variable(rootParamString(i), VariableModifier.ROOT_PARAM, intTypeInfo)));
-		}
 	}
 	
 	public RedstoneCode generateCode() {

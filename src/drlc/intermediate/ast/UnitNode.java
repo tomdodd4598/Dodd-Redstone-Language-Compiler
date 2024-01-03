@@ -40,6 +40,12 @@ public class UnitNode extends ASTNode<Scope, Routine> {
 	}
 	
 	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		setupNode.defineExpressions(this);
+		programNode.defineExpressions(this);
+	}
+	
+	@Override
 	public void checkTypes(ASTNode<?, ?> parent) {
 		setupNode.checkTypes(this);
 		programNode.checkTypes(this);

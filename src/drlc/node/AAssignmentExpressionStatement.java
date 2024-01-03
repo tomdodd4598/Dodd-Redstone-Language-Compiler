@@ -2,7 +2,6 @@
 
 package drlc.node;
 
-import java.util.*;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
@@ -11,7 +10,7 @@ public final class AAssignmentExpressionStatement extends PExpressionStatement
     private PAssignmentExpression _assignmentExpression_;
     private PAssignmentOp _assignmentOp_;
     private PExpression _expression_;
-    private final LinkedList<TSemicolon> _semicolon_ = new LinkedList<TSemicolon>();
+    private TSemicolon _semicolon_;
 
     public AAssignmentExpressionStatement()
     {
@@ -22,7 +21,7 @@ public final class AAssignmentExpressionStatement extends PExpressionStatement
         @SuppressWarnings("hiding") PAssignmentExpression _assignmentExpression_,
         @SuppressWarnings("hiding") PAssignmentOp _assignmentOp_,
         @SuppressWarnings("hiding") PExpression _expression_,
-        @SuppressWarnings("hiding") List<?> _semicolon_)
+        @SuppressWarnings("hiding") TSemicolon _semicolon_)
     {
         // Constructor
         setAssignmentExpression(_assignmentExpression_);
@@ -42,7 +41,7 @@ public final class AAssignmentExpressionStatement extends PExpressionStatement
             cloneNode(this._assignmentExpression_),
             cloneNode(this._assignmentOp_),
             cloneNode(this._expression_),
-            cloneList(this._semicolon_));
+            cloneNode(this._semicolon_));
     }
 
     @Override
@@ -126,30 +125,29 @@ public final class AAssignmentExpressionStatement extends PExpressionStatement
         this._expression_ = node;
     }
 
-    public LinkedList<TSemicolon> getSemicolon()
+    public TSemicolon getSemicolon()
     {
         return this._semicolon_;
     }
 
-    public void setSemicolon(List<?> list)
+    public void setSemicolon(TSemicolon node)
     {
-        for(TSemicolon e : this._semicolon_)
+        if(this._semicolon_ != null)
         {
-            e.parent(null);
+            this._semicolon_.parent(null);
         }
-        this._semicolon_.clear();
 
-        for(Object obj_e : list)
+        if(node != null)
         {
-            TSemicolon e = (TSemicolon) obj_e;
-            if(e.parent() != null)
+            if(node.parent() != null)
             {
-                e.parent().removeChild(e);
+                node.parent().removeChild(node);
             }
 
-            e.parent(this);
-            this._semicolon_.add(e);
+            node.parent(this);
         }
+
+        this._semicolon_ = node;
     }
 
     @Override
@@ -184,8 +182,9 @@ public final class AAssignmentExpressionStatement extends PExpressionStatement
             return;
         }
 
-        if(this._semicolon_.remove(child))
+        if(this._semicolon_ == child)
         {
+            this._semicolon_ = null;
             return;
         }
 
@@ -214,22 +213,10 @@ public final class AAssignmentExpressionStatement extends PExpressionStatement
             return;
         }
 
-        for(ListIterator<TSemicolon> i = this._semicolon_.listIterator(); i.hasNext();)
+        if(this._semicolon_ == oldChild)
         {
-            if(i.next() == oldChild)
-            {
-                if(newChild != null)
-                {
-                    i.set((TSemicolon) newChild);
-                    newChild.parent(this);
-                    oldChild.parent(null);
-                    return;
-                }
-
-                i.remove();
-                oldChild.parent(null);
-                return;
-            }
+            setSemicolon((TSemicolon) newChild);
+            return;
         }
 
         throw new RuntimeException("Not a child.");

@@ -4,7 +4,8 @@ import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import drlc.*;
+import drlc.Global;
+import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.scope.Scope;
 
@@ -14,7 +15,7 @@ public class Variable {
 	public final @NonNull VariableModifier modifier;
 	public final @NonNull TypeInfo typeInfo;
 	
-	public Scope scope;
+	public Scope scope = null;
 	
 	public Variable(@NonNull String name, @NonNull VariableModifier modifier, @NonNull TypeInfo typeInfo) {
 		this.name = name;
@@ -28,6 +29,12 @@ public class Variable {
 	
 	public boolean isMutable() {
 		return modifier.mutable;
+	}
+	
+	public @NonNull Variable atOffset(ASTNode<?, ?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
+		@NonNull Variable atIndex = new Variable(name, modifier, typeInfo.atOffset(node, offset, expectedTypeInfo));
+		atIndex.scope = scope;
+		return atIndex;
 	}
 	
 	@Override
@@ -48,6 +55,6 @@ public class Variable {
 	
 	@Override
 	public String toString() {
-		return modifier + (Helpers.isDiscardParam(name) ? Global.DISCARD : name) + ": " + typeInfo;
+		return modifier + name + Global.TYPE_ANNOTATION_PREFIX + " " + typeInfo;
 	}
 }

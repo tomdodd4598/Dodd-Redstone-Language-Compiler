@@ -1,19 +1,16 @@
 package drlc;
 
 import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.*;
 
 public class HierarchyMap<K, V> {
 	
-	protected final Map<K, V> internal;
+	protected final Map<K, V> internal = new LinkedHashMap<>();
 	protected final HierarchyMap<K, V> parent;
 	
 	public HierarchyMap(HierarchyMap<K, V> parent) {
-		this(parent, new HashMap<>());
-	}
-	
-	public HierarchyMap(HierarchyMap<K, V> parent, Map<K, V> internal) {
 		this.parent = parent;
-		this.internal = internal;
 	}
 	
 	public V put(K key, V value, boolean shadow) {
@@ -25,17 +22,73 @@ public class HierarchyMap<K, V> {
 		}
 	}
 	
-	public V get(K key) {
+	public V get(K key, boolean shallow) {
 		if (internal.containsKey(key)) {
 			return internal.get(key);
 		}
-		return parent == null ? null : parent.get(key);
+		return shallow || parent == null ? null : parent.get(key, false);
 	}
 	
-	public boolean containsKey(K key) {
+	public boolean remove(K key, V value, boolean shallow) {
+		if (internal.remove(key, value)) {
+			return true;
+		}
+		return shallow || parent == null ? false : parent.remove(key, value, false);
+	}
+	
+	public boolean containsKey(K key, boolean shallow) {
 		if (internal.containsKey(key)) {
 			return true;
 		}
-		return parent == null ? false : parent.containsKey(key);
+		return shallow || parent == null ? false : parent.containsKey(key, false);
+	}
+	
+	public <T> Iterable<T> iterable(Function<? super Map<K, V>, ? extends Iterable<T>> mapFunction, BiFunction<? super HierarchyMap<K, V>, ? super Boolean, ? extends Iterable<T>> hierarchyFunction, boolean shallow) {
+		return () -> new Iterator<T>() {
+			
+			boolean start = true;
+			Iterator<T> current = mapFunction.apply(internal).iterator();
+			
+			@Override
+			public boolean hasNext() {
+				if (start && !current.hasNext()) {
+					if (shallow || parent == null) {
+						return false;
+					}
+					start = false;
+					current = hierarchyFunction.apply(parent, false).iterator();
+				}
+				return current.hasNext();
+			}
+			
+			@Override
+			public T next() {
+				return current.next();
+			}
+		};
+	}
+	
+	@SuppressWarnings("null")
+	public Iterable<Entry<K, V>> entryIterable(boolean shallow) {
+		return iterable(Map::entrySet, HierarchyMap::entryIterable, shallow);
+	}
+	
+	@SuppressWarnings("null")
+	public Iterable<V> valueIterable(boolean shallow) {
+		return iterable(Map::values, HierarchyMap::valueIterable, shallow);
+	}
+	
+	public void forEachEntry(BiConsumer<? super K, ? super V> consumer, boolean shallow) {
+		internal.forEach(consumer);
+		if (!shallow && parent != null) {
+			parent.forEachEntry(consumer, false);
+		}
+	}
+	
+	public void forEachValue(Consumer<? super V> consumer, boolean shallow) {
+		internal.values().forEach(consumer);
+		if (!shallow && parent != null) {
+			parent.forEachValue(consumer, false);
+		}
 	}
 }

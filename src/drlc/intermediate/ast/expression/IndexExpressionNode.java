@@ -15,14 +15,20 @@ public class IndexExpressionNode extends ExpressionNode {
 	public @NonNull ExpressionNode indexExpressionNode;
 	
 	@SuppressWarnings("null")
-	public @NonNull TypeInfo baseTypeInfo = null;
+	public @NonNull TypeInfo typeInfo = null;
 	
 	@SuppressWarnings("null")
-	public @NonNull TypeInfo offsetTypeInfo = null;
+	public @NonNull TypeInfo addressTypeInfo = null;
 	
-	public boolean baseArray = false;
+	public @Nullable ArrayTypeInfo baseArrayTypeInfo = null;
+	
+	public boolean baseIsArray = false;
 	
 	public @Nullable Value constantValue = null;
+	
+	public @Nullable Integer constantIndex = null;
+	
+	public boolean setConstantIndex = false;
 	
 	public boolean isLvalue = false;
 	
@@ -52,6 +58,12 @@ public class IndexExpressionNode extends ExpressionNode {
 		
 		baseExpressionNode.declareExpressions(this);
 		indexExpressionNode.declareExpressions(this);
+	}
+	
+	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		baseExpressionNode.defineExpressions(this);
+		indexExpressionNode.defineExpressions(this);
 		
 		setTypeInfo();
 	}
@@ -61,7 +73,7 @@ public class IndexExpressionNode extends ExpressionNode {
 		baseExpressionNode.checkTypes(this);
 		indexExpressionNode.checkTypes(this);
 		
-		if (baseArray && baseExpressionNode.isValidLvalue()) {
+		if (baseIsArray && baseExpressionNode.isValidLvalue()) {
 			baseExpressionNode.setIsLvalue();
 		}
 	}
@@ -94,47 +106,64 @@ public class IndexExpressionNode extends ExpressionNode {
 	public void generateIntermediate(ASTNode<?, ?> parent) {
 		baseExpressionNode.generateIntermediate(this);
 		
+		boolean constantArrayIndex = baseIsArray && setConstantIndex();
+		
 		DataId baseDataId;
-		if (baseArray && !baseExpressionNode.getIsLvalue()) {
-			routine.addAddressAssignmentAction(this, baseDataId = routine.nextRegId(offsetTypeInfo), baseExpressionNode.dataId);
+		if (baseIsArray && !baseExpressionNode.getIsLvalue()) {
+			routine.addAddressAssignmentAction(this, baseDataId = routine.nextRegId(constantArrayIndex ? baseArrayTypeInfo.modifiedReferenceLevel(this, 1) : addressTypeInfo), baseExpressionNode.dataId);
 		}
 		else {
 			baseDataId = baseExpressionNode.dataId;
 		}
 		
-		indexExpressionNode.generateIntermediate(this);
-		
-		DataId target = routine.nextRegId(offsetTypeInfo);
-		routine.addBinaryOpAction(this, offsetTypeInfo, BinaryOpType.PLUS, indexExpressionNode.getTypeInfo(), target, baseDataId, indexExpressionNode.dataId);
-		
-		if (isLvalue) {
-			dataId = target;
+		if (constantArrayIndex) {
+			if (constantIndex >= baseArrayTypeInfo.length) {
+				throw error("Attempted to index array value of type \"%s\" at position %d!", baseArrayTypeInfo, constantIndex);
+			}
+			
+			DataId baseDataIdIndexed = baseDataId.atOffset(this, baseArrayTypeInfo.indexToOffsetShallow(this, constantIndex), addressTypeInfo);
+			if (isLvalue) {
+				dataId = baseDataIdIndexed;
+			}
+			else {
+				routine.addDereferenceAssignmentAction(this, dataId = routine.nextRegId(typeInfo), baseDataIdIndexed);
+			}
 		}
 		else {
-			routine.addDereferenceAssignmentAction(this, dataId = routine.nextRegId(baseTypeInfo), target);
+			indexExpressionNode.generateIntermediate(this);
+			
+			DataId target = routine.nextRegId(addressTypeInfo);
+			routine.addBinaryOpAction(this, addressTypeInfo, BinaryOpType.PLUS, indexExpressionNode.getTypeInfo(), target, baseDataId, indexExpressionNode.dataId);
+			
+			if (isLvalue) {
+				dataId = target;
+			}
+			else {
+				routine.addDereferenceAssignmentAction(this, dataId = routine.nextRegId(typeInfo), target);
+			}
 		}
-		
 	}
 	
 	@Override
 	protected @NonNull TypeInfo getTypeInfoInternal() {
-		return baseTypeInfo;
+		return typeInfo;
 	}
 	
 	@Override
 	protected void setTypeInfoInternal() {
-		@NonNull TypeInfo expressionType = baseExpressionNode.getTypeInfo();
-		if (expressionType.isAddress()) {
-			baseTypeInfo = expressionType.modifiedReferenceLevel(this, -1);
-			offsetTypeInfo = expressionType;
+		@NonNull TypeInfo baseExpressionType = baseExpressionNode.getTypeInfo();
+		if (baseExpressionType.isAddress()) {
+			typeInfo = baseExpressionType.modifiedReferenceLevel(this, -1);
+			addressTypeInfo = baseExpressionType;
 		}
-		else if (expressionType.isArray()) {
-			baseTypeInfo = ((ArrayTypeInfo) expressionType).elementTypeInfo;
-			offsetTypeInfo = baseTypeInfo.modifiedReferenceLevel(this, 1);
-			baseArray = true;
+		else if (baseExpressionType.isArray()) {
+			baseArrayTypeInfo = (ArrayTypeInfo) baseExpressionType;
+			typeInfo = baseArrayTypeInfo.elementTypeInfo;
+			addressTypeInfo = typeInfo.modifiedReferenceLevel(this, 1);
+			baseIsArray = true;
 		}
 		else {
-			throw error("Attempted to use expression of incompatible type \"%s\" as indexable expression!", expressionType);
+			throw error("Attempted to use expression of incompatible type \"%s\" as indexable expression!", baseExpressionType);
 		}
 	}
 	
@@ -145,13 +174,11 @@ public class IndexExpressionNode extends ExpressionNode {
 	
 	@Override
 	protected void setConstantValueInternal() {
-		if (!isLvalue) {
-			@Nullable Value indexConstantValue = indexExpressionNode.getConstantValue();
-			if (indexConstantValue != null) {
-				@Nullable Value innerConstantValue = baseExpressionNode.getConstantValue();
-				if (innerConstantValue instanceof ArrayValue) {
-					constantValue = ((ArrayValue) innerConstantValue).values.get(indexConstantValue.intValue(this));
-				}
+		if (setConstantIndex() && !isLvalue) {
+			@Nullable Value baseConstantValue = baseExpressionNode.getConstantValue();
+			if (baseConstantValue instanceof ArrayValue) {
+				ArrayTypeInfo arrayTypeInfo = (ArrayTypeInfo) baseConstantValue.typeInfo;
+				constantValue = baseConstantValue.atOffset(this, arrayTypeInfo.indexToOffsetShallow(this, constantIndex), arrayTypeInfo.elementTypeInfo);
 			}
 		}
 	}
@@ -162,6 +189,11 @@ public class IndexExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
+	public boolean isMutableLvalue() {
+		return baseIsArray ? baseExpressionNode.isMutableLvalue() : baseExpressionNode.getTypeInfo().IS_MUTABLE_REFERENCE;
+	}
+	
+	@Override
 	public boolean getIsLvalue() {
 		return isLvalue;
 	}
@@ -169,5 +201,16 @@ public class IndexExpressionNode extends ExpressionNode {
 	@Override
 	public void setIsLvalue() {
 		isLvalue = true;
+	}
+	
+	protected boolean setConstantIndex() {
+		if (!setConstantIndex) {
+			@Nullable Value indexConstantValue = indexExpressionNode.getConstantValue();
+			if (indexConstantValue != null) {
+				constantIndex = indexConstantValue.intValue(this);
+			}
+		}
+		setConstantIndex = true;
+		return constantIndex != null;
 	}
 }

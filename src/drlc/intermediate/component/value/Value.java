@@ -48,6 +48,20 @@ public abstract class Value {
 		throw Helpers.nodeError(node, "Value of type \"%s\" can not be cast to an integer!", typeInfo);
 	}
 	
+	public @NonNull Value atIndex(ASTNode<?, ?> node, int index) {
+		throw Helpers.nodeError(node, "Value of type \"%s\" can not be cast to an integer!", typeInfo);
+	}
+	
+	public @NonNull Value atOffset(ASTNode<?, ?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
+		if (offset == 0 && typeInfo.equals(expectedTypeInfo)) {
+			return this;
+		}
+		else {
+			int index = typeInfo.offsetToIndexShallow(node, offset);
+			return atIndex(node, index).atOffset(node, offset - typeInfo.indexToOffsetShallow(node, index), expectedTypeInfo);
+		}
+	}
+	
 	@Override
 	public abstract int hashCode();
 	

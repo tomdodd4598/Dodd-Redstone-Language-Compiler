@@ -32,7 +32,8 @@ public class DirectiveNode extends ASTNode<Scope, Routine> {
 		
 		Directive directive = Main.generator.directiveMap.get(name);
 		if (directive == null) {
-			throw error("Encountered undefined directive \"%s\"!", name);
+			// throw error("Encountered undefined directive \"%s\"!", name);
+			return;
 		}
 		
 		DeclaratorInfo[] params = directive.params;
@@ -63,6 +64,11 @@ public class DirectiveNode extends ASTNode<Scope, Routine> {
 	
 	@Override
 	public void declareExpressions(ASTNode<?, ?> parent) {
+		
+	}
+	
+	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
 		
 	}
 	

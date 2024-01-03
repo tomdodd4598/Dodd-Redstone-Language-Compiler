@@ -1,24 +1,25 @@
 package drlc.intermediate.routine;
 
-import java.util.List;
+import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import drlc.Main;
 import drlc.intermediate.action.ReturnAction;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
+import drlc.intermediate.component.data.ValueDataId;
 import drlc.intermediate.component.type.TypeInfo;
 
 public class FunctionRoutine extends Routine {
 	
 	public final Function function;
-	public boolean isDefined = false;
 	
 	public FunctionRoutine(ASTNode<?, ?> node, Function function) {
 		super(function.name);
 		this.function = function;
-		if (function.returnTypeInfo.isVoid()) {
-			getDestructionActionList().add(new ReturnAction());
+		if (function.returnTypeInfo.equals(Main.generator.voidTypeInfo)) {
+			getDestructionActionList().add(new ReturnAction(null, new ValueDataId(Main.generator.unitValue)));
 		}
 	}
 	
@@ -48,11 +49,6 @@ public class FunctionRoutine extends Routine {
 	}
 	
 	@Override
-	public boolean isDefined() {
-		return isDefined;
-	}
-	
-	@Override
 	public Function getFunction() {
 		return function;
 	}
@@ -71,6 +67,20 @@ public class FunctionRoutine extends Routine {
 	public void onNonLocalFunctionItemExpression(ASTNode<?, ?> node, Function function) {
 		onRequiresStack();
 		super.onNonLocalFunctionItemExpression(node, function);
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(name, scope, function);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof FunctionRoutine) {
+			FunctionRoutine other = (FunctionRoutine) obj;
+			return super.equals(obj) && function.equals(other.function);
+		}
+		return false;
 	}
 	
 	@Override

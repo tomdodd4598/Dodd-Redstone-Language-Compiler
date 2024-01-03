@@ -11,35 +11,37 @@ import drlc.intermediate.ast.type.TypeNode;
 import drlc.intermediate.component.Function;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.routine.FunctionRoutine;
-import drlc.intermediate.scope.*;
+import drlc.intermediate.scope.FunctionScope;
 import drlc.node.Node;
 
-public class FunctionDefinitionNode extends ProgramSectionNode<Scope, FunctionRoutine> {
+public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope, FunctionRoutine> {
 	
 	public final @NonNull String name;
-	public final @NonNull List<ParameterNode> paramNodes;
+	public final @NonNull List<DeclaratorNode> parameterNodes;
 	public final @Nullable TypeNode returnTypeNode;
 	public final @NonNull ScopeContentsNode bodyNode;
 	
-	@SuppressWarnings("null")
-	public @NonNull Function function = null;
-	
-	public FunctionDefinitionNode(Node[] parseNodes, @NonNull String name, @NonNull List<ParameterNode> paramNodes, @Nullable TypeNode returnTypeNode, @NonNull ScopeContentsNode bodyNode) {
+	public FunctionDefinitionNode(Node[] parseNodes, @NonNull String name, @NonNull List<DeclaratorNode> parameterNodes, @Nullable TypeNode returnTypeNode, @NonNull ScopeContentsNode bodyNode) {
 		super(parseNodes);
 		this.name = name;
-		this.paramNodes = paramNodes;
+		this.parameterNodes = parameterNodes;
 		this.returnTypeNode = returnTypeNode;
 		this.bodyNode = bodyNode;
+		
+		for (DeclaratorNode parameterNode : parameterNodes) {
+			parameterNode.functionParameter = true;
+			if (parameterNode.typeNode == null) {
+				throw error("Function parameter types must be explicitly defined!");
+			}
+		}
 	}
 	
 	@Override
 	public void setScopes(ASTNode<?, ?> parent) {
-		scope = new StandardScope(parent.scope);
+		scope = new FunctionScope(parent.scope);
 		
-		for (int i = 0; i < paramNodes.size(); ++i) {
-			ParameterNode paramNode = paramNodes.get(i);
-			paramNode.setScopes(this);
-			paramNode.index = i;
+		for (DeclaratorNode parameterNode : parameterNodes) {
+			parameterNode.setScopes(this);
 		}
 		if (returnTypeNode != null) {
 			returnTypeNode.setScopes(this);
@@ -49,8 +51,8 @@ public class FunctionDefinitionNode extends ProgramSectionNode<Scope, FunctionRo
 	
 	@Override
 	public void defineTypes(ASTNode<?, ?> parent) {
-		for (ParameterNode paramNode : paramNodes) {
-			paramNode.defineTypes(this);
+		for (DeclaratorNode parameterNode : parameterNodes) {
+			parameterNode.defineTypes(this);
 		}
 		if (returnTypeNode != null) {
 			returnTypeNode.defineTypes(this);
@@ -60,9 +62,8 @@ public class FunctionDefinitionNode extends ProgramSectionNode<Scope, FunctionRo
 	
 	@Override
 	public void declareExpressions(ASTNode<?, ?> parent) {
-		for (ParameterNode paramNode : paramNodes) {
-			paramNode.declareExpressions(this);
-			scope.addVariable(this, paramNode.declaratorInfo.variable, false);
+		for (DeclaratorNode parameterNode : parameterNodes) {
+			parameterNode.declareExpressions(this);
 		}
 		if (returnTypeNode != null) {
 			returnTypeNode.declareExpressions(this);
@@ -70,23 +71,41 @@ public class FunctionDefinitionNode extends ProgramSectionNode<Scope, FunctionRo
 		
 		@NonNull TypeInfo returnType = returnTypeNode != null ? returnTypeNode.typeInfo : Main.generator.voidTypeInfo;
 		
-		function = new Function(this, name, false, returnType, Helpers.map(paramNodes, x -> x.declaratorInfo));
-		scope.parent.addFunction(this, function, false);
+		scope.function = new Function(this, name, false, returnType, Helpers.map(parameterNodes, x -> x.declaratorInfo));
+		scope.parent.addFunction(this, scope.function, false);
 		
-		routine = new FunctionRoutine(this, function);
-		Main.program.routineMap.put(name, routine);
+		routine = new FunctionRoutine(this, scope.function);
+		scope.parent.addRoutine(this, routine);
+		
+		for (DeclaratorNode parameterNode : parameterNodes) {
+			parameterNode.routine = routine;
+		}
+		if (returnTypeNode != null) {
+			returnTypeNode.routine = routine;
+		}
 		
 		bodyNode.declareExpressions(this);
 		
-		if (!returnType.isVoid() && !scope.checkCompleteReturn()) {
+		if (!returnType.equals(Main.generator.voidTypeInfo) && !scope.checkCompleteReturn()) {
 			throw error("Function \"%s\" does not always return value of expected type \"%s\"!", name, returnType);
 		}
 	}
 	
 	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		for (DeclaratorNode parameterNode : parameterNodes) {
+			parameterNode.defineExpressions(this);
+		}
+		if (returnTypeNode != null) {
+			returnTypeNode.defineExpressions(this);
+		}
+		bodyNode.defineExpressions(this);
+	}
+	
+	@Override
 	public void checkTypes(ASTNode<?, ?> parent) {
-		for (ParameterNode paramNode : paramNodes) {
-			paramNode.checkTypes(this);
+		for (DeclaratorNode parameterNode : parameterNodes) {
+			parameterNode.checkTypes(this);
 		}
 		if (returnTypeNode != null) {
 			returnTypeNode.checkTypes(this);
@@ -96,8 +115,8 @@ public class FunctionDefinitionNode extends ProgramSectionNode<Scope, FunctionRo
 	
 	@Override
 	public void foldConstants(ASTNode<?, ?> parent) {
-		for (ParameterNode paramNode : paramNodes) {
-			paramNode.foldConstants(this);
+		for (DeclaratorNode parameterNode : parameterNodes) {
+			parameterNode.foldConstants(this);
 		}
 		if (returnTypeNode != null) {
 			returnTypeNode.foldConstants(this);
@@ -107,8 +126,8 @@ public class FunctionDefinitionNode extends ProgramSectionNode<Scope, FunctionRo
 	
 	@Override
 	public void trackFunctions(ASTNode<?, ?> parent) {
-		for (ParameterNode paramNode : paramNodes) {
-			paramNode.trackFunctions(this);
+		for (DeclaratorNode parameterNode : parameterNodes) {
+			parameterNode.trackFunctions(this);
 		}
 		if (returnTypeNode != null) {
 			returnTypeNode.trackFunctions(this);
@@ -118,8 +137,8 @@ public class FunctionDefinitionNode extends ProgramSectionNode<Scope, FunctionRo
 	
 	@Override
 	public void generateIntermediate(ASTNode<?, ?> parent) {
-		for (ParameterNode paramNode : paramNodes) {
-			paramNode.generateIntermediate(this);
+		for (DeclaratorNode parameterNode : parameterNodes) {
+			parameterNode.generateIntermediate(this);
 		}
 		bodyNode.generateIntermediate(this);
 	}

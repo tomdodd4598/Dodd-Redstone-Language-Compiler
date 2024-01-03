@@ -5,8 +5,6 @@ import java.util.Map.Entry;
 
 import drlc.*;
 import drlc.intermediate.action.*;
-import drlc.intermediate.action.binary.BinaryOpAction;
-import drlc.intermediate.action.unary.UnaryOpAction;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.data.*;
 import drlc.intermediate.routine.*;
@@ -31,7 +29,7 @@ public class RedstoneRoutine {
 	public final Map<DataId, Long> dataIdMap;
 	public int tempSize = 0;
 	public final Map<DataId, Long> tempIdMap = new LinkedHashMap<>();
-	public long extraTempRegId = 0;
+	public long extraTempRegId = -1;
 	private boolean dataIdRegeneration = false;
 	
 	public final Map<Short, Short> sectionAddressMap = new HashMap<>();
@@ -149,8 +147,8 @@ public class RedstoneRoutine {
 					declare(text, da.target, false);
 				}
 				
-				else if (action instanceof ExitValueAction) {
-					ExitValueAction eva = (ExitValueAction) action;
+				else if (action instanceof ExitAction) {
+					ExitAction eva = (ExitAction) action;
 					load(text, eva.arg);
 					text.add(new InstructionHalt());
 				}
@@ -187,12 +185,12 @@ public class RedstoneRoutine {
 					}
 				}
 				
-				else if (action instanceof ReturnValueAction) {
+				else if (action instanceof ReturnAction) {
 					if (isRootRoutine()) {
 						throw new IllegalArgumentException(String.format("Root routine can not return a value! Use an exit value statement!"));
 					}
 					else {
-						ReturnValueAction rva = (ReturnValueAction) action;
+						ReturnAction rva = (ReturnAction) action;
 						load(text, rva.arg);
 						if (isStackRoutine()) {
 							text.add(new InstructionJump(body.size()));
@@ -498,7 +496,7 @@ public class RedstoneRoutine {
 	}
 	
 	protected DataId nextExtraTempRegArg() {
-		return new ExtraRegDataId(extraTempRegId++);
+		return new RegDataId(extraTempRegId--);
 	}
 	
 	protected boolean isStackData(RedstoneDataInfo info) {

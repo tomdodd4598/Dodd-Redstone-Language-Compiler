@@ -8,7 +8,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AScopeContents extends PScopeContents
 {
-    private final LinkedList<PBasicSection> _basicSection_ = new LinkedList<PBasicSection>();
+    private final LinkedList<PRuntimeSection> _runtimeSection_ = new LinkedList<PRuntimeSection>();
     private PStopStatement _stopStatement_;
 
     public AScopeContents()
@@ -17,11 +17,11 @@ public final class AScopeContents extends PScopeContents
     }
 
     public AScopeContents(
-        @SuppressWarnings("hiding") List<?> _basicSection_,
+        @SuppressWarnings("hiding") List<?> _runtimeSection_,
         @SuppressWarnings("hiding") PStopStatement _stopStatement_)
     {
         // Constructor
-        setBasicSection(_basicSection_);
+        setRuntimeSection(_runtimeSection_);
 
         setStopStatement(_stopStatement_);
 
@@ -31,7 +31,7 @@ public final class AScopeContents extends PScopeContents
     public Object clone()
     {
         return new AScopeContents(
-            cloneList(this._basicSection_),
+            cloneList(this._runtimeSection_),
             cloneNode(this._stopStatement_));
     }
 
@@ -41,29 +41,29 @@ public final class AScopeContents extends PScopeContents
         ((Analysis) sw).caseAScopeContents(this);
     }
 
-    public LinkedList<PBasicSection> getBasicSection()
+    public LinkedList<PRuntimeSection> getRuntimeSection()
     {
-        return this._basicSection_;
+        return this._runtimeSection_;
     }
 
-    public void setBasicSection(List<?> list)
+    public void setRuntimeSection(List<?> list)
     {
-        for(PBasicSection e : this._basicSection_)
+        for(PRuntimeSection e : this._runtimeSection_)
         {
             e.parent(null);
         }
-        this._basicSection_.clear();
+        this._runtimeSection_.clear();
 
         for(Object obj_e : list)
         {
-            PBasicSection e = (PBasicSection) obj_e;
+            PRuntimeSection e = (PRuntimeSection) obj_e;
             if(e.parent() != null)
             {
                 e.parent().removeChild(e);
             }
 
             e.parent(this);
-            this._basicSection_.add(e);
+            this._runtimeSection_.add(e);
         }
     }
 
@@ -96,7 +96,7 @@ public final class AScopeContents extends PScopeContents
     public String toString()
     {
         return ""
-            + toString(this._basicSection_)
+            + toString(this._runtimeSection_)
             + toString(this._stopStatement_);
     }
 
@@ -104,7 +104,7 @@ public final class AScopeContents extends PScopeContents
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._basicSection_.remove(child))
+        if(this._runtimeSection_.remove(child))
         {
             return;
         }
@@ -122,13 +122,13 @@ public final class AScopeContents extends PScopeContents
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        for(ListIterator<PBasicSection> i = this._basicSection_.listIterator(); i.hasNext();)
+        for(ListIterator<PRuntimeSection> i = this._runtimeSection_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)
             {
                 if(newChild != null)
                 {
-                    i.set((PBasicSection) newChild);
+                    i.set((PRuntimeSection) newChild);
                     newChild.parent(this);
                     oldChild.parent(null);
                     return;

@@ -1,6 +1,6 @@
 package drlc.intermediate.component.type;
 
-import java.util.List;
+import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNull;
 
@@ -35,6 +35,9 @@ public abstract class FunctionTypeInfo extends TypeInfo {
 	}
 	
 	@Override
+	public void collectRawTypes(Set<RawType> rawTypes) {}
+	
+	@Override
 	public boolean equalsOther(Object obj, boolean ignoreReferenceLevels) {
 		if (obj instanceof FunctionTypeInfo) {
 			FunctionTypeInfo other = (FunctionTypeInfo) obj;
@@ -48,6 +51,6 @@ public abstract class FunctionTypeInfo extends TypeInfo {
 	
 	@Override
 	public String rawString() {
-		return Helpers.listString(paramTypeInfos) + " -> " + returnTypeInfo;
+		return Global.FN + Helpers.listString(paramTypeInfos) + " " + Global.ARROW + " " + returnTypeInfo;
 	}
 }

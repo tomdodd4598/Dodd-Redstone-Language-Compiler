@@ -5,14 +5,16 @@ import java.util.*;
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.data.DataId;
+import drlc.intermediate.scope.Scope;
 
 public class FunctionCallAction extends Action implements IValueAction {
 	
 	public final DataId target;
 	public final DataId function;
 	public final List<DataId> args;
+	public final Scope scope;
 	
-	public FunctionCallAction(ASTNode<?, ?> node, DataId target, DataId function, List<DataId> args) {
+	public FunctionCallAction(ASTNode<?, ?> node, DataId target, DataId function, List<DataId> args, Scope scope) {
 		super(node);
 		if (target == null) {
 			throw Helpers.nodeError(node, "Function call action target was null!");
@@ -34,10 +36,17 @@ public class FunctionCallAction extends Action implements IValueAction {
 		else {
 			this.args = args;
 		}
+		
+		if (scope == null) {
+			throw Helpers.nodeError(node, "Function call action scope was null!");
+		}
+		else {
+			this.scope = scope;
+		}
 	}
 	
-	protected FunctionCallAction copy(ASTNode<?, ?> node, DataId target, DataId function, List<DataId> args) {
-		return new FunctionCallAction(node, target, function, args);
+	protected FunctionCallAction copy(ASTNode<?, ?> node, DataId target, DataId function, List<DataId> args, Scope scope) {
+		return new FunctionCallAction(node, target, function, args, scope);
 	}
 	
 	@Override
@@ -57,7 +66,7 @@ public class FunctionCallAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public boolean canRemove() {
+	public boolean canRemove(boolean compoundReplacement) {
 		return false;
 	}
 	
@@ -82,7 +91,7 @@ public class FunctionCallAction extends Action implements IValueAction {
 			replaceArgs.add(argResult.dataId);
 		}
 		if (success) {
-			return copy(null, target, functionResult.dataId, replaceArgs);
+			return copy(null, target, functionResult.dataId, replaceArgs, scope);
 		}
 		else {
 			throw new IllegalArgumentException(String.format("No function call action rvalue %s, %s matched replacement data ID %s!", function, Helpers.listString(args), targetId));
@@ -101,12 +110,12 @@ public class FunctionCallAction extends Action implements IValueAction {
 	
 	@Override
 	public FunctionCallAction replaceLvalue(DataId targetId, DataId lvalueReplacer) {
-		return copy(null, lvalueReplacer, function, new ArrayList<>(args));
+		return copy(null, lvalueReplacer, function, new ArrayList<>(args), scope);
 	}
 	
 	@Override
 	public Action setTransientLvalue() {
-		return copy(null, target.getTransient(null), function, new ArrayList<>(args));
+		return copy(null, target.getTransient(null), function, new ArrayList<>(args), scope);
 	}
 	
 	@Override
@@ -135,7 +144,7 @@ public class FunctionCallAction extends Action implements IValueAction {
 			replaceArgs.add(argResult.dataId);
 		}
 		if (success) {
-			return copy(null, targetResult.dataId, functionResult.dataId, replaceArgs);
+			return copy(null, targetResult.dataId, functionResult.dataId, replaceArgs, scope);
 		}
 		else {
 			return null;
@@ -144,6 +153,6 @@ public class FunctionCallAction extends Action implements IValueAction {
 	
 	@Override
 	public String toString() {
-		return target + " = " + Global.CALL + ' ' + function + Helpers.listString(args);
+		return target + " = " + Global.CALL + " " + function + Helpers.listString(args);
 	}
 }

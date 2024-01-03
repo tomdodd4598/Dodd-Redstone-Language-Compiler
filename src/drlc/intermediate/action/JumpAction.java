@@ -33,6 +33,6 @@ public class JumpAction extends Action implements IJumpAction, IDefiniteRedirect
 	
 	@Override
 	public String toString() {
-		return Global.JUMP + ' ' + getTarget();
+		return Global.JUMP + " " + getTarget();
 	}
 }

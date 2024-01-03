@@ -18,11 +18,24 @@ public abstract class ASTNode<SCOPE extends Scope, ROUTINE extends Routine> {
 		this.parseNodes = parseNodes;
 	}
 	
+	public void traverse() {
+		setScopes(null);
+		defineTypes(null);
+		declareExpressions(null);
+		defineExpressions(null);
+		checkTypes(null);
+		foldConstants(null);
+		trackFunctions(null);
+		generateIntermediate(null);
+	}
+	
 	public abstract void setScopes(ASTNode<?, ?> parent);
 	
 	public abstract void defineTypes(ASTNode<?, ?> parent);
 	
 	public abstract void declareExpressions(ASTNode<?, ?> parent);
+	
+	public abstract void defineExpressions(ASTNode<?, ?> parent);
 	
 	public abstract void checkTypes(ASTNode<?, ?> parent);
 	
@@ -32,7 +45,7 @@ public abstract class ASTNode<SCOPE extends Scope, ROUTINE extends Routine> {
 	
 	public abstract void generateIntermediate(ASTNode<?, ?> parent);
 	
-	public Pair<String, String> nodeInfo() {
+	protected Pair<String, String> nodeInfo() {
 		return Helpers.nodeInfo(parseNodes);
 	}
 	

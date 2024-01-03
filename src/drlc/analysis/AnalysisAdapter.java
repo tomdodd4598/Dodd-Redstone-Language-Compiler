@@ -99,49 +99,67 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAFunctionDefinitionProgramSection(AFunctionDefinitionProgramSection node)
+    public void caseAFunctionDefinitionStaticSection(AFunctionDefinitionStaticSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseABasicSectionProgramSection(ABasicSectionProgramSection node)
+    public void caseATypealiasDefinitionStaticSection(ATypealiasDefinitionStaticSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAScopedSectionBasicSection(AScopedSectionBasicSection node)
+    public void caseAStructDefinitionStaticSection(AStructDefinitionStaticSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAConstantDefinitionBasicSection(AConstantDefinitionBasicSection node)
+    public void caseAConstantDefinitionStaticSection(AConstantDefinitionStaticSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAVariableDeclarationBasicSection(AVariableDeclarationBasicSection node)
+    public void caseAVariableDeclarationStaticSection(AVariableDeclarationStaticSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAExpressionStatementBasicSection(AExpressionStatementBasicSection node)
+    public void caseAEmptySectionStaticSection(AEmptySectionStaticSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAConditionalSectionBasicSection(AConditionalSectionBasicSection node)
+    public void caseAStaticSectionRuntimeSection(AStaticSectionRuntimeSection node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAIterativeSectionBasicSection(AIterativeSectionBasicSection node)
+    public void caseAScopedSectionRuntimeSection(AScopedSectionRuntimeSection node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAExpressionStatementRuntimeSection(AExpressionStatementRuntimeSection node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAConditionalSectionRuntimeSection(AConditionalSectionRuntimeSection node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAIterativeSectionRuntimeSection(AIterativeSectionRuntimeSection node)
     {
         defaultCase(node);
     }
@@ -153,7 +171,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAScopedSection(AScopedSection node)
+    public void caseATypealiasDefinition(ATypealiasDefinition node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAStructDefinition(AStructDefinition node)
     {
         defaultCase(node);
     }
@@ -172,6 +196,18 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseAIncludingInitializationVariableDeclaration(AIncludingInitializationVariableDeclaration node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAEmptySection(AEmptySection node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAScopedSection(AScopedSection node)
     {
         defaultCase(node);
     }
@@ -285,25 +321,25 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseADead5DeadSection(ADead5DeadSection node)
+    public void caseARawType(ARawType node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseADead6DeadSection(ADead6DeadSection node)
+    public void caseAAddressOfType(AAddressOfType node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAType(AType node)
+    public void caseADoubleAddressOfType(ADoubleAddressOfType node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseABasicRawType(ABasicRawType node)
+    public void caseANominalRawType(ANominalRawType node)
     {
         defaultCase(node);
     }
@@ -315,7 +351,19 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseATupleRawType(ATupleRawType node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseAFunctionRawType(AFunctionRawType node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseATupleTypeList(ATupleTypeList node)
     {
         defaultCase(node);
     }
@@ -339,43 +387,37 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAVariableDeclarator(AVariableDeclarator node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
     public void caseATypeAnnotation(ATypeAnnotation node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAParameterList(AParameterList node)
+    public void caseADeclarator(ADeclarator node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAParameterListTail(AParameterListTail node)
+    public void caseAStaticVariableModifier(AStaticVariableModifier node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAParameterDeclarator(AParameterDeclarator node)
+    public void caseAMutVariableModifier(AMutVariableModifier node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseANameIdentifier(ANameIdentifier node)
+    public void caseADeclaratorList(ADeclaratorList node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseADiscardIdentifier(ADiscardIdentifier node)
+    public void caseADeclaratorListTail(ADeclaratorListTail node)
     {
         defaultCase(node);
     }
@@ -400,6 +442,12 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseAAssignmentExpression(AAssignmentExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAConditionalExpression(AConditionalExpression node)
     {
         defaultCase(node);
     }
@@ -501,7 +549,19 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAPrioritizedExpression7(APrioritizedExpression7 node)
+    public void caseADoubleAddressOfExpression6(ADoubleAddressOfExpression6 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAParenthesesExpression7(AParenthesesExpression7 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseASimpleExpression7(ASimpleExpression7 node)
     {
         defaultCase(node);
     }
@@ -525,7 +585,49 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseATupleExpression7(ATupleExpression7 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAStructExpression7(AStructExpression7 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAMemberExpression7(AMemberExpression7 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseAFunctionExpression7(AFunctionExpression7 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAParenthesesExpression(AParenthesesExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAValueSimpleExpression(AValueSimpleExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAVariableSimpleExpression(AVariableSimpleExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseATupleExpressionList(ATupleExpressionList node)
     {
         defaultCase(node);
     }
@@ -538,24 +640,6 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseAExpressionListTail(AExpressionListTail node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAValueExpression8(AValueExpression8 node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAVariableExpression8(AVariableExpression8 node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAParenthesesExpression8(AParenthesesExpression8 node)
     {
         defaultCase(node);
     }
@@ -585,13 +669,157 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseANullValue(ANullValue node)
+    public void caseASizeofValue(ASizeofValue node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseASizeofValue(ASizeofValue node)
+    public void caseAPrioritizedConditionalExpression0(APrioritizedConditionalExpression0 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABinaryConditionalExpression0(ABinaryConditionalExpression0 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPrioritizedConditionalExpression1(APrioritizedConditionalExpression1 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABinaryConditionalExpression1(ABinaryConditionalExpression1 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPrioritizedConditionalExpression2(APrioritizedConditionalExpression2 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABinaryConditionalExpression2(ABinaryConditionalExpression2 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPrioritizedConditionalExpression3(APrioritizedConditionalExpression3 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABinaryConditionalExpression3(ABinaryConditionalExpression3 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPrioritizedConditionalExpression4(APrioritizedConditionalExpression4 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABinaryConditionalExpression4(ABinaryConditionalExpression4 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPrioritizedConditionalExpression5(APrioritizedConditionalExpression5 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABinaryConditionalExpression5(ABinaryConditionalExpression5 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPrioritizedConditionalExpression6(APrioritizedConditionalExpression6 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAUnaryConditionalExpression6(AUnaryConditionalExpression6 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseADereferenceConditionalExpression6(ADereferenceConditionalExpression6 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAAddressOfConditionalExpression6(AAddressOfConditionalExpression6 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseADoubleAddressOfConditionalExpression6(ADoubleAddressOfConditionalExpression6 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAParenthesesConditionalExpression7(AParenthesesConditionalExpression7 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseASimpleConditionalExpression7(ASimpleConditionalExpression7 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAArrayListConditionalExpression7(AArrayListConditionalExpression7 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAArrayRepeatConditionalExpression7(AArrayRepeatConditionalExpression7 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAIndexConditionalExpression7(AIndexConditionalExpression7 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseATupleConditionalExpression7(ATupleConditionalExpression7 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAMemberConditionalExpression7(AMemberConditionalExpression7 node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAFunctionConditionalExpression7(AFunctionConditionalExpression7 node)
     {
         defaultCase(node);
     }
@@ -633,6 +861,24 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseAMultiplyAssignmentOp(AMultiplyAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseADivideAssignmentOp(ADivideAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseARemainderAssignmentOp(ARemainderAssignmentOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseALeftShiftAssignmentOp(ALeftShiftAssignmentOp node)
     {
         defaultCase(node);
@@ -652,24 +898,6 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseARightRotateAssignmentOp(ARightRotateAssignmentOp node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAMultiplyAssignmentOp(AMultiplyAssignmentOp node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseADivideAssignmentOp(ADivideAssignmentOp node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseARemainderAssignmentOp(ARemainderAssignmentOp node)
     {
         defaultCase(node);
     }
@@ -753,6 +981,24 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseAMultiplyMultiplicativeBinaryOp(AMultiplyMultiplicativeBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseADivideMultiplicativeBinaryOp(ADivideMultiplicativeBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseARemainderMultiplicativeBinaryOp(ARemainderMultiplicativeBinaryOp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseALeftShiftShiftBinaryOp(ALeftShiftShiftBinaryOp node)
     {
         defaultCase(node);
@@ -777,24 +1023,6 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAMultiplyMultiplicativeBinaryOp(AMultiplyMultiplicativeBinaryOp node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseADivideMultiplicativeBinaryOp(ADivideMultiplicativeBinaryOp node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseARemainderMultiplicativeBinaryOp(ARemainderMultiplicativeBinaryOp node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
     public void caseAMinusUnaryOp(AMinusUnaryOp node)
     {
         defaultCase(node);
@@ -813,7 +1041,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTVariableModifier(TVariableModifier node)
+    public void caseTTypealias(TTypealias node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTStruct(TStruct node)
     {
         defaultCase(node);
     }
@@ -832,6 +1066,18 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTLet(TLet node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTStatic(TStatic node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTMut(TMut node)
     {
         defaultCase(node);
     }
@@ -952,6 +1198,12 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTSemicolon(TSemicolon node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTFullStop(TFullStop node)
     {
         defaultCase(node);
     }
@@ -1173,12 +1425,6 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTDiscard(TDiscard node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
     public void caseTIntValue(TIntValue node)
     {
         defaultCase(node);
@@ -1192,12 +1438,6 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTCharValue(TCharValue node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseTNull(TNull node)
     {
         defaultCase(node);
     }

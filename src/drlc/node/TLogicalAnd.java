@@ -9,12 +9,12 @@ public final class TLogicalAnd extends Token
 {
     public TLogicalAnd()
     {
-        super.setText("&?");
+        super.setText("&&");
     }
 
     public TLogicalAnd(int line, int pos)
     {
-        super.setText("&?");
+        super.setText("&&");
         setLine(line);
         setPos(pos);
     }

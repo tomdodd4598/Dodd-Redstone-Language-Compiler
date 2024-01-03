@@ -1,6 +1,6 @@
 package drlc.intermediate.component.type;
 
-import java.util.Objects;
+import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
@@ -23,8 +23,9 @@ public class ArrayTypeInfo extends TypeInfo {
 		decayTypeInfo = elementTypeInfo.modifiedReferenceLevel(node, referenceLevel);
 		
 		if (referenceLevel < 0) {
-			throw Helpers.nodeError(node, "Reference level of array type \"%s\" can not be negative!", rawString());
+			throw Helpers.nodeError(node, "Reference level of type \"%s\" can not be negative!", rawString());
 		}
+		
 		if (length < 0) {
 			throw Helpers.nodeError(node, "Length of array type \"%s\" can not be negative!", rawString());
 		}
@@ -70,6 +71,39 @@ public class ArrayTypeInfo extends TypeInfo {
 	}
 	
 	@Override
+	public void collectRawTypes(Set<RawType> rawTypes) {
+		if (!isAddress()) {
+			elementTypeInfo.collectRawTypes(rawTypes);
+		}
+	}
+	
+	@Override
+	public int indexToOffsetShallow(ASTNode<?, ?> node, int index) {
+		if (index >= length) {
+			throw Helpers.nodeError(node, "Attempted to index array type \"%s\" at position %d!", this, index);
+		}
+		else {
+			return index * elementTypeInfo.getSize();
+		}
+	}
+	
+	@Override
+	public int offsetToIndexShallow(ASTNode<?, ?> node, int offset) {
+		int index = offset / elementTypeInfo.getSize();
+		if (index >= length) {
+			throw Helpers.nodeError(node, "Attempted to index array type \"%s\" at position %d!", this, index);
+		}
+		else {
+			return index;
+		}
+	}
+	
+	@Override
+	public @NonNull TypeInfo atIndex(ASTNode<?, ?> node, int index) {
+		return decayTypeInfo;
+	}
+	
+	@Override
 	public int hashCode() {
 		return Objects.hash(referenceLevel, elementTypeInfo, length);
 	}
@@ -88,6 +122,6 @@ public class ArrayTypeInfo extends TypeInfo {
 	
 	@Override
 	public String rawString() {
-		return Global.ARRAY_START + elementTypeInfo + Global.ARRAY_TYPE_DELIMITER + length + Global.ARRAY_END;
+		return Global.ARRAY_START + elementTypeInfo + Global.ARRAY_TYPE_DELIMITER + " " + length + Global.ARRAY_END;
 	}
 }

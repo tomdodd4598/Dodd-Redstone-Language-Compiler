@@ -1,6 +1,6 @@
 package drlc.intermediate.component.data;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
@@ -39,17 +39,17 @@ public abstract class DataId {
 		return scope == null ? null : scope.globalId;
 	}
 	
-	public abstract DataId addAddressPrefix(ASTNode<?, ?> node);
+	public abstract @NonNull DataId addAddressPrefix(ASTNode<?, ?> node);
 	
-	public abstract DataId removeAddressPrefix(ASTNode<?, ?> node);
+	public abstract @NonNull DataId removeAddressPrefix(ASTNode<?, ?> node);
 	
-	public abstract DataId addDereference(ASTNode<?, ?> node);
+	public abstract @NonNull DataId addDereference(ASTNode<?, ?> node);
 	
-	public abstract DataId removeDereference(ASTNode<?, ?> node);
+	public abstract @NonNull DataId removeDereference(ASTNode<?, ?> node);
 	
-	public abstract DataId removeAllDereferences(ASTNode<?, ?> node);
+	public abstract @NonNull DataId removeAllDereferences(ASTNode<?, ?> node);
 	
-	public TransientDataId getTransient(ASTNode<?, ?> node) {
+	public @NonNull TransientDataId getTransient(ASTNode<?, ?> node) {
 		if (dereferenceLevel == 0) {
 			return new TransientDataId(typeInfo);
 		}
@@ -58,14 +58,24 @@ public abstract class DataId {
 		}
 	}
 	
+	public abstract boolean isIndexed();
+	
+	public abstract @NonNull DataId atOffset(ASTNode<?, ?> node, int offset, @NonNull TypeInfo expectedTypeInfo);
+	
+	public abstract @Nullable DataId getRawReplacer(ASTNode<?, ?> node, DataId rawInternal);
+	
 	public abstract boolean isCompressable();
 	
 	public abstract boolean isRepeatable(boolean lvalue);
 	
-	@Override
-	public abstract int hashCode();
+	public abstract int hashCode(boolean raw);
 	
-	public abstract boolean equalsOther(Object obj, boolean ignoreDereferenceLevels);
+	@Override
+	public int hashCode() {
+		return hashCode(false);
+	}
+	
+	public abstract boolean equalsOther(Object obj, boolean raw);
 	
 	@Override
 	public boolean equals(Object obj) {

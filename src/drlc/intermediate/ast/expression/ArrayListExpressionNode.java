@@ -50,6 +50,13 @@ public class ArrayListExpressionNode extends ExpressionNode {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.declareExpressions(this);
 		}
+	}
+	
+	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		for (ExpressionNode expressionNode : expressionNodes) {
+			expressionNode.defineExpressions(this);
+		}
 		
 		setTypeInfo();
 	}
@@ -129,13 +136,10 @@ public class ArrayListExpressionNode extends ExpressionNode {
 		List<Value> values = new ArrayList<>();
 		for (ExpressionNode expressionNode : expressionNodes) {
 			@Nullable Value elementConstantValue = expressionNode.getConstantValue();
-			if (elementConstantValue != null) {
-				values.add(elementConstantValue);
-			}
-			else {
-				constantValue = null;
+			if (elementConstantValue == null) {
 				return;
 			}
+			values.add(elementConstantValue);
 		}
 		constantValue = new ArrayValue(this, typeInfo, values);
 	}

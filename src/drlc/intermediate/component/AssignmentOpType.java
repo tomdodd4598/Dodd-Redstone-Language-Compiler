@@ -16,14 +16,14 @@ public enum AssignmentOpType {
 	XOR_EQUALS("^=", BinaryOpType.XOR),
 	MINUS_EQUALS("-=", BinaryOpType.MINUS),
 	
+	MULTIPLY_EQUALS("*=", BinaryOpType.MULTIPLY),
+	DIVIDE_EQUALS("/=", BinaryOpType.DIVIDE),
+	REMAINDER_EQUALS("%=", BinaryOpType.REMAINDER),
+	
 	LEFT_SHIFT_EQUALS("<<=", BinaryOpType.LEFT_SHIFT),
 	RIGHT_SHIFT_EQUALS(">>=", BinaryOpType.RIGHT_SHIFT),
 	LEFT_ROTATE_EQUALS("<<<=", BinaryOpType.LEFT_ROTATE),
-	RIGHT_ROTATE_EQUALS(">>>=", BinaryOpType.RIGHT_ROTATE),
-	
-	MULTIPLY_EQUALS("*=", BinaryOpType.MULTIPLY),
-	DIVIDE_EQUALS("/=", BinaryOpType.DIVIDE),
-	REMAINDER_EQUALS("%=", BinaryOpType.REMAINDER);
+	RIGHT_ROTATE_EQUALS(">>>=", BinaryOpType.RIGHT_ROTATE);
 	
 	public static final Map<String, AssignmentOpType> NAME_MAP = new HashMap<>();
 	

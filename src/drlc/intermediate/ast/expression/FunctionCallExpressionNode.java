@@ -50,6 +50,14 @@ public class FunctionCallExpressionNode extends ExpressionNode {
 		for (ExpressionNode argExpressionNode : argExpressionNodes) {
 			argExpressionNode.declareExpressions(this);
 		}
+	}
+	
+	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		expressionNode.defineExpressions(this);
+		for (ExpressionNode argExpressionNode : argExpressionNodes) {
+			argExpressionNode.defineExpressions(this);
+		}
 		
 		setTypeInfo();
 	}
@@ -120,7 +128,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
 			argExpressionNode.generateIntermediate(this);
 		}
 		
-		routine.addFunctionAction(this, expressionNode.getDirectFunction(), dataId = routine.nextRegId(functionTypeInfo.returnTypeInfo), expressionNode.dataId, Helpers.map(argExpressionNodes, x -> x.dataId));
+		routine.addFunctionAction(this, expressionNode.getDirectFunction(), dataId = routine.nextRegId(functionTypeInfo.returnTypeInfo), expressionNode.dataId, Helpers.map(argExpressionNodes, x -> x.dataId), scope);
 	}
 	
 	@Override

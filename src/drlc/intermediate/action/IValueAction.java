@@ -10,7 +10,11 @@ public interface IValueAction {
 	
 	public DataId[] rvalues();
 	
-	public boolean canRemove();
+	public default DataId[] dataIds(boolean lvalues) {
+		return lvalues ? lvalues() : rvalues();
+	}
+	
+	public boolean canRemove(boolean compoundReplacement);
 	
 	public boolean canReplaceRvalue();
 	
@@ -31,6 +35,18 @@ public interface IValueAction {
 	public Action swapRvalues(int i, int j);
 	
 	public Action foldRvalues();
+	
+	public default boolean canReplaceDataId(boolean lvalues) {
+		return lvalues ? canReplaceLvalue() : canReplaceRvalue();
+	}
+	
+	public default <T extends Action & IValueAction> T replaceDataId(boolean lvalues, DataId target, DataId replacer) {
+		return lvalues ? replaceLvalue(target, replacer) : replaceRvalue(target, replacer);
+	}
+	
+	public default DataId getDataIdReplacer(boolean lvalues) {
+		return lvalues ? getLvalueReplacer() : getRvalueReplacer();
+	}
 	
 	public Action replaceRegIds(Map<Long, Long> regIdMap);
 	

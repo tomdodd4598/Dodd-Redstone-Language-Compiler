@@ -13,7 +13,7 @@ import drlc.low.drc1.instruction.subroutine.InstructionReturnFromSubroutine;
 public class CircularRightShiftRedstoneRoutine extends BuiltInRedstoneRoutine {
 	
 	public CircularRightShiftRedstoneRoutine(RedstoneCode code, String name, RoutineCallType type) {
-		super(code, name, type, Helpers.params(Helpers.builtInParam("x", Global.INT_TYPE_INFO), Helpers.builtInParam("y", Global.INT_TYPE_INFO)));
+		super(code, name, type, Helpers.params(Helpers.builtInDeclarator("x", Global.INT_TYPE_INFO), Helpers.builtInDeclarator("y", Global.INT_TYPE_INFO)));
 	}
 	
 	@Override

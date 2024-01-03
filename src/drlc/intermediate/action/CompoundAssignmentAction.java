@@ -39,8 +39,8 @@ public class CompoundAssignmentAction extends Action implements IValueAction {
 	}
 	
 	@Override
-	public boolean canRemove() {
-		return false;
+	public boolean canRemove(boolean compoundReplacement) {
+		return compoundReplacement && target.dereferenceLevel == 0 && args.stream().allMatch(x -> x.dereferenceLevel <= 0);
 	}
 	
 	@Override

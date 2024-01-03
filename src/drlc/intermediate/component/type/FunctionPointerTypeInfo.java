@@ -13,7 +13,7 @@ public class FunctionPointerTypeInfo extends FunctionTypeInfo {
 		super(node, referenceLevel, returnTypeInfo, paramTypeInfos);
 		
 		if (referenceLevel < 0) {
-			throw Helpers.nodeError(node, "Reference level of function pointer type \"%s\" can not be negative!", rawString());
+			throw Helpers.nodeError(node, "Reference level of type \"%s\" can not be negative!", rawString());
 		}
 	}
 	

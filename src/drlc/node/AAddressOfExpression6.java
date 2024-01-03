@@ -8,6 +8,7 @@ import drlc.analysis.*;
 public final class AAddressOfExpression6 extends PExpression6
 {
     private TAnd _and_;
+    private TMut _mut_;
     private PExpression6 _expression6_;
 
     public AAddressOfExpression6()
@@ -17,10 +18,13 @@ public final class AAddressOfExpression6 extends PExpression6
 
     public AAddressOfExpression6(
         @SuppressWarnings("hiding") TAnd _and_,
+        @SuppressWarnings("hiding") TMut _mut_,
         @SuppressWarnings("hiding") PExpression6 _expression6_)
     {
         // Constructor
         setAnd(_and_);
+
+        setMut(_mut_);
 
         setExpression6(_expression6_);
 
@@ -31,6 +35,7 @@ public final class AAddressOfExpression6 extends PExpression6
     {
         return new AAddressOfExpression6(
             cloneNode(this._and_),
+            cloneNode(this._mut_),
             cloneNode(this._expression6_));
     }
 
@@ -65,6 +70,31 @@ public final class AAddressOfExpression6 extends PExpression6
         this._and_ = node;
     }
 
+    public TMut getMut()
+    {
+        return this._mut_;
+    }
+
+    public void setMut(TMut node)
+    {
+        if(this._mut_ != null)
+        {
+            this._mut_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._mut_ = node;
+    }
+
     public PExpression6 getExpression6()
     {
         return this._expression6_;
@@ -95,6 +125,7 @@ public final class AAddressOfExpression6 extends PExpression6
     {
         return ""
             + toString(this._and_)
+            + toString(this._mut_)
             + toString(this._expression6_);
     }
 
@@ -105,6 +136,12 @@ public final class AAddressOfExpression6 extends PExpression6
         if(this._and_ == child)
         {
             this._and_ = null;
+            return;
+        }
+
+        if(this._mut_ == child)
+        {
+            this._mut_ = null;
             return;
         }
 
@@ -124,6 +161,12 @@ public final class AAddressOfExpression6 extends PExpression6
         if(this._and_ == oldChild)
         {
             setAnd((TAnd) newChild);
+            return;
+        }
+
+        if(this._mut_ == oldChild)
+        {
+            setMut((TMut) newChild);
             return;
         }
 

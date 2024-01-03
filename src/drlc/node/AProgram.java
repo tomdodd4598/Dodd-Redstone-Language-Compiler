@@ -8,7 +8,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AProgram extends PProgram
 {
-    private final LinkedList<PProgramSection> _programSection_ = new LinkedList<PProgramSection>();
+    private final LinkedList<PStaticSection> _staticSection_ = new LinkedList<PStaticSection>();
 
     public AProgram()
     {
@@ -16,10 +16,10 @@ public final class AProgram extends PProgram
     }
 
     public AProgram(
-        @SuppressWarnings("hiding") List<?> _programSection_)
+        @SuppressWarnings("hiding") List<?> _staticSection_)
     {
         // Constructor
-        setProgramSection(_programSection_);
+        setStaticSection(_staticSection_);
 
     }
 
@@ -27,7 +27,7 @@ public final class AProgram extends PProgram
     public Object clone()
     {
         return new AProgram(
-            cloneList(this._programSection_));
+            cloneList(this._staticSection_));
     }
 
     @Override
@@ -36,29 +36,29 @@ public final class AProgram extends PProgram
         ((Analysis) sw).caseAProgram(this);
     }
 
-    public LinkedList<PProgramSection> getProgramSection()
+    public LinkedList<PStaticSection> getStaticSection()
     {
-        return this._programSection_;
+        return this._staticSection_;
     }
 
-    public void setProgramSection(List<?> list)
+    public void setStaticSection(List<?> list)
     {
-        for(PProgramSection e : this._programSection_)
+        for(PStaticSection e : this._staticSection_)
         {
             e.parent(null);
         }
-        this._programSection_.clear();
+        this._staticSection_.clear();
 
         for(Object obj_e : list)
         {
-            PProgramSection e = (PProgramSection) obj_e;
+            PStaticSection e = (PStaticSection) obj_e;
             if(e.parent() != null)
             {
                 e.parent().removeChild(e);
             }
 
             e.parent(this);
-            this._programSection_.add(e);
+            this._staticSection_.add(e);
         }
     }
 
@@ -66,14 +66,14 @@ public final class AProgram extends PProgram
     public String toString()
     {
         return ""
-            + toString(this._programSection_);
+            + toString(this._staticSection_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._programSection_.remove(child))
+        if(this._staticSection_.remove(child))
         {
             return;
         }
@@ -85,13 +85,13 @@ public final class AProgram extends PProgram
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        for(ListIterator<PProgramSection> i = this._programSection_.listIterator(); i.hasNext();)
+        for(ListIterator<PStaticSection> i = this._staticSection_.listIterator(); i.hasNext();)
         {
             if(i.next() == oldChild)
             {
                 if(newChild != null)
                 {
-                    i.set((PProgramSection) newChild);
+                    i.set((PStaticSection) newChild);
                     newChild.parent(this);
                     oldChild.parent(null);
                     return;

@@ -10,7 +10,7 @@ public final class ABreakStopStatement extends PStopStatement
 {
     private TBreak _break_;
     private TName _name_;
-    private final LinkedList<TSemicolon> _semicolon_ = new LinkedList<TSemicolon>();
+    private TSemicolon _semicolon_;
     private final LinkedList<PDeadSection> _deadSection_ = new LinkedList<PDeadSection>();
 
     public ABreakStopStatement()
@@ -21,7 +21,7 @@ public final class ABreakStopStatement extends PStopStatement
     public ABreakStopStatement(
         @SuppressWarnings("hiding") TBreak _break_,
         @SuppressWarnings("hiding") TName _name_,
-        @SuppressWarnings("hiding") List<?> _semicolon_,
+        @SuppressWarnings("hiding") TSemicolon _semicolon_,
         @SuppressWarnings("hiding") List<?> _deadSection_)
     {
         // Constructor
@@ -41,7 +41,7 @@ public final class ABreakStopStatement extends PStopStatement
         return new ABreakStopStatement(
             cloneNode(this._break_),
             cloneNode(this._name_),
-            cloneList(this._semicolon_),
+            cloneNode(this._semicolon_),
             cloneList(this._deadSection_));
     }
 
@@ -101,30 +101,29 @@ public final class ABreakStopStatement extends PStopStatement
         this._name_ = node;
     }
 
-    public LinkedList<TSemicolon> getSemicolon()
+    public TSemicolon getSemicolon()
     {
         return this._semicolon_;
     }
 
-    public void setSemicolon(List<?> list)
+    public void setSemicolon(TSemicolon node)
     {
-        for(TSemicolon e : this._semicolon_)
+        if(this._semicolon_ != null)
         {
-            e.parent(null);
+            this._semicolon_.parent(null);
         }
-        this._semicolon_.clear();
 
-        for(Object obj_e : list)
+        if(node != null)
         {
-            TSemicolon e = (TSemicolon) obj_e;
-            if(e.parent() != null)
+            if(node.parent() != null)
             {
-                e.parent().removeChild(e);
+                node.parent().removeChild(node);
             }
 
-            e.parent(this);
-            this._semicolon_.add(e);
+            node.parent(this);
         }
+
+        this._semicolon_ = node;
     }
 
     public LinkedList<PDeadSection> getDeadSection()
@@ -179,8 +178,9 @@ public final class ABreakStopStatement extends PStopStatement
             return;
         }
 
-        if(this._semicolon_.remove(child))
+        if(this._semicolon_ == child)
         {
+            this._semicolon_ = null;
             return;
         }
 
@@ -208,22 +208,10 @@ public final class ABreakStopStatement extends PStopStatement
             return;
         }
 
-        for(ListIterator<TSemicolon> i = this._semicolon_.listIterator(); i.hasNext();)
+        if(this._semicolon_ == oldChild)
         {
-            if(i.next() == oldChild)
-            {
-                if(newChild != null)
-                {
-                    i.set((TSemicolon) newChild);
-                    newChild.parent(this);
-                    oldChild.parent(null);
-                    return;
-                }
-
-                i.remove();
-                oldChild.parent(null);
-                return;
-            }
+            setSemicolon((TSemicolon) newChild);
+            return;
         }
 
         for(ListIterator<PDeadSection> i = this._deadSection_.listIterator(); i.hasNext();)

@@ -43,7 +43,10 @@ public class VariableExpressionNode extends ExpressionNode {
 	@Override
 	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
-		
+	}
+	
+	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
 		setConstantValue();
 		
 		if (value == null) {
@@ -65,6 +68,7 @@ public class VariableExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void trackFunctions(ASTNode<?, ?> parent) {
+		Function directFunction = getDirectFunction();
 		if (directFunction != null) {
 			routine.onNonLocalFunctionItemExpression(this, directFunction);
 		}
@@ -108,7 +112,7 @@ public class VariableExpressionNode extends ExpressionNode {
 	
 	@Override
 	protected void setConstantValueInternal() {
-		if (scope.constantExists(name)) {
+		if (scope.constantExists(name, false)) {
 			value = scope.getConstant(this, name).value;
 		}
 		else {
@@ -119,6 +123,11 @@ public class VariableExpressionNode extends ExpressionNode {
 	@Override
 	public boolean isValidLvalue() {
 		return variable != null;
+	}
+	
+	@Override
+	public boolean isMutableLvalue() {
+		return variable.isMutable();
 	}
 	
 	@Override

@@ -11,7 +11,7 @@ import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
-public class AssignmentStatementNode extends BasicSectionNode<Scope, Routine> {
+public class AssignmentStatementNode extends RuntimeSectionNode<Scope, Routine> {
 	
 	public final @NonNull ExpressionNode lvalueExpressionNode;
 	public final @NonNull AssignmentOpType assignmentOpType;
@@ -47,12 +47,21 @@ public class AssignmentStatementNode extends BasicSectionNode<Scope, Routine> {
 	}
 	
 	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		rvalueExpressionNode.defineExpressions(this);
+		lvalueExpressionNode.defineExpressions(this);
+	}
+	
+	@Override
 	public void checkTypes(ASTNode<?, ?> parent) {
 		rvalueExpressionNode.checkTypes(this);
 		lvalueExpressionNode.checkTypes(this);
 		
 		if (!lvalueExpressionNode.isValidLvalue()) {
 			throw error("Attempted to assign to invalid lvalue expression!");
+		}
+		if (!lvalueExpressionNode.isMutableLvalue()) {
+			throw error("Attempted to assign to immutable lvalue expression!");
 		}
 		lvalueExpressionNode.setIsLvalue();
 		

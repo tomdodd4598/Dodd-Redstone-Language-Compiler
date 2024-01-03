@@ -8,8 +8,8 @@ import drlc.Helpers;
 
 public enum BinaryOpType {
 	
-	// LOGICAL_AND("&?"),
-	// LOGICAL_OR("|?"),
+	LOGICAL_AND("&&"),
+	LOGICAL_OR("||"),
 	
 	EQUAL_TO("=="),
 	NOT_EQUAL_TO("!="),
@@ -25,14 +25,14 @@ public enum BinaryOpType {
 	XOR("^"),
 	MINUS("-"),
 	
+	MULTIPLY("*"),
+	DIVIDE("/"),
+	REMAINDER("%"),
+	
 	LEFT_SHIFT("<<"),
 	RIGHT_SHIFT(">>"),
 	LEFT_ROTATE("<<<"),
-	RIGHT_ROTATE(">>>"),
-	
-	MULTIPLY("*"),
-	DIVIDE("/"),
-	REMAINDER("%");
+	RIGHT_ROTATE(">>>");
 	
 	public static final Map<String, BinaryOpType> NAME_MAP = new HashMap<>();
 	

@@ -1,35 +1,23 @@
-Add 'macro! name(...) { ... }' syntax
+Implement 'mut' keyword for variables and addresses
 
-Use 'main' function as entry point (remove 'setargc' directive, implement proper argc and argv)?
-
-Implement 'static' and 'mut' keywords for variables
-
-Add 'sizeof(x)' for expressions
-
-Add '&x' for lvalues
-
-Short-circuiting and non-commutative logical and/or
-
-Local type inference
-
-Arrays
+Closures
 
 String literals
 
-For loops
+Generics/templates
 
-Tuples (use '(x, y, z, ...)' syntax, replace 'Void' with '()' having one instance '()')
+Modules
 
-Structs (nominal typing)
+Implement program arguments
 
 Enums (nominal typing, pattern matching)
 
-Rust method call syntax?
+Impl blocks (Rust method call syntax?)
 
-Namespaces, multiple files, add 'import' for importing globals and functions
+For loops
 
-Closures?
+Add 'macro! name(...) { ... }' syntax
 
-Generics/templates?
+Multiple files, 'use' keyword
 
 Small standard library

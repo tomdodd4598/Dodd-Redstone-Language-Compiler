@@ -18,11 +18,12 @@ public class FunctionItemTypeInfo extends FunctionTypeInfo {
 	protected FunctionItemTypeInfo(ASTNode<?, ?> node, int referenceLevel, @NonNull Function function, @NonNull TypeInfo returnTypeInfo, List<TypeInfo> paramTypeInfos) {
 		super(node, referenceLevel, returnTypeInfo, paramTypeInfos);
 		this.function = function;
-		functionPointerTypeInfo = new FunctionPointerTypeInfo(null, referenceLevel, returnTypeInfo, paramTypeInfos);
 		
 		if (referenceLevel < 0) {
-			throw Helpers.nodeError(node, "Reference level of function item type \"%s\" can not be negative!", rawString());
+			throw Helpers.nodeError(node, "Reference level of type \"%s\" can not be negative!", rawString());
 		}
+		
+		functionPointerTypeInfo = new FunctionPointerTypeInfo(null, referenceLevel, returnTypeInfo, paramTypeInfos);
 	}
 	
 	protected FunctionItemTypeInfo(ASTNode<?, ?> node, @NonNull Function function) {
@@ -44,7 +45,7 @@ public class FunctionItemTypeInfo extends FunctionTypeInfo {
 			return !(otherInfo instanceof FunctionItemTypeInfo) || function.equals(((FunctionItemTypeInfo) otherInfo).function);
 		}
 		else {
-			return isAddress() && otherInfo.equals(Main.generator.wildcardPtrTypeInfo);
+			return otherInfo.equals(functionPointerTypeInfo) || (isAddress() && otherInfo.equals(Main.generator.wildcardPtrTypeInfo));
 		}
 	}
 	

@@ -2,10 +2,11 @@ package drlc.intermediate.component.data;
 
 import java.util.Objects;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
 
 public class ValueDataId extends DataId {
@@ -23,28 +24,43 @@ public class ValueDataId extends DataId {
 	}
 	
 	@Override
-	public ValueDataId addAddressPrefix(ASTNode<?, ?> node) {
+	public @NonNull ValueDataId addAddressPrefix(ASTNode<?, ?> node) {
 		throw Helpers.nodeError(node, "Attempted to add address prefix to data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public ValueDataId removeAddressPrefix(ASTNode<?, ?> node) {
+	public @NonNull ValueDataId removeAddressPrefix(ASTNode<?, ?> node) {
 		throw Helpers.nodeError(node, "Attempted to remove address prefix from data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public ValueDataId addDereference(ASTNode<?, ?> node) {
+	public @NonNull ValueDataId addDereference(ASTNode<?, ?> node) {
 		throw Helpers.nodeError(node, "Attempted to add dereference to data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public ValueDataId removeDereference(ASTNode<?, ?> node) {
+	public @NonNull ValueDataId removeDereference(ASTNode<?, ?> node) {
 		throw Helpers.nodeError(node, "Attempted to remove dereference from data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public ValueDataId removeAllDereferences(ASTNode<?, ?> node) {
+	public @NonNull ValueDataId removeAllDereferences(ASTNode<?, ?> node) {
 		return new ValueDataId(value);
+	}
+	
+	@Override
+	public boolean isIndexed() {
+		return false;
+	}
+	
+	@Override
+	public @NonNull ValueDataId atOffset(ASTNode<?, ?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
+		return new ValueDataId(value.atOffset(node, offset, expectedTypeInfo));
+	}
+	
+	@Override
+	public @Nullable DataId getRawReplacer(ASTNode<?, ?> node, DataId rawInternal) {
+		return null;
 	}
 	
 	@Override
@@ -58,15 +74,15 @@ public class ValueDataId extends DataId {
 	}
 	
 	@Override
-	public int hashCode() {
-		return Objects.hash(scope, dereferenceLevel, typeInfo, value);
+	public int hashCode(boolean raw) {
+		return Objects.hash(scope, raw ? 0 : dereferenceLevel, value);
 	}
 	
 	@Override
-	public boolean equalsOther(Object obj, boolean ignoreDereferenceLevels) {
+	public boolean equalsOther(Object obj, boolean raw) {
 		if (obj instanceof ValueDataId) {
 			ValueDataId other = (ValueDataId) obj;
-			boolean equalDereferenceLevels = ignoreDereferenceLevels || dereferenceLevel == other.dereferenceLevel;
+			boolean equalDereferenceLevels = raw || dereferenceLevel == other.dereferenceLevel;
 			return Objects.equals(scope, other.scope) && equalDereferenceLevels && value.equals(other.value);
 		}
 		else {

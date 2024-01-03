@@ -1,9 +1,12 @@
 package drlc.intermediate.component.type;
 
+import java.util.Set;
+
 import org.eclipse.jdt.annotation.*;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.MemberInfo;
 import drlc.intermediate.scope.Scope;
 
 public abstract class TypeInfo {
@@ -24,10 +27,6 @@ public abstract class TypeInfo {
 	
 	public boolean isAddress() {
 		return referenceLevel > 0;
-	}
-	
-	public boolean isVoid() {
-		return false;
 	}
 	
 	public boolean isWord() {
@@ -59,6 +58,35 @@ public abstract class TypeInfo {
 	
 	public boolean isArray() {
 		return false;
+	}
+	
+	public @Nullable MemberInfo getMemberInfo(@NonNull String memberName) {
+		return null;
+	}
+	
+	public abstract void collectRawTypes(Set<RawType> rawTypes);
+	
+	public int indexToOffsetShallow(ASTNode<?, ?> node, int index) {
+		throw Helpers.nodeError(node, "Type \"%s\" can not be indexed!", this);
+	}
+	
+	public int offsetToIndexShallow(ASTNode<?, ?> node, int offset) {
+		throw Helpers.nodeError(node, "Type \"%s\" can not be indexed!", this);
+	}
+	
+	public @NonNull TypeInfo atIndex(ASTNode<?, ?> node, int index) {
+		throw Helpers.nodeError(node, "Type \"%s\" can not be indexed!", this);
+	}
+	
+	public @NonNull TypeInfo atOffset(ASTNode<?, ?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
+		if (offset == 0 && equals(expectedTypeInfo)) {
+			return this;
+		}
+		else {
+			int index = offsetToIndexShallow(node, offset);
+			// System.out.println(this + " at " + offset + ", " + index + " for " + expectedTypeInfo);
+			return atIndex(node, index).atOffset(node, offset - indexToOffsetShallow(node, index), expectedTypeInfo);
+		}
 	}
 	
 	@Override

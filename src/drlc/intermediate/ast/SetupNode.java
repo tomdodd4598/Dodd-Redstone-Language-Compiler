@@ -43,6 +43,13 @@ public class SetupNode extends ASTNode<Scope, Routine> {
 	}
 	
 	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		for (DirectiveNode directiveNode : directiveNodes) {
+			directiveNode.defineExpressions(this);
+		}
+	}
+	
+	@Override
 	public void checkTypes(ASTNode<?, ?> parent) {
 		for (DirectiveNode directiveNode : directiveNodes) {
 			directiveNode.checkTypes(this);

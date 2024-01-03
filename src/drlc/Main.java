@@ -6,10 +6,10 @@ import java.util.stream.Collectors;
 
 import drlc.intermediate.ast.StartNode;
 import drlc.intermediate.routine.RootRoutine;
-import drlc.intermediate.scope.*;
-import drlc.lexer.Lexer;
+import drlc.intermediate.scope.RootScope;
+import drlc.lexer.*;
 import drlc.node.Start;
-import drlc.parser.Parser;
+import drlc.parser.*;
 
 public class Main {
 	
@@ -60,9 +60,8 @@ public class Main {
 	public static String source;
 	
 	public static Generator generator;
-	public static Program program;
 	
-	public static Scope rootScope;
+	public static RootScope rootScope;
 	public static RootRoutine rootRoutine;
 	
 	private static boolean first = true;
@@ -73,13 +72,13 @@ public class Main {
 		}
 		
 		generator = Generator.CONSTRUCTOR_MAP.get(target).apply(outputFile);
-		program = new Program();
 		
-		rootScope = new StandardScope(null);
-		rootRoutine = new RootRoutine();
-		program.routineMap.put(Global.ROOT_ROUTINE, rootRoutine);
+		rootScope = new RootScope();
 		
 		generator.init();
+		
+		rootRoutine = new RootRoutine();
+		rootScope.addRoutine(null, rootRoutine);
 		
 		if (first) {
 			first = false;
@@ -98,33 +97,41 @@ public class Main {
 			previousTime[0] = currentTime[0];
 		};
 		
-		/* Create parse tree */
 		source = Helpers.readFile(inputFile);
+		
+		printTime.accept("Reading");
+		
+		/* Create parse tree */
 		Lexer lexer = Helpers.stringLexer(source);
 		Parser parser = new Parser(lexer);
-		Start parseTree = parser.parse();
+		Start parseTree;
+		
+		try {
+			parseTree = parser.parse();
+		}
+		catch (ParserException e) {
+			throw Helpers.nodeError(e.getToken(), e.getMessage());
+		}
+		catch (LexerException e) {
+			throw Helpers.nodeError(e.getToken(), e.getMessage());
+		}
 		
 		printTime.accept("Parsing");
 		
 		/* Build AST */
-		ASTBuilder astBuilder = new ASTBuilder();
+		ParseVisitor astBuilder = new ParseVisitor();
 		parseTree.apply(astBuilder);
 		StartNode ast = astBuilder.ast;
 		
 		printTime.accept("Building");
 		
 		/* Traverse AST */
-		ast.setScopes(null);
-		ast.defineTypes(null);
-		ast.declareExpressions(null);
-		ast.checkTypes(null);
-		ast.foldConstants(null);
-		ast.trackFunctions(null);
-		ast.generateIntermediate(null);
+		ast.traverse();
 		
-		program.flattenRoutines();
+		generator.generateRootRoutine();
+		rootScope.flattenRoutines();
 		generator.optimizeIntermediate();
-		program.finalizeRoutines();
+		rootScope.finalizeRoutines();
 		
 		printTime.accept("Traversing");
 		

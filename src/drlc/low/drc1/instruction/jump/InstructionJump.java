@@ -6,10 +6,10 @@ import drlc.low.drc1.instruction.Instruction;
 
 public class InstructionJump extends Instruction {
 	
-	public final int section;
+	public final short section;
 	public Short address;
 	
-	public InstructionJump(int section) {
+	public InstructionJump(short section) {
 		super();
 		this.section = section;
 	}

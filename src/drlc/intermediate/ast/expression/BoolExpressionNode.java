@@ -33,6 +33,11 @@ public class BoolExpressionNode extends ConstantExpressionNode {
 	}
 	
 	@Override
+	public void defineExpressions(ASTNode<?, ?> parent) {
+		
+	}
+	
+	@Override
 	public void checkTypes(ASTNode<?, ?> parent) {
 		
 	}
