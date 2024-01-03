@@ -77,4 +77,8 @@ public class Function {
 	public String toString() {
 		return Helpers.scopeStringPrefix(scope) + Global.FN + " " + name + Helpers.listString(params) + " " + Global.ARROW + " " + returnTypeInfo;
 	}
+	
+	public String routineString() {
+		return Helpers.scopeStringPrefix(scope) + Global.FN + " " + name + Helpers.listString(Helpers.map(params, DeclaratorInfo::routineString)) + " " + Global.ARROW + " " + returnTypeInfo.routineString();
+	}
 }

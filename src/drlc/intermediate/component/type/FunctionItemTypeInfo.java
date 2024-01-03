@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.*;
+import drlc.Main;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Function;
 import drlc.intermediate.scope.Scope;
@@ -15,19 +15,14 @@ public class FunctionItemTypeInfo extends FunctionTypeInfo {
 	
 	public final @NonNull FunctionPointerTypeInfo functionPointerTypeInfo;
 	
-	protected FunctionItemTypeInfo(ASTNode<?, ?> node, int referenceLevel, @NonNull Function function, @NonNull TypeInfo returnTypeInfo, List<TypeInfo> paramTypeInfos) {
-		super(node, referenceLevel, returnTypeInfo, paramTypeInfos);
+	protected FunctionItemTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, @NonNull Function function, @NonNull TypeInfo returnTypeInfo, List<TypeInfo> paramTypeInfos) {
+		super(node, referenceMutability, returnTypeInfo, paramTypeInfos);
 		this.function = function;
-		
-		if (referenceLevel < 0) {
-			throw Helpers.nodeError(node, "Reference level of type \"%s\" can not be negative!", rawString());
-		}
-		
-		functionPointerTypeInfo = new FunctionPointerTypeInfo(null, referenceLevel, returnTypeInfo, paramTypeInfos);
+		functionPointerTypeInfo = new FunctionPointerTypeInfo(null, referenceMutability, returnTypeInfo, paramTypeInfos);
 	}
 	
 	protected FunctionItemTypeInfo(ASTNode<?, ?> node, @NonNull Function function) {
-		this(node, 0, function, function.returnTypeInfo, function.paramTypeInfos);
+		this(node, new ArrayList<>(), function, function.returnTypeInfo, function.paramTypeInfos);
 	}
 	
 	public FunctionItemTypeInfo(ASTNode<?, ?> node, Scope scope, String functionName) {
@@ -35,13 +30,13 @@ public class FunctionItemTypeInfo extends FunctionTypeInfo {
 	}
 	
 	@Override
-	public @NonNull TypeInfo copy(ASTNode<?, ?> node, int newReferenceLevel) {
-		return new FunctionItemTypeInfo(node, newReferenceLevel, function, returnTypeInfo, paramTypeInfos);
+	public @NonNull TypeInfo copy(ASTNode<?, ?> node, List<Boolean> referenceMutability) {
+		return new FunctionItemTypeInfo(node, referenceMutability, function, returnTypeInfo, paramTypeInfos);
 	}
 	
 	@Override
 	public boolean canImplicitCastTo(TypeInfo otherInfo) {
-		if (super.equals(otherInfo)) {
+		if (super.equalsOther(otherInfo, true) && canImplicitCastToReferenceMutability(otherInfo)) {
 			return !(otherInfo instanceof FunctionItemTypeInfo) || function.equals(((FunctionItemTypeInfo) otherInfo).function);
 		}
 		else {
@@ -56,14 +51,14 @@ public class FunctionItemTypeInfo extends FunctionTypeInfo {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(referenceLevel, returnTypeInfo, paramTypeInfos, function);
+		return Objects.hash(referenceMutability, returnTypeInfo, paramTypeInfos, function);
 	}
 	
 	@Override
-	public boolean equalsOther(Object obj, boolean ignoreReferenceLevels) {
+	public boolean equalsOther(Object obj, boolean ignoreReferenceMutability) {
 		if (obj instanceof FunctionItemTypeInfo) {
 			FunctionItemTypeInfo other = (FunctionItemTypeInfo) obj;
-			return super.equalsOther(obj, ignoreReferenceLevels) && function.equals(other.function);
+			return super.equalsOther(obj, ignoreReferenceMutability) && function.equals(other.function);
 		}
 		else {
 			return false;
@@ -73,5 +68,10 @@ public class FunctionItemTypeInfo extends FunctionTypeInfo {
 	@Override
 	public String rawString() {
 		return super.rawString() + " {" + function.name + '}';
+	}
+	
+	@Override
+	public String routineString() {
+		return super.routineString() + " {" + function.name + '}';
 	}
 }

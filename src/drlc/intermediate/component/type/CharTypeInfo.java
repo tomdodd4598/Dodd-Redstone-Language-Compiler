@@ -1,5 +1,7 @@
 package drlc.intermediate.component.type;
 
+import java.util.List;
+
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.Global;
@@ -8,16 +10,16 @@ import drlc.intermediate.scope.Scope;
 
 public class CharTypeInfo extends BasicTypeInfo {
 	
-	protected CharTypeInfo(ASTNode<?, ?> node, int referenceLevel, @NonNull RawType type) {
-		super(node, referenceLevel, type);
+	protected CharTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, @NonNull RawType type) {
+		super(node, referenceMutability, type);
 	}
 	
-	public CharTypeInfo(ASTNode<?, ?> node, int referenceLevel, Scope scope) {
-		super(node, referenceLevel, scope, Global.CHAR);
+	public CharTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, Scope scope) {
+		super(node, referenceMutability, scope, Global.CHAR);
 	}
 	
 	@Override
-	public @NonNull TypeInfo copy(ASTNode<?, ?> node, int newReferenceLevel) {
-		return new CharTypeInfo(node, newReferenceLevel, rawType);
+	public @NonNull TypeInfo copy(ASTNode<?, ?> node, List<Boolean> referenceMutability) {
+		return new CharTypeInfo(node, referenceMutability, rawType);
 	}
 }

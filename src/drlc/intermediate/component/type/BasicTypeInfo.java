@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import drlc.*;
+import drlc.Main;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.scope.Scope;
 
@@ -12,17 +12,13 @@ public abstract class BasicTypeInfo extends TypeInfo {
 	
 	public final @NonNull RawType rawType;
 	
-	protected BasicTypeInfo(ASTNode<?, ?> node, int referenceLevel, @NonNull RawType rawType) {
-		super(node, referenceLevel);
+	protected BasicTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, @NonNull RawType rawType) {
+		super(node, referenceMutability);
 		this.rawType = rawType;
-		
-		if (referenceLevel < 0) {
-			throw Helpers.nodeError(node, "Reference level of type \"%s\" can not be negative!", rawString());
-		}
 	}
 	
-	public BasicTypeInfo(ASTNode<?, ?> node, int referenceLevel, Scope scope, @NonNull String rawTypeName) {
-		this(node, referenceLevel, scope.getRawType(node, rawTypeName));
+	public BasicTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, Scope scope, @NonNull String rawTypeName) {
+		this(node, referenceMutability, scope.getRawType(node, rawTypeName));
 	}
 	
 	@Override
@@ -44,15 +40,15 @@ public abstract class BasicTypeInfo extends TypeInfo {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(referenceLevel, rawType);
+		return Objects.hash(referenceMutability, rawType);
 	}
 	
 	@Override
-	public boolean equalsOther(Object obj, boolean ignoreReferenceLevels) {
+	public boolean equalsOther(Object obj, boolean ignoreReferenceMutability) {
 		if (obj instanceof BasicTypeInfo) {
 			BasicTypeInfo other = (BasicTypeInfo) obj;
-			boolean equalReferenceLevels = ignoreReferenceLevels || referenceLevel == other.referenceLevel;
-			return rawType.equals(other.rawType) && equalReferenceLevels;
+			boolean equalReferenceMutability = ignoreReferenceMutability || referenceMutability.equals(other.referenceMutability);
+			return rawType.equals(other.rawType) && equalReferenceMutability;
 		}
 		else {
 			return false;

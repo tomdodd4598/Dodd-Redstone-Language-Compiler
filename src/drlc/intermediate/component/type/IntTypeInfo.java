@@ -1,5 +1,7 @@
 package drlc.intermediate.component.type;
 
+import java.util.List;
+
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.Global;
@@ -8,17 +10,17 @@ import drlc.intermediate.scope.Scope;
 
 public class IntTypeInfo extends BasicTypeInfo {
 	
-	protected IntTypeInfo(ASTNode<?, ?> node, int referenceLevel, @NonNull RawType type) {
-		super(node, referenceLevel, type);
+	protected IntTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, @NonNull RawType type) {
+		super(node, referenceMutability, type);
 	}
 	
-	public IntTypeInfo(ASTNode<?, ?> node, int referenceLevel, Scope scope) {
-		super(node, referenceLevel, scope, Global.INT);
+	public IntTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, Scope scope) {
+		super(node, referenceMutability, scope, Global.INT);
 	}
 	
 	@Override
-	public @NonNull TypeInfo copy(ASTNode<?, ?> node, int newReferenceLevel) {
-		return new IntTypeInfo(node, newReferenceLevel, rawType);
+	public @NonNull TypeInfo copy(ASTNode<?, ?> node, List<Boolean> referenceMutability) {
+		return new IntTypeInfo(node, referenceMutability, rawType);
 	}
 	
 	@Override

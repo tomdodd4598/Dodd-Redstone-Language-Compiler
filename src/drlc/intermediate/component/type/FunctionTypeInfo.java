@@ -13,8 +13,8 @@ public abstract class FunctionTypeInfo extends TypeInfo {
 	public final @NonNull TypeInfo returnTypeInfo;
 	public final List<TypeInfo> paramTypeInfos;
 	
-	protected FunctionTypeInfo(ASTNode<?, ?> node, int referenceLevel, @NonNull TypeInfo returnTypeInfo, List<TypeInfo> paramTypeInfos) {
-		super(node, referenceLevel);
+	protected FunctionTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, @NonNull TypeInfo returnTypeInfo, List<TypeInfo> paramTypeInfos) {
+		super(node, referenceMutability);
 		this.returnTypeInfo = returnTypeInfo;
 		this.paramTypeInfos = paramTypeInfos;
 	}
@@ -38,11 +38,11 @@ public abstract class FunctionTypeInfo extends TypeInfo {
 	public void collectRawTypes(Set<RawType> rawTypes) {}
 	
 	@Override
-	public boolean equalsOther(Object obj, boolean ignoreReferenceLevels) {
+	public boolean equalsOther(Object obj, boolean ignoreReferenceMutability) {
 		if (obj instanceof FunctionTypeInfo) {
 			FunctionTypeInfo other = (FunctionTypeInfo) obj;
-			boolean equalReferenceLevels = ignoreReferenceLevels || referenceLevel == other.referenceLevel;
-			return equalReferenceLevels && returnTypeInfo.equals(other.returnTypeInfo) && paramTypeInfos.equals(other.paramTypeInfos);
+			boolean equalReferenceMutability = ignoreReferenceMutability || referenceMutability.equals(other.referenceMutability);
+			return equalReferenceMutability && returnTypeInfo.equals(other.returnTypeInfo) && paramTypeInfos.equals(other.paramTypeInfos);
 		}
 		else {
 			return false;
@@ -52,5 +52,10 @@ public abstract class FunctionTypeInfo extends TypeInfo {
 	@Override
 	public String rawString() {
 		return Global.FN + Helpers.listString(paramTypeInfos) + " " + Global.ARROW + " " + returnTypeInfo;
+	}
+	
+	@Override
+	public String routineString() {
+		return getRoutineReferenceString() + Global.FN + Helpers.listString(Helpers.map(paramTypeInfos, TypeInfo::routineString)) + " " + Global.ARROW + " " + returnTypeInfo.routineString();
 	}
 }

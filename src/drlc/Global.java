@@ -50,8 +50,8 @@ public final class Global {
 	public static final String WHILE = "while";
 	public static final String UNTIL = "until";
 	
-	public static final char DEREFERENCE = '*';
-	public static final char ADDRESS_OF = '&';
+	public static final String DEREFERENCE = "*";
+	public static final String ADDRESS_OF = "&";
 	
 	public static final String JUMP = "jmp";
 	public static final String CONDITIONAL_JUMP = "cj";

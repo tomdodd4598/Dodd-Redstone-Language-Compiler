@@ -54,6 +54,10 @@ public class AddressExpressionNode extends ExpressionNode {
 		
 		if (expressionNode.isValidLvalue()) {
 			expressionNode.setIsLvalue();
+			
+			if (mutable && !expressionNode.isMutableLvalue()) {
+				throw error("Attempted to create mutable reference of immutable lvalue expression!");
+			}
 		}
 	}
 	
@@ -86,7 +90,7 @@ public class AddressExpressionNode extends ExpressionNode {
 	
 	@Override
 	protected void setTypeInfoInternal() {
-		typeInfo = expressionNode.getTypeInfo().modifiedReferenceLevel(this, 1);
+		typeInfo = expressionNode.getTypeInfo().addressOf(this, mutable);
 	}
 	
 	@Override

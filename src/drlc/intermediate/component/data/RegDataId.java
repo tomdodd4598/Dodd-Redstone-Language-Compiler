@@ -38,7 +38,7 @@ public class RegDataId extends DataId {
 	@Override
 	public @NonNull RegDataId addAddressPrefix(ASTNode<?, ?> node) {
 		if (dereferenceLevel == 0) {
-			return new RegDataId(-1, typeInfo.modifiedReferenceLevel(node, 1), regId, offset, offsetFrom);
+			return new RegDataId(-1, typeInfo.modifyMutable(node, 1), regId, offset, offsetFrom);
 		}
 		else {
 			throw Helpers.nodeError(node, "Attempted to add address prefix to data ID \"%s\"!", this);
@@ -46,38 +46,8 @@ public class RegDataId extends DataId {
 	}
 	
 	@Override
-	public @NonNull RegDataId removeAddressPrefix(ASTNode<?, ?> node) {
-		if (isAddress()) {
-			return new RegDataId(dereferenceLevel + 1, typeInfo.modifiedReferenceLevel(node, -1), regId, offset, offsetFrom);
-		}
-		else {
-			throw Helpers.nodeError(node, "Attempted to remove address prefix from data ID \"%s\"!", this);
-		}
-	}
-	
-	@Override
 	public @NonNull RegDataId addDereference(ASTNode<?, ?> node) {
-		return new RegDataId(dereferenceLevel + 1, typeInfo.modifiedReferenceLevel(node, -1), regId, offset, offsetFrom);
-	}
-	
-	@Override
-	public @NonNull RegDataId removeDereference(ASTNode<?, ?> node) {
-		if (!isDereferenced()) {
-			throw Helpers.nodeError(node, "Attempted to remove dereference from data ID \"%s\"!", this);
-		}
-		else {
-			return new RegDataId(dereferenceLevel - 1, typeInfo.modifiedReferenceLevel(node, 1), regId, offset, offsetFrom);
-		}
-	}
-	
-	@Override
-	public @NonNull RegDataId removeAllDereferences(ASTNode<?, ?> node) {
-		if (isAddress()) {
-			throw Helpers.nodeError(node, "Attempted to remove all dereferences from data ID \"%s\"!", this);
-		}
-		else {
-			return new RegDataId(0, typeInfo.modifiedReferenceLevel(node, dereferenceLevel), regId, offset, offsetFrom);
-		}
+		return new RegDataId(dereferenceLevel + 1, typeInfo.modifyMutable(node, -1), regId, offset, offsetFrom);
 	}
 	
 	protected List<RegDataId> nextIndexFrom() {
@@ -102,11 +72,11 @@ public class RegDataId extends DataId {
 	public @Nullable DataId getRawReplacer(ASTNode<?, ?> node, DataId rawInternal) {
 		if (rawInternal instanceof RegDataId) {
 			RegDataId raw = (RegDataId) rawInternal;
-			return new RegDataId(raw.dereferenceLevel, raw.typeInfo.atOffset(node, offset, typeInfo.copy(node, raw.dereferenceLevel)), raw.regId, offset, new ArrayList<>());
+			return new RegDataId(raw.dereferenceLevel, raw.typeInfo.atOffset(node, offset, typeInfo.copyMutable(node, raw.dereferenceLevel)), raw.regId, offset, new ArrayList<>());
 		}
 		else if (rawInternal instanceof VariableDataId) {
 			VariableDataId raw = (VariableDataId) rawInternal;
-			return new VariableDataId(raw.dereferenceLevel, raw.variable.atOffset(node, offset, typeInfo.modifiedReferenceLevel(node, raw.dereferenceLevel)), offset, new ArrayList<>());
+			return new VariableDataId(raw.dereferenceLevel, raw.variable.atOffset(node, offset, typeInfo.modifyMutable(node, raw.dereferenceLevel)), offset, new ArrayList<>());
 		}
 		else {
 			return null;

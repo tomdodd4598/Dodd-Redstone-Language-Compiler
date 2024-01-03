@@ -1,5 +1,3 @@
-Implement 'mut' keyword for variables and addresses
-
 Closures
 
 String literals

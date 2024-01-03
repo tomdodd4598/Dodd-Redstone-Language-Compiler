@@ -92,13 +92,13 @@ public class MemberExpressionNode extends ExpressionNode {
 		
 		DataId baseDataId;
 		if (!baseExpressionNode.getIsLvalue()) {
-			routine.addAddressAssignmentAction(this, baseDataId = routine.nextRegId(baseTypeInfo.modifiedReferenceLevel(this, 1)), baseExpressionNode.dataId);
+			routine.addAddressAssignmentAction(this, baseDataId = routine.nextRegId(baseTypeInfo.addressOf(this, true)), baseExpressionNode.dataId);
 		}
 		else {
 			baseDataId = baseExpressionNode.dataId;
 		}
 		
-		DataId baseDataIdIndexed = baseDataId.atOffset(this, getMemberInfo().offset, typeInfo.modifiedReferenceLevel(this, 1));
+		DataId baseDataIdIndexed = baseDataId.atOffset(this, getMemberInfo().offset, typeInfo.addressOf(this, true));
 		if (isLvalue) {
 			dataId = baseDataIdIndexed;
 		}

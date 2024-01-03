@@ -85,6 +85,6 @@ public class FunctionRoutine extends Routine {
 	
 	@Override
 	public String toString() {
-		return function.toString();
+		return function.routineString();
 	}
 }

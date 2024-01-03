@@ -1,6 +1,6 @@
 package drlc.intermediate.ast.type;
 
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
@@ -86,7 +86,7 @@ public class ArrayTypeNode extends TypeNode {
 	protected void setTypeInfoInternal() {
 		typeNode.setTypeInfo();
 		
-		typeInfo = new ArrayTypeInfo(this, 0, typeNode.typeInfo, length);
+		typeInfo = new ArrayTypeInfo(this, new ArrayList<>(), typeNode.typeInfo, length);
 	}
 	
 	@Override

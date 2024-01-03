@@ -82,7 +82,7 @@ public class VariableExpressionNode extends ExpressionNode {
 		}
 		else {
 			if (isLvalue) {
-				routine.addAddressVariableAssignmentAction(this, dataId = routine.nextRegId(typeInfo.modifiedReferenceLevel(this, 1)), variable);
+				routine.addAddressVariableAssignmentAction(this, dataId = routine.nextRegId(typeInfo.addressOf(this, true)), variable);
 			}
 			else {
 				routine.addVariableAssignmentAction(this, dataId = routine.nextRegId(typeInfo), variable);

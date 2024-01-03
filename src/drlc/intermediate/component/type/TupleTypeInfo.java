@@ -13,14 +13,10 @@ public class TupleTypeInfo extends CompoundTypeInfo {
 	protected Map<String, MemberInfo> memberMap = new HashMap<>();
 	
 	@SuppressWarnings("null")
-	public TupleTypeInfo(ASTNode<?, ?> node, int referenceLevel, List<TypeInfo> typeInfos) {
-		super(node, referenceLevel, typeInfos);
+	public TupleTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos) {
+		super(node, referenceMutability, typeInfos);
 		
-		if (referenceLevel < 0) {
-			throw Helpers.nodeError(node, "Reference level of type \"%s\" can not be negative!", rawString());
-		}
-		
-		if (referenceLevel == 0) {
+		if (referenceMutability.isEmpty()) {
 			int offset = 0;
 			for (int i = 0; i < count; ++i) {
 				@NonNull String name = Integer.toString(i);
@@ -32,8 +28,8 @@ public class TupleTypeInfo extends CompoundTypeInfo {
 	}
 	
 	@Override
-	public @NonNull TypeInfo copy(ASTNode<?, ?> node, int newReferenceLevel) {
-		return new TupleTypeInfo(node, newReferenceLevel, typeInfos);
+	public @NonNull TypeInfo copy(ASTNode<?, ?> node, List<Boolean> referenceMutability) {
+		return new TupleTypeInfo(node, referenceMutability, typeInfos);
 	}
 	
 	@Override
@@ -43,7 +39,7 @@ public class TupleTypeInfo extends CompoundTypeInfo {
 	
 	@Override
 	public boolean canImplicitCastTo(TypeInfo otherInfo) {
-		if (equals(otherInfo)) {
+		if (equalsOther(otherInfo, true) && canImplicitCastToReferenceMutability(otherInfo)) {
 			return true;
 		}
 		else {
@@ -63,13 +59,13 @@ public class TupleTypeInfo extends CompoundTypeInfo {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(referenceLevel, nonRecursiveTypeInfos(x -> null));
+		return Objects.hash(referenceMutability, nonRecursiveTypeInfos(x -> null));
 	}
 	
 	@Override
-	public boolean equalsOther(Object obj, boolean ignoreReferenceLevels) {
+	public boolean equalsOther(Object obj, boolean ignoreReferenceMutability) {
 		if (obj instanceof TupleTypeInfo) {
-			return super.equalsOther(obj, ignoreReferenceLevels);
+			return super.equalsOther(obj, ignoreReferenceMutability);
 		}
 		else {
 			return false;
@@ -79,5 +75,10 @@ public class TupleTypeInfo extends CompoundTypeInfo {
 	@Override
 	public String rawString() {
 		return Helpers.tupleString(typeInfos);
+	}
+	
+	@Override
+	public String routineString() {
+		return getRoutineReferenceString() + Helpers.tupleString(Helpers.map(typeInfos, TypeInfo::routineString));
 	}
 }

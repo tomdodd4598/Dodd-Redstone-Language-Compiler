@@ -12,12 +12,12 @@ public abstract class Value {
 	
 	protected Value(ASTNode<?, ?> node, @NonNull TypeInfo typeInfo) {
 		if (this instanceof AddressValue) {
-			if (typeInfo.referenceLevel == 0) {
+			if (!typeInfo.isAddress()) {
 				throw Helpers.nodeError(node, "Address value can not have non-address type \"%s\"!", typeInfo);
 			}
 		}
 		else {
-			if (typeInfo.referenceLevel > 0) {
+			if (typeInfo.isAddress()) {
 				throw Helpers.nodeError(node, "Non-address value can not have address type \"%s\"!", typeInfo);
 			}
 		}
@@ -53,7 +53,7 @@ public abstract class Value {
 	}
 	
 	public @NonNull Value atOffset(ASTNode<?, ?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
-		if (offset == 0 && typeInfo.equals(expectedTypeInfo)) {
+		if (offset == 0 && typeInfo.equalsOther(expectedTypeInfo, true) && typeInfo.getReferenceLevel() == expectedTypeInfo.getReferenceLevel()) {
 			return this;
 		}
 		else {

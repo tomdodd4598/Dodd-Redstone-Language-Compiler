@@ -82,7 +82,7 @@ public class DereferenceExpressionNode extends ExpressionNode {
 	
 	@Override
 	protected void setTypeInfoInternal() {
-		typeInfo = expressionNode.getTypeInfo().modifiedReferenceLevel(this, -1);
+		typeInfo = expressionNode.getTypeInfo().dereference(this, 1);
 	}
 	
 	@Override
@@ -102,7 +102,7 @@ public class DereferenceExpressionNode extends ExpressionNode {
 	
 	@Override
 	public boolean isMutableLvalue() {
-		return expressionNode.getTypeInfo().IS_MUTABLE_REFERENCE;
+		return expressionNode.getTypeInfo().isMutableReference();
 	}
 	
 	@Override

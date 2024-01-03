@@ -27,4 +27,12 @@ public class VariableModifier {
 		}
 		return sb.toString();
 	}
+	
+	public String routineString() {
+		StringBuilder sb = new StringBuilder();
+		if (_static) {
+			sb.append(Global.STATIC).append(" ");
+		}
+		return sb.toString();
+	}
 }

@@ -116,6 +116,6 @@ public class StructDefinitionNode extends StaticSectionNode<Scope, Routine> {
 	
 	@Override
 	public void generateIntermediate(ASTNode<?, ?> parent) {
-		routine.typedefMap.put(rawType.toString(), rawType.getTypeInfo(this, 0, scope));
+		routine.typedefMap.put(rawType.toString(), rawType.getTypeInfo(this, new ArrayList<>(), scope));
 	}
 }

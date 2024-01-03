@@ -91,7 +91,7 @@ public class FunctionTypeNode extends TypeNode {
 		}
 		
 		@NonNull TypeInfo returnType = returnTypeNode != null ? returnTypeNode.typeInfo : Main.generator.voidTypeInfo;
-		typeInfo = new FunctionPointerTypeInfo(this, 0, returnType, Helpers.map(paramTypeNodes, x -> x.typeInfo));
+		typeInfo = new FunctionPointerTypeInfo(this, new ArrayList<>(), returnType, Helpers.map(paramTypeNodes, x -> x.typeInfo));
 	}
 	
 	@Override

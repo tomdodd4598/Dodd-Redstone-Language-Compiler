@@ -1,6 +1,7 @@
 package drlc.intermediate.component.type;
 
-import java.util.Set;
+import java.util.*;
+import java.util.stream.*;
 
 import org.eclipse.jdt.annotation.*;
 
@@ -11,22 +12,67 @@ import drlc.intermediate.scope.Scope;
 
 public abstract class TypeInfo {
 	
-	public final int referenceLevel;
+	public final List<Boolean> referenceMutability;
 	
-	protected TypeInfo(ASTNode<?, ?> node, int referenceLevel) {
-		this.referenceLevel = referenceLevel;
+	protected TypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability) {
+		this.referenceMutability = referenceMutability;
 	}
 	
-	public abstract @NonNull TypeInfo copy(ASTNode<?, ?> node, int newReferenceLevel);
+	public abstract @NonNull TypeInfo copy(ASTNode<?, ?> node, List<Boolean> referenceMutability);
 	
-	public @NonNull TypeInfo modifiedReferenceLevel(ASTNode<?, ?> node, int referenceLevelDiff) {
-		return copy(node, referenceLevel + referenceLevelDiff);
+	public @NonNull TypeInfo copy(ASTNode<?, ?> node, Boolean... referenceMutability) {
+		return copy(node, Arrays.asList(referenceMutability));
+	}
+	
+	public @NonNull TypeInfo addressOf(ASTNode<?, ?> node, List<Boolean> referenceMutabilityDiff) {
+		List<Boolean> referenceMutabilityCopy = new ArrayList<>(referenceMutability);
+		referenceMutabilityCopy.addAll(referenceMutabilityDiff);
+		return copy(node, referenceMutabilityCopy);
+	}
+	
+	public @NonNull TypeInfo addressOf(ASTNode<?, ?> node, Boolean... referenceMutabilityDiff) {
+		return addressOf(node, Arrays.asList(referenceMutabilityDiff));
+	}
+	
+	public @NonNull TypeInfo dereference(ASTNode<?, ?> node, int dereferenceLevel) {
+		int referenceLevel = getReferenceLevel() - dereferenceLevel;
+		if (referenceLevel < 0) {
+			throw Helpers.nodeError(node, "Reference level of type \"%s\" can not be negative!", rawString());
+		}
+		List<Boolean> referenceMutabilityCopy = new ArrayList<>();
+		for (int i = 0; i < referenceLevel; ++i) {
+			referenceMutabilityCopy.add(referenceMutability.get(i));
+		}
+		return copy(node, referenceMutabilityCopy);
+	}
+	
+	public @NonNull TypeInfo copyMutable(ASTNode<?, ?> node, int referenceLevel) {
+		if (referenceLevel < 0) {
+			throw Helpers.nodeError(node, "Reference level of type \"%s\" can not be negative!", rawString());
+		}
+		return copy(node, Collections.nCopies(referenceLevel, true));
+	}
+	
+	public @NonNull TypeInfo modifyMutable(ASTNode<?, ?> node, int referenceLevelDiff) {
+		return referenceLevelDiff >= 0 ? addressOf(node, Collections.nCopies(referenceLevelDiff, true)) : dereference(node, -referenceLevelDiff);
 	}
 	
 	public abstract boolean exists(Scope scope);
 	
+	public int getReferenceLevel() {
+		return referenceMutability.size();
+	}
+	
 	public boolean isAddress() {
-		return referenceLevel > 0;
+		return getReferenceLevel() > 0;
+	}
+	
+	public boolean isMutableReference() {
+		return referenceMutability.get(getReferenceLevel() - 1);
+	}
+	
+	public boolean isVoid() {
+		return false;
 	}
 	
 	public boolean isWord() {
@@ -36,15 +82,31 @@ public abstract class TypeInfo {
 	public abstract int getSize();
 	
 	public int getAddressOffsetSize(ASTNode<?, ?> node) {
-		return modifiedReferenceLevel(node, -1).getSize();
+		return dereference(node, 1).getSize();
 	}
 	
 	public boolean canImplicitCastTo(TypeInfo otherInfo) {
-		if (equals(otherInfo)) {
+		if (equalsOther(otherInfo, true) && canImplicitCastToReferenceMutability(otherInfo)) {
 			return true;
 		}
 		else {
 			return isAddress() && otherInfo.equals(Main.generator.wildcardPtrTypeInfo);
+		}
+	}
+	
+	public boolean canImplicitCastToReferenceMutability(TypeInfo otherInfo) {
+		int referenceLevel = getReferenceLevel();
+		if (referenceLevel != otherInfo.getReferenceLevel()) {
+			return false;
+		}
+		else {
+			List<Boolean> otherReferenceMutability = otherInfo.referenceMutability;
+			for (int i = 0; i < referenceLevel; ++i) {
+				if (!referenceMutability.get(i) && otherReferenceMutability.get(i)) {
+					return false;
+				}
+			}
+			return true;
 		}
 	}
 	
@@ -79,7 +141,7 @@ public abstract class TypeInfo {
 	}
 	
 	public @NonNull TypeInfo atOffset(ASTNode<?, ?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
-		if (offset == 0 && equals(expectedTypeInfo)) {
+		if (offset == 0 && equalsOther(expectedTypeInfo, true) && getReferenceLevel() == expectedTypeInfo.getReferenceLevel()) {
 			return this;
 		}
 		else {
@@ -92,7 +154,7 @@ public abstract class TypeInfo {
 	@Override
 	public abstract int hashCode();
 	
-	public abstract boolean equalsOther(Object obj, boolean ignoreReferenceLevels);
+	public abstract boolean equalsOther(Object obj, boolean ignoreReferenceMutability);
 	
 	@Override
 	public boolean equals(Object obj) {
@@ -101,8 +163,21 @@ public abstract class TypeInfo {
 	
 	public abstract String rawString();
 	
+	public String getReferenceMutabilityString() {
+		int referenceLevel = getReferenceLevel();
+		return IntStream.range(0, referenceLevel).mapToObj(x -> referenceMutability.get(referenceLevel - x - 1) ? Global.ADDRESS_OF + Global.MUT + " " : Global.ADDRESS_OF).collect(Collectors.joining());
+	}
+	
 	@Override
 	public String toString() {
-		return Helpers.charLine(Global.ADDRESS_OF, referenceLevel) + rawString();
+		return getReferenceMutabilityString() + rawString();
+	}
+	
+	public String getRoutineReferenceString() {
+		return String.join("", Collections.nCopies(getReferenceLevel(), Global.ADDRESS_OF));
+	}
+	
+	public String routineString() {
+		return getRoutineReferenceString() + rawString();
 	}
 }

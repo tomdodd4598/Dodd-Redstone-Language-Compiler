@@ -110,7 +110,7 @@ public class IndexExpressionNode extends ExpressionNode {
 		
 		DataId baseDataId;
 		if (baseIsArray && !baseExpressionNode.getIsLvalue()) {
-			routine.addAddressAssignmentAction(this, baseDataId = routine.nextRegId(constantArrayIndex ? baseArrayTypeInfo.modifiedReferenceLevel(this, 1) : addressTypeInfo), baseExpressionNode.dataId);
+			routine.addAddressAssignmentAction(this, baseDataId = routine.nextRegId(constantArrayIndex ? baseArrayTypeInfo.addressOf(this, true) : addressTypeInfo), baseExpressionNode.dataId);
 		}
 		else {
 			baseDataId = baseExpressionNode.dataId;
@@ -153,13 +153,13 @@ public class IndexExpressionNode extends ExpressionNode {
 	protected void setTypeInfoInternal() {
 		@NonNull TypeInfo baseExpressionType = baseExpressionNode.getTypeInfo();
 		if (baseExpressionType.isAddress()) {
-			typeInfo = baseExpressionType.modifiedReferenceLevel(this, -1);
+			typeInfo = baseExpressionType.dereference(this, 1);
 			addressTypeInfo = baseExpressionType;
 		}
 		else if (baseExpressionType.isArray()) {
 			baseArrayTypeInfo = (ArrayTypeInfo) baseExpressionType;
 			typeInfo = baseArrayTypeInfo.elementTypeInfo;
-			addressTypeInfo = typeInfo.modifiedReferenceLevel(this, 1);
+			addressTypeInfo = typeInfo.addressOf(this, true);
 			baseIsArray = true;
 		}
 		else {
@@ -190,7 +190,7 @@ public class IndexExpressionNode extends ExpressionNode {
 	
 	@Override
 	public boolean isMutableLvalue() {
-		return baseIsArray ? baseExpressionNode.isMutableLvalue() : baseExpressionNode.getTypeInfo().IS_MUTABLE_REFERENCE;
+		return baseIsArray ? baseExpressionNode.isMutableLvalue() : baseExpressionNode.getTypeInfo().isMutableReference();
 	}
 	
 	@Override

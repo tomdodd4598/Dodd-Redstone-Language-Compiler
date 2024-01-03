@@ -31,7 +31,7 @@ public class Main {
 			StringBuilder sb = new StringBuilder();
 			sb.append("Arguments: [-TARGETS...] OUTPUT INPUT\n");
 			sb.append("Targets: ");
-			sb.append(Generator.NAME_MAP.entrySet().stream().map(x -> String.format("-%s (%s)\n", x.getKey(), x.getValue())).collect(Collectors.joining(Helpers.charLine(' ', 9))));
+			sb.append(Generator.NAME_MAP.entrySet().stream().map(x -> String.format("-%s (%s)\n", x.getKey(), x.getValue())).collect(Collectors.joining("         ")));
 			sb.append("Example: -s1 program.drs1 program.drl\n");
 			err(sb.toString());
 		}

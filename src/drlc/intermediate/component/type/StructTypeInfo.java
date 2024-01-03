@@ -15,24 +15,19 @@ public class StructTypeInfo extends CompoundTypeInfo {
 	
 	public final @NonNull TupleTypeInfo tupleTypeInfo;
 	
-	protected StructTypeInfo(ASTNode<?, ?> node, int referenceLevel, List<TypeInfo> typeInfos, @NonNull RawType rawType) {
-		super(node, referenceLevel, typeInfos);
+	protected StructTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos, @NonNull RawType rawType) {
+		super(node, referenceMutability, typeInfos);
 		this.rawType = rawType;
-		
-		if (referenceLevel < 0) {
-			throw Helpers.nodeError(node, "Reference level of type \"%s\" can not be negative!", rawString());
-		}
-		
-		tupleTypeInfo = new TupleTypeInfo(null, referenceLevel, typeInfos);
+		tupleTypeInfo = new TupleTypeInfo(null, referenceMutability, typeInfos);
 	}
 	
-	public StructTypeInfo(ASTNode<?, ?> node, int referenceLevel, List<TypeInfo> typeInfos, Scope scope, @NonNull String rawTypeName) {
-		this(node, referenceLevel, typeInfos, scope.getRawType(node, rawTypeName));
+	public StructTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos, Scope scope, @NonNull String rawTypeName) {
+		this(node, referenceMutability, typeInfos, scope.getRawType(node, rawTypeName));
 	}
 	
 	@Override
-	public @NonNull TypeInfo copy(ASTNode<?, ?> node, int newReferenceLevel) {
-		return new StructTypeInfo(node, newReferenceLevel, typeInfos, rawType);
+	public @NonNull TypeInfo copy(ASTNode<?, ?> node, List<Boolean> referenceMutability) {
+		return new StructTypeInfo(node, referenceMutability, typeInfos, rawType);
 	}
 	
 	@Override
@@ -47,11 +42,11 @@ public class StructTypeInfo extends CompoundTypeInfo {
 	
 	@Override
 	public boolean canImplicitCastTo(TypeInfo otherInfo) {
-		if (super.equals(otherInfo)) {
+		if (super.equalsOther(otherInfo, true) && canImplicitCastToReferenceMutability(otherInfo)) {
 			return !(otherInfo instanceof StructTypeInfo) || rawType.equals(((StructTypeInfo) otherInfo).rawType);
 		}
 		else {
-			return otherInfo.equals(tupleTypeInfo) || (isAddress() && otherInfo.equals(Main.generator.wildcardPtrTypeInfo));
+			return tupleTypeInfo.canImplicitCastTo(otherInfo) || (isAddress() && otherInfo.equals(Main.generator.wildcardPtrTypeInfo));
 		}
 	}
 	
@@ -62,7 +57,7 @@ public class StructTypeInfo extends CompoundTypeInfo {
 	
 	@Override
 	public @Nullable MemberInfo getMemberInfo(@NonNull String memberName) {
-		return referenceLevel == 0 ? rawType.getMemberInfo(memberName) : null;
+		return isAddress() ? null : rawType.getMemberInfo(memberName);
 	}
 	
 	@Override
@@ -75,14 +70,14 @@ public class StructTypeInfo extends CompoundTypeInfo {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(referenceLevel, nonRecursiveTypeInfos(x -> null), rawType);
+		return Objects.hash(referenceMutability, nonRecursiveTypeInfos(x -> null), rawType);
 	}
 	
 	@Override
-	public boolean equalsOther(Object obj, boolean ignoreReferenceLevels) {
+	public boolean equalsOther(Object obj, boolean ignoreReferenceMutability) {
 		if (obj instanceof StructTypeInfo) {
 			StructTypeInfo other = (StructTypeInfo) obj;
-			return super.equalsOther(obj, ignoreReferenceLevels) && rawType.equals(other.rawType);
+			return super.equalsOther(obj, ignoreReferenceMutability) && rawType.equals(other.rawType);
 		}
 		else {
 			return false;
@@ -91,6 +86,11 @@ public class StructTypeInfo extends CompoundTypeInfo {
 	
 	@Override
 	public String rawString() {
-		return Helpers.structString(rawType, nonRecursiveTypeInfos(x -> Helpers.charLine(Global.ADDRESS_OF, x.referenceLevel) + ((StructTypeInfo) x).rawType));
+		return Helpers.structString(rawType, nonRecursiveTypeInfos(x -> x.getReferenceMutabilityString() + ((StructTypeInfo) x).rawType));
+	}
+	
+	@Override
+	public String routineString() {
+		return getRoutineReferenceString() + Helpers.structString(rawType, nonRecursiveTypeInfos(x -> x.getRoutineReferenceString() + ((StructTypeInfo) x).rawType));
 	}
 }

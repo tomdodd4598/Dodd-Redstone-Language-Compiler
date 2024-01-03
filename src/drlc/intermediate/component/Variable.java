@@ -57,4 +57,8 @@ public class Variable {
 	public String toString() {
 		return modifier + name + Global.TYPE_ANNOTATION_PREFIX + " " + typeInfo;
 	}
+	
+	public String routineString() {
+		return modifier.routineString() + name + Global.TYPE_ANNOTATION_PREFIX + " " + typeInfo.routineString();
+	}
 }

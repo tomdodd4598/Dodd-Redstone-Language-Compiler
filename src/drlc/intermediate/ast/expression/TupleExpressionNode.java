@@ -105,7 +105,7 @@ public class TupleExpressionNode extends ExpressionNode {
 	
 	@Override
 	protected void setTypeInfoInternal() {
-		typeInfo = new TupleTypeInfo(this, 0, Helpers.map(expressionNodes, ExpressionNode::getTypeInfo));
+		typeInfo = new TupleTypeInfo(this, new ArrayList<>(), Helpers.map(expressionNodes, ExpressionNode::getTypeInfo));
 	}
 	
 	@Override

@@ -58,6 +58,6 @@ public class RootRoutine extends Routine {
 	
 	@Override
 	public String toString() {
-		return Global.FN + " " + name + Helpers.listString(getParams()) + " " + Global.ARROW + " " + Main.generator.rootReturnTypeInfo;
+		return Global.FN + " " + name + Helpers.listString(Helpers.map(getParams(), DeclaratorInfo::routineString)) + " " + Global.ARROW + " " + Main.generator.rootReturnTypeInfo.routineString();
 	}
 }

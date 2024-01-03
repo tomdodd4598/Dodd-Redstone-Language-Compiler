@@ -29,23 +29,8 @@ public class ValueDataId extends DataId {
 	}
 	
 	@Override
-	public @NonNull ValueDataId removeAddressPrefix(ASTNode<?, ?> node) {
-		throw Helpers.nodeError(node, "Attempted to remove address prefix from data ID \"%s\"!", this);
-	}
-	
-	@Override
 	public @NonNull ValueDataId addDereference(ASTNode<?, ?> node) {
 		throw Helpers.nodeError(node, "Attempted to add dereference to data ID \"%s\"!", this);
-	}
-	
-	@Override
-	public @NonNull ValueDataId removeDereference(ASTNode<?, ?> node) {
-		throw Helpers.nodeError(node, "Attempted to remove dereference from data ID \"%s\"!", this);
-	}
-	
-	@Override
-	public @NonNull ValueDataId removeAllDereferences(ASTNode<?, ?> node) {
-		return new ValueDataId(value);
 	}
 	
 	@Override

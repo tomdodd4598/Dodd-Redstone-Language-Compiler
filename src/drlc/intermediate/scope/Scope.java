@@ -208,7 +208,7 @@ public abstract class Scope {
 			}
 			return aliasType;
 		}
-		return rawType.getTypeInfo(node, 0, this);
+		return rawType.getTypeInfo(node, new ArrayList<>(), this);
 	}
 	
 	public void collectRawTypes(ASTNode<?, ?> node, Set<RawType> rawTypes, String name) {
@@ -236,7 +236,6 @@ public abstract class Scope {
 	}
 	
 	public @NonNull Variable getVariable(ASTNode<?, ?> node, String name) {
-		name = Helpers.removeAllDereferences(name);
 		Variable variable = variableMap.get(name, false);
 		if (variable == null) {
 			throw Helpers.nodeError(node, "Variable \"%s\" not defined in this scope!", name);
@@ -278,7 +277,7 @@ public abstract class Scope {
 		}
 		
 		if (!aliasType.exists(this)) {
-			throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", aliasType.copy(node, 0));
+			throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", aliasType.copy(node));
 		}
 		
 		aliasTypeMap.put(name, aliasType, true);
@@ -292,7 +291,7 @@ public abstract class Scope {
 		
 		TypeInfo typeInfo = constant.value.typeInfo;
 		if (!typeInfo.exists(this)) {
-			throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", typeInfo.copy(node, 0));
+			throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", typeInfo.copy(node));
 		}
 		
 		constant.scope = this;
@@ -307,7 +306,7 @@ public abstract class Scope {
 		
 		TypeInfo typeInfo = variable.typeInfo;
 		if (!typeInfo.exists(this)) {
-			throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", typeInfo.copy(node, 0));
+			throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", typeInfo.copy(node));
 		}
 		
 		variable.scope = this;
@@ -322,13 +321,13 @@ public abstract class Scope {
 		
 		for (TypeInfo paramTypeInfo : function.paramTypeInfos) {
 			if (!paramTypeInfo.exists(this)) {
-				throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", paramTypeInfo.copy(node, 0));
+				throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", paramTypeInfo.copy(node));
 			}
 		}
 		
 		TypeInfo returnTypeInfo = function.returnTypeInfo;
 		if (!returnTypeInfo.exists(this)) {
-			throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", returnTypeInfo.copy(node, 0));
+			throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", returnTypeInfo.copy(node));
 		}
 		
 		function.scope = this;

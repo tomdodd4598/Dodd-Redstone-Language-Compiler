@@ -14,8 +14,8 @@ public abstract class CompoundTypeInfo extends TypeInfo {
 	public final List<TypeInfo> typeInfos;
 	public final int count;
 	
-	protected CompoundTypeInfo(ASTNode<?, ?> node, int referenceLevel, List<TypeInfo> typeInfos) {
-		super(node, referenceLevel);
+	protected CompoundTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos) {
+		super(node, referenceMutability);
 		this.typeInfos = typeInfos;
 		count = typeInfos.size();
 	}
@@ -69,15 +69,15 @@ public abstract class CompoundTypeInfo extends TypeInfo {
 	
 	@Override
 	public @NonNull TypeInfo atIndex(ASTNode<?, ?> node, int index) {
-		return typeInfos.get(index).modifiedReferenceLevel(node, referenceLevel);
+		return typeInfos.get(index).addressOf(node, referenceMutability);
 	}
 	
 	@Override
-	public boolean equalsOther(Object obj, boolean ignoreReferenceLevels) {
+	public boolean equalsOther(Object obj, boolean ignoreReferenceMutability) {
 		if (obj instanceof CompoundTypeInfo) {
 			CompoundTypeInfo other = (CompoundTypeInfo) obj;
-			boolean equalReferenceLevels = ignoreReferenceLevels || referenceLevel == other.referenceLevel;
-			return equalReferenceLevels && typeInfos.equals(other.typeInfos);
+			boolean equalReferenceMutability = ignoreReferenceMutability || referenceMutability.equals(other.referenceMutability);
+			return equalReferenceMutability && typeInfos.equals(other.typeInfos);
 		}
 		else {
 			return false;

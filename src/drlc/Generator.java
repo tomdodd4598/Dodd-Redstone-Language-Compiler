@@ -77,20 +77,20 @@ public abstract class Generator {
 		Main.rootScope.addRawType(null, new RawType(Global.NAT, getWordSize(), new HashMap<>(), NatTypeInfo::new));
 		Main.rootScope.addRawType(null, new RawType(Global.CHAR, 1, new HashMap<>(), CharTypeInfo::new));
 		
-		boolTypeInfo = boolTypeInfo(0);
-		intTypeInfo = intTypeInfo(0);
-		natTypeInfo = natTypeInfo(0);
-		charTypeInfo = charTypeInfo(0);
+		boolTypeInfo = boolTypeInfo();
+		intTypeInfo = intTypeInfo();
+		natTypeInfo = natTypeInfo();
+		charTypeInfo = charTypeInfo();
 		
-		voidTypeInfo = new TupleTypeInfo(null, 0, new ArrayList<>());
-		wildcardPtrTypeInfo = new TupleTypeInfo(null, 1, new ArrayList<>());
+		voidTypeInfo = new TupleTypeInfo(null, new ArrayList<>(), new ArrayList<>());
+		wildcardPtrTypeInfo = new TupleTypeInfo(null, Arrays.asList(false), new ArrayList<>());
 		
-		emptyArrayTypeInfo = new ArrayTypeInfo(null, 0, wildcardPtrTypeInfo, 0);
+		emptyArrayTypeInfo = new ArrayTypeInfo(null, new ArrayList<>(), wildcardPtrTypeInfo, 0);
 		
 		indexTypeInfo = intTypeInfo;
 		
 		rootReturnTypeInfo = intTypeInfo;
-		mainFunctionTypeInfo = new FunctionPointerTypeInfo(null, 0, voidTypeInfo, new ArrayList<>());
+		mainFunctionTypeInfo = new FunctionPointerTypeInfo(null, new ArrayList<>(), voidTypeInfo, new ArrayList<>());
 		
 		unitValue = new TupleValue(null, voidTypeInfo, new ArrayList<>());
 		
@@ -1105,25 +1105,36 @@ public abstract class Generator {
 	
 	public abstract int getAddressSize();
 	
-	public @NonNull BoolTypeInfo boolTypeInfo(int referenceLevel) {
-		return new BoolTypeInfo(null, referenceLevel, Main.rootScope);
+	public @NonNull BoolTypeInfo boolTypeInfo(Boolean... referenceMutability) {
+		return new BoolTypeInfo(null, Arrays.asList(referenceMutability), Main.rootScope);
 	}
 	
-	public @NonNull IntTypeInfo intTypeInfo(int referenceLevel) {
-		return new IntTypeInfo(null, referenceLevel, Main.rootScope);
+	public @NonNull IntTypeInfo intTypeInfo(Boolean... referenceMutability) {
+		return new IntTypeInfo(null, Arrays.asList(referenceMutability), Main.rootScope);
 	}
 	
-	public @NonNull NatTypeInfo natTypeInfo(int referenceLevel) {
-		return new NatTypeInfo(null, referenceLevel, Main.rootScope);
+	public @NonNull NatTypeInfo natTypeInfo(Boolean... referenceMutability) {
+		return new NatTypeInfo(null, Arrays.asList(referenceMutability), Main.rootScope);
 	}
 	
-	public @NonNull CharTypeInfo charTypeInfo(int referenceLevel) {
-		return new CharTypeInfo(null, referenceLevel, Main.rootScope);
+	public @NonNull CharTypeInfo charTypeInfo(Boolean... referenceMutability) {
+		return new CharTypeInfo(null, Arrays.asList(referenceMutability), Main.rootScope);
 	}
 	
 	public abstract void generate();
 	
-	public abstract void generateRootRoutine();
+	public void generateRootRoutine() {
+		if (!Main.rootScope.routineExists(Global.MAIN_ROUTINE, true)) {
+			throw Helpers.error("Main function not found in root scope!");
+		}
+		
+		@NonNull Value main = Main.rootScope.getConstant(null, Global.MAIN_ROUTINE).value;
+		if (!main.typeInfo.canImplicitCastTo(mainFunctionTypeInfo)) {
+			throw Helpers.error("Main function must have type \"%s\"!", mainFunctionTypeInfo);
+		}
+		
+		Main.rootRoutine.addFunctionAction(null, Main.rootScope.getFunction(null, Global.MAIN_ROUTINE), Main.rootRoutine.nextRegId(voidTypeInfo), new ValueDataId(main), new ArrayList<>(), Main.rootScope);
+	}
 	
 	public void optimizeIntermediate() {
 		boolean flag = true;

@@ -26,4 +26,8 @@ public class DeclaratorInfo {
 	public String toString() {
 		return Helpers.scopeStringPrefix(variable.scope) + variable;
 	}
+	
+	public String routineString() {
+		return Helpers.scopeStringPrefix(variable.scope) + variable.routineString();
+	}
 }

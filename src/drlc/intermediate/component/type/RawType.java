@@ -25,8 +25,8 @@ public class RawType {
 		this.supplier = supplier;
 	}
 	
-	public @NonNull TypeInfo getTypeInfo(ASTNode<?, ?> node, int referenceLevel, Scope scope) {
-		return supplier.create(node, referenceLevel, scope);
+	public @NonNull TypeInfo getTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, Scope scope) {
+		return supplier.create(node, referenceMutability, scope);
 	}
 	
 	public @Nullable MemberInfo getMemberInfo(@NonNull String memberName) {

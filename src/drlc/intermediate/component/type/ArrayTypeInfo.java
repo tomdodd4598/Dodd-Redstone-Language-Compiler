@@ -15,16 +15,12 @@ public class ArrayTypeInfo extends TypeInfo {
 	
 	public final @NonNull TypeInfo decayTypeInfo;
 	
-	public ArrayTypeInfo(ASTNode<?, ?> node, int referenceLevel, @NonNull TypeInfo elementTypeInfo, int length) {
-		super(node, referenceLevel);
+	public ArrayTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, @NonNull TypeInfo elementTypeInfo, int length) {
+		super(node, referenceMutability);
 		this.elementTypeInfo = elementTypeInfo;
 		this.length = length;
 		
-		decayTypeInfo = elementTypeInfo.modifiedReferenceLevel(node, referenceLevel);
-		
-		if (referenceLevel < 0) {
-			throw Helpers.nodeError(node, "Reference level of type \"%s\" can not be negative!", rawString());
-		}
+		decayTypeInfo = elementTypeInfo.addressOf(node, referenceMutability);
 		
 		if (length < 0) {
 			throw Helpers.nodeError(node, "Length of array type \"%s\" can not be negative!", rawString());
@@ -32,8 +28,8 @@ public class ArrayTypeInfo extends TypeInfo {
 	}
 	
 	@Override
-	public @NonNull TypeInfo copy(ASTNode<?, ?> node, int newReferenceLevel) {
-		return new ArrayTypeInfo(node, newReferenceLevel, elementTypeInfo, length);
+	public @NonNull TypeInfo copy(ASTNode<?, ?> node, List<Boolean> referenceMutability) {
+		return new ArrayTypeInfo(node, referenceMutability, elementTypeInfo, length);
 	}
 	
 	@Override
@@ -50,14 +46,14 @@ public class ArrayTypeInfo extends TypeInfo {
 	public boolean canImplicitCastTo(TypeInfo otherInfo) {
 		if (otherInfo instanceof ArrayTypeInfo) {
 			@NonNull ArrayTypeInfo otherArrayInfo = (ArrayTypeInfo) otherInfo;
-			if (referenceLevel == otherArrayInfo.referenceLevel && length == otherArrayInfo.length) {
+			if (length == otherArrayInfo.length && canImplicitCastToReferenceMutability(otherInfo)) {
 				@NonNull TypeInfo otherElementInfo = otherArrayInfo.elementTypeInfo;
 				if ((length == 0 && (elementTypeInfo.equals(Main.generator.wildcardPtrTypeInfo) || otherElementInfo.equals(Main.generator.wildcardPtrTypeInfo))) || elementTypeInfo.equals(otherElementInfo)) {
 					return true;
 				}
 			}
 		}
-		return isAddress() && (otherInfo.equals(Main.generator.wildcardPtrTypeInfo) || decayTypeInfo.equals(otherInfo));
+		return isAddress() && (otherInfo.equals(Main.generator.wildcardPtrTypeInfo) || decayTypeInfo.canImplicitCastTo(otherInfo));
 	}
 	
 	@Override
@@ -105,15 +101,15 @@ public class ArrayTypeInfo extends TypeInfo {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(referenceLevel, elementTypeInfo, length);
+		return Objects.hash(referenceMutability, elementTypeInfo, length);
 	}
 	
 	@Override
-	public boolean equalsOther(Object obj, boolean ignoreReferenceLevels) {
+	public boolean equalsOther(Object obj, boolean ignoreReferenceMutability) {
 		if (obj instanceof ArrayTypeInfo) {
 			ArrayTypeInfo other = (ArrayTypeInfo) obj;
-			boolean equalReferenceLevels = ignoreReferenceLevels || referenceLevel == other.referenceLevel;
-			return equalReferenceLevels && elementTypeInfo.equals(other.elementTypeInfo) && length == other.length;
+			boolean equalReferenceMutability = ignoreReferenceMutability || referenceMutability.equals(other.referenceMutability);
+			return equalReferenceMutability && elementTypeInfo.equals(other.elementTypeInfo) && length == other.length;
 		}
 		else {
 			return false;
@@ -123,5 +119,10 @@ public class ArrayTypeInfo extends TypeInfo {
 	@Override
 	public String rawString() {
 		return Global.ARRAY_START + elementTypeInfo + Global.ARRAY_TYPE_DELIMITER + " " + length + Global.ARRAY_END;
+	}
+	
+	@Override
+	public String routineString() {
+		return getRoutineReferenceString() + Global.ARRAY_START + elementTypeInfo.routineString() + Global.ARRAY_TYPE_DELIMITER + " " + length + Global.ARRAY_END;
 	}
 }

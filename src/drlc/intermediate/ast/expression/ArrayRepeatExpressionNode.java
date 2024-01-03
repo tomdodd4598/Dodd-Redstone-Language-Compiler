@@ -1,6 +1,6 @@
 package drlc.intermediate.ast.expression;
 
-import java.util.Collections;
+import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
@@ -100,7 +100,7 @@ public class ArrayRepeatExpressionNode extends ExpressionNode {
 	
 	@Override
 	protected void setTypeInfoInternal() {
-		typeInfo = new ArrayTypeInfo(this, 0, repeatExpressionNode.getTypeInfo(), length);
+		typeInfo = new ArrayTypeInfo(this, new ArrayList<>(), repeatExpressionNode.getTypeInfo(), length);
 	}
 	
 	@Override

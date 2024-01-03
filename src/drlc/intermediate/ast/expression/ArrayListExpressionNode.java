@@ -114,7 +114,7 @@ public class ArrayListExpressionNode extends ExpressionNode {
 					throw castError("array element", expressionType, elementTypeInfo);
 				}
 			}
-			typeInfo = new ArrayTypeInfo(this, 0, elementTypeInfo, length);
+			typeInfo = new ArrayTypeInfo(this, new ArrayList<>(), elementTypeInfo, length);
 		}
 		else {
 			throw error("Can not determine common type of element types %s!", Helpers.arrayString(expressionTypes));

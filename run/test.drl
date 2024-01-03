@@ -404,26 +404,52 @@ arr[1] = [&1, &2];
 c = 4;
 */
 
+// TESTING TYPEALIASES
+
+/*
+fn main() {
+	outint(sum(&&(1, 2, 3)));
+	
+	fn sum(p: &PosPtr) -> Int {
+		return (**p).0 + (**p).1 + (**p).2;
+	}
+}
+
+typealias PosPtr = &(Int, Int, Int);
+*/
+
+// TESTING MUTABILITY
+
+fn main() {
+	let mut x = 1;
+	let y = &mut x;
+	*y = 2;
+}
+
 // TESTING STRUCTS
 
+/*
 struct Item {
 	val: Int,
-	next: &Item,
+	next: &mut Item,
 }
 
-let start: &Item = null;
+typealias Tracer = &&mut Item;
+typealias TracerMut = &mut &mut Item;
 
-fn insertItem(mut tracer: &&Item, val: Int) {
+let start: &mut Item = null;
+
+fn insertItem(mut tracer: TracerMut, val: Int) {
 	while *tracer != null && val >= (**tracer).val {
-		tracer = &(**tracer).next;
+		tracer = &mut (**tracer).next;
 	}
 	
-	*tracer = &Item { val, *tracer };
+	*tracer = &mut Item { val, *tracer };
 }
 
-fn removeItem(mut tracer: &&Item, val: Int) {
+fn removeItem(mut tracer: TracerMut, val: Int) {
 	while *tracer != null && val != (**tracer).val {
-		tracer = &(**tracer).next;
+		tracer = &mut (**tracer).next;
 	}
 	
 	if *tracer != null {
@@ -431,7 +457,7 @@ fn removeItem(mut tracer: &&Item, val: Int) {
 	}
 }
 
-fn print(mut tracer: &&Item) {
+fn print(mut tracer: Tracer) {
 	while *tracer != null {
 		outint((**tracer).val);
 		tracer = &(**tracer).next;
@@ -439,49 +465,21 @@ fn print(mut tracer: &&Item) {
 }
 
 fn main() {
-	insertItem(&start, 3);
-	insertItem(&start, 6);
-	insertItem(&start, 2);
-	insertItem(&start, 1);
-	insertItem(&start, 4);
-	insertItem(&start, 7);
-	insertItem(&start, 2);
-	insertItem(&start, 5);
+	insertItem(&mut start, 3);
+	insertItem(&mut start, 6);
+	insertItem(&mut start, 2);
+	insertItem(&mut start, 1);
+	insertItem(&mut start, 4);
+	insertItem(&mut start, 7);
+	insertItem(&mut start, 2);
+	insertItem(&mut start, 5);
 
 	print(&start);
 
-	removeItem(&start, 4);
-	removeItem(&start, 7);
-	removeItem(&start, 2);
+	removeItem(&mut start, 4);
+	removeItem(&mut start, 7);
+	removeItem(&mut start, 2);
 
 	print(&start);
 }
-
-// TESTING TYPEALIASES
-
-/*
-fn main() {
-	outint(sum(&(1, 2, 3)));
-	
-	printInfo(&&Info { 5n, true });
-	printInfo(&Tracer { 5n, true });
-	
-	fn sum(p: &Pos) -> Int {
-		return (*p).0 + (*p).1 + (*p).2;
-	}
-
-	fn printInfo(tracer: &Tracer) {
-		outnat((**tracer).num);
-		outbool((**tracer).cond);
-	}
-}
-
-typealias Pos = (Int, Int, Int);
-
-struct Info {
-	num: Nat,
-	cond: Bool,
-}
-
-typealias Tracer = &Info;
 */

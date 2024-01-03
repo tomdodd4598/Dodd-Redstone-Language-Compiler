@@ -104,11 +104,11 @@ public class StructExpressionNode extends ExpressionNode {
 			expressionNode.generateIntermediate(this);
 		}
 		
-		routine.addCompoundAssignmentAction(this, dataId = routine.nextRegId(typeInfo.copy(this, 0)), Helpers.map(expressionNodes, x -> x.dataId));
+		routine.addCompoundAssignmentAction(this, dataId = routine.nextRegId(typeInfo.copy(this)), Helpers.map(expressionNodes, x -> x.dataId));
 		
-		for (int i = 1; i <= typeInfo.referenceLevel; ++i) {
+		for (int i = typeInfo.getReferenceLevel() - 1; i >= 0; --i) {
 			@NonNull DataId arg = dataId;
-			routine.addAddressAssignmentAction(this, dataId = routine.nextRegId(typeInfo.copy(this, i)), arg);
+			routine.addAddressAssignmentAction(this, dataId = routine.nextRegId(typeInfo.dereference(this, i)), arg);
 		}
 	}
 	

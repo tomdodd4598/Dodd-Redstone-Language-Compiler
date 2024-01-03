@@ -76,7 +76,7 @@ public class TupleTypeNode extends TypeNode {
 			typeNode.setTypeInfo();
 		}
 		
-		typeInfo = new TupleTypeInfo(this, 0, Helpers.map(typeNodes, x -> x.typeInfo));
+		typeInfo = new TupleTypeInfo(this, new ArrayList<>(), Helpers.map(typeNodes, x -> x.typeInfo));
 	}
 	
 	@Override

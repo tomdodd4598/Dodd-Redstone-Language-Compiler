@@ -68,7 +68,7 @@ public class AddressTypeNode extends TypeNode {
 	@Override
 	protected void setTypeInfoInternal() {
 		typeNode.setTypeInfo();
-		typeInfo = typeNode.typeInfo.modifiedReferenceLevel(this, referenceLevel);
+		typeInfo = typeNode.typeInfo.addressOf(this, mutable);
 	}
 	
 	@Override

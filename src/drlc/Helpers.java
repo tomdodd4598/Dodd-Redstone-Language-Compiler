@@ -290,16 +290,7 @@ public class Helpers {
 	}
 	
 	public static String addDereferences(String s, int count) {
-		return charLine(Global.DEREFERENCE, count) + s.trim();
-	}
-	
-	public static String removeAllDereferences(String s) {
-		s = s.trim();
-		String dereferenced = s.replace(Character.toString(Global.DEREFERENCE), "");
-		if (!s.contains(dereferenced)) {
-			throw new IllegalArgumentException(String.format("Attempted to fully dereference invalid variable expression \"%s\"!", s));
-		}
-		return dereferenced.trim();
+		return String.join("", Collections.nCopies(count, Global.DEREFERENCE)) + s.trim();
 	}
 	
 	public static @NonNull Variable rootVariable(@NonNull String name, @NonNull TypeInfo typeInfo) {
@@ -308,12 +299,6 @@ public class Helpers {
 	
 	public static @NonNull DeclaratorInfo builtInDeclarator(@NonNull String name, @NonNull TypeInfo typeInfo) {
 		return new DeclaratorInfo(new Variable(name, VariableModifier.BUILT_IN, typeInfo));
-	}
-	
-	public static String charLine(char c, int length) {
-		char[] charArray = new char[length];
-		Arrays.fill(charArray, c);
-		return new String(charArray);
 	}
 	
 	public static <T> String collectionString(Collection<T> collection, String delimiter, String prefix, String suffix) {
