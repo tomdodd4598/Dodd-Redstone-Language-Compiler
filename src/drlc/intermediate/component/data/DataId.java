@@ -39,9 +39,9 @@ public abstract class DataId {
 		return scope == null ? null : scope.globalId;
 	}
 	
-	public abstract @NonNull DataId addAddressPrefix(ASTNode<?, ?> node);
-	
 	public abstract @NonNull DataId addDereference(ASTNode<?, ?> node);
+	
+	public abstract @NonNull DataId removeDereference(ASTNode<?, ?> node);
 	
 	public @NonNull TransientDataId getTransient(ASTNode<?, ?> node) {
 		if (dereferenceLevel == 0) {

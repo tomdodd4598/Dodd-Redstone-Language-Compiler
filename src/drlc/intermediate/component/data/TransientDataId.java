@@ -20,13 +20,13 @@ public class TransientDataId extends DataId {
 	}
 	
 	@Override
-	public @NonNull TransientDataId addAddressPrefix(ASTNode<?, ?> node) {
-		throw Helpers.nodeError(node, "Attempted to add address prefix to data ID \"%s\"!", this);
+	public @NonNull TransientDataId addDereference(ASTNode<?, ?> node) {
+		throw Helpers.nodeError(node, "Attempted to add dereference to data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public @NonNull TransientDataId addDereference(ASTNode<?, ?> node) {
-		throw Helpers.nodeError(node, "Attempted to add dereference to data ID \"%s\"!", this);
+	public @NonNull TransientDataId removeDereference(ASTNode<?, ?> node) {
+		throw Helpers.nodeError(node, "Attempted to remove dereference from data ID \"%s\"!", this);
 	}
 	
 	@Override
@@ -64,7 +64,7 @@ public class TransientDataId extends DataId {
 		if (obj instanceof TransientDataId) {
 			TransientDataId other = (TransientDataId) obj;
 			boolean equalDereferenceLevels = raw || dereferenceLevel == other.dereferenceLevel;
-			boolean equalTypeInfos = raw || typeInfo.equalsOther(other.typeInfo, false);
+			boolean equalTypeInfos = typeInfo.equalsOther(other.typeInfo, raw);
 			return Objects.equals(scope, other.scope) && equalDereferenceLevels && equalTypeInfos;
 		}
 		else {

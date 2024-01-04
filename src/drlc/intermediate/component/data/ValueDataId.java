@@ -24,13 +24,13 @@ public class ValueDataId extends DataId {
 	}
 	
 	@Override
-	public @NonNull ValueDataId addAddressPrefix(ASTNode<?, ?> node) {
-		throw Helpers.nodeError(node, "Attempted to add address prefix to data ID \"%s\"!", this);
+	public @NonNull ValueDataId addDereference(ASTNode<?, ?> node) {
+		throw Helpers.nodeError(node, "Attempted to add dereference to data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public @NonNull ValueDataId addDereference(ASTNode<?, ?> node) {
-		throw Helpers.nodeError(node, "Attempted to add dereference to data ID \"%s\"!", this);
+	public @NonNull ValueDataId removeDereference(ASTNode<?, ?> node) {
+		throw Helpers.nodeError(node, "Attempted to remove dereference from data ID \"%s\"!", this);
 	}
 	
 	@Override

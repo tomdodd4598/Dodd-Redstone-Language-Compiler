@@ -62,6 +62,6 @@ public class TypealiasDefinitionNode extends StaticSectionNode<Scope, Routine> {
 	
 	@Override
 	public void generateIntermediate(ASTNode<?, ?> parent) {
-		routine.typedefMap.put(name, typeNode.typeInfo);
+		// routine.typedefMap.put(name, typeNode.typeInfo);
 	}
 }

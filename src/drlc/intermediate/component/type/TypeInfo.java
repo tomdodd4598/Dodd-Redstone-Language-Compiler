@@ -68,7 +68,8 @@ public abstract class TypeInfo {
 	}
 	
 	public boolean isMutableReference() {
-		return referenceMutability.get(getReferenceLevel() - 1);
+		int referenceLevel = getReferenceLevel();
+		return referenceLevel > 0 && referenceMutability.get(referenceLevel - 1);
 	}
 	
 	public boolean isVoid() {

@@ -6,7 +6,7 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
 import drlc.intermediate.action.ExitAction;
-import drlc.intermediate.component.*;
+import drlc.intermediate.component.DeclaratorInfo;
 import drlc.intermediate.component.data.ValueDataId;
 import drlc.intermediate.component.type.TypeInfo;
 
@@ -39,11 +39,6 @@ public class RootRoutine extends Routine {
 	@Override
 	public boolean isRootRoutine() {
 		return true;
-	}
-	
-	@Override
-	public @NonNull VariableModifier routineModifier(@NonNull VariableModifier modifier) {
-		return new VariableModifier(true, modifier.mutable);
 	}
 	
 	@Override

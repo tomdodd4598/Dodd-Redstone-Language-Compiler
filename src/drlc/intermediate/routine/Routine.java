@@ -72,10 +72,6 @@ public abstract class Routine {
 		return null;
 	}
 	
-	public @NonNull VariableModifier routineModifier(@NonNull VariableModifier modifier) {
-		return modifier;
-	}
-	
 	public abstract @NonNull TypeInfo getReturnTypeInfo();
 	
 	public abstract List<DeclaratorInfo> getParams();
@@ -166,7 +162,7 @@ public abstract class Routine {
 	}
 	
 	public void addAddressAssignmentAction(ASTNode<?, ?> node, DataId target, DataId arg) {
-		addAction(new AssignmentAction(node, target, arg.addAddressPrefix(node)));
+		addAction(new AssignmentAction(node, target, arg.removeDereference(node)));
 	}
 	
 	public void addAssignmentAction(ASTNode<?, ?> node, DataId target, DataId arg) {

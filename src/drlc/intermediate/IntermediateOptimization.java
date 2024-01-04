@@ -3,6 +3,7 @@ package drlc.intermediate;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import drlc.*;
 import drlc.Helpers.Pair;
@@ -343,14 +344,19 @@ public class IntermediateOptimization {
 		for (DataId dataId : iva.dataIds(lvalues)) {
 			RawDataId rawDataId = new RawDataId(dataId);
 			if (replacerInfoMap.containsKey(rawDataId)) {
-				if (iva.canReplaceDataId(lvalues)) {
-					Pair<RawDataId, boolean[]> match = targetMatchMap.get(index);
-					if (match != null) {
-						match.right[lvalues ? 0 : 1] = true;
+				if (dataId.dereferenceLevel > 0) {
+					if (iva.canReplaceDataId(lvalues)) {
+						Pair<RawDataId, boolean[]> match = targetMatchMap.get(index);
+						if (match != null) {
+							match.right[lvalues ? 0 : 1] = true;
+						}
+						else {
+							targetMatchMap.put(index, new Pair<>(rawDataId, new boolean[] {lvalues, !lvalues}));
+						}
 					}
-					else {
-						targetMatchMap.put(index, new Pair<>(rawDataId, new boolean[] {lvalues, !lvalues}));
-					}
+				}
+				else {
+					replacerInfoMap.remove(rawDataId);
 				}
 			}
 		}
@@ -361,7 +367,6 @@ public class IntermediateOptimization {
 		List<List<Action>> body = routine.getBodyActionLists();
 		for (int i = 0; i < body.size(); ++i) {
 			List<Action> list = body.get(i);
-			Set<Integer> indices = new HashSet<>();
 			Map<RawDataId, Pair<RawDataId, Integer>> replacerInfoMap = new HashMap<>();
 			for (int j = 0; j < list.size(); ++j) {
 				Action action = list.get(j);
@@ -375,7 +380,6 @@ public class IntermediateOptimization {
 								throw new IllegalArgumentException(String.format("Found unexpected repeated use of register %s! %s", lvalue, iva));
 							}
 							else {
-								indices.add(j);
 								replacerInfoMap.put(rawDeref, new Pair<>(new RawDataId(rvalue.addDereference(null)), j));
 							}
 						}
@@ -383,9 +387,10 @@ public class IntermediateOptimization {
 				}
 			}
 			
+			Set<Integer> replacerIndices = replacerInfoMap.values().stream().map(x -> x.right).collect(Collectors.toSet());
 			Map<Integer, Pair<RawDataId, boolean[]>> targetMatchMap = new TreeMap<>();
 			for (int j = 0; j < list.size(); ++j) {
-				if (!indices.contains(j)) {
+				if (!replacerIndices.contains(j)) {
 					Action action = list.get(j);
 					if (action instanceof IValueAction) {
 						IValueAction iva = (IValueAction) action;

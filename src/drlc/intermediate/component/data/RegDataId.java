@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.*;
+import drlc.Global;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.TypeInfo;
 
@@ -36,18 +36,13 @@ public class RegDataId extends DataId {
 	}
 	
 	@Override
-	public @NonNull RegDataId addAddressPrefix(ASTNode<?, ?> node) {
-		if (dereferenceLevel == 0) {
-			return new RegDataId(-1, typeInfo.modifyMutable(node, 1), regId, offset, offsetFrom);
-		}
-		else {
-			throw Helpers.nodeError(node, "Attempted to add address prefix to data ID \"%s\"!", this);
-		}
+	public @NonNull RegDataId addDereference(ASTNode<?, ?> node) {
+		return new RegDataId(dereferenceLevel + 1, typeInfo.modifyMutable(node, -1), regId, offset, offsetFrom);
 	}
 	
 	@Override
-	public @NonNull RegDataId addDereference(ASTNode<?, ?> node) {
-		return new RegDataId(dereferenceLevel + 1, typeInfo.modifyMutable(node, -1), regId, offset, offsetFrom);
+	public @NonNull RegDataId removeDereference(ASTNode<?, ?> node) {
+		return new RegDataId(-1, typeInfo.modifyMutable(node, 1), regId, offset, offsetFrom);
 	}
 	
 	protected List<RegDataId> nextIndexFrom() {

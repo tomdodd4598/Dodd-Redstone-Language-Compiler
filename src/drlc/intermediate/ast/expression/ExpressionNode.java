@@ -75,6 +75,10 @@ public abstract class ExpressionNode extends ASTNode<Scope, Routine> {
 		return false;
 	}
 	
+	public boolean isMutableReference() {
+		return getTypeInfo().isMutableReference();
+	}
+	
 	public boolean getIsLvalue() {
 		return false;
 	}

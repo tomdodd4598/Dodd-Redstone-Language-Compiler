@@ -127,7 +127,7 @@ public class VariableExpressionNode extends ExpressionNode {
 	
 	@Override
 	public boolean isMutableLvalue() {
-		return variable.isMutable();
+		return value == null && variable.isMutable();
 	}
 	
 	@Override

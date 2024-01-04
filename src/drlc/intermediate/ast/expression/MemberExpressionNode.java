@@ -11,7 +11,7 @@ import drlc.node.Node;
 
 public class MemberExpressionNode extends ExpressionNode {
 	
-	public @NonNull ExpressionNode baseExpressionNode;
+	public @NonNull ExpressionNode expressionNode;
 	public @NonNull String memberName;
 	
 	@SuppressWarnings("null")
@@ -30,7 +30,7 @@ public class MemberExpressionNode extends ExpressionNode {
 	
 	public MemberExpressionNode(Node[] parseNodes, @NonNull ExpressionNode baseExpressionNode, @NonNull String memberName) {
 		super(parseNodes);
-		this.baseExpressionNode = baseExpressionNode;
+		this.expressionNode = baseExpressionNode;
 		this.memberName = memberName;
 	}
 	
@@ -38,64 +38,64 @@ public class MemberExpressionNode extends ExpressionNode {
 	public void setScopes(ASTNode<?, ?> parent) {
 		scope = parent.scope;
 		
-		baseExpressionNode.setScopes(this);
+		expressionNode.setScopes(this);
 	}
 	
 	@Override
 	public void defineTypes(ASTNode<?, ?> parent) {
-		baseExpressionNode.defineTypes(this);
+		expressionNode.defineTypes(this);
 	}
 	
 	@Override
 	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = parent.routine;
 		
-		baseExpressionNode.declareExpressions(this);
+		expressionNode.declareExpressions(this);
 	}
 	
 	@Override
 	public void defineExpressions(ASTNode<?, ?> parent) {
-		baseExpressionNode.defineExpressions(this);
+		expressionNode.defineExpressions(this);
 		
 		setTypeInfo();
 	}
 	
 	@Override
 	public void checkTypes(ASTNode<?, ?> parent) {
-		baseExpressionNode.checkTypes(this);
+		expressionNode.checkTypes(this);
 		
-		if (baseExpressionNode.isValidLvalue()) {
-			baseExpressionNode.setIsLvalue();
+		if (expressionNode.isValidLvalue()) {
+			expressionNode.setIsLvalue();
 		}
 	}
 	
 	@Override
 	public void foldConstants(ASTNode<?, ?> parent) {
-		baseExpressionNode.foldConstants(this);
+		expressionNode.foldConstants(this);
 		
 		if (!isLvalue) {
-			@Nullable ConstantExpressionNode constantExpressionNode = baseExpressionNode.constantExpressionNode();
+			@Nullable ConstantExpressionNode constantExpressionNode = expressionNode.constantExpressionNode();
 			if (constantExpressionNode != null) {
-				baseExpressionNode = constantExpressionNode;
+				expressionNode = constantExpressionNode;
 			}
 		}
 	}
 	
 	@Override
 	public void trackFunctions(ASTNode<?, ?> parent) {
-		baseExpressionNode.trackFunctions(this);
+		expressionNode.trackFunctions(this);
 	}
 	
 	@Override
 	public void generateIntermediate(ASTNode<?, ?> parent) {
-		baseExpressionNode.generateIntermediate(this);
+		expressionNode.generateIntermediate(this);
 		
 		DataId baseDataId;
-		if (!baseExpressionNode.getIsLvalue()) {
-			routine.addAddressAssignmentAction(this, baseDataId = routine.nextRegId(baseTypeInfo.addressOf(this, true)), baseExpressionNode.dataId);
+		if (!expressionNode.getIsLvalue()) {
+			routine.addAddressAssignmentAction(this, baseDataId = routine.nextRegId(baseTypeInfo.addressOf(this, true)), expressionNode.dataId);
 		}
 		else {
-			baseDataId = baseExpressionNode.dataId;
+			baseDataId = expressionNode.dataId;
 		}
 		
 		DataId baseDataIdIndexed = baseDataId.atOffset(this, getMemberInfo().offset, typeInfo.addressOf(this, true));
@@ -125,7 +125,7 @@ public class MemberExpressionNode extends ExpressionNode {
 	@Override
 	protected void setConstantValueInternal() {
 		if (!isLvalue) {
-			@Nullable Value baseConstantValue = baseExpressionNode.getConstantValue();
+			@Nullable Value baseConstantValue = expressionNode.getConstantValue();
 			if (baseConstantValue != null) {
 				@NonNull MemberInfo memberInfo = getMemberInfo();
 				constantValue = baseConstantValue.atOffset(this, memberInfo.offset, memberInfo.typeInfo);
@@ -140,7 +140,7 @@ public class MemberExpressionNode extends ExpressionNode {
 	
 	@Override
 	public boolean isMutableLvalue() {
-		return baseExpressionNode.isMutableLvalue();
+		return expressionNode.isMutableLvalue();
 	}
 	
 	@Override
@@ -155,7 +155,7 @@ public class MemberExpressionNode extends ExpressionNode {
 	
 	public @NonNull MemberInfo getMemberInfo() {
 		if (!setMemberInfo) {
-			@NonNull TypeInfo expressionType = baseExpressionNode.getTypeInfo();
+			@NonNull TypeInfo expressionType = expressionNode.getTypeInfo();
 			@Nullable MemberInfo info = expressionType.getMemberInfo(memberName);
 			if (info == null) {
 				throw error("Expression of type \"%s\" has no member \"%s\"!", expressionType, memberName);

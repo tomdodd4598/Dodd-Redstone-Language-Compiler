@@ -55,10 +55,6 @@ public class DeclaratorNode extends ASTNode<Scope, Routine> {
 			typeNode.declareExpressions(this);
 		}
 		
-		if (routine != null) {
-			variableModifier = routine.routineModifier(variableModifier);
-		}
-		
 		if (functionParameter) {
 			declaratorInfo = new DeclaratorInfo(new Variable(name, variableModifier, typeNode.typeInfo));
 			

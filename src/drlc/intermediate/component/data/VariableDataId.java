@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.*;
+import drlc.Global;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Variable;
 import drlc.intermediate.component.type.TypeInfo;
@@ -33,18 +33,13 @@ public class VariableDataId extends DataId {
 	}
 	
 	@Override
-	public @NonNull VariableDataId addAddressPrefix(ASTNode<?, ?> node) {
-		if (dereferenceLevel == 0) {
-			return new VariableDataId(-1, variable, offset, offsetFrom);
-		}
-		else {
-			throw Helpers.nodeError(node, "Attempted to add address prefix to data ID \"%s\"!", this);
-		}
+	public @NonNull VariableDataId addDereference(ASTNode<?, ?> node) {
+		return new VariableDataId(dereferenceLevel + 1, variable, offset, offsetFrom);
 	}
 	
 	@Override
-	public @NonNull VariableDataId addDereference(ASTNode<?, ?> node) {
-		return new VariableDataId(dereferenceLevel + 1, variable, offset, offsetFrom);
+	public @NonNull VariableDataId removeDereference(ASTNode<?, ?> node) {
+		return new VariableDataId(-1, variable, offset, offsetFrom);
 	}
 	
 	protected List<VariableDataId> nextIndexFrom() {

@@ -1,28 +1,27 @@
 // ITERATIVE FACTORIAL
 
 /*
-let f = 1;
-let a = 1;
-let b = 1;
-
-fn update() {
-	f = a * b;
-	b += 1;
-	a = f;
-}
-
-while f > 0 {
-	outint(f);
-	update();
+fn main() {
+	let mut f = 1;
+	let mut a = 1;
+	let mut b = 1;
+	
+	fn update() {
+		f = a * b;
+		b += 1;
+		a = f;
+	}
+	
+	while f > 0 {
+		outint(f);
+		update();
+	}
 }
 */
 
 // RECURSIVE FACTORIAL
 
 /*
-let f = 1;
-let i = 1;
-
 fn fact(n: Int) -> Int {
 	if n <= 1 {
 		return 1;
@@ -30,14 +29,19 @@ fn fact(n: Int) -> Int {
 	return n * fact(n - 1);
 }
 
-fn update() {
-	i += 1;
-	f = fact(i);
-}
-
-while f > 0 {
-	outint(f);
-	update();
+fn main() {
+	let mut f = 1;
+	let mut i = 1;
+	
+	fn update() {
+		i += 1;
+		f = fact(i);
+	}
+	
+	while f > 0 {
+		outint(f);
+		update();
+	}
 }
 */
 
@@ -46,19 +50,21 @@ while f > 0 {
 /*
 %! setargc 2;
 
-let f = argv[0];
-let a = argv[1];
-let b = 0;
-
-fn update() {
-	f = a + b;
-	b = a;
-	a = f;
-}
-
-while f > 0 {
-	outint(f);
-	update();
+fn main() {
+	let mut f = argv[0];
+	let mut a = argv[1];
+	let mut b = 0;
+	
+	fn update() {
+		f = a + b;
+		b = a;
+		a = f;
+	}
+	
+	while f > 0 {
+		outint(f);
+		update();
+	}
 }
 */
 
@@ -67,9 +73,6 @@ while f > 0 {
 /*
 %! setargc 2;
 
-let f = argv[0];
-let i = 0;
-
 fn fib(n: Int) -> Int {
 	if n <= 1 {
 		return argv[n];
@@ -77,14 +80,19 @@ fn fib(n: Int) -> Int {
 	return fib(n - 1) + fib(n - 2);
 }
 
-fn update() {
-	i += 1;
-	f = fib(i);
-}
-
-while f > 0 {
-	outint(f);
-	update();
+fn main() {
+	let mut f = argv[0];
+	let mut i = 0;
+	
+	fn update() {
+		i += 1;
+		f = fib(i);
+	}
+	
+	while f > 0 {
+		outint(f);
+		update();
+	}
 }
 */
 
@@ -94,11 +102,9 @@ while f > 0 {
 const MAX = 100;
 const FAIL = MAX + 1;
 
-let n = 1;
-
 fn sqrt(m: Int) -> Int {
-	let a = m;
-	let b = 1;
+	let mut a = m;
+	let mut b = 1;
 	
 	while a > b {
 		a = (a + b) >> 1;
@@ -108,22 +114,26 @@ fn sqrt(m: Int) -> Int {
 	return a;
 }
 
-while n < MAX {
-	n += 1;
-	let i = 2;
-	let s = sqrt(n);
+fn main() {
+	let mut n = 1;
 	
-	while i <= s {
-		if n % i == 0 {
-			i = FAIL;
+	while n < MAX {
+		n += 1;
+		let mut i = 2;
+		let s = sqrt(n);
+		
+		while i <= s {
+			if n % i == 0 {
+				i = FAIL;
+			}
+			else {
+				i += 1;
+			}
 		}
-		else {
-			i += 1;
+		
+		if i != FAIL {
+			outint(n);
 		}
-	}
-	
-	if i != FAIL {
-		outint(n);
 	}
 }
 */
@@ -131,11 +141,13 @@ while n < MAX {
 // TESTING LITERALS
 
 /*
-let x = 8 * 5 / 20;
-let y = 12 + 8 + 2 * x;
-let z = x * y - 6 + 10 / 5;
-
-outint(z);
+fn main () {
+	let x = 8 * 5 / 20;
+	let y = 12 + 8 + 2 * x;
+	let z = x * y - 6 + 10 / 5;
+	
+	outint(z);
+}
 */
 
 // TESTING PRINTING
@@ -143,17 +155,19 @@ outint(z);
 /*
 let str = ['H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd', '!', '\n'];
 
-let i = 0;
-while i < 13 {
-	outchar(str[i]);
-	i += 1;
+fn main() {
+	let mut i = 0;
+	while i < 13 {
+		outchar(str[i]);
+		i += 1;
+	}
 }
 */
 
 // TESTING BRANCHES
 
 /*
-fn func() {
+fn main() {
 	let a = 0;
 	let b = 1;
 	let c = 2;
@@ -195,18 +209,20 @@ fn func() {
 		}
 	}
 }
-
-func();
 */
 
 // TESTING POINTERS
 
 /*
-let a = 1;
-let b = &2;
-let c = &&3;
+let mut a = 1;
+let mut b = &mut 2;
+let mut c = &mut &mut 3;
 
-fn update(x: &Int, y: &&Int, z: &&&Int) {
+let mut d = &mut a;
+let mut e = &mut &mut b;
+let mut f = &mut &mut &mut c;
+
+fn update(x: &mut Int, y: &mut &mut Int, z: &mut &mut &mut Int) {
 	*x = *x + 501;
 	**y = **y + 502;
 	***z = ***z + 503;
@@ -216,20 +232,7 @@ fn update(x: &Int, y: &&Int, z: &&&Int) {
 	***z -= 3;
 }
 
-update(&a, &b, &c);
-
-//outint(&a);
-outint(a);
-//outint(&b); outint(b);
-outint(*b);
-//outint(&c); outint(c); outint(*c);
-outint(**c);
-
-let d = &a;
-let e = &&b;
-let f = &&&c;
-
-fn update2(x: &&Int, y: &&&&Int, z: &&&&&&Int) {
+fn update2(x: &mut &mut Int, y: &mut &mut &mut &mut Int, z: &mut &mut &mut &mut &mut &mut Int) {
 	**x = 1001;
 	****y = 1002;
 	******z = 1003;
@@ -239,87 +242,128 @@ fn update2(x: &&Int, y: &&&&Int, z: &&&&&&Int) {
 	******z *= 3;
 }
 
-update2(&d, &e, &f);
-
-//outint(&d); outint(d);
-outint(*d);
-//outint(&e); outint(e); outint(*e); outint(**e);
-outint(***e);
-//outint(&f); outint(f); outint(*f); outint(**f); outint(***f); outint(****f);
-outint(*****f);
+fn main() {
+	update(&mut a, &mut b, &mut c);
+	
+	//outint(&a);
+	outint(a);
+	//outint(&b); outint(b);
+	outint(*b);
+	//outint(&c); outint(c); outint(*c);
+	outint(**c);
+	
+	update2(&mut d, &mut e, &mut f);
+	
+	//outint(&d); outint(d);
+	outint(*d);
+	//outint(&e); outint(e); outint(*e); outint(**e);
+	outint(***e);
+	//outint(&f); outint(f); outint(*f); outint(**f); outint(***f); outint(****f);
+	outint(*****f);
+}
 */
 
 // TESTING DEREFERENCE ASSIGNMENT
 
 /*
-let a: &&&Int;
+let a: &mut &mut &mut Int;
 
-fn ptr1(modify: Bool) -> &Int {
+fn ptr1(modify: Bool) -> &mut Int {
 	if modify {
 		***a += 100;
 	}
 	return **a;
 }
 
-fn ptr2(modify: Bool) -> &&Int {
+fn ptr2(modify: Bool) -> &mut &mut Int {
 	if modify {
 		***a -= 200;
 	}
 	return *a;
 }
 
-fn ptr3(modify: Bool) -> &&&Int {
+fn ptr3(modify: Bool) -> &mut &mut &mut Int {
 	if modify {
 		***a += 300;
 	}
 	return a;
 }
 
-*ptr1(true) = ***a + 50; outint(*ptr1(false));
-*ptr1(true) <<= 1; outint(*ptr1(false));
-
-**ptr2(true) = ***a + 100; outint(**ptr2(false));
-**ptr2(true) >>= 2; outint(**ptr2(false));
-
-***ptr3(true) = ***a + 150; outint(***ptr3(false));
-***ptr3(true) /= 3; outint(***ptr3(false));
+fn main() {
+	*ptr1(true) = ***a + 50; outint(*ptr1(false));
+	*ptr1(true) <<= 1; outint(*ptr1(false));
+	
+	**ptr2(true) = ***a + 100; outint(**ptr2(false));
+	**ptr2(true) >>= 2; outint(**ptr2(false));
+	
+	***ptr3(true) = ***a + 150; outint(***ptr3(false));
+	***ptr3(true) /= 3; outint(***ptr3(false));
+}
 */
 
 // TESTING CONSTANTS AND SOFTWARE BINARY OPERATORS
 
 /*
-let l = 0b11111111_00000000;
-let r = 0b00000000_11111111;
-
-let a = l;
-let b = r;
-
-let a_sal = l << 4;
-let b_sal = r << 4;
-
-let a_sar = l >> 4;
-let b_sar = r >> 4;
-
-let a_shr = l >>> 4;
-let b_shr = r >>> 4;
-
-let a_rotl = l <<< 4;
-let b_rotl = r <<< 4;
-
-let a_rotr = l >>> 4;
-let b_rotr = r >>> 4;
-
-outint(a); outint(b);
-outint(a_sal); outint(b_sal);
-outint(a_sar); outint(b_sar);
-outint(a_shr); outint(b_shr);
-outint(a_rotl); outint(b_rotl);
-outint(a_rotr); outint(b_rotr);
+fn main() {
+	let l = 0b11111111_00000000;
+	let r = 0b00000000_11111111;
+	
+	let a = l;
+	let b = r;
+	
+	let a_sal = l << 4;
+	let b_sal = r << 4;
+	
+	let a_sar = l >> 4;
+	let b_sar = r >> 4;
+	
+	let a_shr = l >>> 4;
+	let b_shr = r >>> 4;
+	
+	let a_rotl = l <<< 4;
+	let b_rotl = r <<< 4;
+	
+	let a_rotr = l >>> 4;
+	let b_rotr = r >>> 4;
+	
+	outint(a); outint(b);
+	outint(a_sal); outint(b_sal);
+	outint(a_sar); outint(b_sar);
+	outint(a_shr); outint(b_shr);
+	outint(a_rotl); outint(b_rotl);
+	outint(a_rotr); outint(b_rotr);
+}
 */
 
 // TESTING FUNCTION POINTERS
 
 /*
+let mut binary_op = &mut subtract;
+
+fn get_op_ptr() -> &mut &mut fn(Int, Int) -> Int {
+	return &mut binary_op;
+}
+
+fn main() {
+	let mut print: fn(Bool);
+	
+	let i1 = 12;
+	let i2 = 4;
+	
+	let mut s = false;
+	
+	print = outbool;
+	do_binary_op(&mut s, *choose_ptr(false, &i1, &i2), *choose_ptr(true, &i1, &i2), binary_op);
+	print(s);
+	
+	if s {
+		**get_op_ptr() = divide;
+	}
+	
+	do_binary_op(&mut s, *choose_ptr(s, &i1, &i2), *choose_ptr(!s, &i1, &i2), binary_op);
+	print(s);
+}
+
 fn add(a: Int, b: Int) -> Int {
 	return a + b;
 }
@@ -328,8 +372,6 @@ fn subtract(a: Int, b: Int) -> Int {
 	return a - b;
 }
 
-let print: fn(Bool);
-
 fn multiply(a: Int, b: Int) -> Int {
 	return a * b;
 }
@@ -337,29 +379,6 @@ fn multiply(a: Int, b: Int) -> Int {
 fn divide(a: Int, b: Int) -> Int {
 	return a / b;
 }
-
-let i1 = 12;
-let i2 = 4;
-
-let s = false;
-
-let binary_op = &subtract;
-
-fn get_op_ptr() -> &&fn(Int, Int) -> Int {
-	return &binary_op;
-}
-
-print = outbool;
-
-do_binary_op(&s, *choose_ptr(false, &i1, &i2), *choose_ptr(true, &i1, &i2), binary_op);
-print(s);
-
-if s {
-	**get_op_ptr() = divide;
-}
-
-do_binary_op(&s, *choose_ptr(s, &i1, &i2), *choose_ptr(!s, &i1, &i2), binary_op);
-print(s);
 
 fn choose_ptr(cond: Bool, p1: &Int, p2: &Int) -> &Int {
 	if cond {
@@ -370,7 +389,7 @@ fn choose_ptr(cond: Bool, p1: &Int, p2: &Int) -> &Int {
 	}
 }
 
-fn do_binary_op(loc: &Bool, a: Int, b: Int, bin_op: &fn(Int, Int) -> Int) {
+fn do_binary_op(loc: &mut Bool, a: Int, b: Int, bin_op: &fn(Int, Int) -> Int) {
 	*loc = int_to_bool((*bin_op)(a, b));
 }
 
@@ -387,21 +406,23 @@ fn int_to_bool(x: Int) -> Bool {
 // TESTING ARRAYS
 
 /*
-let a = 1;
-let b = 2;
-let c = 3;
-
-let arr = [[&a, &b], [&b, &c], [&c, &a]]; // Initialise array of arrays of integer pointers
-
-let ptr = &arr[a]; // Initialise pointer to arrays of integer pointers
-
-let num = *ptr[1][1]; // Get an integer from the indexing the pointer, then indexing the array, and dereferencing the element
-
-arr[2][1] = &b;
-
-arr[1] = [&1, &2];
-
-c = 4;
+fn main () {
+	let a = 1;
+	let b = 2;
+	let mut c = 3;
+	
+	let mut arr = [[&a, &b], [&b, &c], [&c, &a]];
+	
+	let ptr = &arr[a];
+	
+	let num = *ptr[1][1];
+	
+	arr[2][1] = &b;
+	
+	arr[1] = [&1, &2];
+	
+	c = 4;
+}
 */
 
 // TESTING TYPEALIASES
@@ -410,21 +431,14 @@ c = 4;
 fn main() {
 	outint(sum(&&(1, 2, 3)));
 	
-	fn sum(p: &PosPtr) -> Int {
-		return (**p).0 + (**p).1 + (**p).2;
+	fn sum(ptr: &PosPtr) -> Int {
+		let p = *ptr;
+		return (*p).0 + (*p).1 + (*p).2;
 	}
 }
 
 typealias PosPtr = &(Int, Int, Int);
 */
-
-// TESTING MUTABILITY
-
-fn main() {
-	let mut x = 1;
-	let y = &mut x;
-	*y = 2;
-}
 
 // TESTING STRUCTS
 
@@ -436,8 +450,6 @@ struct Item {
 
 typealias Tracer = &&mut Item;
 typealias TracerMut = &mut &mut Item;
-
-let start: &mut Item = null;
 
 fn insertItem(mut tracer: TracerMut, val: Int) {
 	while *tracer != null && val >= (**tracer).val {
@@ -465,6 +477,8 @@ fn print(mut tracer: Tracer) {
 }
 
 fn main() {
+	let mut start: &mut Item = null;
+	
 	insertItem(&mut start, 3);
 	insertItem(&mut start, 6);
 	insertItem(&mut start, 2);
@@ -483,3 +497,5 @@ fn main() {
 	print(&start);
 }
 */
+
+// TESTING 

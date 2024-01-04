@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.*;
 
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Function;
+import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
 import drlc.node.Node;
@@ -79,7 +80,9 @@ public class AddressExpressionNode extends ExpressionNode {
 			dataId = expressionNode.dataId;
 		}
 		else {
-			routine.addAddressAssignmentAction(this, dataId = routine.nextRegId(typeInfo), expressionNode.dataId);
+			DataId temp = scope.nextLocalDataId(routine, expressionNode.getTypeInfo());
+			routine.addAssignmentAction(this, temp, expressionNode.dataId);
+			routine.addAddressAssignmentAction(this, dataId = routine.nextRegId(typeInfo), temp);
 		}
 	}
 	
