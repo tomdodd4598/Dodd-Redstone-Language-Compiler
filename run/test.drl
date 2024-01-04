@@ -499,5 +499,14 @@ fn main() {
 */
 
 fn main() {
-	let x = inbool() ? 3 : inint();
+	let x = test();
+}
+
+fn test() -> Int {
+	if inbool() {
+		return 1;
+	}
+	else {
+		return 2;
+	}
 }

@@ -5,15 +5,15 @@ nesting fn \root() -> Int:
 
 nesting fn main() -> ():
 {dec}:
-	<1> \r0: Int
 	<1> x: Int
+{0}:
+	x = call $test()
+	ret $()
+
+nesting fn test() -> Int:
 {0}:
 	%t = call builtin $inbool()
 	cnj 1
-	\r0 = $3
-	jmp 2
+	ret $1
 {1}:
-	\r0 = call builtin $inint()
-{2}:
-	x = \r0
-	ret $()
+	ret $2

@@ -20,8 +20,13 @@ public class VariableDeclarationNode extends StaticSectionNode<Scope, Routine> {
 		this.declaratorNode = declaratorNode;
 		this.expressionNode = expressionNode;
 		
-		if (declaratorNode.typeNode == null && expressionNode == null) {
-			throw error("Can not infer type without variable initializer!");
+		if (expressionNode == null) {
+			if (declaratorNode.variableModifier._static) {
+				throw error("Static variables require an initializer!");
+			}
+			if (declaratorNode.typeNode == null) {
+				throw error("Can not infer type without variable initializer!");
+			}
 		}
 	}
 	

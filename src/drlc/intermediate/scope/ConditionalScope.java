@@ -2,15 +2,15 @@ package drlc.intermediate.scope;
 
 public class ConditionalScope extends Scope {
 	
-	public final boolean hasEnd;
+	public final boolean definiteExecution;
 	
-	public ConditionalScope(Scope parent, boolean hasEnd) {
+	public ConditionalScope(Scope parent, boolean definiteExecution) {
 		super(parent);
-		this.hasEnd = hasEnd;
+		this.definiteExecution = definiteExecution;
 	}
 	
 	@Override
 	public boolean checkCompleteReturn() {
-		return definiteLocalReturn || (hasEnd && children.stream().allMatch(Scope::checkCompleteReturn));
+		return definiteExecution && (definiteLocalReturn || children.stream().allMatch(Scope::checkCompleteReturn));
 	}
 }
