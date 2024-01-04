@@ -75,6 +75,7 @@ Tokens
 	colon = ':';
 	semicolon = ';';
 	full_stop = '.';
+	question_mark = '?';
 	
 	equals = '=';
 	
@@ -196,11 +197,10 @@ Productions
 		l_brace scope_contents r_brace;
 	
 	expression_statement =
-		{basic} expression semicolon |
-		{assignment} assignment_expression assignment_op expression semicolon;
+		expression semicolon;
 	
 	conditional_section =
-		conditional_branch_keyword conditional_expression l_brace scope_contents r_brace else_section?;
+		conditional_branch_keyword condition_expression l_brace scope_contents r_brace else_section?;
 	
 	else_section =
 		{excluding_branch} else l_brace scope_contents r_brace |
@@ -208,7 +208,7 @@ Productions
 	
 	iterative_section =
 		{loop} iterative_section_label? loop l_brace scope_contents r_brace |
-		{conditional} iterative_section_label? conditional_iterative_keyword conditional_expression l_brace scope_contents r_brace |
+		{conditional} iterative_section_label? conditional_iterative_keyword condition_expression l_brace scope_contents r_brace |
 		{do_conditional} iterative_section_label? do l_brace scope_contents r_brace conditional_iterative_keyword expression semicolon;
 	
 	scope_contents =
@@ -274,58 +274,54 @@ Productions
 		name colon;
 	
 	expression =
-		expression0;
+		{prioritized} ternary_expression |
+		{assignment} unary_expression assignment_op expression;
 	
-	constant_expression =
-		expression0;
+	ternary_expression =
+		{prioritized} logical_expression |
+		{ternary} logical_expression question_mark expression colon ternary_expression;
 	
-	assignment_expression =
-		expression0;
+	logical_expression =
+		{prioritized} equality_expression |
+		{binary} logical_expression logical_binary_op equality_expression;
 	
-	conditional_expression =
-		conditional_expression0;
+	equality_expression =
+		{prioritized} comparative_expression |
+		{binary} equality_expression equality_binary_op comparative_expression;
 	
-	expression0 =
-		{prioritized} expression1 |
-		{binary} expression0 logical_binary_op expression1;
+	comparative_expression =
+		{prioritized} additive_expression |
+		{binary} comparative_expression comparative_binary_op additive_expression;
 	
-	expression1 =
-		{prioritized} expression2 |
-		{binary} expression1 equality_binary_op expression2;
+	additive_expression =
+		{prioritized} multiplicative_expression |
+		{binary} additive_expression additive_binary_op multiplicative_expression;
 	
-	expression2 =
-		{prioritized} expression3 |
-		{binary} expression2 comparative_binary_op expression3;
+	multiplicative_expression =
+		{prioritized} shift_expression |
+		{binary} multiplicative_expression multiplicative_binary_op shift_expression;
 	
-	expression3 =
-		{prioritized} expression4 |
-		{binary} expression3 additive_binary_op expression4;
+	shift_expression =
+		{prioritized} unary_expression |
+		{binary} shift_expression shift_binary_op unary_expression;
 	
-	expression4 =
-		{prioritized} expression5 |
-		{binary} expression4 multiplicative_binary_op expression5;
+	unary_expression =
+		{prioritized} compound_expression |
+		{unary} unary_op unary_expression |
+		{dereference} multiply unary_expression |
+		{address_of} and mut? unary_expression |
+		{double_address_of} logical_and mut? unary_expression;
 	
-	expression5 =
-		{prioritized} expression6 |
-		{binary} expression5 shift_binary_op expression6;
-	
-	expression6 =
-		{prioritized} expression7 |
-		{unary} unary_op expression6 |
-		{dereference} multiply expression6 |
-		{address_of} and mut? expression6 |
-		{double_address_of} logical_and mut? expression6;
-	
-	expression7 =
+	compound_expression =
 		{parentheses} parentheses_expression |
 		{simple} simple_expression |
 		{array_list} l_bracket expression_list? r_bracket |
 		{array_repeat} l_bracket expression semicolon constant_expression r_bracket |
-		{index} expression7 l_bracket expression r_bracket |
+		{index} compound_expression l_bracket expression r_bracket |
 		{tuple} l_par tuple_expression_list? r_par |
 		{struct} name l_brace expression_list? r_brace |
-		{member} expression7 full_stop simple_expression |
-		{function} expression7 l_par expression_list? r_par;
+		{member} compound_expression full_stop simple_expression |
+		{function} compound_expression l_par expression_list? r_par;
 	
 	parentheses_expression =
 		l_par expression r_par;
@@ -350,46 +346,57 @@ Productions
 		{char} char_value |
 		{sizeof} sizeof type;
 	
-	conditional_expression0 =
-		{prioritized} conditional_expression1 |
-		{binary} conditional_expression0 logical_binary_op conditional_expression1;
+	constant_expression =
+		expression;
 	
-	conditional_expression1 =
-		{prioritized} conditional_expression2 |
-		{binary} conditional_expression1 equality_binary_op conditional_expression2;
+	condition_expression =
+		{prioritized} condition_ternary_expression |
+		{assignment} condition_unary_expression assignment_op condition_expression;
 	
-	conditional_expression2 =
-		{prioritized} conditional_expression3 |
-		{binary} conditional_expression2 comparative_binary_op conditional_expression3;
+	condition_ternary_expression =
+		{prioritized} condition_logical_expression |
+		{ternary} condition_logical_expression question_mark expression colon condition_ternary_expression;
 	
-	conditional_expression3 =
-		{prioritized} conditional_expression4 |
-		{binary} conditional_expression3 additive_binary_op conditional_expression4;
+	condition_logical_expression =
+		{prioritized} condition_equality_expression |
+		{binary} condition_logical_expression logical_binary_op condition_equality_expression;
 	
-	conditional_expression4 =
-		{prioritized} conditional_expression5 |
-		{binary} conditional_expression4 multiplicative_binary_op conditional_expression5;
+	condition_equality_expression =
+		{prioritized} condition_comparative_expression |
+		{binary} condition_equality_expression equality_binary_op condition_comparative_expression;
 	
-	conditional_expression5 =
-		{prioritized} conditional_expression6 |
-		{binary} conditional_expression5 shift_binary_op conditional_expression6;
+	condition_comparative_expression =
+		{prioritized} condition_additive_expression |
+		{binary} condition_comparative_expression comparative_binary_op condition_additive_expression;
 	
-	conditional_expression6 =
-		{prioritized} conditional_expression7 |
-		{unary} unary_op conditional_expression6 |
-		{dereference} multiply conditional_expression6 |
-		{address_of} and mut? conditional_expression6 |
-		{double_address_of} logical_and mut? conditional_expression6;
+	condition_additive_expression =
+		{prioritized} condition_multiplicative_expression |
+		{binary} condition_additive_expression additive_binary_op condition_multiplicative_expression;
 	
-	conditional_expression7 =
+	condition_multiplicative_expression =
+		{prioritized} condition_shift_expression |
+		{binary} condition_multiplicative_expression multiplicative_binary_op condition_shift_expression;
+	
+	condition_shift_expression =
+		{prioritized} condition_unary_expression |
+		{binary} condition_shift_expression shift_binary_op condition_unary_expression;
+	
+	condition_unary_expression =
+		{prioritized} condition_compound_expression |
+		{unary} unary_op condition_unary_expression |
+		{dereference} multiply condition_unary_expression |
+		{address_of} and mut? condition_unary_expression |
+		{double_address_of} logical_and mut? condition_unary_expression;
+	
+	condition_compound_expression =
 		{parentheses} parentheses_expression |
 		{simple} simple_expression |
 		{array_list} l_bracket expression_list? r_bracket |
 		{array_repeat} l_bracket expression semicolon constant_expression r_bracket |
-		{index} conditional_expression7 l_bracket expression r_bracket |
+		{index} condition_compound_expression l_bracket expression r_bracket |
 		{tuple} l_par tuple_expression_list? r_par |
-		{member} conditional_expression7 full_stop simple_expression |
-		{function} conditional_expression7 l_par expression_list? r_par;
+		{member} condition_compound_expression full_stop simple_expression |
+		{function} condition_compound_expression l_par expression_list? r_par;
 	
 	
 	

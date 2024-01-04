@@ -16,6 +16,7 @@ public class StartNode extends ASTNode<Scope, RootRoutine> {
 		this.unitNode = unitNode;
 	}
 	
+	@SuppressWarnings("null")
 	@Override
 	public void setScopes(ASTNode<?, ?> parent) {
 		scope = Main.rootScope;
@@ -28,6 +29,7 @@ public class StartNode extends ASTNode<Scope, RootRoutine> {
 		unitNode.defineTypes(this);
 	}
 	
+	@SuppressWarnings("null")
 	@Override
 	public void declareExpressions(ASTNode<?, ?> parent) {
 		routine = Main.rootRoutine;

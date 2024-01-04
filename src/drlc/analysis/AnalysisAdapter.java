@@ -213,13 +213,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseABasicExpressionStatement(ABasicExpressionStatement node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAAssignmentExpressionStatement(AAssignmentExpressionStatement node)
+    public void caseAExpressionStatement(AExpressionStatement node)
     {
         defaultCase(node);
     }
@@ -429,13 +423,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAExpression(AExpression node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseAConstantExpression(AConstantExpression node)
+    public void caseAPrioritizedExpression(APrioritizedExpression node)
     {
         defaultCase(node);
     }
@@ -447,163 +435,169 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAConditionalExpression(AConditionalExpression node)
+    public void caseAPrioritizedTernaryExpression(APrioritizedTernaryExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAPrioritizedExpression0(APrioritizedExpression0 node)
+    public void caseATernaryTernaryExpression(ATernaryTernaryExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseABinaryExpression0(ABinaryExpression0 node)
+    public void caseAPrioritizedLogicalExpression(APrioritizedLogicalExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAPrioritizedExpression1(APrioritizedExpression1 node)
+    public void caseABinaryLogicalExpression(ABinaryLogicalExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseABinaryExpression1(ABinaryExpression1 node)
+    public void caseAPrioritizedEqualityExpression(APrioritizedEqualityExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAPrioritizedExpression2(APrioritizedExpression2 node)
+    public void caseABinaryEqualityExpression(ABinaryEqualityExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseABinaryExpression2(ABinaryExpression2 node)
+    public void caseAPrioritizedComparativeExpression(APrioritizedComparativeExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAPrioritizedExpression3(APrioritizedExpression3 node)
+    public void caseABinaryComparativeExpression(ABinaryComparativeExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseABinaryExpression3(ABinaryExpression3 node)
+    public void caseAPrioritizedAdditiveExpression(APrioritizedAdditiveExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAPrioritizedExpression4(APrioritizedExpression4 node)
+    public void caseABinaryAdditiveExpression(ABinaryAdditiveExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseABinaryExpression4(ABinaryExpression4 node)
+    public void caseAPrioritizedMultiplicativeExpression(APrioritizedMultiplicativeExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAPrioritizedExpression5(APrioritizedExpression5 node)
+    public void caseABinaryMultiplicativeExpression(ABinaryMultiplicativeExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseABinaryExpression5(ABinaryExpression5 node)
+    public void caseAPrioritizedShiftExpression(APrioritizedShiftExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAPrioritizedExpression6(APrioritizedExpression6 node)
+    public void caseABinaryShiftExpression(ABinaryShiftExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAUnaryExpression6(AUnaryExpression6 node)
+    public void caseAPrioritizedUnaryExpression(APrioritizedUnaryExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseADereferenceExpression6(ADereferenceExpression6 node)
+    public void caseAUnaryUnaryExpression(AUnaryUnaryExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAAddressOfExpression6(AAddressOfExpression6 node)
+    public void caseADereferenceUnaryExpression(ADereferenceUnaryExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseADoubleAddressOfExpression6(ADoubleAddressOfExpression6 node)
+    public void caseAAddressOfUnaryExpression(AAddressOfUnaryExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAParenthesesExpression7(AParenthesesExpression7 node)
+    public void caseADoubleAddressOfUnaryExpression(ADoubleAddressOfUnaryExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseASimpleExpression7(ASimpleExpression7 node)
+    public void caseAParenthesesCompoundExpression(AParenthesesCompoundExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAArrayListExpression7(AArrayListExpression7 node)
+    public void caseASimpleCompoundExpression(ASimpleCompoundExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAArrayRepeatExpression7(AArrayRepeatExpression7 node)
+    public void caseAArrayListCompoundExpression(AArrayListCompoundExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAIndexExpression7(AIndexExpression7 node)
+    public void caseAArrayRepeatCompoundExpression(AArrayRepeatCompoundExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseATupleExpression7(ATupleExpression7 node)
+    public void caseAIndexCompoundExpression(AIndexCompoundExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAStructExpression7(AStructExpression7 node)
+    public void caseATupleCompoundExpression(ATupleCompoundExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAMemberExpression7(AMemberExpression7 node)
+    public void caseAStructCompoundExpression(AStructCompoundExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAFunctionExpression7(AFunctionExpression7 node)
+    public void caseAMemberCompoundExpression(AMemberCompoundExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAFunctionCompoundExpression(AFunctionCompoundExpression node)
     {
         defaultCase(node);
     }
@@ -675,151 +669,181 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAPrioritizedConditionalExpression0(APrioritizedConditionalExpression0 node)
+    public void caseAConstantExpression(AConstantExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseABinaryConditionalExpression0(ABinaryConditionalExpression0 node)
+    public void caseAPrioritizedConditionExpression(APrioritizedConditionExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAPrioritizedConditionalExpression1(APrioritizedConditionalExpression1 node)
+    public void caseAAssignmentConditionExpression(AAssignmentConditionExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseABinaryConditionalExpression1(ABinaryConditionalExpression1 node)
+    public void caseAPrioritizedConditionTernaryExpression(APrioritizedConditionTernaryExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAPrioritizedConditionalExpression2(APrioritizedConditionalExpression2 node)
+    public void caseATernaryConditionTernaryExpression(ATernaryConditionTernaryExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseABinaryConditionalExpression2(ABinaryConditionalExpression2 node)
+    public void caseAPrioritizedConditionLogicalExpression(APrioritizedConditionLogicalExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAPrioritizedConditionalExpression3(APrioritizedConditionalExpression3 node)
+    public void caseABinaryConditionLogicalExpression(ABinaryConditionLogicalExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseABinaryConditionalExpression3(ABinaryConditionalExpression3 node)
+    public void caseAPrioritizedConditionEqualityExpression(APrioritizedConditionEqualityExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAPrioritizedConditionalExpression4(APrioritizedConditionalExpression4 node)
+    public void caseABinaryConditionEqualityExpression(ABinaryConditionEqualityExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseABinaryConditionalExpression4(ABinaryConditionalExpression4 node)
+    public void caseAPrioritizedConditionComparativeExpression(APrioritizedConditionComparativeExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAPrioritizedConditionalExpression5(APrioritizedConditionalExpression5 node)
+    public void caseABinaryConditionComparativeExpression(ABinaryConditionComparativeExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseABinaryConditionalExpression5(ABinaryConditionalExpression5 node)
+    public void caseAPrioritizedConditionAdditiveExpression(APrioritizedConditionAdditiveExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAPrioritizedConditionalExpression6(APrioritizedConditionalExpression6 node)
+    public void caseABinaryConditionAdditiveExpression(ABinaryConditionAdditiveExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAUnaryConditionalExpression6(AUnaryConditionalExpression6 node)
+    public void caseAPrioritizedConditionMultiplicativeExpression(APrioritizedConditionMultiplicativeExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseADereferenceConditionalExpression6(ADereferenceConditionalExpression6 node)
+    public void caseABinaryConditionMultiplicativeExpression(ABinaryConditionMultiplicativeExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAAddressOfConditionalExpression6(AAddressOfConditionalExpression6 node)
+    public void caseAPrioritizedConditionShiftExpression(APrioritizedConditionShiftExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseADoubleAddressOfConditionalExpression6(ADoubleAddressOfConditionalExpression6 node)
+    public void caseABinaryConditionShiftExpression(ABinaryConditionShiftExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAParenthesesConditionalExpression7(AParenthesesConditionalExpression7 node)
+    public void caseAPrioritizedConditionUnaryExpression(APrioritizedConditionUnaryExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseASimpleConditionalExpression7(ASimpleConditionalExpression7 node)
+    public void caseAUnaryConditionUnaryExpression(AUnaryConditionUnaryExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAArrayListConditionalExpression7(AArrayListConditionalExpression7 node)
+    public void caseADereferenceConditionUnaryExpression(ADereferenceConditionUnaryExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAArrayRepeatConditionalExpression7(AArrayRepeatConditionalExpression7 node)
+    public void caseAAddressOfConditionUnaryExpression(AAddressOfConditionUnaryExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAIndexConditionalExpression7(AIndexConditionalExpression7 node)
+    public void caseADoubleAddressOfConditionUnaryExpression(ADoubleAddressOfConditionUnaryExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseATupleConditionalExpression7(ATupleConditionalExpression7 node)
+    public void caseAParenthesesConditionCompoundExpression(AParenthesesConditionCompoundExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAMemberConditionalExpression7(AMemberConditionalExpression7 node)
+    public void caseASimpleConditionCompoundExpression(ASimpleConditionCompoundExpression node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAFunctionConditionalExpression7(AFunctionConditionalExpression7 node)
+    public void caseAArrayListConditionCompoundExpression(AArrayListConditionCompoundExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAArrayRepeatConditionCompoundExpression(AArrayRepeatConditionCompoundExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAIndexConditionCompoundExpression(AIndexConditionCompoundExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseATupleConditionCompoundExpression(ATupleConditionCompoundExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAMemberConditionCompoundExpression(AMemberConditionCompoundExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAFunctionConditionCompoundExpression(AFunctionConditionCompoundExpression node)
     {
         defaultCase(node);
     }
@@ -1204,6 +1228,12 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTFullStop(TFullStop node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTQuestionMark(TQuestionMark node)
     {
         defaultCase(node);
     }

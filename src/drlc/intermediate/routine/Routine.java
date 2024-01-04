@@ -150,19 +150,19 @@ public abstract class Routine {
 	}
 	
 	public void addValueAssignmentAction(ASTNode<?, ?> node, DataId target, @NonNull Value value) {
-		addAction(new AssignmentAction(node, target, new ValueDataId(value)));
+		addAssignmentAction(node, target, new ValueDataId(value));
 	}
 	
 	public void addAddressVariableAssignmentAction(ASTNode<?, ?> node, DataId target, @NonNull Variable variable) {
-		addAction(new AssignmentAction(node, target, new VariableDataId(-1, variable)));
+		addAssignmentAction(node, target, new VariableDataId(-1, variable));
 	}
 	
 	public void addVariableAssignmentAction(ASTNode<?, ?> node, DataId target, @NonNull Variable variable) {
-		addAction(new AssignmentAction(node, target, new VariableDataId(0, variable)));
+		addAssignmentAction(node, target, new VariableDataId(0, variable));
 	}
 	
 	public void addAddressAssignmentAction(ASTNode<?, ?> node, DataId target, DataId arg) {
-		addAction(new AssignmentAction(node, target, arg.removeDereference(node)));
+		addAssignmentAction(node, target, arg.removeDereference(node));
 	}
 	
 	public void addAssignmentAction(ASTNode<?, ?> node, DataId target, DataId arg) {
@@ -171,19 +171,6 @@ public abstract class Routine {
 	
 	public void addCompoundAssignmentAction(ASTNode<?, ?> node, DataId target, List<DataId> args) {
 		addAction(new CompoundAssignmentAction(node, target, args));
-	}
-	
-	public void addLvalueAssignmentAction(ASTNode<?, ?> node, DataId target, DataId arg) {
-		addAction(new AssignmentAction(node, target.addDereference(node), arg));
-	}
-	
-	public void addLvalueAssignmentOpAction(ASTNode<?, ?> node, @NonNull TypeInfo lvalueType, @NonNull BinaryOpType opType, @NonNull TypeInfo rvalueType, DataId target, DataId arg) {
-		target = target.addDereference(node);
-		
-		DataId original = nextRegId(lvalueType);
-		addAction(new AssignmentAction(node, original, target));
-		
-		Main.generator.binaryOp(node, this, lvalueType, opType, rvalueType, target, original, arg);
 	}
 	
 	public void addBinaryOpAction(ASTNode<?, ?> node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType, DataId target, DataId arg1, DataId arg2) {
@@ -195,7 +182,7 @@ public abstract class Routine {
 	}
 	
 	public void addDereferenceAssignmentAction(ASTNode<?, ?> node, DataId target, DataId arg) {
-		addAction(new AssignmentAction(node, target, arg.addDereference(node)));
+		addAssignmentAction(node, target, arg.addDereference(node));
 	}
 	
 	public void addExitAction(ASTNode<?, ?> node, DataId arg) {

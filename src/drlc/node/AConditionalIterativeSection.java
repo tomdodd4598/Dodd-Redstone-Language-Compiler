@@ -9,7 +9,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
 {
     private PIterativeSectionLabel _iterativeSectionLabel_;
     private TConditionalIterativeKeyword _conditionalIterativeKeyword_;
-    private PConditionalExpression _conditionalExpression_;
+    private PConditionExpression _conditionExpression_;
     private TLBrace _lBrace_;
     private PScopeContents _scopeContents_;
     private TRBrace _rBrace_;
@@ -22,7 +22,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
     public AConditionalIterativeSection(
         @SuppressWarnings("hiding") PIterativeSectionLabel _iterativeSectionLabel_,
         @SuppressWarnings("hiding") TConditionalIterativeKeyword _conditionalIterativeKeyword_,
-        @SuppressWarnings("hiding") PConditionalExpression _conditionalExpression_,
+        @SuppressWarnings("hiding") PConditionExpression _conditionExpression_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
         @SuppressWarnings("hiding") PScopeContents _scopeContents_,
         @SuppressWarnings("hiding") TRBrace _rBrace_)
@@ -32,7 +32,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
 
         setConditionalIterativeKeyword(_conditionalIterativeKeyword_);
 
-        setConditionalExpression(_conditionalExpression_);
+        setConditionExpression(_conditionExpression_);
 
         setLBrace(_lBrace_);
 
@@ -48,7 +48,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
         return new AConditionalIterativeSection(
             cloneNode(this._iterativeSectionLabel_),
             cloneNode(this._conditionalIterativeKeyword_),
-            cloneNode(this._conditionalExpression_),
+            cloneNode(this._conditionExpression_),
             cloneNode(this._lBrace_),
             cloneNode(this._scopeContents_),
             cloneNode(this._rBrace_));
@@ -110,16 +110,16 @@ public final class AConditionalIterativeSection extends PIterativeSection
         this._conditionalIterativeKeyword_ = node;
     }
 
-    public PConditionalExpression getConditionalExpression()
+    public PConditionExpression getConditionExpression()
     {
-        return this._conditionalExpression_;
+        return this._conditionExpression_;
     }
 
-    public void setConditionalExpression(PConditionalExpression node)
+    public void setConditionExpression(PConditionExpression node)
     {
-        if(this._conditionalExpression_ != null)
+        if(this._conditionExpression_ != null)
         {
-            this._conditionalExpression_.parent(null);
+            this._conditionExpression_.parent(null);
         }
 
         if(node != null)
@@ -132,7 +132,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
             node.parent(this);
         }
 
-        this._conditionalExpression_ = node;
+        this._conditionExpression_ = node;
     }
 
     public TLBrace getLBrace()
@@ -216,7 +216,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
         return ""
             + toString(this._iterativeSectionLabel_)
             + toString(this._conditionalIterativeKeyword_)
-            + toString(this._conditionalExpression_)
+            + toString(this._conditionExpression_)
             + toString(this._lBrace_)
             + toString(this._scopeContents_)
             + toString(this._rBrace_);
@@ -238,9 +238,9 @@ public final class AConditionalIterativeSection extends PIterativeSection
             return;
         }
 
-        if(this._conditionalExpression_ == child)
+        if(this._conditionExpression_ == child)
         {
-            this._conditionalExpression_ = null;
+            this._conditionExpression_ = null;
             return;
         }
 
@@ -281,9 +281,9 @@ public final class AConditionalIterativeSection extends PIterativeSection
             return;
         }
 
-        if(this._conditionalExpression_ == oldChild)
+        if(this._conditionExpression_ == oldChild)
         {
-            setConditionalExpression((PConditionalExpression) newChild);
+            setConditionExpression((PConditionExpression) newChild);
             return;
         }
 

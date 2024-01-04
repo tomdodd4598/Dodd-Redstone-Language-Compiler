@@ -498,4 +498,6 @@ fn main() {
 }
 */
 
-// TESTING 
+fn main() {
+	let x = inbool() ? 3 : inint();
+}

@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AConstantExpression extends PConstantExpression
 {
-    private PExpression0 _expression0_;
+    private PExpression _expression_;
 
     public AConstantExpression()
     {
@@ -15,10 +15,10 @@ public final class AConstantExpression extends PConstantExpression
     }
 
     public AConstantExpression(
-        @SuppressWarnings("hiding") PExpression0 _expression0_)
+        @SuppressWarnings("hiding") PExpression _expression_)
     {
         // Constructor
-        setExpression0(_expression0_);
+        setExpression(_expression_);
 
     }
 
@@ -26,7 +26,7 @@ public final class AConstantExpression extends PConstantExpression
     public Object clone()
     {
         return new AConstantExpression(
-            cloneNode(this._expression0_));
+            cloneNode(this._expression_));
     }
 
     @Override
@@ -35,16 +35,16 @@ public final class AConstantExpression extends PConstantExpression
         ((Analysis) sw).caseAConstantExpression(this);
     }
 
-    public PExpression0 getExpression0()
+    public PExpression getExpression()
     {
-        return this._expression0_;
+        return this._expression_;
     }
 
-    public void setExpression0(PExpression0 node)
+    public void setExpression(PExpression node)
     {
-        if(this._expression0_ != null)
+        if(this._expression_ != null)
         {
-            this._expression0_.parent(null);
+            this._expression_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class AConstantExpression extends PConstantExpression
             node.parent(this);
         }
 
-        this._expression0_ = node;
+        this._expression_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._expression0_);
+            + toString(this._expression_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._expression0_ == child)
+        if(this._expression_ == child)
         {
-            this._expression0_ = null;
+            this._expression_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class AConstantExpression extends PConstantExpression
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._expression0_ == oldChild)
+        if(this._expression_ == oldChild)
         {
-            setExpression0((PExpression0) newChild);
+            setExpression((PExpression) newChild);
             return;
         }
 

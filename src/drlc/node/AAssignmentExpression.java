@@ -5,9 +5,11 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AAssignmentExpression extends PAssignmentExpression
+public final class AAssignmentExpression extends PExpression
 {
-    private PExpression0 _expression0_;
+    private PUnaryExpression _unaryExpression_;
+    private PAssignmentOp _assignmentOp_;
+    private PExpression _expression_;
 
     public AAssignmentExpression()
     {
@@ -15,10 +17,16 @@ public final class AAssignmentExpression extends PAssignmentExpression
     }
 
     public AAssignmentExpression(
-        @SuppressWarnings("hiding") PExpression0 _expression0_)
+        @SuppressWarnings("hiding") PUnaryExpression _unaryExpression_,
+        @SuppressWarnings("hiding") PAssignmentOp _assignmentOp_,
+        @SuppressWarnings("hiding") PExpression _expression_)
     {
         // Constructor
-        setExpression0(_expression0_);
+        setUnaryExpression(_unaryExpression_);
+
+        setAssignmentOp(_assignmentOp_);
+
+        setExpression(_expression_);
 
     }
 
@@ -26,7 +34,9 @@ public final class AAssignmentExpression extends PAssignmentExpression
     public Object clone()
     {
         return new AAssignmentExpression(
-            cloneNode(this._expression0_));
+            cloneNode(this._unaryExpression_),
+            cloneNode(this._assignmentOp_),
+            cloneNode(this._expression_));
     }
 
     @Override
@@ -35,16 +45,16 @@ public final class AAssignmentExpression extends PAssignmentExpression
         ((Analysis) sw).caseAAssignmentExpression(this);
     }
 
-    public PExpression0 getExpression0()
+    public PUnaryExpression getUnaryExpression()
     {
-        return this._expression0_;
+        return this._unaryExpression_;
     }
 
-    public void setExpression0(PExpression0 node)
+    public void setUnaryExpression(PUnaryExpression node)
     {
-        if(this._expression0_ != null)
+        if(this._unaryExpression_ != null)
         {
-            this._expression0_.parent(null);
+            this._unaryExpression_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +67,87 @@ public final class AAssignmentExpression extends PAssignmentExpression
             node.parent(this);
         }
 
-        this._expression0_ = node;
+        this._unaryExpression_ = node;
+    }
+
+    public PAssignmentOp getAssignmentOp()
+    {
+        return this._assignmentOp_;
+    }
+
+    public void setAssignmentOp(PAssignmentOp node)
+    {
+        if(this._assignmentOp_ != null)
+        {
+            this._assignmentOp_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._assignmentOp_ = node;
+    }
+
+    public PExpression getExpression()
+    {
+        return this._expression_;
+    }
+
+    public void setExpression(PExpression node)
+    {
+        if(this._expression_ != null)
+        {
+            this._expression_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._expression_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._expression0_);
+            + toString(this._unaryExpression_)
+            + toString(this._assignmentOp_)
+            + toString(this._expression_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._expression0_ == child)
+        if(this._unaryExpression_ == child)
         {
-            this._expression0_ = null;
+            this._unaryExpression_ = null;
+            return;
+        }
+
+        if(this._assignmentOp_ == child)
+        {
+            this._assignmentOp_ = null;
+            return;
+        }
+
+        if(this._expression_ == child)
+        {
+            this._expression_ = null;
             return;
         }
 
@@ -84,9 +158,21 @@ public final class AAssignmentExpression extends PAssignmentExpression
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._expression0_ == oldChild)
+        if(this._unaryExpression_ == oldChild)
         {
-            setExpression0((PExpression0) newChild);
+            setUnaryExpression((PUnaryExpression) newChild);
+            return;
+        }
+
+        if(this._assignmentOp_ == oldChild)
+        {
+            setAssignmentOp((PAssignmentOp) newChild);
+            return;
+        }
+
+        if(this._expression_ == oldChild)
+        {
+            setExpression((PExpression) newChild);
             return;
         }
 

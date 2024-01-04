@@ -18,7 +18,7 @@ public class ValueExpressionNode extends ConstantExpressionNode {
 	
 	public @Nullable Function directFunction = null;
 	
-	public ValueExpressionNode(Node[] parseNodes, Scope scope, Routine routine, @NonNull Value value) {
+	public ValueExpressionNode(Node[] parseNodes, @NonNull Scope scope, @NonNull Routine routine, @NonNull Value value) {
 		super(parseNodes);
 		this.scope = scope;
 		this.routine = routine;

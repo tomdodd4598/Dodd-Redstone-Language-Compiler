@@ -91,8 +91,8 @@ public class BinaryExpressionNode extends ExpressionNode {
 	public void generateIntermediate(ASTNode<?, ?> parent) {
 		boolean logicalAnd = binaryOpType.equals(BinaryOpType.LOGICAL_AND), logicalOr = binaryOpType.equals(BinaryOpType.LOGICAL_OR);
 		if (logicalAnd || logicalOr) {
-			leftExpressionNode.generateIntermediate(this);
 			DataId temp = scope.nextLocalDataId(routine, Main.generator.boolTypeInfo);
+			leftExpressionNode.generateIntermediate(this);
 			routine.addAssignmentAction(this, temp, leftExpressionNode.dataId);
 			ConditionalJumpAction cja = routine.addConditionalJumpAction(this, -1, logicalOr);
 			

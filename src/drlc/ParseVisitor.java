@@ -330,18 +330,13 @@ public class ParseVisitor extends AnalysisAdapter {
 	}
 	
 	@Override
-	public void caseABasicExpressionStatement(ABasicExpressionStatement node) {
+	public void caseAExpressionStatement(AExpressionStatement node) {
 		runtimeSectionStack.push(new ExpressionStatementNode(array(node), expression(node.getExpression())));
 	}
 	
 	@Override
-	public void caseAAssignmentExpressionStatement(AAssignmentExpressionStatement node) {
-		runtimeSectionStack.push(new AssignmentStatementNode(array(node), expression(node.getAssignmentExpression()), AssignmentOpType.get(trim(node.getAssignmentOp())), expression(node.getExpression())));
-	}
-	
-	@Override
 	public void caseAConditionalSection(AConditionalSection node) {
-		conditionalSectionStack.push(new ConditionalSectionNode(array(node), unless(node.getConditionalBranchKeyword()), expression(node.getConditionalExpression()), scope(node.getScopeContents()), traverseNullable(node.getElseSection(), conditionalEndStack)));
+		conditionalSectionStack.push(new ConditionalSectionNode(array(node), unless(node.getConditionalBranchKeyword()), expression(node.getConditionExpression()), scope(node.getScopeContents()), traverseNullable(node.getElseSection(), conditionalEndStack)));
 	}
 	
 	@Override
@@ -361,7 +356,7 @@ public class ParseVisitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAConditionalIterativeSection(AConditionalIterativeSection node) {
-		runtimeSectionStack.push(new ConditionalIterativeSectionNode(array(node), label(node.getIterativeSectionLabel()), false, until(node.getConditionalIterativeKeyword()), expression(node.getConditionalExpression()), scope(node.getScopeContents())));
+		runtimeSectionStack.push(new ConditionalIterativeSectionNode(array(node), label(node.getIterativeSectionLabel()), false, until(node.getConditionalIterativeKeyword()), expression(node.getConditionExpression()), scope(node.getScopeContents())));
 	}
 	
 	@Override
@@ -492,154 +487,154 @@ public class ParseVisitor extends AnalysisAdapter {
 	}
 	
 	@Override
-	public void caseAExpression(AExpression node) {
-		node.getExpression0().apply(this);
-	}
-	
-	@Override
-	public void caseAConstantExpression(AConstantExpression node) {
-		node.getExpression0().apply(this);
+	public void caseAPrioritizedExpression(APrioritizedExpression node) {
+		node.getTernaryExpression().apply(this);
 	}
 	
 	@Override
 	public void caseAAssignmentExpression(AAssignmentExpression node) {
-		node.getExpression0().apply(this);
+		expressionStack.push(new AssignmentExpressionNode(array(node), expression(node.getUnaryExpression()), AssignmentOpType.get(trim(node.getAssignmentOp())), expression(node.getExpression())));
 	}
 	
 	@Override
-	public void caseAConditionalExpression(AConditionalExpression node) {
-		node.getConditionalExpression0().apply(this);
+	public void caseAPrioritizedTernaryExpression(APrioritizedTernaryExpression node) {
+		node.getLogicalExpression().apply(this);
 	}
 	
 	@Override
-	public void caseAPrioritizedExpression0(APrioritizedExpression0 node) {
-		node.getExpression1().apply(this);
+	public void caseATernaryTernaryExpression(ATernaryTernaryExpression node) {
+		expressionStack.push(new TernaryExpressionNode(array(node), expression(node.getLogicalExpression()), expression(node.getExpression()), expression(node.getTernaryExpression())));
 	}
 	
 	@Override
-	public void caseABinaryExpression0(ABinaryExpression0 node) {
-		expressionStack.push(binaryExpression(node, node.getExpression0(), node.getLogicalBinaryOp(), node.getExpression1()));
+	public void caseAPrioritizedLogicalExpression(APrioritizedLogicalExpression node) {
+		node.getEqualityExpression().apply(this);
 	}
 	
 	@Override
-	public void caseAPrioritizedExpression1(APrioritizedExpression1 node) {
-		node.getExpression2().apply(this);
+	public void caseABinaryLogicalExpression(ABinaryLogicalExpression node) {
+		expressionStack.push(binaryExpression(node, node.getLogicalExpression(), node.getLogicalBinaryOp(), node.getEqualityExpression()));
 	}
 	
 	@Override
-	public void caseABinaryExpression1(ABinaryExpression1 node) {
-		expressionStack.push(binaryExpression(node, node.getExpression1(), node.getEqualityBinaryOp(), node.getExpression2()));
+	public void caseAPrioritizedEqualityExpression(APrioritizedEqualityExpression node) {
+		node.getComparativeExpression().apply(this);
 	}
 	
 	@Override
-	public void caseAPrioritizedExpression2(APrioritizedExpression2 node) {
-		node.getExpression3().apply(this);
+	public void caseABinaryEqualityExpression(ABinaryEqualityExpression node) {
+		expressionStack.push(binaryExpression(node, node.getEqualityExpression(), node.getEqualityBinaryOp(), node.getComparativeExpression()));
 	}
 	
 	@Override
-	public void caseABinaryExpression2(ABinaryExpression2 node) {
-		expressionStack.push(binaryExpression(node, node.getExpression2(), node.getComparativeBinaryOp(), node.getExpression3()));
+	public void caseAPrioritizedComparativeExpression(APrioritizedComparativeExpression node) {
+		node.getAdditiveExpression().apply(this);
 	}
 	
 	@Override
-	public void caseAPrioritizedExpression3(APrioritizedExpression3 node) {
-		node.getExpression4().apply(this);
+	public void caseABinaryComparativeExpression(ABinaryComparativeExpression node) {
+		expressionStack.push(binaryExpression(node, node.getComparativeExpression(), node.getComparativeBinaryOp(), node.getAdditiveExpression()));
 	}
 	
 	@Override
-	public void caseABinaryExpression3(ABinaryExpression3 node) {
-		expressionStack.push(binaryExpression(node, node.getExpression3(), node.getAdditiveBinaryOp(), node.getExpression4()));
+	public void caseAPrioritizedAdditiveExpression(APrioritizedAdditiveExpression node) {
+		node.getMultiplicativeExpression().apply(this);
 	}
 	
 	@Override
-	public void caseAPrioritizedExpression4(APrioritizedExpression4 node) {
-		node.getExpression5().apply(this);
+	public void caseABinaryAdditiveExpression(ABinaryAdditiveExpression node) {
+		expressionStack.push(binaryExpression(node, node.getAdditiveExpression(), node.getAdditiveBinaryOp(), node.getMultiplicativeExpression()));
 	}
 	
 	@Override
-	public void caseABinaryExpression4(ABinaryExpression4 node) {
-		expressionStack.push(binaryExpression(node, node.getExpression4(), node.getMultiplicativeBinaryOp(), node.getExpression5()));
+	public void caseAPrioritizedMultiplicativeExpression(APrioritizedMultiplicativeExpression node) {
+		node.getShiftExpression().apply(this);
 	}
 	
 	@Override
-	public void caseAPrioritizedExpression5(APrioritizedExpression5 node) {
-		node.getExpression6().apply(this);
+	public void caseABinaryMultiplicativeExpression(ABinaryMultiplicativeExpression node) {
+		expressionStack.push(binaryExpression(node, node.getMultiplicativeExpression(), node.getMultiplicativeBinaryOp(), node.getShiftExpression()));
 	}
 	
 	@Override
-	public void caseABinaryExpression5(ABinaryExpression5 node) {
-		expressionStack.push(binaryExpression(node, node.getExpression5(), node.getShiftBinaryOp(), node.getExpression6()));
+	public void caseAPrioritizedShiftExpression(APrioritizedShiftExpression node) {
+		node.getUnaryExpression().apply(this);
 	}
 	
 	@Override
-	public void caseAPrioritizedExpression6(APrioritizedExpression6 node) {
-		node.getExpression7().apply(this);
+	public void caseABinaryShiftExpression(ABinaryShiftExpression node) {
+		expressionStack.push(binaryExpression(node, node.getShiftExpression(), node.getShiftBinaryOp(), node.getUnaryExpression()));
 	}
 	
 	@Override
-	public void caseAUnaryExpression6(AUnaryExpression6 node) {
-		expressionStack.push(new UnaryExpressionNode(array(node), UnaryOpType.get(trim(node.getUnaryOp())), expression(node.getExpression6())));
+	public void caseAPrioritizedUnaryExpression(APrioritizedUnaryExpression node) {
+		node.getCompoundExpression().apply(this);
 	}
 	
 	@Override
-	public void caseADereferenceExpression6(ADereferenceExpression6 node) {
-		expressionStack.push(new DereferenceExpressionNode(array(node), expression(node.getExpression6())));
+	public void caseAUnaryUnaryExpression(AUnaryUnaryExpression node) {
+		expressionStack.push(new UnaryExpressionNode(array(node), UnaryOpType.get(trim(node.getUnaryOp())), expression(node.getUnaryExpression())));
 	}
 	
 	@Override
-	public void caseAAddressOfExpression6(AAddressOfExpression6 node) {
-		expressionStack.push(new AddressExpressionNode(array(node), node.getMut() != null, expression(node.getExpression6())));
+	public void caseADereferenceUnaryExpression(ADereferenceUnaryExpression node) {
+		expressionStack.push(new DereferenceExpressionNode(array(node), expression(node.getUnaryExpression())));
 	}
 	
 	@Override
-	public void caseADoubleAddressOfExpression6(ADoubleAddressOfExpression6 node) {
-		expressionStack.push(new AddressExpressionNode(array(node), false, new AddressExpressionNode(array(node), node.getMut() != null, expression(node.getExpression6()))));
+	public void caseAAddressOfUnaryExpression(AAddressOfUnaryExpression node) {
+		expressionStack.push(new AddressExpressionNode(array(node), node.getMut() != null, expression(node.getUnaryExpression())));
 	}
 	
 	@Override
-	public void caseAParenthesesExpression7(AParenthesesExpression7 node) {
+	public void caseADoubleAddressOfUnaryExpression(ADoubleAddressOfUnaryExpression node) {
+		expressionStack.push(new AddressExpressionNode(array(node), false, new AddressExpressionNode(array(node), node.getMut() != null, expression(node.getUnaryExpression()))));
+	}
+	
+	@Override
+	public void caseAParenthesesCompoundExpression(AParenthesesCompoundExpression node) {
 		node.getParenthesesExpression().apply(this);
 	}
 	
 	@Override
-	public void caseASimpleExpression7(ASimpleExpression7 node) {
+	public void caseASimpleCompoundExpression(ASimpleCompoundExpression node) {
 		node.getSimpleExpression().apply(this);
 	}
 	
 	@Override
-	public void caseAArrayListExpression7(AArrayListExpression7 node) {
+	public void caseAArrayListCompoundExpression(AArrayListCompoundExpression node) {
 		expressionStack.push(new ArrayListExpressionNode(array(node), expressionList(node.getExpressionList())));
 	}
 	
 	@Override
-	public void caseAArrayRepeatExpression7(AArrayRepeatExpression7 node) {
+	public void caseAArrayRepeatCompoundExpression(AArrayRepeatCompoundExpression node) {
 		expressionStack.push(new ArrayRepeatExpressionNode(array(node), expression(node.getExpression()), expression(node.getConstantExpression())));
 	}
 	
 	@Override
-	public void caseAIndexExpression7(AIndexExpression7 node) {
-		expressionStack.push(new IndexExpressionNode(array(node), expression(node.getExpression7()), expression(node.getExpression())));
+	public void caseAIndexCompoundExpression(AIndexCompoundExpression node) {
+		expressionStack.push(new IndexExpressionNode(array(node), expression(node.getCompoundExpression()), expression(node.getExpression())));
 	}
 	
 	@Override
-	public void caseATupleExpression7(ATupleExpression7 node) {
+	public void caseATupleCompoundExpression(ATupleCompoundExpression node) {
 		expressionStack.push(new TupleExpressionNode(array(node), tupleExpressionList(node.getTupleExpressionList())));
 	}
 	
 	@Override
-	public void caseAStructExpression7(AStructExpression7 node) {
+	public void caseAStructCompoundExpression(AStructCompoundExpression node) {
 		expressionStack.push(new StructExpressionNode(array(node), text(node.getName()), expressionList(node.getExpressionList())));
 	}
 	
 	@Override
-	public void caseAMemberExpression7(AMemberExpression7 node) {
-		@NonNull ExpressionNode expression = expression(node.getExpression7());
+	public void caseAMemberCompoundExpression(AMemberCompoundExpression node) {
+		@NonNull ExpressionNode expression = expression(node.getCompoundExpression());
 		expressionStack.push(new MemberExpressionNode(array(node), expression, trim(node.getSimpleExpression())));
 	}
 	
 	@Override
-	public void caseAFunctionExpression7(AFunctionExpression7 node) {
-		expressionStack.push(new FunctionCallExpressionNode(array(node), expression(node.getExpression7()), expressionList(node.getExpressionList())));
+	public void caseAFunctionCompoundExpression(AFunctionCompoundExpression node) {
+		expressionStack.push(new FunctionCallExpressionNode(array(node), expression(node.getCompoundExpression()), expressionList(node.getExpressionList())));
 	}
 	
 	@Override
@@ -693,128 +688,153 @@ public class ParseVisitor extends AnalysisAdapter {
 	}
 	
 	@Override
-	public void caseAPrioritizedConditionalExpression0(APrioritizedConditionalExpression0 node) {
-		node.getConditionalExpression1().apply(this);
+	public void caseAConstantExpression(AConstantExpression node) {
+		node.getExpression().apply(this);
 	}
 	
 	@Override
-	public void caseABinaryConditionalExpression0(ABinaryConditionalExpression0 node) {
-		expressionStack.push(binaryExpression(node, node.getConditionalExpression0(), node.getLogicalBinaryOp(), node.getConditionalExpression1()));
+	public void caseAPrioritizedConditionExpression(APrioritizedConditionExpression node) {
+		node.getConditionTernaryExpression().apply(this);
 	}
 	
 	@Override
-	public void caseAPrioritizedConditionalExpression1(APrioritizedConditionalExpression1 node) {
-		node.getConditionalExpression2().apply(this);
+	public void caseAAssignmentConditionExpression(AAssignmentConditionExpression node) {
+		expressionStack.push(new AssignmentExpressionNode(array(node), expression(node.getConditionUnaryExpression()), AssignmentOpType.get(trim(node.getAssignmentOp())), expression(node.getConditionExpression())));
 	}
 	
 	@Override
-	public void caseABinaryConditionalExpression1(ABinaryConditionalExpression1 node) {
-		expressionStack.push(binaryExpression(node, node.getConditionalExpression1(), node.getEqualityBinaryOp(), node.getConditionalExpression2()));
+	public void caseAPrioritizedConditionTernaryExpression(APrioritizedConditionTernaryExpression node) {
+		node.getConditionLogicalExpression().apply(this);
 	}
 	
 	@Override
-	public void caseAPrioritizedConditionalExpression2(APrioritizedConditionalExpression2 node) {
-		node.getConditionalExpression3().apply(this);
+	public void caseATernaryConditionTernaryExpression(ATernaryConditionTernaryExpression node) {
+		expressionStack.push(new TernaryExpressionNode(array(node), expression(node.getConditionLogicalExpression()), expression(node.getExpression()), expression(node.getConditionTernaryExpression())));
 	}
 	
 	@Override
-	public void caseABinaryConditionalExpression2(ABinaryConditionalExpression2 node) {
-		expressionStack.push(binaryExpression(node, node.getConditionalExpression2(), node.getComparativeBinaryOp(), node.getConditionalExpression3()));
+	public void caseAPrioritizedConditionLogicalExpression(APrioritizedConditionLogicalExpression node) {
+		node.getConditionEqualityExpression().apply(this);
 	}
 	
 	@Override
-	public void caseAPrioritizedConditionalExpression3(APrioritizedConditionalExpression3 node) {
-		node.getConditionalExpression4().apply(this);
+	public void caseABinaryConditionLogicalExpression(ABinaryConditionLogicalExpression node) {
+		expressionStack.push(binaryExpression(node, node.getConditionLogicalExpression(), node.getLogicalBinaryOp(), node.getConditionEqualityExpression()));
 	}
 	
 	@Override
-	public void caseABinaryConditionalExpression3(ABinaryConditionalExpression3 node) {
-		expressionStack.push(binaryExpression(node, node.getConditionalExpression3(), node.getAdditiveBinaryOp(), node.getConditionalExpression4()));
+	public void caseAPrioritizedConditionEqualityExpression(APrioritizedConditionEqualityExpression node) {
+		node.getConditionComparativeExpression().apply(this);
 	}
 	
 	@Override
-	public void caseAPrioritizedConditionalExpression4(APrioritizedConditionalExpression4 node) {
-		node.getConditionalExpression5().apply(this);
+	public void caseABinaryConditionEqualityExpression(ABinaryConditionEqualityExpression node) {
+		expressionStack.push(binaryExpression(node, node.getConditionEqualityExpression(), node.getEqualityBinaryOp(), node.getConditionComparativeExpression()));
 	}
 	
 	@Override
-	public void caseABinaryConditionalExpression4(ABinaryConditionalExpression4 node) {
-		expressionStack.push(binaryExpression(node, node.getConditionalExpression4(), node.getMultiplicativeBinaryOp(), node.getConditionalExpression5()));
+	public void caseAPrioritizedConditionComparativeExpression(APrioritizedConditionComparativeExpression node) {
+		node.getConditionAdditiveExpression().apply(this);
 	}
 	
 	@Override
-	public void caseAPrioritizedConditionalExpression5(APrioritizedConditionalExpression5 node) {
-		node.getConditionalExpression6().apply(this);
+	public void caseABinaryConditionComparativeExpression(ABinaryConditionComparativeExpression node) {
+		expressionStack.push(binaryExpression(node, node.getConditionComparativeExpression(), node.getComparativeBinaryOp(), node.getConditionAdditiveExpression()));
 	}
 	
 	@Override
-	public void caseABinaryConditionalExpression5(ABinaryConditionalExpression5 node) {
-		expressionStack.push(binaryExpression(node, node.getConditionalExpression5(), node.getShiftBinaryOp(), node.getConditionalExpression6()));
+	public void caseAPrioritizedConditionAdditiveExpression(APrioritizedConditionAdditiveExpression node) {
+		node.getConditionMultiplicativeExpression().apply(this);
 	}
 	
 	@Override
-	public void caseAPrioritizedConditionalExpression6(APrioritizedConditionalExpression6 node) {
-		node.getConditionalExpression7().apply(this);
+	public void caseABinaryConditionAdditiveExpression(ABinaryConditionAdditiveExpression node) {
+		expressionStack.push(binaryExpression(node, node.getConditionAdditiveExpression(), node.getAdditiveBinaryOp(), node.getConditionMultiplicativeExpression()));
 	}
 	
 	@Override
-	public void caseAUnaryConditionalExpression6(AUnaryConditionalExpression6 node) {
-		expressionStack.push(new UnaryExpressionNode(array(node), UnaryOpType.get(trim(node.getUnaryOp())), expression(node.getConditionalExpression6())));
+	public void caseAPrioritizedConditionMultiplicativeExpression(APrioritizedConditionMultiplicativeExpression node) {
+		node.getConditionShiftExpression().apply(this);
 	}
 	
 	@Override
-	public void caseADereferenceConditionalExpression6(ADereferenceConditionalExpression6 node) {
-		expressionStack.push(new DereferenceExpressionNode(array(node), expression(node.getConditionalExpression6())));
+	public void caseABinaryConditionMultiplicativeExpression(ABinaryConditionMultiplicativeExpression node) {
+		expressionStack.push(binaryExpression(node, node.getConditionMultiplicativeExpression(), node.getMultiplicativeBinaryOp(), node.getConditionShiftExpression()));
 	}
 	
 	@Override
-	public void caseAAddressOfConditionalExpression6(AAddressOfConditionalExpression6 node) {
-		expressionStack.push(new AddressExpressionNode(array(node), node.getMut() != null, expression(node.getConditionalExpression6())));
+	public void caseAPrioritizedConditionShiftExpression(APrioritizedConditionShiftExpression node) {
+		node.getConditionUnaryExpression().apply(this);
 	}
 	
 	@Override
-	public void caseADoubleAddressOfConditionalExpression6(ADoubleAddressOfConditionalExpression6 node) {
-		expressionStack.push(new AddressExpressionNode(array(node), false, new AddressExpressionNode(array(node), node.getMut() != null, expression(node.getConditionalExpression6()))));
+	public void caseABinaryConditionShiftExpression(ABinaryConditionShiftExpression node) {
+		expressionStack.push(binaryExpression(node, node.getConditionShiftExpression(), node.getShiftBinaryOp(), node.getConditionUnaryExpression()));
 	}
 	
 	@Override
-	public void caseAParenthesesConditionalExpression7(AParenthesesConditionalExpression7 node) {
+	public void caseAPrioritizedConditionUnaryExpression(APrioritizedConditionUnaryExpression node) {
+		node.getConditionCompoundExpression().apply(this);
+	}
+	
+	@Override
+	public void caseAUnaryConditionUnaryExpression(AUnaryConditionUnaryExpression node) {
+		expressionStack.push(new UnaryExpressionNode(array(node), UnaryOpType.get(trim(node.getUnaryOp())), expression(node.getConditionUnaryExpression())));
+	}
+	
+	@Override
+	public void caseADereferenceConditionUnaryExpression(ADereferenceConditionUnaryExpression node) {
+		expressionStack.push(new DereferenceExpressionNode(array(node), expression(node.getConditionUnaryExpression())));
+	}
+	
+	@Override
+	public void caseAAddressOfConditionUnaryExpression(AAddressOfConditionUnaryExpression node) {
+		expressionStack.push(new AddressExpressionNode(array(node), node.getMut() != null, expression(node.getConditionUnaryExpression())));
+	}
+	
+	@Override
+	public void caseADoubleAddressOfConditionUnaryExpression(ADoubleAddressOfConditionUnaryExpression node) {
+		expressionStack.push(new AddressExpressionNode(array(node), false, new AddressExpressionNode(array(node), node.getMut() != null, expression(node.getConditionUnaryExpression()))));
+	}
+	
+	@Override
+	public void caseAParenthesesConditionCompoundExpression(AParenthesesConditionCompoundExpression node) {
 		node.getParenthesesExpression().apply(this);
 	}
 	
 	@Override
-	public void caseASimpleConditionalExpression7(ASimpleConditionalExpression7 node) {
+	public void caseASimpleConditionCompoundExpression(ASimpleConditionCompoundExpression node) {
 		node.getSimpleExpression().apply(this);
 	}
 	
 	@Override
-	public void caseAArrayListConditionalExpression7(AArrayListConditionalExpression7 node) {
+	public void caseAArrayListConditionCompoundExpression(AArrayListConditionCompoundExpression node) {
 		expressionStack.push(new ArrayListExpressionNode(array(node), expressionList(node.getExpressionList())));
 	}
 	
 	@Override
-	public void caseAArrayRepeatConditionalExpression7(AArrayRepeatConditionalExpression7 node) {
+	public void caseAArrayRepeatConditionCompoundExpression(AArrayRepeatConditionCompoundExpression node) {
 		expressionStack.push(new ArrayRepeatExpressionNode(array(node), expression(node.getExpression()), expression(node.getConstantExpression())));
 	}
 	
 	@Override
-	public void caseAIndexConditionalExpression7(AIndexConditionalExpression7 node) {
-		expressionStack.push(new IndexExpressionNode(array(node), expression(node.getConditionalExpression7()), expression(node.getExpression())));
+	public void caseAIndexConditionCompoundExpression(AIndexConditionCompoundExpression node) {
+		expressionStack.push(new IndexExpressionNode(array(node), expression(node.getConditionCompoundExpression()), expression(node.getExpression())));
 	}
 	
 	@Override
-	public void caseATupleConditionalExpression7(ATupleConditionalExpression7 node) {
+	public void caseATupleConditionCompoundExpression(ATupleConditionCompoundExpression node) {
 		expressionStack.push(new TupleExpressionNode(array(node), tupleExpressionList(node.getTupleExpressionList())));
 	}
 	
 	@Override
-	public void caseAMemberConditionalExpression7(AMemberConditionalExpression7 node) {
-		@NonNull ExpressionNode expression = expression(node.getConditionalExpression7());
+	public void caseAMemberConditionCompoundExpression(AMemberConditionCompoundExpression node) {
+		@NonNull ExpressionNode expression = expression(node.getConditionCompoundExpression());
 		expressionStack.push(new MemberExpressionNode(array(node), expression, trim(node.getSimpleExpression())));
 	}
 	
 	@Override
-	public void caseAFunctionConditionalExpression7(AFunctionConditionalExpression7 node) {
-		expressionStack.push(new FunctionCallExpressionNode(array(node), expression(node.getConditionalExpression7()), expressionList(node.getExpressionList())));
+	public void caseAFunctionConditionCompoundExpression(AFunctionConditionCompoundExpression node) {
+		expressionStack.push(new FunctionCallExpressionNode(array(node), expression(node.getConditionCompoundExpression()), expressionList(node.getExpressionList())));
 	}
 }

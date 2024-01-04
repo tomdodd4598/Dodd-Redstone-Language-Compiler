@@ -1,5 +1,7 @@
 package drlc.intermediate.ast;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import drlc.Helpers;
 import drlc.Helpers.Pair;
 import drlc.intermediate.component.type.TypeInfo;
@@ -11,8 +13,10 @@ public abstract class ASTNode<SCOPE extends Scope, ROUTINE extends Routine> {
 	
 	public Node[] parseNodes;
 	
-	public SCOPE scope;
-	public ROUTINE routine;
+	@SuppressWarnings("null")
+	public @NonNull SCOPE scope = null;
+	@SuppressWarnings("null")
+	public @NonNull ROUTINE routine = null;
 	
 	protected ASTNode(Node[] parseNodes) {
 		this.parseNodes = parseNodes;
