@@ -5,7 +5,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.element.ScopeContentsNode;
 import drlc.intermediate.routine.Routine;
-import drlc.intermediate.scope.*;
+import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
 public class ScopedSectionNode extends RuntimeSectionNode<Scope, Routine> {
@@ -19,7 +19,7 @@ public class ScopedSectionNode extends RuntimeSectionNode<Scope, Routine> {
 	
 	@Override
 	public void setScopes(ASTNode<?, ?> parent) {
-		scope = new StandardScope(parent.scope);
+		scope = new Scope(parent.scope);
 		
 		scopeContentsNode.setScopes(this);
 	}

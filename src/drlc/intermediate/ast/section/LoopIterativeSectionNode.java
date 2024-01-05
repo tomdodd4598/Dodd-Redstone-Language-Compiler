@@ -18,7 +18,7 @@ public class LoopIterativeSectionNode extends IterativeSectionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?, ?> parent) {
-		scope = new IterativeScope(parent.scope, label, true);
+		scope = new IterativeScope(parent.scope, true, label);
 		
 		bodyNode.setScopes(this);
 	}

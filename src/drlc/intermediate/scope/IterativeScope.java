@@ -7,22 +7,14 @@ import drlc.intermediate.ast.ASTNode;
 
 public class IterativeScope extends Scope {
 	
-	public final boolean definiteExecution;
-	
 	public final @Nullable String label;
 	
 	public final @NonNull JumpAction continueJump = new JumpAction(null, -1), breakJump = new JumpAction(null, -1);
 	
-	public IterativeScope(Scope parent, @Nullable String label, boolean definiteExecution) {
+	public IterativeScope(Scope parent, boolean definiteExecution, @Nullable String label) {
 		super(parent);
-		this.label = label;
-		
 		this.definiteExecution = definiteExecution;
-	}
-	
-	@Override
-	public boolean checkCompleteReturn() {
-		return definiteExecution && (definiteLocalReturn || children.stream().anyMatch(Scope::checkCompleteReturn));
+		this.label = label;
 	}
 	
 	protected boolean labelMatch(@Nullable String label) {

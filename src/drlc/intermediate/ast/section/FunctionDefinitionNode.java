@@ -86,7 +86,7 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope, Fun
 		
 		bodyNode.declareExpressions(this);
 		
-		if (!returnType.equals(Main.generator.voidTypeInfo) && !scope.checkCompleteReturn()) {
+		if (!returnType.equals(Main.generator.voidTypeInfo) && !scope.hasDefiniteReturn()) {
 			throw error("Function \"%s\" does not always return value of expected type \"%s\"!", name, returnType);
 		}
 	}

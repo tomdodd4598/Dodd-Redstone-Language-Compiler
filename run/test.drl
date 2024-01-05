@@ -503,10 +503,5 @@ fn main() {
 }
 
 fn test() -> Int {
-	if inbool() {
-		return 1;
-	}
-	else {
-		return 2;
-	}
+	loop { return 1; }
 }

@@ -336,7 +336,7 @@ public class ParseVisitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAConditionalSection(AConditionalSection node) {
-		conditionalSectionStack.push(new ConditionalSectionNode(array(node), unless(node.getConditionalBranchKeyword()), expression(node.getConditionExpression()), scope(node.getScopeContents()), traverseNullable(node.getElseSection(), conditionalEndStack)));
+		conditionalSectionStack.push(new ConditionalSectionNode(array(node), unless(node.getConditionalBranchKeyword()), expression(node.getConditionExpression()), new ScopedSectionNode(array(node), scope(node.getScopeContents())), traverseNullable(node.getElseSection(), conditionalEndStack)));
 	}
 	
 	@Override

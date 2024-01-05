@@ -16,7 +16,7 @@ public class RootScope extends Scope {
 	}
 	
 	@Override
-	public boolean checkCompleteReturn() {
+	public boolean hasDefiniteReturn() {
 		return true;
 	}
 	

@@ -10,10 +10,6 @@ nesting fn main() -> ():
 	x = call $test()
 	ret $()
 
-nesting fn test() -> Int:
+leaf fn test() -> Int:
 {0}:
-	%t = call builtin $inbool()
-	cnj 1
 	ret $1
-{1}:
-	ret $2

@@ -16,7 +16,7 @@ import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.FunctionItemValue;
 import drlc.intermediate.routine.Routine;
 
-public abstract class Scope {
+public class Scope {
 	
 	private static long idCounter = 0;
 	
@@ -34,6 +34,10 @@ public abstract class Scope {
 	protected final HierarchyMap<String, Variable> variableMap;
 	protected final HierarchyMap<String, Function> functionMap;
 	protected final HierarchyMap<String, Routine> routineMap;
+	
+	protected final Set<Variable> initializationSet = new HashSet<>();
+	
+	public boolean definiteExecution = true;
 	
 	public boolean definiteLocalReturn = false;
 	
@@ -347,7 +351,9 @@ public abstract class Scope {
 	
 	// Control flow
 	
-	public abstract boolean checkCompleteReturn();
+	public boolean hasDefiniteReturn() {
+		return definiteLocalReturn || children.stream().anyMatch(x -> x.definiteExecution && x.hasDefiniteReturn());
+	}
 	
 	public boolean isBreakable(@Nullable String label) {
 		return parent != null && parent.isBreakable(label);
@@ -364,4 +370,10 @@ public abstract class Scope {
 	public @Nullable Function getContextFunction() {
 		return parent == null ? null : parent.getContextFunction();
 	}
+	
+	/*public updateParentInitialization() {
+		if () {
+			
+		}
+	}*/
 }

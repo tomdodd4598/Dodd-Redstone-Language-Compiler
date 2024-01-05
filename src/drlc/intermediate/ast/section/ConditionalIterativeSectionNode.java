@@ -26,7 +26,7 @@ public class ConditionalIterativeSectionNode extends IterativeSectionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?, ?> parent) {
-		scope = new IterativeScope(parent.scope, label, _do);
+		scope = new IterativeScope(parent.scope, _do, label);
 		
 		expressionNode.setScopes(this);
 		bodyNode.setScopes(this);
