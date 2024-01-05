@@ -28,38 +28,37 @@ public class Scope {
 	
 	protected final List<Scope> children = new ArrayList<>();
 	
-	protected final HierarchyMap<String, RawType> rawTypeMap;
-	protected final HierarchyMap<String, TypeInfo> aliasTypeMap;
-	protected final HierarchyMap<String, Constant> constantMap;
-	protected final HierarchyMap<String, Variable> variableMap;
-	protected final HierarchyMap<String, Function> functionMap;
-	protected final HierarchyMap<String, Routine> routineMap;
-	
-	protected final Set<Variable> initializationSet = new HashSet<>();
+	protected final Hierarchy<String, RawType> rawTypeMap;
+	protected final Hierarchy<String, TypeInfo> aliasTypeMap;
+	protected final Hierarchy<String, Constant> constantMap;
+	protected final Hierarchy<String, Variable> variableMap;
+	protected final Hierarchy<String, Function> functionMap;
+	protected final Hierarchy<String, Routine> routineMap;
 	
 	public boolean definiteExecution = true;
-	
 	public boolean definiteLocalReturn = false;
+	
+	protected final Set<Variable> initializationSet = new HashSet<>();
 	
 	public Scope(Scope parent) {
 		this.parent = parent;
 		
 		if (parent == null) {
-			rawTypeMap = new HierarchyMap<>(null);
-			aliasTypeMap = new HierarchyMap<>(null);
-			constantMap = new HierarchyMap<>(null);
-			variableMap = new HierarchyMap<>(null);
-			functionMap = new HierarchyMap<>(null);
-			routineMap = new HierarchyMap<>(null);
+			rawTypeMap = new Hierarchy<>(null);
+			aliasTypeMap = new Hierarchy<>(null);
+			constantMap = new Hierarchy<>(null);
+			variableMap = new Hierarchy<>(null);
+			functionMap = new Hierarchy<>(null);
+			routineMap = new Hierarchy<>(null);
 		}
 		else {
 			parent.children.add(this);
-			rawTypeMap = new HierarchyMap<>(parent.rawTypeMap);
-			aliasTypeMap = new HierarchyMap<>(parent.aliasTypeMap);
-			constantMap = new HierarchyMap<>(parent.constantMap);
-			variableMap = new HierarchyMap<>(parent.variableMap);
-			functionMap = new HierarchyMap<>(parent.functionMap);
-			routineMap = new HierarchyMap<>(parent.routineMap);
+			rawTypeMap = new Hierarchy<>(parent.rawTypeMap);
+			aliasTypeMap = new Hierarchy<>(parent.aliasTypeMap);
+			constantMap = new Hierarchy<>(parent.constantMap);
+			variableMap = new Hierarchy<>(parent.variableMap);
+			functionMap = new Hierarchy<>(parent.functionMap);
+			routineMap = new Hierarchy<>(parent.routineMap);
 		}
 	}
 	
@@ -76,7 +75,7 @@ public class Scope {
 	
 	// Iterables
 	
-	protected <T, K, V> Iterable<T> iterable(java.util.function.Function<? super Scope, ? extends HierarchyMap<K, V>> supplier, java.util.function.Function<? super Map<K, V>, ? extends Iterable<T>> mapFunction, BiFunction<? super HierarchyMap<K, V>, ? super Boolean, ? extends Iterable<T>> hierarchyFunction, boolean children) {
+	protected <T, K, V> Iterable<T> iterable(java.util.function.Function<? super Scope, ? extends Hierarchy<K, V>> supplier, java.util.function.Function<? super Map<K, V>, ? extends Iterable<T>> mapFunction, BiFunction<? super Hierarchy<K, V>, ? super Boolean, ? extends Iterable<T>> hierarchyFunction, boolean children) {
 		return () -> new Iterator<T>() {
 			
 			Iterator<T> current = supplier.apply(Scope.this).iterable(mapFunction, hierarchyFunction, true).iterator();
@@ -101,8 +100,8 @@ public class Scope {
 	}
 	
 	@SuppressWarnings("null")
-	protected <K, V> Iterable<Entry<K, V>> entryIterable(java.util.function.Function<? super Scope, ? extends HierarchyMap<K, V>> supplier, boolean children) {
-		return iterable(supplier, Map::entrySet, HierarchyMap::entryIterable, children);
+	protected <K, V> Iterable<Entry<K, V>> entryIterable(java.util.function.Function<? super Scope, ? extends Hierarchy<K, V>> supplier, boolean children) {
+		return iterable(supplier, Map::entrySet, Hierarchy::entryIterable, children);
 	}
 	
 	public Iterable<Entry<String, Routine>> routineEntryIterable(boolean children) {
@@ -110,8 +109,8 @@ public class Scope {
 	}
 	
 	@SuppressWarnings("null")
-	protected <K, V> Iterable<V> valueIterable(java.util.function.Function<? super Scope, ? extends HierarchyMap<K, V>> supplier, boolean children) {
-		return iterable(supplier, Map::values, HierarchyMap::valueIterable, children);
+	protected <K, V> Iterable<V> valueIterable(java.util.function.Function<? super Scope, ? extends Hierarchy<K, V>> supplier, boolean children) {
+		return iterable(supplier, Map::values, Hierarchy::valueIterable, children);
 	}
 	
 	public Iterable<Routine> routineIterable(boolean children) {
@@ -120,7 +119,7 @@ public class Scope {
 	
 	// Foreach
 	
-	protected <K, V> void forEachEntry(java.util.function.Function<? super Scope, ? extends HierarchyMap<K, V>> supplier, BiConsumer<? super K, ? super V> consumer, boolean children) {
+	protected <K, V> void forEachEntry(java.util.function.Function<? super Scope, ? extends Hierarchy<K, V>> supplier, BiConsumer<? super K, ? super V> consumer, boolean children) {
 		supplier.apply(this).forEachEntry(consumer, true);
 		if (children) {
 			for (Scope child : this.children) {
@@ -133,7 +132,7 @@ public class Scope {
 		forEachEntry(x -> x.routineMap, consumer, children);
 	}
 	
-	protected <K, V> void forEachValue(java.util.function.Function<? super Scope, ? extends HierarchyMap<K, V>> supplier, Consumer<? super V> consumer, boolean children) {
+	protected <K, V> void forEachValue(java.util.function.Function<? super Scope, ? extends Hierarchy<K, V>> supplier, Consumer<? super V> consumer, boolean children) {
 		supplier.apply(this).forEachValue(consumer, true);
 		if (children) {
 			for (Scope child : this.children) {
@@ -355,6 +354,10 @@ public class Scope {
 		return definiteLocalReturn || children.stream().anyMatch(x -> x.definiteExecution && x.hasDefiniteReturn());
 	}
 	
+	public @Nullable Function getContextFunction() {
+		return parent == null ? null : parent.getContextFunction();
+	}
+	
 	public boolean isBreakable(@Nullable String label) {
 		return parent != null && parent.isBreakable(label);
 	}
@@ -367,13 +370,32 @@ public class Scope {
 		return parent.getBreakJump(node, label);
 	}
 	
-	public @Nullable Function getContextFunction() {
-		return parent == null ? null : parent.getContextFunction();
+	// Variable initialization
+	
+	public void onVariableInitialization(ASTNode<?, ?> node, Variable variable) {
+		if (!variable.modifier.mutable && isVariablePotentiallyInitialized(variable)) {
+			throw Helpers.nodeError(node, "Attempted to assign twice to immutable variable \"%s\"!", variable.name);
+		}
+		initializationSet.add(variable);
 	}
 	
-	/*public updateParentInitialization() {
-		if () {
-			
-		}
-	}*/
+	protected boolean isSubScope(Scope other) {
+		return equals(other) || children.stream().anyMatch(x -> x.isSubScope(other));
+	}
+	
+	public boolean isVariablePotentiallyInitialized(Variable variable) {
+		return variable.scope.isVariablePotentiallyInitializedInternal(variable, this);
+	}
+	
+	protected boolean isVariablePotentiallyInitializedInternal(Variable variable, Scope location) {
+		return initializationSet.contains(variable) || children.stream().anyMatch(x -> x.isVariablePotentiallyInitializedInternal(variable, location));
+	}
+	
+	public boolean isVariableDefinitelyInitialized(Variable variable) {
+		return variable.scope.isVariableDefinitelyInitializedInternal(variable);
+	}
+	
+	protected boolean isVariableDefinitelyInitializedInternal(Variable variable) {
+		return initializationSet.contains(variable) || children.stream().anyMatch(x -> x.definiteExecution && x.isVariableDefinitelyInitializedInternal(variable));
+	}
 }

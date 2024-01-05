@@ -23,14 +23,6 @@ public class Variable {
 		this.typeInfo = typeInfo;
 	}
 	
-	public boolean isStatic() {
-		return modifier._static;
-	}
-	
-	public boolean isMutable() {
-		return modifier.mutable;
-	}
-	
 	public @NonNull Variable atOffset(ASTNode<?, ?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
 		@NonNull Variable atIndex = new Variable(name, modifier, typeInfo.atOffset(node, offset, expectedTypeInfo));
 		atIndex.scope = scope;

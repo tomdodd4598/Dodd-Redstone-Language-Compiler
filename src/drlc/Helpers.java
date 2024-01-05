@@ -135,8 +135,7 @@ public class Helpers {
 		}
 	}
 	
-	public static String substring(String s, int minLine, int minPos, int maxLine, int maxPos) {
-		String[] lines = s.split("\\R", -1);
+	public static String substring(String[] lines, int minLine, int minPos, int maxLine, int maxPos) {
 		if (minLine == maxLine) {
 			return lines[minLine].substring(minPos, maxPos);
 		}
@@ -179,8 +178,7 @@ public class Helpers {
 		int minLine = min.getLine(), minPos = min.getPos(), maxLine = max.getLine(), maxPos = max.getPos() + max.getText().length();
 		
 		String range = String.format("%s:%s -> %s:%s", minLine, minPos, maxLine, maxPos);
-		String source = substring(Main.source, minLine - 1, minPos - 1, maxLine - 1, maxPos - 1);
-		
+		String source = substring(Main.source.split("\\R", -1), minLine - 1, minPos - 1, maxLine - 1, maxPos - 1);
 		return new Pair<>(range, source);
 	}
 	

@@ -61,8 +61,8 @@ public class DeclaratorNode extends ASTNode<Scope, Routine> {
 		
 		if (functionParameter) {
 			declaratorInfo = new DeclaratorInfo(new Variable(name, variableModifier, typeNode.typeInfo));
-			
 			scope.addVariable(this, declaratorInfo.variable, false);
+			scope.onVariableInitialization(this, declaratorInfo.variable);
 		}
 	}
 	
@@ -74,7 +74,6 @@ public class DeclaratorNode extends ASTNode<Scope, Routine> {
 		
 		if (!functionParameter) {
 			declaratorInfo = new DeclaratorInfo(new Variable(name, variableModifier, typeNode == null ? inferredTypeInfo : typeNode.typeInfo));
-			
 			scope.addVariable(this, declaratorInfo.variable, false);
 		}
 	}

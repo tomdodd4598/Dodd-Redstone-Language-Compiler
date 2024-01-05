@@ -19,9 +19,9 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope, Fun
 	public final @NonNull String name;
 	public final @NonNull List<DeclaratorNode> parameterNodes;
 	public final @Nullable TypeNode returnTypeNode;
-	public final @NonNull ScopeContentsNode bodyNode;
+	public final @NonNull ScopedBodyNode bodyNode;
 	
-	public FunctionDefinitionNode(Node[] parseNodes, @NonNull String name, @NonNull List<DeclaratorNode> parameterNodes, @Nullable TypeNode returnTypeNode, @NonNull ScopeContentsNode bodyNode) {
+	public FunctionDefinitionNode(Node[] parseNodes, @NonNull String name, @NonNull List<DeclaratorNode> parameterNodes, @Nullable TypeNode returnTypeNode, @NonNull ScopedBodyNode bodyNode) {
 		super(parseNodes);
 		this.name = name;
 		this.parameterNodes = parameterNodes;

@@ -450,25 +450,25 @@ public class Parser
                 push(goTo(16), list, false);
             }
             break;
-            case 42: /* reduce AAscopecontents1ScopeContents */
+            case 42: /* reduce AAscopedbody1ScopedBody */
             {
                 ArrayList<Object> list = new42();
                 push(goTo(17), list, false);
             }
             break;
-            case 43: /* reduce AAscopecontents2ScopeContents */
+            case 43: /* reduce AAscopedbody2ScopedBody */
             {
                 ArrayList<Object> list = new43();
                 push(goTo(17), list, false);
             }
             break;
-            case 44: /* reduce AAscopecontents3ScopeContents */
+            case 44: /* reduce AAscopedbody3ScopedBody */
             {
                 ArrayList<Object> list = new44();
                 push(goTo(17), list, false);
             }
             break;
-            case 45: /* reduce AAscopecontents4ScopeContents */
+            case 45: /* reduce AAscopedbody4ScopedBody */
             {
                 ArrayList<Object> list = new45();
                 push(goTo(17), list, false);
@@ -2074,17 +2074,17 @@ public class Parser
         TRPar trparNode6;
         @SuppressWarnings("unused") Object nullNode7 = null;
         TLBrace tlbraceNode8;
-        PScopeContents pscopecontentsNode9;
+        PScopedBody pscopedbodyNode9;
         TRBrace trbraceNode10;
         tfnNode2 = (TFn)nodeArrayList1.get(0);
         tnameNode3 = (TName)nodeArrayList2.get(0);
         tlparNode4 = (TLPar)nodeArrayList3.get(0);
         trparNode6 = (TRPar)nodeArrayList4.get(0);
         tlbraceNode8 = (TLBrace)nodeArrayList5.get(0);
-        pscopecontentsNode9 = (PScopeContents)nodeArrayList6.get(0);
+        pscopedbodyNode9 = (PScopedBody)nodeArrayList6.get(0);
         trbraceNode10 = (TRBrace)nodeArrayList7.get(0);
 
-        pfunctiondefinitionNode1 = new AFunctionDefinition(tfnNode2, tnameNode3, tlparNode4, null, trparNode6, null, tlbraceNode8, pscopecontentsNode9, trbraceNode10);
+        pfunctiondefinitionNode1 = new AFunctionDefinition(tfnNode2, tnameNode3, tlparNode4, null, trparNode6, null, tlbraceNode8, pscopedbodyNode9, trbraceNode10);
         }
 	nodeList.add(pfunctiondefinitionNode1);
         return nodeList;
@@ -2115,7 +2115,7 @@ public class Parser
         TRPar trparNode6;
         @SuppressWarnings("unused") Object nullNode7 = null;
         TLBrace tlbraceNode8;
-        PScopeContents pscopecontentsNode9;
+        PScopedBody pscopedbodyNode9;
         TRBrace trbraceNode10;
         tfnNode2 = (TFn)nodeArrayList1.get(0);
         tnameNode3 = (TName)nodeArrayList2.get(0);
@@ -2123,10 +2123,10 @@ public class Parser
         pdeclaratorlistNode5 = (PDeclaratorList)nodeArrayList4.get(0);
         trparNode6 = (TRPar)nodeArrayList5.get(0);
         tlbraceNode8 = (TLBrace)nodeArrayList6.get(0);
-        pscopecontentsNode9 = (PScopeContents)nodeArrayList7.get(0);
+        pscopedbodyNode9 = (PScopedBody)nodeArrayList7.get(0);
         trbraceNode10 = (TRBrace)nodeArrayList8.get(0);
 
-        pfunctiondefinitionNode1 = new AFunctionDefinition(tfnNode2, tnameNode3, tlparNode4, pdeclaratorlistNode5, trparNode6, null, tlbraceNode8, pscopecontentsNode9, trbraceNode10);
+        pfunctiondefinitionNode1 = new AFunctionDefinition(tfnNode2, tnameNode3, tlparNode4, pdeclaratorlistNode5, trparNode6, null, tlbraceNode8, pscopedbodyNode9, trbraceNode10);
         }
 	nodeList.add(pfunctiondefinitionNode1);
         return nodeList;
@@ -2157,7 +2157,7 @@ public class Parser
         TRPar trparNode6;
         PReturnType preturntypeNode7;
         TLBrace tlbraceNode8;
-        PScopeContents pscopecontentsNode9;
+        PScopedBody pscopedbodyNode9;
         TRBrace trbraceNode10;
         tfnNode2 = (TFn)nodeArrayList1.get(0);
         tnameNode3 = (TName)nodeArrayList2.get(0);
@@ -2165,10 +2165,10 @@ public class Parser
         trparNode6 = (TRPar)nodeArrayList4.get(0);
         preturntypeNode7 = (PReturnType)nodeArrayList5.get(0);
         tlbraceNode8 = (TLBrace)nodeArrayList6.get(0);
-        pscopecontentsNode9 = (PScopeContents)nodeArrayList7.get(0);
+        pscopedbodyNode9 = (PScopedBody)nodeArrayList7.get(0);
         trbraceNode10 = (TRBrace)nodeArrayList8.get(0);
 
-        pfunctiondefinitionNode1 = new AFunctionDefinition(tfnNode2, tnameNode3, tlparNode4, null, trparNode6, preturntypeNode7, tlbraceNode8, pscopecontentsNode9, trbraceNode10);
+        pfunctiondefinitionNode1 = new AFunctionDefinition(tfnNode2, tnameNode3, tlparNode4, null, trparNode6, preturntypeNode7, tlbraceNode8, pscopedbodyNode9, trbraceNode10);
         }
 	nodeList.add(pfunctiondefinitionNode1);
         return nodeList;
@@ -2200,7 +2200,7 @@ public class Parser
         TRPar trparNode6;
         PReturnType preturntypeNode7;
         TLBrace tlbraceNode8;
-        PScopeContents pscopecontentsNode9;
+        PScopedBody pscopedbodyNode9;
         TRBrace trbraceNode10;
         tfnNode2 = (TFn)nodeArrayList1.get(0);
         tnameNode3 = (TName)nodeArrayList2.get(0);
@@ -2209,10 +2209,10 @@ public class Parser
         trparNode6 = (TRPar)nodeArrayList5.get(0);
         preturntypeNode7 = (PReturnType)nodeArrayList6.get(0);
         tlbraceNode8 = (TLBrace)nodeArrayList7.get(0);
-        pscopecontentsNode9 = (PScopeContents)nodeArrayList8.get(0);
+        pscopedbodyNode9 = (PScopedBody)nodeArrayList8.get(0);
         trbraceNode10 = (TRBrace)nodeArrayList9.get(0);
 
-        pfunctiondefinitionNode1 = new AFunctionDefinition(tfnNode2, tnameNode3, tlparNode4, pdeclaratorlistNode5, trparNode6, preturntypeNode7, tlbraceNode8, pscopecontentsNode9, trbraceNode10);
+        pfunctiondefinitionNode1 = new AFunctionDefinition(tfnNode2, tnameNode3, tlparNode4, pdeclaratorlistNode5, trparNode6, preturntypeNode7, tlbraceNode8, pscopedbodyNode9, trbraceNode10);
         }
 	nodeList.add(pfunctiondefinitionNode1);
         return nodeList;
@@ -2472,13 +2472,13 @@ public class Parser
         {
             // Block
         TLBrace tlbraceNode2;
-        PScopeContents pscopecontentsNode3;
+        PScopedBody pscopedbodyNode3;
         TRBrace trbraceNode4;
         tlbraceNode2 = (TLBrace)nodeArrayList1.get(0);
-        pscopecontentsNode3 = (PScopeContents)nodeArrayList2.get(0);
+        pscopedbodyNode3 = (PScopedBody)nodeArrayList2.get(0);
         trbraceNode4 = (TRBrace)nodeArrayList3.get(0);
 
-        pscopedsectionNode1 = new AScopedSection(tlbraceNode2, pscopecontentsNode3, trbraceNode4);
+        pscopedsectionNode1 = new AScopedSection(tlbraceNode2, pscopedbodyNode3, trbraceNode4);
         }
 	nodeList.add(pscopedsectionNode1);
         return nodeList;
@@ -2525,16 +2525,16 @@ public class Parser
         TConditionalBranchKeyword tconditionalbranchkeywordNode2;
         PConditionExpression pconditionexpressionNode3;
         TLBrace tlbraceNode4;
-        PScopeContents pscopecontentsNode5;
+        PScopedBody pscopedbodyNode5;
         TRBrace trbraceNode6;
         @SuppressWarnings("unused") Object nullNode7 = null;
         tconditionalbranchkeywordNode2 = (TConditionalBranchKeyword)nodeArrayList1.get(0);
         pconditionexpressionNode3 = (PConditionExpression)nodeArrayList2.get(0);
         tlbraceNode4 = (TLBrace)nodeArrayList3.get(0);
-        pscopecontentsNode5 = (PScopeContents)nodeArrayList4.get(0);
+        pscopedbodyNode5 = (PScopedBody)nodeArrayList4.get(0);
         trbraceNode6 = (TRBrace)nodeArrayList5.get(0);
 
-        pconditionalsectionNode1 = new AConditionalSection(tconditionalbranchkeywordNode2, pconditionexpressionNode3, tlbraceNode4, pscopecontentsNode5, trbraceNode6, null);
+        pconditionalsectionNode1 = new AConditionalSection(tconditionalbranchkeywordNode2, pconditionexpressionNode3, tlbraceNode4, pscopedbodyNode5, trbraceNode6, null);
         }
 	nodeList.add(pconditionalsectionNode1);
         return nodeList;
@@ -2559,17 +2559,17 @@ public class Parser
         TConditionalBranchKeyword tconditionalbranchkeywordNode2;
         PConditionExpression pconditionexpressionNode3;
         TLBrace tlbraceNode4;
-        PScopeContents pscopecontentsNode5;
+        PScopedBody pscopedbodyNode5;
         TRBrace trbraceNode6;
         PElseSection pelsesectionNode7;
         tconditionalbranchkeywordNode2 = (TConditionalBranchKeyword)nodeArrayList1.get(0);
         pconditionexpressionNode3 = (PConditionExpression)nodeArrayList2.get(0);
         tlbraceNode4 = (TLBrace)nodeArrayList3.get(0);
-        pscopecontentsNode5 = (PScopeContents)nodeArrayList4.get(0);
+        pscopedbodyNode5 = (PScopedBody)nodeArrayList4.get(0);
         trbraceNode6 = (TRBrace)nodeArrayList5.get(0);
         pelsesectionNode7 = (PElseSection)nodeArrayList6.get(0);
 
-        pconditionalsectionNode1 = new AConditionalSection(tconditionalbranchkeywordNode2, pconditionexpressionNode3, tlbraceNode4, pscopecontentsNode5, trbraceNode6, pelsesectionNode7);
+        pconditionalsectionNode1 = new AConditionalSection(tconditionalbranchkeywordNode2, pconditionexpressionNode3, tlbraceNode4, pscopedbodyNode5, trbraceNode6, pelsesectionNode7);
         }
 	nodeList.add(pconditionalsectionNode1);
         return nodeList;
@@ -2591,14 +2591,14 @@ public class Parser
             // Block
         TElse telseNode2;
         TLBrace tlbraceNode3;
-        PScopeContents pscopecontentsNode4;
+        PScopedBody pscopedbodyNode4;
         TRBrace trbraceNode5;
         telseNode2 = (TElse)nodeArrayList1.get(0);
         tlbraceNode3 = (TLBrace)nodeArrayList2.get(0);
-        pscopecontentsNode4 = (PScopeContents)nodeArrayList3.get(0);
+        pscopedbodyNode4 = (PScopedBody)nodeArrayList3.get(0);
         trbraceNode5 = (TRBrace)nodeArrayList4.get(0);
 
-        pelsesectionNode1 = new AExcludingBranchElseSection(telseNode2, tlbraceNode3, pscopecontentsNode4, trbraceNode5);
+        pelsesectionNode1 = new AExcludingBranchElseSection(telseNode2, tlbraceNode3, pscopedbodyNode4, trbraceNode5);
         }
 	nodeList.add(pelsesectionNode1);
         return nodeList;
@@ -2644,14 +2644,14 @@ public class Parser
         @SuppressWarnings("unused") Object nullNode2 = null;
         TLoop tloopNode3;
         TLBrace tlbraceNode4;
-        PScopeContents pscopecontentsNode5;
+        PScopedBody pscopedbodyNode5;
         TRBrace trbraceNode6;
         tloopNode3 = (TLoop)nodeArrayList1.get(0);
         tlbraceNode4 = (TLBrace)nodeArrayList2.get(0);
-        pscopecontentsNode5 = (PScopeContents)nodeArrayList3.get(0);
+        pscopedbodyNode5 = (PScopedBody)nodeArrayList3.get(0);
         trbraceNode6 = (TRBrace)nodeArrayList4.get(0);
 
-        piterativesectionNode1 = new ALoopIterativeSection(null, tloopNode3, tlbraceNode4, pscopecontentsNode5, trbraceNode6);
+        piterativesectionNode1 = new ALoopIterativeSection(null, tloopNode3, tlbraceNode4, pscopedbodyNode5, trbraceNode6);
         }
 	nodeList.add(piterativesectionNode1);
         return nodeList;
@@ -2675,15 +2675,15 @@ public class Parser
         PIterativeSectionLabel piterativesectionlabelNode2;
         TLoop tloopNode3;
         TLBrace tlbraceNode4;
-        PScopeContents pscopecontentsNode5;
+        PScopedBody pscopedbodyNode5;
         TRBrace trbraceNode6;
         piterativesectionlabelNode2 = (PIterativeSectionLabel)nodeArrayList1.get(0);
         tloopNode3 = (TLoop)nodeArrayList2.get(0);
         tlbraceNode4 = (TLBrace)nodeArrayList3.get(0);
-        pscopecontentsNode5 = (PScopeContents)nodeArrayList4.get(0);
+        pscopedbodyNode5 = (PScopedBody)nodeArrayList4.get(0);
         trbraceNode6 = (TRBrace)nodeArrayList5.get(0);
 
-        piterativesectionNode1 = new ALoopIterativeSection(piterativesectionlabelNode2, tloopNode3, tlbraceNode4, pscopecontentsNode5, trbraceNode6);
+        piterativesectionNode1 = new ALoopIterativeSection(piterativesectionlabelNode2, tloopNode3, tlbraceNode4, pscopedbodyNode5, trbraceNode6);
         }
 	nodeList.add(piterativesectionNode1);
         return nodeList;
@@ -2708,15 +2708,15 @@ public class Parser
         TConditionalIterativeKeyword tconditionaliterativekeywordNode3;
         PConditionExpression pconditionexpressionNode4;
         TLBrace tlbraceNode5;
-        PScopeContents pscopecontentsNode6;
+        PScopedBody pscopedbodyNode6;
         TRBrace trbraceNode7;
         tconditionaliterativekeywordNode3 = (TConditionalIterativeKeyword)nodeArrayList1.get(0);
         pconditionexpressionNode4 = (PConditionExpression)nodeArrayList2.get(0);
         tlbraceNode5 = (TLBrace)nodeArrayList3.get(0);
-        pscopecontentsNode6 = (PScopeContents)nodeArrayList4.get(0);
+        pscopedbodyNode6 = (PScopedBody)nodeArrayList4.get(0);
         trbraceNode7 = (TRBrace)nodeArrayList5.get(0);
 
-        piterativesectionNode1 = new AConditionalIterativeSection(null, tconditionaliterativekeywordNode3, pconditionexpressionNode4, tlbraceNode5, pscopecontentsNode6, trbraceNode7);
+        piterativesectionNode1 = new AConditionalIterativeSection(null, tconditionaliterativekeywordNode3, pconditionexpressionNode4, tlbraceNode5, pscopedbodyNode6, trbraceNode7);
         }
 	nodeList.add(piterativesectionNode1);
         return nodeList;
@@ -2742,16 +2742,16 @@ public class Parser
         TConditionalIterativeKeyword tconditionaliterativekeywordNode3;
         PConditionExpression pconditionexpressionNode4;
         TLBrace tlbraceNode5;
-        PScopeContents pscopecontentsNode6;
+        PScopedBody pscopedbodyNode6;
         TRBrace trbraceNode7;
         piterativesectionlabelNode2 = (PIterativeSectionLabel)nodeArrayList1.get(0);
         tconditionaliterativekeywordNode3 = (TConditionalIterativeKeyword)nodeArrayList2.get(0);
         pconditionexpressionNode4 = (PConditionExpression)nodeArrayList3.get(0);
         tlbraceNode5 = (TLBrace)nodeArrayList4.get(0);
-        pscopecontentsNode6 = (PScopeContents)nodeArrayList5.get(0);
+        pscopedbodyNode6 = (PScopedBody)nodeArrayList5.get(0);
         trbraceNode7 = (TRBrace)nodeArrayList6.get(0);
 
-        piterativesectionNode1 = new AConditionalIterativeSection(piterativesectionlabelNode2, tconditionaliterativekeywordNode3, pconditionexpressionNode4, tlbraceNode5, pscopecontentsNode6, trbraceNode7);
+        piterativesectionNode1 = new AConditionalIterativeSection(piterativesectionlabelNode2, tconditionaliterativekeywordNode3, pconditionexpressionNode4, tlbraceNode5, pscopedbodyNode6, trbraceNode7);
         }
 	nodeList.add(piterativesectionNode1);
         return nodeList;
@@ -2777,20 +2777,20 @@ public class Parser
         @SuppressWarnings("unused") Object nullNode2 = null;
         TDo tdoNode3;
         TLBrace tlbraceNode4;
-        PScopeContents pscopecontentsNode5;
+        PScopedBody pscopedbodyNode5;
         TRBrace trbraceNode6;
         TConditionalIterativeKeyword tconditionaliterativekeywordNode7;
         PExpression pexpressionNode8;
         TSemicolon tsemicolonNode9;
         tdoNode3 = (TDo)nodeArrayList1.get(0);
         tlbraceNode4 = (TLBrace)nodeArrayList2.get(0);
-        pscopecontentsNode5 = (PScopeContents)nodeArrayList3.get(0);
+        pscopedbodyNode5 = (PScopedBody)nodeArrayList3.get(0);
         trbraceNode6 = (TRBrace)nodeArrayList4.get(0);
         tconditionaliterativekeywordNode7 = (TConditionalIterativeKeyword)nodeArrayList5.get(0);
         pexpressionNode8 = (PExpression)nodeArrayList6.get(0);
         tsemicolonNode9 = (TSemicolon)nodeArrayList7.get(0);
 
-        piterativesectionNode1 = new ADoConditionalIterativeSection(null, tdoNode3, tlbraceNode4, pscopecontentsNode5, trbraceNode6, tconditionaliterativekeywordNode7, pexpressionNode8, tsemicolonNode9);
+        piterativesectionNode1 = new ADoConditionalIterativeSection(null, tdoNode3, tlbraceNode4, pscopedbodyNode5, trbraceNode6, tconditionaliterativekeywordNode7, pexpressionNode8, tsemicolonNode9);
         }
 	nodeList.add(piterativesectionNode1);
         return nodeList;
@@ -2817,7 +2817,7 @@ public class Parser
         PIterativeSectionLabel piterativesectionlabelNode2;
         TDo tdoNode3;
         TLBrace tlbraceNode4;
-        PScopeContents pscopecontentsNode5;
+        PScopedBody pscopedbodyNode5;
         TRBrace trbraceNode6;
         TConditionalIterativeKeyword tconditionaliterativekeywordNode7;
         PExpression pexpressionNode8;
@@ -2825,13 +2825,13 @@ public class Parser
         piterativesectionlabelNode2 = (PIterativeSectionLabel)nodeArrayList1.get(0);
         tdoNode3 = (TDo)nodeArrayList2.get(0);
         tlbraceNode4 = (TLBrace)nodeArrayList3.get(0);
-        pscopecontentsNode5 = (PScopeContents)nodeArrayList4.get(0);
+        pscopedbodyNode5 = (PScopedBody)nodeArrayList4.get(0);
         trbraceNode6 = (TRBrace)nodeArrayList5.get(0);
         tconditionaliterativekeywordNode7 = (TConditionalIterativeKeyword)nodeArrayList6.get(0);
         pexpressionNode8 = (PExpression)nodeArrayList7.get(0);
         tsemicolonNode9 = (TSemicolon)nodeArrayList8.get(0);
 
-        piterativesectionNode1 = new ADoConditionalIterativeSection(piterativesectionlabelNode2, tdoNode3, tlbraceNode4, pscopecontentsNode5, trbraceNode6, tconditionaliterativekeywordNode7, pexpressionNode8, tsemicolonNode9);
+        piterativesectionNode1 = new ADoConditionalIterativeSection(piterativesectionlabelNode2, tdoNode3, tlbraceNode4, pscopedbodyNode5, trbraceNode6, tconditionaliterativekeywordNode7, pexpressionNode8, tsemicolonNode9);
         }
 	nodeList.add(piterativesectionNode1);
         return nodeList;
@@ -2840,11 +2840,11 @@ public class Parser
 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new42() /* reduce AAscopecontents1ScopeContents */
+    ArrayList<Object> new42() /* reduce AAscopedbody1ScopedBody */
     {
         @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
 
-        PScopeContents pscopecontentsNode1;
+        PScopedBody pscopedbodyNode1;
         {
             // Block
         LinkedList<Object> listNode2 = new LinkedList<Object>();
@@ -2853,21 +2853,21 @@ public class Parser
             // Block
         }
 
-        pscopecontentsNode1 = new AScopeContents(listNode2, null);
+        pscopedbodyNode1 = new AScopedBody(listNode2, null);
         }
-	nodeList.add(pscopecontentsNode1);
+	nodeList.add(pscopedbodyNode1);
         return nodeList;
     }
 
 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new43() /* reduce AAscopecontents2ScopeContents */
+    ArrayList<Object> new43() /* reduce AAscopedbody2ScopedBody */
     {
         @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
 
         @SuppressWarnings("unused") ArrayList<Object> nodeArrayList1 = pop();
-        PScopeContents pscopecontentsNode1;
+        PScopedBody pscopedbodyNode1;
         {
             // Block
         LinkedList<Object> listNode3 = new LinkedList<Object>();
@@ -2882,21 +2882,21 @@ public class Parser
 	}
         }
 
-        pscopecontentsNode1 = new AScopeContents(listNode3, null);
+        pscopedbodyNode1 = new AScopedBody(listNode3, null);
         }
-	nodeList.add(pscopecontentsNode1);
+	nodeList.add(pscopedbodyNode1);
         return nodeList;
     }
 
 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new44() /* reduce AAscopecontents3ScopeContents */
+    ArrayList<Object> new44() /* reduce AAscopedbody3ScopedBody */
     {
         @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
 
         @SuppressWarnings("unused") ArrayList<Object> nodeArrayList1 = pop();
-        PScopeContents pscopecontentsNode1;
+        PScopedBody pscopedbodyNode1;
         {
             // Block
         LinkedList<Object> listNode2 = new LinkedList<Object>();
@@ -2906,22 +2906,22 @@ public class Parser
         }
         pstopstatementNode3 = (PStopStatement)nodeArrayList1.get(0);
 
-        pscopecontentsNode1 = new AScopeContents(listNode2, pstopstatementNode3);
+        pscopedbodyNode1 = new AScopedBody(listNode2, pstopstatementNode3);
         }
-	nodeList.add(pscopecontentsNode1);
+	nodeList.add(pscopedbodyNode1);
         return nodeList;
     }
 
 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    ArrayList<Object> new45() /* reduce AAscopecontents4ScopeContents */
+    ArrayList<Object> new45() /* reduce AAscopedbody4ScopedBody */
     {
         @SuppressWarnings("hiding") ArrayList<Object> nodeList = new ArrayList<Object>();
 
         @SuppressWarnings("unused") ArrayList<Object> nodeArrayList2 = pop();
         @SuppressWarnings("unused") ArrayList<Object> nodeArrayList1 = pop();
-        PScopeContents pscopecontentsNode1;
+        PScopedBody pscopedbodyNode1;
         {
             // Block
         LinkedList<Object> listNode3 = new LinkedList<Object>();
@@ -2937,9 +2937,9 @@ public class Parser
         }
         pstopstatementNode4 = (PStopStatement)nodeArrayList2.get(0);
 
-        pscopecontentsNode1 = new AScopeContents(listNode3, pstopstatementNode4);
+        pscopedbodyNode1 = new AScopedBody(listNode3, pstopstatementNode4);
         }
-	nodeList.add(pscopecontentsNode1);
+	nodeList.add(pscopedbodyNode1);
         return nodeList;
     }
 

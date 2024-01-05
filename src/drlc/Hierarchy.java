@@ -4,12 +4,12 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.*;
 
-public class HierarchyMap<K, V> {
+public class Hierarchy<K, V> {
 	
 	protected final Map<K, V> internal = new LinkedHashMap<>();
-	protected final HierarchyMap<K, V> parent;
+	protected final Hierarchy<K, V> parent;
 	
-	public HierarchyMap(HierarchyMap<K, V> parent) {
+	public Hierarchy(Hierarchy<K, V> parent) {
 		this.parent = parent;
 	}
 	
@@ -43,7 +43,7 @@ public class HierarchyMap<K, V> {
 		return shallow || parent == null ? false : parent.containsKey(key, false);
 	}
 	
-	public <T> Iterable<T> iterable(Function<? super Map<K, V>, ? extends Iterable<T>> mapFunction, BiFunction<? super HierarchyMap<K, V>, ? super Boolean, ? extends Iterable<T>> hierarchyFunction, boolean shallow) {
+	public <T> Iterable<T> iterable(Function<? super Map<K, V>, ? extends Iterable<T>> mapFunction, BiFunction<? super Hierarchy<K, V>, ? super Boolean, ? extends Iterable<T>> hierarchyFunction, boolean shallow) {
 		return () -> new Iterator<T>() {
 			
 			boolean start = true;
@@ -70,12 +70,12 @@ public class HierarchyMap<K, V> {
 	
 	@SuppressWarnings("null")
 	public Iterable<Entry<K, V>> entryIterable(boolean shallow) {
-		return iterable(Map::entrySet, HierarchyMap::entryIterable, shallow);
+		return iterable(Map::entrySet, Hierarchy::entryIterable, shallow);
 	}
 	
 	@SuppressWarnings("null")
 	public Iterable<V> valueIterable(boolean shallow) {
-		return iterable(Map::values, HierarchyMap::valueIterable, shallow);
+		return iterable(Map::values, Hierarchy::valueIterable, shallow);
 	}
 	
 	public void forEachEntry(BiConsumer<? super K, ? super V> consumer, boolean shallow) {

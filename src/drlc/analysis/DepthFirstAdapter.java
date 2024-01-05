@@ -415,9 +415,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getLBrace().apply(this);
         }
-        if(node.getScopeContents() != null)
+        if(node.getScopedBody() != null)
         {
-            node.getScopeContents().apply(this);
+            node.getScopedBody().apply(this);
         }
         if(node.getRBrace() != null)
         {
@@ -646,9 +646,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getLBrace().apply(this);
         }
-        if(node.getScopeContents() != null)
+        if(node.getScopedBody() != null)
         {
-            node.getScopeContents().apply(this);
+            node.getScopedBody().apply(this);
         }
         if(node.getRBrace() != null)
         {
@@ -708,9 +708,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getLBrace().apply(this);
         }
-        if(node.getScopeContents() != null)
+        if(node.getScopedBody() != null)
         {
-            node.getScopeContents().apply(this);
+            node.getScopedBody().apply(this);
         }
         if(node.getRBrace() != null)
         {
@@ -745,9 +745,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getLBrace().apply(this);
         }
-        if(node.getScopeContents() != null)
+        if(node.getScopedBody() != null)
         {
-            node.getScopeContents().apply(this);
+            node.getScopedBody().apply(this);
         }
         if(node.getRBrace() != null)
         {
@@ -807,9 +807,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getLBrace().apply(this);
         }
-        if(node.getScopeContents() != null)
+        if(node.getScopedBody() != null)
         {
-            node.getScopeContents().apply(this);
+            node.getScopedBody().apply(this);
         }
         if(node.getRBrace() != null)
         {
@@ -848,9 +848,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getLBrace().apply(this);
         }
-        if(node.getScopeContents() != null)
+        if(node.getScopedBody() != null)
         {
-            node.getScopeContents().apply(this);
+            node.getScopedBody().apply(this);
         }
         if(node.getRBrace() != null)
         {
@@ -885,9 +885,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getLBrace().apply(this);
         }
-        if(node.getScopeContents() != null)
+        if(node.getScopedBody() != null)
         {
-            node.getScopeContents().apply(this);
+            node.getScopedBody().apply(this);
         }
         if(node.getRBrace() != null)
         {
@@ -908,20 +908,20 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outADoConditionalIterativeSection(node);
     }
 
-    public void inAScopeContents(AScopeContents node)
+    public void inAScopedBody(AScopedBody node)
     {
         defaultIn(node);
     }
 
-    public void outAScopeContents(AScopeContents node)
+    public void outAScopedBody(AScopedBody node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAScopeContents(AScopeContents node)
+    public void caseAScopedBody(AScopedBody node)
     {
-        inAScopeContents(node);
+        inAScopedBody(node);
         {
             List<PRuntimeSection> copy = new ArrayList<PRuntimeSection>(node.getRuntimeSection());
             for(PRuntimeSection e : copy)
@@ -933,7 +933,7 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getStopStatement().apply(this);
         }
-        outAScopeContents(node);
+        outAScopedBody(node);
     }
 
     public void inAExitStopStatement(AExitStopStatement node)

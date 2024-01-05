@@ -10,7 +10,7 @@ public final class ALoopIterativeSection extends PIterativeSection
     private PIterativeSectionLabel _iterativeSectionLabel_;
     private TLoop _loop_;
     private TLBrace _lBrace_;
-    private PScopeContents _scopeContents_;
+    private PScopedBody _scopedBody_;
     private TRBrace _rBrace_;
 
     public ALoopIterativeSection()
@@ -22,7 +22,7 @@ public final class ALoopIterativeSection extends PIterativeSection
         @SuppressWarnings("hiding") PIterativeSectionLabel _iterativeSectionLabel_,
         @SuppressWarnings("hiding") TLoop _loop_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
-        @SuppressWarnings("hiding") PScopeContents _scopeContents_,
+        @SuppressWarnings("hiding") PScopedBody _scopedBody_,
         @SuppressWarnings("hiding") TRBrace _rBrace_)
     {
         // Constructor
@@ -32,7 +32,7 @@ public final class ALoopIterativeSection extends PIterativeSection
 
         setLBrace(_lBrace_);
 
-        setScopeContents(_scopeContents_);
+        setScopedBody(_scopedBody_);
 
         setRBrace(_rBrace_);
 
@@ -45,7 +45,7 @@ public final class ALoopIterativeSection extends PIterativeSection
             cloneNode(this._iterativeSectionLabel_),
             cloneNode(this._loop_),
             cloneNode(this._lBrace_),
-            cloneNode(this._scopeContents_),
+            cloneNode(this._scopedBody_),
             cloneNode(this._rBrace_));
     }
 
@@ -130,16 +130,16 @@ public final class ALoopIterativeSection extends PIterativeSection
         this._lBrace_ = node;
     }
 
-    public PScopeContents getScopeContents()
+    public PScopedBody getScopedBody()
     {
-        return this._scopeContents_;
+        return this._scopedBody_;
     }
 
-    public void setScopeContents(PScopeContents node)
+    public void setScopedBody(PScopedBody node)
     {
-        if(this._scopeContents_ != null)
+        if(this._scopedBody_ != null)
         {
-            this._scopeContents_.parent(null);
+            this._scopedBody_.parent(null);
         }
 
         if(node != null)
@@ -152,7 +152,7 @@ public final class ALoopIterativeSection extends PIterativeSection
             node.parent(this);
         }
 
-        this._scopeContents_ = node;
+        this._scopedBody_ = node;
     }
 
     public TRBrace getRBrace()
@@ -187,7 +187,7 @@ public final class ALoopIterativeSection extends PIterativeSection
             + toString(this._iterativeSectionLabel_)
             + toString(this._loop_)
             + toString(this._lBrace_)
-            + toString(this._scopeContents_)
+            + toString(this._scopedBody_)
             + toString(this._rBrace_);
     }
 
@@ -213,9 +213,9 @@ public final class ALoopIterativeSection extends PIterativeSection
             return;
         }
 
-        if(this._scopeContents_ == child)
+        if(this._scopedBody_ == child)
         {
-            this._scopeContents_ = null;
+            this._scopedBody_ = null;
             return;
         }
 
@@ -250,9 +250,9 @@ public final class ALoopIterativeSection extends PIterativeSection
             return;
         }
 
-        if(this._scopeContents_ == oldChild)
+        if(this._scopedBody_ == oldChild)
         {
-            setScopeContents((PScopeContents) newChild);
+            setScopedBody((PScopedBody) newChild);
             return;
         }
 

@@ -69,6 +69,10 @@ public class VariableDeclarationNode extends StaticSectionNode<Scope, Routine> {
 		}
 		
 		declaratorNode.defineExpressions(this);
+		
+		if (expressionNode != null) {
+			scope.onVariableInitialization(this, declaratorNode.declaratorInfo.variable);
+		}
 	}
 	
 	@Override

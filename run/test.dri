@@ -3,13 +3,8 @@ nesting fn \root() -> Int:
 	%0 = call $main()
 	exit $0
 
-nesting fn main() -> ():
+leaf fn main() -> ():
 {dec}:
-	<1> x: Int
+	<2> x: Int
 {0}:
-	x = call $test()
 	ret $()
-
-leaf fn test() -> Int:
-{0}:
-	ret $1

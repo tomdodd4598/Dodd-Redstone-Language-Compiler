@@ -7,6 +7,7 @@ import drlc.intermediate.component.Function;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
+import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
 public class AddressExpressionNode extends ExpressionNode {
@@ -25,7 +26,7 @@ public class AddressExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?, ?> parent) {
-		scope = parent.scope;
+		scope = new Scope(parent.scope);
 		
 		expressionNode.setScopes(this);
 	}
@@ -47,11 +48,6 @@ public class AddressExpressionNode extends ExpressionNode {
 		expressionNode.defineExpressions(this);
 		
 		setTypeInfo();
-	}
-	
-	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
-		expressionNode.checkTypes(this);
 		
 		if (expressionNode.isValidLvalue()) {
 			expressionNode.setIsLvalue();
@@ -60,6 +56,11 @@ public class AddressExpressionNode extends ExpressionNode {
 				throw error("Attempted to create mutable reference of immutable lvalue expression!");
 			}
 		}
+	}
+	
+	@Override
+	public void checkTypes(ASTNode<?, ?> parent) {
+		expressionNode.checkTypes(this);
 	}
 	
 	@Override

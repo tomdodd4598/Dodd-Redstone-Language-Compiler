@@ -3,15 +3,14 @@ package drlc.intermediate.ast.section;
 import org.eclipse.jdt.annotation.*;
 
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.ast.element.ScopeContentsNode;
 import drlc.intermediate.scope.IterativeScope;
 import drlc.node.Node;
 
 public class LoopIterativeSectionNode extends IterativeSectionNode {
 	
-	public final @NonNull ScopeContentsNode bodyNode;
+	public final @NonNull ScopedBodyNode bodyNode;
 	
-	public LoopIterativeSectionNode(Node[] parseNodes, @Nullable String label, @NonNull ScopeContentsNode bodyNode) {
+	public LoopIterativeSectionNode(Node[] parseNodes, @Nullable String label, @NonNull ScopedBodyNode bodyNode) {
 		super(parseNodes, label);
 		this.bodyNode = bodyNode;
 	}

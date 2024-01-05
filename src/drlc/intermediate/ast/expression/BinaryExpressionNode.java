@@ -9,6 +9,7 @@ import drlc.intermediate.component.BinaryOpType;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
+import drlc.intermediate.scope.*;
 import drlc.node.Node;
 
 public class BinaryExpressionNode extends ExpressionNode {
@@ -31,10 +32,21 @@ public class BinaryExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?, ?> parent) {
-		scope = parent.scope;
-		
-		leftExpressionNode.setScopes(this);
-		rightExpressionNode.setScopes(this);
+		if (binaryOpType.isLogical()) {
+			@NonNull ConditionalScope conditionalScope = new ConditionalScope(parent.scope, false);
+			scope = conditionalScope;
+			
+			leftExpressionNode.setScopes(this);
+			rightExpressionNode.setScopes(this);
+			
+			rightExpressionNode.scope.definiteExecution = false;
+		}
+		else {
+			scope = new Scope(parent.scope);
+			
+			leftExpressionNode.setScopes(this);
+			rightExpressionNode.setScopes(this);
+		}
 	}
 	
 	@Override
@@ -89,8 +101,8 @@ public class BinaryExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void generateIntermediate(ASTNode<?, ?> parent) {
-		boolean logicalAnd = binaryOpType.equals(BinaryOpType.LOGICAL_AND), logicalOr = binaryOpType.equals(BinaryOpType.LOGICAL_OR);
-		if (logicalAnd || logicalOr) {
+		if (binaryOpType.isLogical()) {
+			boolean logicalOr = binaryOpType.equals(BinaryOpType.LOGICAL_OR);
 			DataId temp = scope.nextLocalDataId(routine, Main.generator.boolTypeInfo);
 			leftExpressionNode.generateIntermediate(this);
 			routine.addAssignmentAction(this, temp, leftExpressionNode.dataId);

@@ -70,6 +70,16 @@ public enum BinaryOpType {
 		}
 	}
 	
+	public boolean isLogical() {
+		switch (this) {
+			case LOGICAL_AND:
+			case LOGICAL_OR:
+				return true;
+			default:
+				return false;
+		}
+	}
+	
 	@Override
 	public String toString() {
 		return str;

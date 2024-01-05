@@ -6,17 +6,17 @@ import java.util.*;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AScopeContents extends PScopeContents
+public final class AScopedBody extends PScopedBody
 {
     private final LinkedList<PRuntimeSection> _runtimeSection_ = new LinkedList<PRuntimeSection>();
     private PStopStatement _stopStatement_;
 
-    public AScopeContents()
+    public AScopedBody()
     {
         // Constructor
     }
 
-    public AScopeContents(
+    public AScopedBody(
         @SuppressWarnings("hiding") List<?> _runtimeSection_,
         @SuppressWarnings("hiding") PStopStatement _stopStatement_)
     {
@@ -30,7 +30,7 @@ public final class AScopeContents extends PScopeContents
     @Override
     public Object clone()
     {
-        return new AScopeContents(
+        return new AScopedBody(
             cloneList(this._runtimeSection_),
             cloneNode(this._stopStatement_));
     }
@@ -38,7 +38,7 @@ public final class AScopeContents extends PScopeContents
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAScopeContents(this);
+        ((Analysis) sw).caseAScopedBody(this);
     }
 
     public LinkedList<PRuntimeSection> getRuntimeSection()

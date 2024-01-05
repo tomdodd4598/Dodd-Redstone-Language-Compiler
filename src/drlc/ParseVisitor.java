@@ -8,7 +8,7 @@ import org.eclipse.jdt.annotation.*;
 
 import drlc.analysis.AnalysisAdapter;
 import drlc.intermediate.ast.*;
-import drlc.intermediate.ast.element.*;
+import drlc.intermediate.ast.element.DeclaratorNode;
 import drlc.intermediate.ast.expression.*;
 import drlc.intermediate.ast.section.*;
 import drlc.intermediate.ast.stop.*;
@@ -30,7 +30,7 @@ public class ParseVisitor extends AnalysisAdapter {
 	public final Deque<StaticSectionNode<?, ?>> staticSectionStack = new ArrayDeque<>();
 	public final Deque<RuntimeSectionNode<?, ?>> runtimeSectionStack = new ArrayDeque<>();
 	
-	public final Deque<ScopeContentsNode> scopeContentsStack = new ArrayDeque<>();
+	public final Deque<ScopedBodyNode> scopedBodyNodeStack = new ArrayDeque<>();
 	
 	public final Deque<ASTNode<?, ?>> conditionalEndStack = new ArrayDeque<>();
 	public final Deque<ConditionalSectionNode> conditionalSectionStack = new ArrayDeque<>();
@@ -53,8 +53,8 @@ public class ParseVisitor extends AnalysisAdapter {
 		return node == null ? null : traverse(node, stack);
 	}
 	
-	private @NonNull ScopeContentsNode scope(Node node) {
-		return traverse(node, scopeContentsStack);
+	private @NonNull ScopedBodyNode scope(Node node) {
+		return traverse(node, scopedBodyNodeStack);
 	}
 	
 	private @NonNull TypeNode type(PType node) {
@@ -291,7 +291,7 @@ public class ParseVisitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAFunctionDefinition(AFunctionDefinition node) {
-		staticSectionStack.push(new FunctionDefinitionNode(array(node), text(node.getName()), declaratorList(node.getDeclaratorList()), returnType(node.getReturnType()), scope(node.getScopeContents())));
+		staticSectionStack.push(new FunctionDefinitionNode(array(node), text(node.getName()), declaratorList(node.getDeclaratorList()), returnType(node.getReturnType()), scope(node.getScopedBody())));
 	}
 	
 	@Override
@@ -326,7 +326,7 @@ public class ParseVisitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAScopedSection(AScopedSection node) {
-		runtimeSectionStack.push(new ScopedSectionNode(array(node), scope(node.getScopeContents())));
+		runtimeSectionStack.push(scope(node.getScopedBody()));
 	}
 	
 	@Override
@@ -336,12 +336,12 @@ public class ParseVisitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAConditionalSection(AConditionalSection node) {
-		conditionalSectionStack.push(new ConditionalSectionNode(array(node), unless(node.getConditionalBranchKeyword()), expression(node.getConditionExpression()), new ScopedSectionNode(array(node), scope(node.getScopeContents())), traverseNullable(node.getElseSection(), conditionalEndStack)));
+		conditionalSectionStack.push(new ConditionalSectionNode(array(node), unless(node.getConditionalBranchKeyword()), expression(node.getConditionExpression()), scope(node.getScopedBody()), traverseNullable(node.getElseSection(), conditionalEndStack)));
 	}
 	
 	@Override
 	public void caseAExcludingBranchElseSection(AExcludingBranchElseSection node) {
-		conditionalEndStack.push(new ScopedSectionNode(array(node), scope(node.getScopeContents())));
+		conditionalEndStack.push(scope(node.getScopedBody()));
 	}
 	
 	@Override
@@ -351,22 +351,22 @@ public class ParseVisitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseALoopIterativeSection(ALoopIterativeSection node) {
-		runtimeSectionStack.push(new LoopIterativeSectionNode(array(node), label(node.getIterativeSectionLabel()), scope(node.getScopeContents())));
+		runtimeSectionStack.push(new LoopIterativeSectionNode(array(node), label(node.getIterativeSectionLabel()), scope(node.getScopedBody())));
 	}
 	
 	@Override
 	public void caseAConditionalIterativeSection(AConditionalIterativeSection node) {
-		runtimeSectionStack.push(new ConditionalIterativeSectionNode(array(node), label(node.getIterativeSectionLabel()), false, until(node.getConditionalIterativeKeyword()), expression(node.getConditionExpression()), scope(node.getScopeContents())));
+		runtimeSectionStack.push(new ConditionalIterativeSectionNode(array(node), label(node.getIterativeSectionLabel()), false, until(node.getConditionalIterativeKeyword()), expression(node.getConditionExpression()), scope(node.getScopedBody())));
 	}
 	
 	@Override
 	public void caseADoConditionalIterativeSection(ADoConditionalIterativeSection node) {
-		runtimeSectionStack.push(new ConditionalIterativeSectionNode(array(node), label(node.getIterativeSectionLabel()), true, until(node.getConditionalIterativeKeyword()), expression(node.getExpression()), scope(node.getScopeContents())));
+		runtimeSectionStack.push(new ConditionalIterativeSectionNode(array(node), label(node.getIterativeSectionLabel()), true, until(node.getConditionalIterativeKeyword()), expression(node.getExpression()), scope(node.getScopedBody())));
 	}
 	
 	@Override
-	public void caseAScopeContents(AScopeContents node) {
-		scopeContentsStack.push(new ScopeContentsNode(array(node), traverseList(node.getRuntimeSection(), runtimeSectionStack), traverseNullable(node.getStopStatement(), stopStack)));
+	public void caseAScopedBody(AScopedBody node) {
+		scopedBodyNodeStack.push(new ScopedBodyNode(array(node), traverseList(node.getRuntimeSection(), runtimeSectionStack), traverseNullable(node.getStopStatement(), stopStack)));
 	}
 	
 	@Override

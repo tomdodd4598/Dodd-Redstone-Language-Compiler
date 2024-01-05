@@ -2,6 +2,7 @@ package drlc.intermediate.ast.expression;
 
 import org.eclipse.jdt.annotation.*;
 
+import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.type.TypeInfo;
@@ -54,6 +55,14 @@ public class VariableExpressionNode extends ExpressionNode {
 		}
 		
 		setTypeInfo();
+		
+		if (!isLvalue && variable != null && !scope.isVariableDefinitelyInitialized(variable)) {
+			throw error("Attempted to use potentially uninitialized variable \"%s\"!", variable.name);
+		}
+	}
+	
+	public void checkInitialization(ASTNode<?, ?> parent) {
+		
 	}
 	
 	@Override
@@ -127,7 +136,7 @@ public class VariableExpressionNode extends ExpressionNode {
 	
 	@Override
 	public boolean isMutableLvalue() {
-		return value == null && variable.isMutable();
+		return variable != null && variable.modifier.mutable;
 	}
 	
 	@Override
@@ -138,6 +147,22 @@ public class VariableExpressionNode extends ExpressionNode {
 	@Override
 	public void setIsLvalue() {
 		isLvalue = true;
+	}
+	
+	@Override
+	public void checkIsAssignable(ASTNode<?, ?> parent) {
+		if (!isMutableLvalue()) {
+			if (scope.isVariablePotentiallyInitialized(variable)) {
+				throw Helpers.nodeError(parent, "Attempted to assign twice to immutable variable \"%s\"!", variable.name);
+			}
+		}
+	}
+	
+	@Override
+	public void initialize(ASTNode<?, ?> parent) {
+		if (variable != null) {
+			scope.onVariableInitialization(parent, variable);
+		}
 	}
 	
 	@Override

@@ -14,7 +14,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
     private TRPar _rPar_;
     private PReturnType _returnType_;
     private TLBrace _lBrace_;
-    private PScopeContents _scopeContents_;
+    private PScopedBody _scopedBody_;
     private TRBrace _rBrace_;
 
     public AFunctionDefinition()
@@ -30,7 +30,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
         @SuppressWarnings("hiding") TRPar _rPar_,
         @SuppressWarnings("hiding") PReturnType _returnType_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
-        @SuppressWarnings("hiding") PScopeContents _scopeContents_,
+        @SuppressWarnings("hiding") PScopedBody _scopedBody_,
         @SuppressWarnings("hiding") TRBrace _rBrace_)
     {
         // Constructor
@@ -48,7 +48,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
 
         setLBrace(_lBrace_);
 
-        setScopeContents(_scopeContents_);
+        setScopedBody(_scopedBody_);
 
         setRBrace(_rBrace_);
 
@@ -65,7 +65,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
             cloneNode(this._rPar_),
             cloneNode(this._returnType_),
             cloneNode(this._lBrace_),
-            cloneNode(this._scopeContents_),
+            cloneNode(this._scopedBody_),
             cloneNode(this._rBrace_));
     }
 
@@ -250,16 +250,16 @@ public final class AFunctionDefinition extends PFunctionDefinition
         this._lBrace_ = node;
     }
 
-    public PScopeContents getScopeContents()
+    public PScopedBody getScopedBody()
     {
-        return this._scopeContents_;
+        return this._scopedBody_;
     }
 
-    public void setScopeContents(PScopeContents node)
+    public void setScopedBody(PScopedBody node)
     {
-        if(this._scopeContents_ != null)
+        if(this._scopedBody_ != null)
         {
-            this._scopeContents_.parent(null);
+            this._scopedBody_.parent(null);
         }
 
         if(node != null)
@@ -272,7 +272,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
             node.parent(this);
         }
 
-        this._scopeContents_ = node;
+        this._scopedBody_ = node;
     }
 
     public TRBrace getRBrace()
@@ -311,7 +311,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
             + toString(this._rPar_)
             + toString(this._returnType_)
             + toString(this._lBrace_)
-            + toString(this._scopeContents_)
+            + toString(this._scopedBody_)
             + toString(this._rBrace_);
     }
 
@@ -361,9 +361,9 @@ public final class AFunctionDefinition extends PFunctionDefinition
             return;
         }
 
-        if(this._scopeContents_ == child)
+        if(this._scopedBody_ == child)
         {
-            this._scopeContents_ = null;
+            this._scopedBody_ = null;
             return;
         }
 
@@ -422,9 +422,9 @@ public final class AFunctionDefinition extends PFunctionDefinition
             return;
         }
 
-        if(this._scopeContents_ == oldChild)
+        if(this._scopedBody_ == oldChild)
         {
-            setScopeContents((PScopeContents) newChild);
+            setScopedBody((PScopedBody) newChild);
             return;
         }
 

@@ -7,6 +7,7 @@ import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.UnaryOpType;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
+import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
 public class UnaryExpressionNode extends ExpressionNode {
@@ -27,7 +28,7 @@ public class UnaryExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?, ?> parent) {
-		scope = parent.scope;
+		scope = new Scope(parent.scope);
 		
 		expressionNode.setScopes(this);
 	}

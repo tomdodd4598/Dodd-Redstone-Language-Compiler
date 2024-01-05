@@ -8,6 +8,7 @@ import drlc.intermediate.component.*;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
+import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
 public class AssignmentExpressionNode extends ExpressionNode {
@@ -28,7 +29,7 @@ public class AssignmentExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?, ?> parent) {
-		scope = parent.scope;
+		scope = new Scope(parent.scope);
 		
 		rvalueExpressionNode.setScopes(this);
 		lvalueExpressionNode.setScopes(this);
@@ -51,21 +52,22 @@ public class AssignmentExpressionNode extends ExpressionNode {
 	@Override
 	public void defineExpressions(ASTNode<?, ?> parent) {
 		rvalueExpressionNode.defineExpressions(this);
+		
+		lvalueExpressionNode.setIsLvalue();
+		
 		lvalueExpressionNode.defineExpressions(this);
+		
+		if (!lvalueExpressionNode.isValidLvalue()) {
+			throw error("Attempted to assign to invalid lvalue expression!");
+		}
+		lvalueExpressionNode.checkIsAssignable(this);
+		lvalueExpressionNode.initialize(this);
 	}
 	
 	@Override
 	public void checkTypes(ASTNode<?, ?> parent) {
 		rvalueExpressionNode.checkTypes(this);
 		lvalueExpressionNode.checkTypes(this);
-		
-		if (!lvalueExpressionNode.isValidLvalue()) {
-			throw error("Attempted to assign to invalid lvalue expression!");
-		}
-		if (!lvalueExpressionNode.isMutableLvalue()) {
-			throw error("Attempted to assign to immutable lvalue expression!");
-		}
-		lvalueExpressionNode.setIsLvalue();
 		
 		@NonNull TypeInfo rvalueType = rvalueExpressionNode.getTypeInfo(), lvalueType = lvalueExpressionNode.getTypeInfo();
 		@Nullable BinaryOpType binaryOpType = assignmentOpType.binaryOpType;

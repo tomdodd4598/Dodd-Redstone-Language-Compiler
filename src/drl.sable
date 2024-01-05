@@ -175,7 +175,7 @@ Productions
 	/* SECTION SPECIFICATIONS */
 	
 	function_definition =
-		fn name l_par declarator_list? r_par return_type? l_brace scope_contents r_brace;
+		fn name l_par declarator_list? r_par return_type? l_brace scoped_body r_brace;
 	
 	typealias_definition =
 		typealias name equals type semicolon;
@@ -194,24 +194,24 @@ Productions
 		semicolon;
 	
 	scoped_section =
-		l_brace scope_contents r_brace;
+		l_brace scoped_body r_brace;
 	
 	expression_statement =
 		expression semicolon;
 	
 	conditional_section =
-		conditional_branch_keyword condition_expression l_brace scope_contents r_brace else_section?;
+		conditional_branch_keyword condition_expression l_brace scoped_body r_brace else_section?;
 	
 	else_section =
-		{excluding_branch} else l_brace scope_contents r_brace |
+		{excluding_branch} else l_brace scoped_body r_brace |
 		{including_branch} else conditional_section;
 	
 	iterative_section =
-		{loop} iterative_section_label? loop l_brace scope_contents r_brace |
-		{conditional} iterative_section_label? conditional_iterative_keyword condition_expression l_brace scope_contents r_brace |
-		{do_conditional} iterative_section_label? do l_brace scope_contents r_brace conditional_iterative_keyword expression semicolon;
+		{loop} label? loop l_brace scoped_body r_brace |
+		{conditional} label? conditional_iterative_keyword condition_expression l_brace scoped_body r_brace |
+		{do_conditional} label? do l_brace scoped_body r_brace conditional_iterative_keyword expression semicolon;
 	
-	scope_contents =
+	scoped_body =
 		runtime_section* stop_statement?;
 	
 	stop_statement =
@@ -270,7 +270,7 @@ Productions
 	declarator_list_tail =
 		comma declarator;
 	
-	iterative_section_label =
+	label =
 		name colon;
 	
 	expression =
@@ -319,7 +319,7 @@ Productions
 		{array_repeat} l_bracket expression semicolon constant_expression r_bracket |
 		{index} compound_expression l_bracket expression r_bracket |
 		{tuple} l_par tuple_expression_list? r_par |
-		{struct} name l_brace expression_list? r_brace |
+		{struct} name l_brace struct_expression_list? r_brace |
 		{member} compound_expression full_stop simple_expression |
 		{function} compound_expression l_par expression_list? r_par;
 	
@@ -330,14 +330,20 @@ Productions
 		{value} value |
 		{variable} name;
 	
-	tuple_expression_list =
-		expression comma expression_list?;
-	
 	expression_list =
 		expression expression_list_tail* comma?;
 	
 	expression_list_tail =
 		comma expression;
+	
+	tuple_expression_list =
+		expression comma expression_list?;
+	
+	struct_expression_list =
+		label? expression struct_expression_list_tail* comma?;
+	
+	struct_expression_list_tail =
+		comma label? expression;
 	
 	value =
 		{bool} bool_value |

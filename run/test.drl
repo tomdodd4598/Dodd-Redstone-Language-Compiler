@@ -448,15 +448,16 @@ struct Item {
 	next: &mut Item,
 }
 
-typealias Tracer = &&mut Item;
-typealias TracerMut = &mut &mut Item;
+typealias Node = &mut Item;
+typealias Tracer = &Node;
+typealias TracerMut = &mut Node;
 
 fn insertItem(mut tracer: TracerMut, val: Int) {
 	while *tracer != null && val >= (**tracer).val {
 		tracer = &mut (**tracer).next;
 	}
 	
-	*tracer = &mut Item { val, *tracer };
+	*tracer = Node { val, *tracer };
 }
 
 fn removeItem(mut tracer: TracerMut, val: Int) {
@@ -477,7 +478,7 @@ fn print(mut tracer: Tracer) {
 }
 
 fn main() {
-	let mut start: &mut Item = null;
+	let mut start: Node = null;
 	
 	insertItem(&mut start, 3);
 	insertItem(&mut start, 6);
@@ -499,9 +500,12 @@ fn main() {
 */
 
 fn main() {
-	let x = test();
-}
-
-fn test() -> Int {
-	loop { return 1; }
+	let x: Int;
+	
+	fn init() {
+		x = 4;
+	}
+	init();
+	
+	outint(x);
 }

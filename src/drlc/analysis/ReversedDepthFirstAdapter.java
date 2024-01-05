@@ -393,9 +393,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getRBrace().apply(this);
         }
-        if(node.getScopeContents() != null)
+        if(node.getScopedBody() != null)
         {
-            node.getScopeContents().apply(this);
+            node.getScopedBody().apply(this);
         }
         if(node.getLBrace() != null)
         {
@@ -648,9 +648,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getRBrace().apply(this);
         }
-        if(node.getScopeContents() != null)
+        if(node.getScopedBody() != null)
         {
-            node.getScopeContents().apply(this);
+            node.getScopedBody().apply(this);
         }
         if(node.getLBrace() != null)
         {
@@ -706,9 +706,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getRBrace().apply(this);
         }
-        if(node.getScopeContents() != null)
+        if(node.getScopedBody() != null)
         {
-            node.getScopeContents().apply(this);
+            node.getScopedBody().apply(this);
         }
         if(node.getLBrace() != null)
         {
@@ -743,9 +743,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getRBrace().apply(this);
         }
-        if(node.getScopeContents() != null)
+        if(node.getScopedBody() != null)
         {
-            node.getScopeContents().apply(this);
+            node.getScopedBody().apply(this);
         }
         if(node.getLBrace() != null)
         {
@@ -801,9 +801,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getRBrace().apply(this);
         }
-        if(node.getScopeContents() != null)
+        if(node.getScopedBody() != null)
         {
-            node.getScopeContents().apply(this);
+            node.getScopedBody().apply(this);
         }
         if(node.getLBrace() != null)
         {
@@ -838,9 +838,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getRBrace().apply(this);
         }
-        if(node.getScopeContents() != null)
+        if(node.getScopedBody() != null)
         {
-            node.getScopeContents().apply(this);
+            node.getScopedBody().apply(this);
         }
         if(node.getLBrace() != null)
         {
@@ -891,9 +891,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getRBrace().apply(this);
         }
-        if(node.getScopeContents() != null)
+        if(node.getScopedBody() != null)
         {
-            node.getScopeContents().apply(this);
+            node.getScopedBody().apply(this);
         }
         if(node.getLBrace() != null)
         {
@@ -910,20 +910,20 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outADoConditionalIterativeSection(node);
     }
 
-    public void inAScopeContents(AScopeContents node)
+    public void inAScopedBody(AScopedBody node)
     {
         defaultIn(node);
     }
 
-    public void outAScopeContents(AScopeContents node)
+    public void outAScopedBody(AScopedBody node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAScopeContents(AScopeContents node)
+    public void caseAScopedBody(AScopedBody node)
     {
-        inAScopeContents(node);
+        inAScopedBody(node);
         if(node.getStopStatement() != null)
         {
             node.getStopStatement().apply(this);
@@ -936,7 +936,7 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
                 e.apply(this);
             }
         }
-        outAScopeContents(node);
+        outAScopedBody(node);
     }
 
     public void inAExitStopStatement(AExitStopStatement node)

@@ -7,6 +7,7 @@ import drlc.intermediate.component.MemberInfo;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
+import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
 public class MemberExpressionNode extends ExpressionNode {
@@ -36,7 +37,7 @@ public class MemberExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?, ?> parent) {
-		scope = parent.scope;
+		scope = new Scope(parent.scope);
 		
 		expressionNode.setScopes(this);
 	}
@@ -58,15 +59,15 @@ public class MemberExpressionNode extends ExpressionNode {
 		expressionNode.defineExpressions(this);
 		
 		setTypeInfo();
+		
+		if (expressionNode.isValidLvalue()) {
+			expressionNode.setIsLvalue();
+		}
 	}
 	
 	@Override
 	public void checkTypes(ASTNode<?, ?> parent) {
 		expressionNode.checkTypes(this);
-		
-		if (expressionNode.isValidLvalue()) {
-			expressionNode.setIsLvalue();
-		}
 	}
 	
 	@Override

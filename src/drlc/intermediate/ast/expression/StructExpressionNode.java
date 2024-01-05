@@ -9,6 +9,7 @@ import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
+import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
 public class StructExpressionNode extends ExpressionNode {
@@ -29,7 +30,7 @@ public class StructExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?, ?> parent) {
-		scope = parent.scope;
+		scope = new Scope(parent.scope);
 		
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.setScopes(this);

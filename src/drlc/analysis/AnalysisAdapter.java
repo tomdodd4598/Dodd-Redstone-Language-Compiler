@@ -255,7 +255,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAScopeContents(AScopeContents node)
+    public void caseAScopedBody(AScopedBody node)
     {
         defaultCase(node);
     }

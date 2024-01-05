@@ -8,6 +8,7 @@ import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
+import drlc.intermediate.scope.ConditionalScope;
 import drlc.node.Node;
 
 public class TernaryExpressionNode extends ExpressionNode {
@@ -30,11 +31,15 @@ public class TernaryExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?, ?> parent) {
-		scope = parent.scope;
+		@NonNull ConditionalScope conditionalScope = new ConditionalScope(parent.scope, true);
+		scope = conditionalScope;
 		
 		conditionExpressionNode.setScopes(this);
 		trueExpressionNode.setScopes(this);
 		falseExpressionNode.setScopes(this);
+		
+		trueExpressionNode.scope.definiteExecution = false;
+		falseExpressionNode.scope.definiteExecution = false;
 	}
 	
 	@Override

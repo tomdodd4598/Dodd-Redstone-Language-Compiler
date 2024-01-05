@@ -15,10 +15,10 @@ public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope,
 	
 	public final boolean unless;
 	public @NonNull ExpressionNode expressionNode;
-	public final @NonNull ScopedSectionNode thenNode;
+	public final @NonNull ScopedBodyNode thenNode;
 	public final @Nullable ASTNode<?, ?> elseNode;
 	
-	public ConditionalSectionNode(Node[] parseNodes, boolean unless, @NonNull ExpressionNode expressionNode, @NonNull ScopedSectionNode thenNode, @Nullable ASTNode<?, ?> elseNode) {
+	public ConditionalSectionNode(Node[] parseNodes, boolean unless, @NonNull ExpressionNode expressionNode, @NonNull ScopedBodyNode thenNode, @Nullable ASTNode<?, ?> elseNode) {
 		super(parseNodes);
 		this.unless = unless;
 		this.expressionNode = expressionNode;

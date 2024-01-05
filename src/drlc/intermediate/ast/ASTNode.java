@@ -3,7 +3,6 @@ package drlc.intermediate.ast;
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.Helpers;
-import drlc.Helpers.Pair;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.Scope;
@@ -48,10 +47,6 @@ public abstract class ASTNode<SCOPE extends Scope, ROUTINE extends Routine> {
 	public abstract void trackFunctions(ASTNode<?, ?> parent);
 	
 	public abstract void generateIntermediate(ASTNode<?, ?> parent);
-	
-	protected Pair<String, String> nodeInfo() {
-		return Helpers.nodeInfo(parseNodes);
-	}
 	
 	protected RuntimeException error(String s, Object... args) {
 		return Helpers.nodeError(parseNodes, s, args);

@@ -8,6 +8,7 @@ import drlc.Main;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
+import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
 public class ArrayRepeatExpressionNode extends ExpressionNode {
@@ -30,7 +31,7 @@ public class ArrayRepeatExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?, ?> parent) {
-		scope = parent.scope;
+		scope = new Scope(parent.scope);
 		
 		constantExpressionNode.setScopes(this);
 		repeatExpressionNode.setScopes(this);

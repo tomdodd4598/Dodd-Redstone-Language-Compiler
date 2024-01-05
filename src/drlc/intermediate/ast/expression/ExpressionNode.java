@@ -2,6 +2,7 @@ package drlc.intermediate.ast.expression;
 
 import org.eclipse.jdt.annotation.*;
 
+import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Function;
 import drlc.intermediate.component.data.DataId;
@@ -85,6 +86,16 @@ public abstract class ExpressionNode extends ASTNode<Scope, Routine> {
 	
 	public void setIsLvalue() {
 		throw error("Attempted to set invalid expression as lvalue!");
+	}
+	
+	public void checkIsAssignable(ASTNode<?, ?> parent) {
+		if (!isMutableLvalue()) {
+			throw Helpers.nodeError(parent, "Attempted to assign to immutable lvalue expression!");
+		}
+	}
+	
+	public void initialize(ASTNode<?, ?> parent) {
+		
 	}
 	
 	public @Nullable Function getDirectFunction() {

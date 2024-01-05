@@ -2,7 +2,7 @@
 
 package drlc.node;
 
-public abstract class PScopeContents extends Node
+public abstract class PScopedBody extends Node
 {
     // Empty body
 }

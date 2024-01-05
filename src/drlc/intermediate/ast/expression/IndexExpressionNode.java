@@ -7,6 +7,7 @@ import drlc.intermediate.component.BinaryOpType;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
+import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
 public class IndexExpressionNode extends ExpressionNode {
@@ -40,7 +41,7 @@ public class IndexExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?, ?> parent) {
-		scope = parent.scope;
+		scope = new Scope(parent.scope);
 		
 		baseExpressionNode.setScopes(this);
 		indexExpressionNode.setScopes(this);
@@ -66,16 +67,16 @@ public class IndexExpressionNode extends ExpressionNode {
 		indexExpressionNode.defineExpressions(this);
 		
 		setTypeInfo();
+		
+		if (baseIsArray && baseExpressionNode.isValidLvalue()) {
+			baseExpressionNode.setIsLvalue();
+		}
 	}
 	
 	@Override
 	public void checkTypes(ASTNode<?, ?> parent) {
 		baseExpressionNode.checkTypes(this);
 		indexExpressionNode.checkTypes(this);
-		
-		if (baseIsArray && baseExpressionNode.isValidLvalue()) {
-			baseExpressionNode.setIsLvalue();
-		}
 	}
 	
 	@Override

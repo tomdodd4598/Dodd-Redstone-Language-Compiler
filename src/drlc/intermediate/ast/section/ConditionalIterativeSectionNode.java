@@ -4,7 +4,6 @@ import org.eclipse.jdt.annotation.*;
 
 import drlc.Main;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.ast.element.ScopeContentsNode;
 import drlc.intermediate.ast.expression.*;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.scope.IterativeScope;
@@ -14,9 +13,9 @@ public class ConditionalIterativeSectionNode extends IterativeSectionNode {
 	
 	public final boolean _do, until;
 	public @NonNull ExpressionNode expressionNode;
-	public final @NonNull ScopeContentsNode bodyNode;
+	public final @NonNull ScopedBodyNode bodyNode;
 	
-	public ConditionalIterativeSectionNode(Node[] parseNodes, @Nullable String label, boolean _do, boolean until, @NonNull ExpressionNode expressionNode, @NonNull ScopeContentsNode bodyNode) {
+	public ConditionalIterativeSectionNode(Node[] parseNodes, @Nullable String label, boolean _do, boolean until, @NonNull ExpressionNode expressionNode, @NonNull ScopedBodyNode bodyNode) {
 		super(parseNodes, label);
 		this._do = _do;
 		this.until = until;

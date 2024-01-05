@@ -10,7 +10,7 @@ public final class AConditionalSection extends PConditionalSection
     private TConditionalBranchKeyword _conditionalBranchKeyword_;
     private PConditionExpression _conditionExpression_;
     private TLBrace _lBrace_;
-    private PScopeContents _scopeContents_;
+    private PScopedBody _scopedBody_;
     private TRBrace _rBrace_;
     private PElseSection _elseSection_;
 
@@ -23,7 +23,7 @@ public final class AConditionalSection extends PConditionalSection
         @SuppressWarnings("hiding") TConditionalBranchKeyword _conditionalBranchKeyword_,
         @SuppressWarnings("hiding") PConditionExpression _conditionExpression_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
-        @SuppressWarnings("hiding") PScopeContents _scopeContents_,
+        @SuppressWarnings("hiding") PScopedBody _scopedBody_,
         @SuppressWarnings("hiding") TRBrace _rBrace_,
         @SuppressWarnings("hiding") PElseSection _elseSection_)
     {
@@ -34,7 +34,7 @@ public final class AConditionalSection extends PConditionalSection
 
         setLBrace(_lBrace_);
 
-        setScopeContents(_scopeContents_);
+        setScopedBody(_scopedBody_);
 
         setRBrace(_rBrace_);
 
@@ -49,7 +49,7 @@ public final class AConditionalSection extends PConditionalSection
             cloneNode(this._conditionalBranchKeyword_),
             cloneNode(this._conditionExpression_),
             cloneNode(this._lBrace_),
-            cloneNode(this._scopeContents_),
+            cloneNode(this._scopedBody_),
             cloneNode(this._rBrace_),
             cloneNode(this._elseSection_));
     }
@@ -135,16 +135,16 @@ public final class AConditionalSection extends PConditionalSection
         this._lBrace_ = node;
     }
 
-    public PScopeContents getScopeContents()
+    public PScopedBody getScopedBody()
     {
-        return this._scopeContents_;
+        return this._scopedBody_;
     }
 
-    public void setScopeContents(PScopeContents node)
+    public void setScopedBody(PScopedBody node)
     {
-        if(this._scopeContents_ != null)
+        if(this._scopedBody_ != null)
         {
-            this._scopeContents_.parent(null);
+            this._scopedBody_.parent(null);
         }
 
         if(node != null)
@@ -157,7 +157,7 @@ public final class AConditionalSection extends PConditionalSection
             node.parent(this);
         }
 
-        this._scopeContents_ = node;
+        this._scopedBody_ = node;
     }
 
     public TRBrace getRBrace()
@@ -217,7 +217,7 @@ public final class AConditionalSection extends PConditionalSection
             + toString(this._conditionalBranchKeyword_)
             + toString(this._conditionExpression_)
             + toString(this._lBrace_)
-            + toString(this._scopeContents_)
+            + toString(this._scopedBody_)
             + toString(this._rBrace_)
             + toString(this._elseSection_);
     }
@@ -244,9 +244,9 @@ public final class AConditionalSection extends PConditionalSection
             return;
         }
 
-        if(this._scopeContents_ == child)
+        if(this._scopedBody_ == child)
         {
-            this._scopeContents_ = null;
+            this._scopedBody_ = null;
             return;
         }
 
@@ -287,9 +287,9 @@ public final class AConditionalSection extends PConditionalSection
             return;
         }
 
-        if(this._scopeContents_ == oldChild)
+        if(this._scopedBody_ == oldChild)
         {
-            setScopeContents((PScopeContents) newChild);
+            setScopedBody((PScopedBody) newChild);
             return;
         }
 

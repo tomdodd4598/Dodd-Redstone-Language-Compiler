@@ -11,6 +11,7 @@ public class FunctionScope extends Scope {
 	
 	public FunctionScope(Scope parent) {
 		super(parent);
+		this.definiteExecution = false;
 	}
 	
 	@Override

@@ -42,7 +42,7 @@ public interface Analysis extends Switch
     void caseALoopIterativeSection(ALoopIterativeSection node);
     void caseAConditionalIterativeSection(AConditionalIterativeSection node);
     void caseADoConditionalIterativeSection(ADoConditionalIterativeSection node);
-    void caseAScopeContents(AScopeContents node);
+    void caseAScopedBody(AScopedBody node);
     void caseAExitStopStatement(AExitStopStatement node);
     void caseAReturnStopStatement(AReturnStopStatement node);
     void caseAContinueStopStatement(AContinueStopStatement node);

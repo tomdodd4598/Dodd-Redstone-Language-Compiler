@@ -8,6 +8,7 @@ import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.Value;
+import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
 public class FunctionCallExpressionNode extends ExpressionNode {
@@ -26,7 +27,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?, ?> parent) {
-		scope = parent.scope;
+		scope = new Scope(parent.scope);
 		
 		expressionNode.setScopes(this);
 		for (ExpressionNode argExpressionNode : argExpressionNodes) {

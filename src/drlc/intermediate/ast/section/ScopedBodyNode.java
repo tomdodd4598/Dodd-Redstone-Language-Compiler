@@ -1,22 +1,21 @@
-package drlc.intermediate.ast.element;
+package drlc.intermediate.ast.section;
 
 import java.util.List;
 
 import org.eclipse.jdt.annotation.*;
 
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.ast.section.RuntimeSectionNode;
 import drlc.intermediate.ast.stop.StopNode;
 import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
-public class ScopeContentsNode extends ASTNode<Scope, Routine> {
+public class ScopedBodyNode extends RuntimeSectionNode<Scope, Routine> {
 	
 	public final @NonNull List<RuntimeSectionNode<?, ?>> sectionNodes;
 	public final @Nullable StopNode stopNode;
 	
-	public ScopeContentsNode(Node[] parseNodes, @NonNull List<RuntimeSectionNode<?, ?>> sectionNodes, @Nullable StopNode stopNode) {
+	public ScopedBodyNode(Node[] parseNodes, @NonNull List<RuntimeSectionNode<?, ?>> sectionNodes, @Nullable StopNode stopNode) {
 		super(parseNodes);
 		this.sectionNodes = sectionNodes;
 		this.stopNode = stopNode;
@@ -24,7 +23,7 @@ public class ScopeContentsNode extends ASTNode<Scope, Routine> {
 	
 	@Override
 	public void setScopes(ASTNode<?, ?> parent) {
-		scope = parent.scope;
+		scope = new Scope(parent.scope);
 		
 		for (RuntimeSectionNode<?, ?> sectionNode : sectionNodes) {
 			sectionNode.setScopes(this);
