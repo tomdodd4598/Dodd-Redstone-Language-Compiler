@@ -64,12 +64,12 @@ public class SizeofExpressionNode extends ConstantExpressionNode {
 	
 	@Override
 	public void generateIntermediate(ASTNode<?, ?> parent) {
-		routine.addValueAssignmentAction(this, dataId = routine.nextRegId(Main.generator.intTypeInfo), value);
+		routine.addValueAssignmentAction(this, dataId = routine.nextRegId(Main.generator.indexTypeInfo), value);
 	}
 	
 	@Override
 	protected @NonNull TypeInfo getTypeInfoInternal() {
-		return Main.generator.intTypeInfo;
+		return Main.generator.indexTypeInfo;
 	}
 	
 	@Override
@@ -86,6 +86,6 @@ public class SizeofExpressionNode extends ConstantExpressionNode {
 	protected void setConstantValueInternal() {
 		typeNode.setTypeInfo();
 		
-		value = Main.generator.intValue(typeNode.typeInfo.getSize());
+		value = Main.generator.indexValue(typeNode.typeInfo.getSize());
 	}
 }

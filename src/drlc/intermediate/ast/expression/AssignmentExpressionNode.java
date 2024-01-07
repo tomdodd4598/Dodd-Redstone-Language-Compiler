@@ -57,6 +57,8 @@ public class AssignmentExpressionNode extends ExpressionNode {
 		
 		lvalueExpressionNode.defineExpressions(this);
 		
+		setTypeInfo();
+		
 		if (!lvalueExpressionNode.isValidLvalue()) {
 			throw error("Attempted to assign to invalid lvalue expression!");
 		}
