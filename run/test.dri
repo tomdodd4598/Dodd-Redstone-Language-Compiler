@@ -3,11 +3,21 @@ nesting fn \root() -> Int:
 	%0 = call $main()
 	exit $0
 
-leaf fn main() -> ():
+stack fn main() -> ():
 {dec}:
-	<2> x: Bool
-	<2> arr: [Char; 5]
+	<2> m: fn() -> ()
+	<2> a: fn() -> ()
+	<2> b: fn() -> ()
 {0}:
-	<2> x = $true
-	<2> arr = $['H', 'e', 'l', 'l', 'o']
+	<2> m = $main
+	<2> a = $<2> apple
+	<2> b = $<2> banana
+	ret $()
+
+leaf <2> fn banana() -> ():
+{0}:
+	ret $()
+
+leaf <2> fn apple() -> ():
+{0}:
 	ret $()

@@ -109,7 +109,7 @@ public abstract class Generator {
 	public void addBuiltInVariables() {}
 	
 	protected void addBuiltInFunction(@NonNull String name, @NonNull TypeInfo returnTypeInfo, DeclaratorInfo... params) {
-		Function function = new Function(null, name, true, returnTypeInfo, Arrays.asList(params));
+		Function function = new Function(null, name, true, returnTypeInfo, Arrays.asList(params), true);
 		Main.rootScope.addFunction(null, function, false);
 		Main.rootScope.addRoutine(null, new FunctionRoutine(null, function));
 	}

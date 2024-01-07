@@ -25,12 +25,15 @@ public class Function {
 	
 	public Scope scope;
 	
-	public Function(ASTNode<?, ?> node, @NonNull String name, boolean builtIn, @NonNull TypeInfo returnTypeInfo, List<DeclaratorInfo> params) {
+	public boolean defined = false;
+	
+	public Function(ASTNode<?, ?> node, @NonNull String name, boolean builtIn, @NonNull TypeInfo returnTypeInfo, List<DeclaratorInfo> params, boolean defined) {
 		this.name = name;
 		this.builtIn = builtIn;
 		this.returnTypeInfo = returnTypeInfo;
 		this.params = params;
 		paramTypeInfos = Helpers.map(params, DeclaratorInfo::getTypeInfo);
+		this.defined = defined;
 	}
 	
 	public void setUnused() {

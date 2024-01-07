@@ -499,10 +499,13 @@ fn main() {
 }
 */
 
-const x = 5;
-
 fn main() {
-	let x = true;
-	let arr: [Char; x];
-	arr = ['H', 'e', 'l', 'l', 'o'];
+	let m = main;
+	
+	fn banana() {}
+	
+	let a = apple;
+	let b = banana;
+	
+	fn apple () {}
 }

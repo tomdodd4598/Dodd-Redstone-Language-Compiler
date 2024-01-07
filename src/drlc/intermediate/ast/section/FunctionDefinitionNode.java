@@ -6,7 +6,7 @@ import org.eclipse.jdt.annotation.*;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.ast.element.*;
+import drlc.intermediate.ast.element.DeclaratorNode;
 import drlc.intermediate.ast.type.TypeNode;
 import drlc.intermediate.component.Function;
 import drlc.intermediate.component.type.TypeInfo;
@@ -71,7 +71,7 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope, Fun
 		
 		@NonNull TypeInfo returnType = returnTypeNode != null ? returnTypeNode.typeInfo : Main.generator.voidTypeInfo;
 		
-		scope.function = new Function(this, name, false, returnType, Helpers.map(parameterNodes, x -> x.declaratorInfo));
+		scope.function = new Function(this, name, false, returnType, Helpers.map(parameterNodes, x -> x.declaratorInfo), scope.parent.equals(Main.rootScope));
 		scope.parent.addFunction(this, scope.function, false);
 		
 		routine = new FunctionRoutine(this, scope.function);
@@ -100,6 +100,8 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope, Fun
 			returnTypeNode.defineExpressions(this);
 		}
 		bodyNode.defineExpressions(this);
+		
+		scope.function.defined = true;
 	}
 	
 	@Override
