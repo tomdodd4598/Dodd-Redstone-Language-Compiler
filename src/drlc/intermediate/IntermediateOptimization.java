@@ -157,7 +157,7 @@ public class IntermediateOptimization {
 								ConditionalJumpAction cja = (ConditionalJumpAction) action;
 								Value value = ((ValueDataId) arg).value;
 								if (value.typeInfo.equals(Main.generator.boolTypeInfo)) {
-									boolean noop = value.equals(Main.generator.falseValue) ^ !cja.jumpCondition;
+									boolean noop = value.boolValue(null) ^ cja.jumpCondition;
 									list.set(j, noop ? new NoOpAction() : new JumpAction(null, cja.getTarget()));
 									list.set(j - 1, new NoOpAction());
 								}
@@ -321,6 +321,26 @@ public class IntermediateOptimization {
 		return flag;
 	}
 	
+	public static boolean simplifyBinaryOps(Routine routine) {
+		boolean flag = false;
+		List<List<Action>> body = routine.getBodyActionLists();
+		for (int i = 0; i < body.size(); ++i) {
+			List<Action> list = body.get(i);
+			for (int j = 0; j < list.size(); ++j) {
+				Action action = list.get(j);
+				if (action instanceof BinaryOpAction) {
+					BinaryOpAction boa = (BinaryOpAction) action;
+					Action replace = boa.simplify();
+					if (replace != null) {
+						flag = true;
+						list.set(j, replace);
+					}
+				}
+			}
+		}
+		return flag;
+	}
+	
 	private static class RawDataId {
 		
 		final DataId internal;
@@ -430,6 +450,50 @@ public class IntermediateOptimization {
 					list.set(index, iva);
 				}
 			}
+		}
+		return flag;
+	}
+	
+	public static boolean removeUnusedAssignments(Routine routine) {
+		boolean flag = false;
+		List<List<Action>> body = routine.getBodyActionLists();
+		Map<Long, int[]> regIdMap = new TreeMap<>();
+		for (int i = 0; i < body.size(); ++i) {
+			List<Action> list = body.get(i);
+			for (int j = 0; j < list.size() - 1; ++j) {
+				Action action = list.get(j);
+				if ((action instanceof AssignmentAction || action instanceof CompoundAssignmentAction) && !(list.get(j + 1) instanceof ConditionalJumpAction)) {
+					IValueAction iva = (IValueAction) action;
+					for (DataId id : iva.lvalues()) {
+						if (id instanceof RegDataId) {
+							RegDataId regDataId = (RegDataId) id;
+							if (regDataId.dereferenceLevel == 0) {
+								regIdMap.put(regDataId.regId, new int[] {i, j});
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		for (int i = 0; i < body.size(); ++i) {
+			List<Action> list = body.get(i);
+			for (int j = 0; j < list.size(); ++j) {
+				Action action = list.get(j);
+				if (action instanceof IValueAction) {
+					IValueAction iva = (IValueAction) action;
+					for (DataId id : iva.rvalues()) {
+						if (id instanceof RegDataId) {
+							regIdMap.remove(((RegDataId) id).regId);
+						}
+					}
+				}
+			}
+		}
+		
+		for (int[] fullIndex : regIdMap.values()) {
+			flag = true;
+			body.get(fullIndex[0]).set(fullIndex[1], new NoOpAction());
 		}
 		return flag;
 	}

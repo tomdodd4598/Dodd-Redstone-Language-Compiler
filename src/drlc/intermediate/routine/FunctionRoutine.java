@@ -8,7 +8,6 @@ import drlc.Main;
 import drlc.intermediate.action.ReturnAction;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
-import drlc.intermediate.component.data.ValueDataId;
 import drlc.intermediate.component.type.TypeInfo;
 
 public class FunctionRoutine extends Routine {
@@ -19,7 +18,7 @@ public class FunctionRoutine extends Routine {
 		super(function.name);
 		this.function = function;
 		if (function.returnTypeInfo.equals(Main.generator.voidTypeInfo)) {
-			getDestructionActionList().add(new ReturnAction(null, new ValueDataId(Main.generator.unitValue)));
+			getDestructionActionList().add(new ReturnAction(null, Main.generator.unitValue.dataId()));
 		}
 	}
 	

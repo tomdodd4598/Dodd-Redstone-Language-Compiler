@@ -2,7 +2,7 @@ package drlc.intermediate.component.data;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Helpers;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.scope.Scope;
@@ -80,6 +80,6 @@ public abstract class DataId {
 	
 	@Override
 	public String toString() {
-		return dereferenceLevel >= 0 ? Helpers.addDereferences(rawString(), dereferenceLevel) : Helpers.addAddressPrefix(rawString());
+		return (dereferenceLevel >= 0 ? Helpers.dereferenceString(dereferenceLevel) : Global.ADDRESS_OF) + Helpers.scopeStringPrefix(scope) + rawString();
 	}
 }

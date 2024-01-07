@@ -5,7 +5,7 @@ import org.eclipse.jdt.annotation.*;
 import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
-import drlc.intermediate.component.type.TypeInfo;
+import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
 import drlc.node.Node;
 
@@ -56,13 +56,16 @@ public class VariableExpressionNode extends ExpressionNode {
 		
 		setTypeInfo();
 		
-		if (!isLvalue && variable != null && !scope.isVariableDefinitelyInitialized(variable)) {
-			throw error("Attempted to use potentially uninitialized variable \"%s\"!", variable.name);
+		if (variable != null) {
+			if (scope.isCapture(variable)) {
+				// TODO
+				System.out.println(variable);
+			}
+			
+			if (!isLvalue && !scope.isVariableDefinitelyInitialized(variable)) {
+				throw Helpers.nodeError(parent, "Attempted to use potentially uninitialized variable \"%s\"!", variable.name);
+			}
 		}
-	}
-	
-	public void checkInitialization(ASTNode<?, ?> parent) {
-		
 	}
 	
 	@Override
@@ -111,6 +114,10 @@ public class VariableExpressionNode extends ExpressionNode {
 		}
 		else {
 			typeInfo = variable.typeInfo;
+		}
+		
+		if (typeInfo instanceof FunctionItemTypeInfo) {
+			typeInfo = ((FunctionItemTypeInfo) typeInfo).functionPointerTypeInfo;
 		}
 	}
 	

@@ -340,10 +340,17 @@ Productions
 		expression comma expression_list?;
 	
 	struct_expression_list =
-		label? expression struct_expression_list_tail* comma?;
+		{basic} expression_list |
+		{labelled} labelled_expression_list;
 	
-	struct_expression_list_tail =
-		comma label? expression;
+	labelled_expression_list =
+		labelled_expression labelled_expression_list_tail* comma?;
+	
+	labelled_expression_list_tail =
+		comma labelled_expression;
+	
+	labelled_expression =
+		label expression;
 	
 	value =
 		{bool} bool_value |

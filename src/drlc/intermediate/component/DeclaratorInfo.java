@@ -3,7 +3,7 @@ package drlc.intermediate.component;
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.Helpers;
-import drlc.intermediate.component.data.*;
+import drlc.intermediate.component.data.VariableDataId;
 import drlc.intermediate.component.type.TypeInfo;
 
 public class DeclaratorInfo {
@@ -14,7 +14,7 @@ public class DeclaratorInfo {
 		this.variable = variable;
 	}
 	
-	public DataId dataId() {
+	public @NonNull VariableDataId dataId() {
 		return new VariableDataId(0, variable);
 	}
 	

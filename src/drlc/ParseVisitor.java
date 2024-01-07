@@ -6,6 +6,7 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
+import drlc.Helpers.Pair;
 import drlc.analysis.AnalysisAdapter;
 import drlc.intermediate.ast.*;
 import drlc.intermediate.ast.element.DeclaratorNode;
@@ -42,6 +43,8 @@ public class ParseVisitor extends AnalysisAdapter {
 	public final Deque<DeclaratorNode> declaratorStack = new ArrayDeque<>();
 	
 	public final Deque<ExpressionNode> expressionStack = new ArrayDeque<>();
+	
+	public final Deque<Pair<String, ExpressionNode>> labelledExpressionPairStack = new ArrayDeque<>();
 	
 	@SuppressWarnings("null")
 	private <T> @NonNull T traverse(Node node, Deque<T> stack) {
@@ -131,19 +134,6 @@ public class ParseVisitor extends AnalysisAdapter {
 		}
 	}
 	
-	private @NonNull List<ExpressionNode> tupleExpressionList(PTupleExpressionList node) {
-		List<ExpressionNode> expressionList = new ArrayList<>();
-		if (node == null) {
-			return expressionList;
-		}
-		else {
-			ATupleExpressionList tupleExpressionList = (ATupleExpressionList) node;
-			expressionList.add(expression(tupleExpressionList.getExpression()));
-			expressionList.addAll(expressionList(tupleExpressionList.getExpressionList()));
-			return expressionList;
-		}
-	}
-	
 	private @NonNull List<ExpressionNode> expressionList(PExpressionList node) {
 		if (node == null) {
 			return new ArrayList<>();
@@ -152,6 +142,42 @@ public class ParseVisitor extends AnalysisAdapter {
 			AExpressionList expressionList = (AExpressionList) node;
 			return traverseList(expressionList.getExpression(), expressionList.getExpressionListTail(), expressionStack);
 		}
+	}
+	
+	private @NonNull List<ExpressionNode> tupleExpressionList(PTupleExpressionList node) {
+		List<ExpressionNode> expressionList = new ArrayList<>();
+		if (node != null) {
+			ATupleExpressionList tupleExpressionList = (ATupleExpressionList) node;
+			expressionList.add(expression(tupleExpressionList.getExpression()));
+			expressionList.addAll(expressionList(tupleExpressionList.getExpressionList()));
+			return expressionList;
+		}
+		return expressionList;
+	}
+	
+	private @NonNull Pair<List<String>, @NonNull List<ExpressionNode>> structExpressionListPair(PStructExpressionList node) {
+		if (node == null) {
+			return new Pair<>(new ArrayList<>(), new ArrayList<>());
+		}
+		else if (node instanceof ABasicStructExpressionList) {
+			return new Pair<>(null, expressionList(((ABasicStructExpressionList) node).getExpressionList()));
+		}
+		else {
+			return labelledExpressionListPair(((ALabelledStructExpressionList) node).getLabelledExpressionList());
+		}
+	}
+	
+	private @NonNull Pair<List<String>, @NonNull List<ExpressionNode>> labelledExpressionListPair(PLabelledExpressionList node) {
+		Pair<@NonNull List<String>, @NonNull List<ExpressionNode>> listPair = new Pair<>(new ArrayList<>(), new ArrayList<>());
+		if (node != null) {
+			ALabelledExpressionList labelledExpressionList = (ALabelledExpressionList) node;
+			List<Pair<String, ExpressionNode>> pairList = traverseList(labelledExpressionList.getLabelledExpression(), labelledExpressionList.getLabelledExpressionListTail(), labelledExpressionPairStack);
+			for (Pair<String, ExpressionNode> pair : pairList) {
+				listPair.left.add(pair.left);
+				listPair.right.add(pair.right);
+			}
+		}
+		return listPair;
 	}
 	
 	private @NonNull VariableModifier variableModifier(Node node, List<PVariableModifier> variableModifiers) {
@@ -183,8 +209,12 @@ public class ParseVisitor extends AnalysisAdapter {
 		return token == null ? null : token.getText();
 	}
 	
-	private @Nullable String label(PIterativeSectionLabel label) {
-		return label == null ? null : text(((AIterativeSectionLabel) label).getName());
+	private @NonNull String label(PLabel label) {
+		return text(((ALabel) label).getName());
+	}
+	
+	private @Nullable String labelNullable(PLabel label) {
+		return label == null ? null : text(((ALabel) label).getName());
 	}
 	
 	private boolean unless(Token token) {
@@ -202,7 +232,7 @@ public class ParseVisitor extends AnalysisAdapter {
 	
 	@Override
 	public void defaultCase(Node node) {
-		Helpers.nodeError(node, "%s parse tree node not supported!", node.getClass().getSimpleName());
+		throw Helpers.nodeError(node, "%s parse tree node not supported!", node.getClass().getSimpleName());
 	}
 	
 	@Override
@@ -351,17 +381,17 @@ public class ParseVisitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseALoopIterativeSection(ALoopIterativeSection node) {
-		runtimeSectionStack.push(new LoopIterativeSectionNode(array(node), label(node.getIterativeSectionLabel()), scope(node.getScopedBody())));
+		runtimeSectionStack.push(new LoopIterativeSectionNode(array(node), labelNullable(node.getLabel()), scope(node.getScopedBody())));
 	}
 	
 	@Override
 	public void caseAConditionalIterativeSection(AConditionalIterativeSection node) {
-		runtimeSectionStack.push(new ConditionalIterativeSectionNode(array(node), label(node.getIterativeSectionLabel()), false, until(node.getConditionalIterativeKeyword()), expression(node.getConditionExpression()), scope(node.getScopedBody())));
+		runtimeSectionStack.push(new ConditionalIterativeSectionNode(array(node), labelNullable(node.getLabel()), false, until(node.getConditionalIterativeKeyword()), expression(node.getConditionExpression()), scope(node.getScopedBody())));
 	}
 	
 	@Override
 	public void caseADoConditionalIterativeSection(ADoConditionalIterativeSection node) {
-		runtimeSectionStack.push(new ConditionalIterativeSectionNode(array(node), label(node.getIterativeSectionLabel()), true, until(node.getConditionalIterativeKeyword()), expression(node.getExpression()), scope(node.getScopedBody())));
+		runtimeSectionStack.push(new ConditionalIterativeSectionNode(array(node), labelNullable(node.getLabel()), true, until(node.getConditionalIterativeKeyword()), expression(node.getExpression()), scope(node.getScopedBody())));
 	}
 	
 	@Override
@@ -623,7 +653,7 @@ public class ParseVisitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAStructCompoundExpression(AStructCompoundExpression node) {
-		expressionStack.push(new StructExpressionNode(array(node), text(node.getName()), expressionList(node.getExpressionList())));
+		expressionStack.push(new StructExpressionNode(array(node), text(node.getName()), structExpressionListPair(node.getStructExpressionList())));
 	}
 	
 	@Override
@@ -660,6 +690,21 @@ public class ParseVisitor extends AnalysisAdapter {
 	@Override
 	public void caseAExpressionListTail(AExpressionListTail node) {
 		node.getExpression().apply(this);
+	}
+	
+	@Override
+	public void caseALabelledExpressionList(ALabelledExpressionList node) {
+		node.getLabelledExpression().apply(this);
+	}
+	
+	@Override
+	public void caseALabelledExpressionListTail(ALabelledExpressionListTail node) {
+		node.getLabelledExpression().apply(this);
+	}
+	
+	@Override
+	public void caseALabelledExpression(ALabelledExpression node) {
+		labelledExpressionPairStack.push(new Pair<>(label(node.getLabel()), expression(node.getExpression())));
 	}
 	
 	@Override

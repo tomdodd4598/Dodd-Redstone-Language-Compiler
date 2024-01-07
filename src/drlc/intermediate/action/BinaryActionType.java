@@ -136,6 +136,18 @@ public enum BinaryActionType {
 		return null;
 	}
 	
+	public boolean isDivideOrRemainder() {
+		switch (this) {
+			case INT_DIVIDE_INT:
+			case INT_REMAINDER_INT:
+			case NAT_DIVIDE_NAT:
+			case NAT_REMAINDER_NAT:
+				return true;
+			default:
+				return false;
+		}
+	}
+	
 	@Override
 	public String toString() {
 		return opType.toString();

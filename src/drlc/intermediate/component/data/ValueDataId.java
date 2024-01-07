@@ -40,7 +40,7 @@ public class ValueDataId extends DataId {
 	
 	@Override
 	public @NonNull ValueDataId atOffset(ASTNode<?, ?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
-		return new ValueDataId(value.atOffset(node, offset, expectedTypeInfo));
+		return value.atOffset(node, offset, expectedTypeInfo).dataId();
 	}
 	
 	@Override

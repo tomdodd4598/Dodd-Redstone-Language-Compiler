@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AConditionalIterativeSection extends PIterativeSection
 {
-    private PIterativeSectionLabel _iterativeSectionLabel_;
+    private PLabel _label_;
     private TConditionalIterativeKeyword _conditionalIterativeKeyword_;
     private PConditionExpression _conditionExpression_;
     private TLBrace _lBrace_;
@@ -20,7 +20,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
     }
 
     public AConditionalIterativeSection(
-        @SuppressWarnings("hiding") PIterativeSectionLabel _iterativeSectionLabel_,
+        @SuppressWarnings("hiding") PLabel _label_,
         @SuppressWarnings("hiding") TConditionalIterativeKeyword _conditionalIterativeKeyword_,
         @SuppressWarnings("hiding") PConditionExpression _conditionExpression_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
@@ -28,7 +28,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
         @SuppressWarnings("hiding") TRBrace _rBrace_)
     {
         // Constructor
-        setIterativeSectionLabel(_iterativeSectionLabel_);
+        setLabel(_label_);
 
         setConditionalIterativeKeyword(_conditionalIterativeKeyword_);
 
@@ -46,7 +46,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
     public Object clone()
     {
         return new AConditionalIterativeSection(
-            cloneNode(this._iterativeSectionLabel_),
+            cloneNode(this._label_),
             cloneNode(this._conditionalIterativeKeyword_),
             cloneNode(this._conditionExpression_),
             cloneNode(this._lBrace_),
@@ -60,16 +60,16 @@ public final class AConditionalIterativeSection extends PIterativeSection
         ((Analysis) sw).caseAConditionalIterativeSection(this);
     }
 
-    public PIterativeSectionLabel getIterativeSectionLabel()
+    public PLabel getLabel()
     {
-        return this._iterativeSectionLabel_;
+        return this._label_;
     }
 
-    public void setIterativeSectionLabel(PIterativeSectionLabel node)
+    public void setLabel(PLabel node)
     {
-        if(this._iterativeSectionLabel_ != null)
+        if(this._label_ != null)
         {
-            this._iterativeSectionLabel_.parent(null);
+            this._label_.parent(null);
         }
 
         if(node != null)
@@ -82,7 +82,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
             node.parent(this);
         }
 
-        this._iterativeSectionLabel_ = node;
+        this._label_ = node;
     }
 
     public TConditionalIterativeKeyword getConditionalIterativeKeyword()
@@ -214,7 +214,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
     public String toString()
     {
         return ""
-            + toString(this._iterativeSectionLabel_)
+            + toString(this._label_)
             + toString(this._conditionalIterativeKeyword_)
             + toString(this._conditionExpression_)
             + toString(this._lBrace_)
@@ -226,9 +226,9 @@ public final class AConditionalIterativeSection extends PIterativeSection
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._iterativeSectionLabel_ == child)
+        if(this._label_ == child)
         {
-            this._iterativeSectionLabel_ = null;
+            this._label_ = null;
             return;
         }
 
@@ -269,9 +269,9 @@ public final class AConditionalIterativeSection extends PIterativeSection
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._iterativeSectionLabel_ == oldChild)
+        if(this._label_ == oldChild)
         {
-            setIterativeSectionLabel((PIterativeSectionLabel) newChild);
+            setLabel((PLabel) newChild);
             return;
         }
 

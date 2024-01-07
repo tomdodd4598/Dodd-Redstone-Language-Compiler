@@ -4,7 +4,7 @@ import org.eclipse.jdt.annotation.*;
 
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Function;
-import drlc.intermediate.component.type.TypeInfo;
+import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.Scope;
@@ -13,6 +13,9 @@ import drlc.node.Node;
 public class ValueExpressionNode extends ConstantExpressionNode {
 	
 	public final @NonNull Value value;
+	
+	@SuppressWarnings("null")
+	public @NonNull TypeInfo typeInfo = null;
 	
 	public boolean setDirectFunction = false;
 	
@@ -23,7 +26,6 @@ public class ValueExpressionNode extends ConstantExpressionNode {
 		this.scope = scope;
 		this.routine = routine;
 		this.value = value;
-		setTypeInfo = true;
 	}
 	
 	@Override
@@ -66,17 +68,21 @@ public class ValueExpressionNode extends ConstantExpressionNode {
 	
 	@Override
 	public void generateIntermediate(ASTNode<?, ?> parent) {
-		routine.addValueAssignmentAction(this, dataId = routine.nextRegId(value.typeInfo), value);
+		routine.addValueAssignmentAction(this, dataId = routine.nextRegId(getTypeInfo()), value);
 	}
 	
 	@Override
 	protected @NonNull TypeInfo getTypeInfoInternal() {
-		return value.typeInfo;
+		return typeInfo;
 	}
 	
 	@Override
 	protected void setTypeInfoInternal() {
+		typeInfo = value.typeInfo;
 		
+		if (typeInfo instanceof FunctionItemTypeInfo) {
+			typeInfo = ((FunctionItemTypeInfo) typeInfo).functionPointerTypeInfo;
+		}
 	}
 	
 	@Override

@@ -15,6 +15,11 @@ public class BoolValue extends BasicValue {
 	}
 	
 	@Override
+	public boolean boolValue(ASTNode<?, ?> node) {
+		return value;
+	}
+	
+	@Override
 	public int hashCode() {
 		return Objects.hash(typeInfo, value);
 	}

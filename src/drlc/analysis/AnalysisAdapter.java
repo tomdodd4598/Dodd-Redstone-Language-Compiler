@@ -417,7 +417,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAIterativeSectionLabel(AIterativeSectionLabel node)
+    public void caseALabel(ALabel node)
     {
         defaultCase(node);
     }
@@ -621,12 +621,6 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseATupleExpressionList(ATupleExpressionList node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
     public void caseAExpressionList(AExpressionList node)
     {
         defaultCase(node);
@@ -634,6 +628,42 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseAExpressionListTail(AExpressionListTail node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseATupleExpressionList(ATupleExpressionList node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABasicStructExpressionList(ABasicStructExpressionList node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALabelledStructExpressionList(ALabelledStructExpressionList node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALabelledExpressionList(ALabelledExpressionList node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALabelledExpressionListTail(ALabelledExpressionListTail node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALabelledExpression(ALabelledExpression node)
     {
         defaultCase(node);
     }

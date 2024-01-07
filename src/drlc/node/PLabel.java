@@ -2,7 +2,7 @@
 
 package drlc.node;
 
-public abstract class PIterativeSectionLabel extends Node
+public abstract class PLabel extends Node
 {
     // Empty body
 }

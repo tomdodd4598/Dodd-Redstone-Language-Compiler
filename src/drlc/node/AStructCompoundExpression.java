@@ -9,7 +9,7 @@ public final class AStructCompoundExpression extends PCompoundExpression
 {
     private TName _name_;
     private TLBrace _lBrace_;
-    private PExpressionList _expressionList_;
+    private PStructExpressionList _structExpressionList_;
     private TRBrace _rBrace_;
 
     public AStructCompoundExpression()
@@ -20,7 +20,7 @@ public final class AStructCompoundExpression extends PCompoundExpression
     public AStructCompoundExpression(
         @SuppressWarnings("hiding") TName _name_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
-        @SuppressWarnings("hiding") PExpressionList _expressionList_,
+        @SuppressWarnings("hiding") PStructExpressionList _structExpressionList_,
         @SuppressWarnings("hiding") TRBrace _rBrace_)
     {
         // Constructor
@@ -28,7 +28,7 @@ public final class AStructCompoundExpression extends PCompoundExpression
 
         setLBrace(_lBrace_);
 
-        setExpressionList(_expressionList_);
+        setStructExpressionList(_structExpressionList_);
 
         setRBrace(_rBrace_);
 
@@ -40,7 +40,7 @@ public final class AStructCompoundExpression extends PCompoundExpression
         return new AStructCompoundExpression(
             cloneNode(this._name_),
             cloneNode(this._lBrace_),
-            cloneNode(this._expressionList_),
+            cloneNode(this._structExpressionList_),
             cloneNode(this._rBrace_));
     }
 
@@ -100,16 +100,16 @@ public final class AStructCompoundExpression extends PCompoundExpression
         this._lBrace_ = node;
     }
 
-    public PExpressionList getExpressionList()
+    public PStructExpressionList getStructExpressionList()
     {
-        return this._expressionList_;
+        return this._structExpressionList_;
     }
 
-    public void setExpressionList(PExpressionList node)
+    public void setStructExpressionList(PStructExpressionList node)
     {
-        if(this._expressionList_ != null)
+        if(this._structExpressionList_ != null)
         {
-            this._expressionList_.parent(null);
+            this._structExpressionList_.parent(null);
         }
 
         if(node != null)
@@ -122,7 +122,7 @@ public final class AStructCompoundExpression extends PCompoundExpression
             node.parent(this);
         }
 
-        this._expressionList_ = node;
+        this._structExpressionList_ = node;
     }
 
     public TRBrace getRBrace()
@@ -156,7 +156,7 @@ public final class AStructCompoundExpression extends PCompoundExpression
         return ""
             + toString(this._name_)
             + toString(this._lBrace_)
-            + toString(this._expressionList_)
+            + toString(this._structExpressionList_)
             + toString(this._rBrace_);
     }
 
@@ -176,9 +176,9 @@ public final class AStructCompoundExpression extends PCompoundExpression
             return;
         }
 
-        if(this._expressionList_ == child)
+        if(this._structExpressionList_ == child)
         {
-            this._expressionList_ = null;
+            this._structExpressionList_ = null;
             return;
         }
 
@@ -207,9 +207,9 @@ public final class AStructCompoundExpression extends PCompoundExpression
             return;
         }
 
-        if(this._expressionList_ == oldChild)
+        if(this._structExpressionList_ == oldChild)
         {
-            setExpressionList((PExpressionList) newChild);
+            setStructExpressionList((PStructExpressionList) newChild);
             return;
         }
 

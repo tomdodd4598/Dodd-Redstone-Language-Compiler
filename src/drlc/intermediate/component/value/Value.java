@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.data.ValueDataId;
 import drlc.intermediate.component.type.TypeInfo;
 
 public abstract class Value {
@@ -24,6 +25,14 @@ public abstract class Value {
 		this.typeInfo = typeInfo;
 	}
 	
+	public @NonNull ValueDataId dataId() {
+		return new ValueDataId(this);
+	}
+	
+	public boolean boolValue(ASTNode<?, ?> node) {
+		throw Helpers.nodeError(node, "Value of type \"%s\" can not be cast to a Bool!", typeInfo);
+	}
+	
 	public long longValue(ASTNode<?, ?> node) {
 		throw Helpers.nodeError(node, "Value of type \"%s\" can not be cast to an integer!", typeInfo);
 	}
@@ -41,15 +50,19 @@ public abstract class Value {
 	}
 	
 	public IntValue toInt(ASTNode<?, ?> node) {
-		throw Helpers.nodeError(node, "Value of type \"%s\" can not be cast to an integer!", typeInfo);
+		throw Helpers.nodeError(node, "Value of type \"%s\" can not be cast to an Int!", typeInfo);
 	}
 	
 	public NatValue toNat(ASTNode<?, ?> node) {
-		throw Helpers.nodeError(node, "Value of type \"%s\" can not be cast to an integer!", typeInfo);
+		throw Helpers.nodeError(node, "Value of type \"%s\" can not be cast to a Nat!", typeInfo);
+	}
+	
+	public byte charValue(ASTNode<?, ?> node) {
+		throw Helpers.nodeError(node, "Value of type \"%s\" can not be cast to a Char!", typeInfo);
 	}
 	
 	public @NonNull Value atIndex(ASTNode<?, ?> node, int index) {
-		throw Helpers.nodeError(node, "Value of type \"%s\" can not be cast to an integer!", typeInfo);
+		throw Helpers.nodeError(node, "Value of type \"%s\" can not be indexed!", typeInfo);
 	}
 	
 	public @NonNull Value atOffset(ASTNode<?, ?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {

@@ -283,12 +283,8 @@ public class Helpers {
 		return scope == null || scope.globalId == 0 ? "" : Global.POINTY_START + scope.globalId + Global.POINTY_END + " ";
 	}
 	
-	public static String addAddressPrefix(String s) {
-		return Global.ADDRESS_OF + s.trim();
-	}
-	
-	public static String addDereferences(String s, int count) {
-		return String.join("", Collections.nCopies(count, Global.DEREFERENCE)) + s.trim();
+	public static String dereferenceString(int count) {
+		return String.join("", Collections.nCopies(count, Global.DEREFERENCE));
 	}
 	
 	public static @NonNull Variable rootVariable(@NonNull String name, @NonNull TypeInfo typeInfo) {

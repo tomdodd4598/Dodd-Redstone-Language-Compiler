@@ -5,7 +5,9 @@ import java.util.*;
 import org.eclipse.jdt.annotation.*;
 
 import drlc.Helpers;
+import drlc.Helpers.Pair;
 import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.MemberInfo;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
@@ -15,17 +17,22 @@ import drlc.node.Node;
 public class StructExpressionNode extends ExpressionNode {
 	
 	public final @NonNull String name;
+	public final @Nullable List<String> labels;
 	public final @NonNull List<ExpressionNode> expressionNodes;
 	
 	@SuppressWarnings("null")
 	public @NonNull StructTypeInfo typeInfo = null;
 	
+	@SuppressWarnings("null")
+	public @NonNull List<ExpressionNode> sortedExpressionNodes = null;
+	
 	public @Nullable StructValue constantValue = null;
 	
-	public StructExpressionNode(Node[] parseNodes, @NonNull String name, @NonNull List<ExpressionNode> expressionNodes) {
+	public StructExpressionNode(Node[] parseNodes, @NonNull String name, @NonNull Pair<List<String>, @NonNull List<ExpressionNode>> expressionNodesPair) {
 		super(parseNodes);
 		this.name = name;
-		this.expressionNodes = expressionNodes;
+		labels = expressionNodesPair.left;
+		expressionNodes = expressionNodesPair.right;
 	}
 	
 	@Override
@@ -60,6 +67,22 @@ public class StructExpressionNode extends ExpressionNode {
 		}
 		
 		setTypeInfo();
+		
+		if (labels != null) {
+			int count = expressionNodes.size();
+			sortedExpressionNodes = new ArrayList<>(Collections.nCopies(count, null));
+			for (int i = 0; i < count; ++i) {
+				@SuppressWarnings("null") @NonNull String label = labels.get(i);
+				MemberInfo info = typeInfo.getMemberInfo(label);
+				if (info == null) {
+					throw error("Expression of type \"%s\" has no member \"%s\"!", typeInfo, label);
+				}
+				sortedExpressionNodes.set(info.index, expressionNodes.get(i));
+			}
+		}
+		else {
+			sortedExpressionNodes = expressionNodes;
+		}
 	}
 	
 	@Override
@@ -70,7 +93,7 @@ public class StructExpressionNode extends ExpressionNode {
 		
 		int count = expressionNodes.size();
 		for (int i = 0; i < count; ++i) {
-			@SuppressWarnings("null") @NonNull TypeInfo expressionType = expressionNodes.get(i).getTypeInfo(), memberType = typeInfo.typeInfos.get(i);
+			@SuppressWarnings("null") @NonNull TypeInfo expressionType = sortedExpressionNodes.get(i).getTypeInfo(), memberType = typeInfo.typeInfos.get(i);
 			if (!expressionType.canImplicitCastTo(memberType)) {
 				throw castError("member value", expressionType, memberType);
 			}
@@ -105,7 +128,7 @@ public class StructExpressionNode extends ExpressionNode {
 			expressionNode.generateIntermediate(this);
 		}
 		
-		routine.addCompoundAssignmentAction(this, dataId = routine.nextRegId(typeInfo.copy(this)), Helpers.map(expressionNodes, x -> x.dataId));
+		routine.addCompoundAssignmentAction(this, dataId = routine.nextRegId(typeInfo.copy(this)), Helpers.map(sortedExpressionNodes, x -> x.dataId));
 		
 		for (int i = typeInfo.getReferenceLevel() - 1; i >= 0; --i) {
 			@NonNull DataId arg = dataId;
@@ -141,7 +164,7 @@ public class StructExpressionNode extends ExpressionNode {
 		}
 		
 		List<Value> values = new ArrayList<>();
-		for (ExpressionNode expressionNode : expressionNodes) {
+		for (ExpressionNode expressionNode : sortedExpressionNodes) {
 			@Nullable Value elementConstantValue = expressionNode.getConstantValue();
 			if (elementConstantValue == null) {
 				return;

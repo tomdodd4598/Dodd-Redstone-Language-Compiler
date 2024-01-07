@@ -150,7 +150,7 @@ public abstract class Routine {
 	}
 	
 	public void addValueAssignmentAction(ASTNode<?, ?> node, DataId target, @NonNull Value value) {
-		addAssignmentAction(node, target, new ValueDataId(value));
+		addAssignmentAction(node, target, value.dataId());
 	}
 	
 	public void addAddressVariableAssignmentAction(ASTNode<?, ?> node, DataId target, @NonNull Variable variable) {

@@ -5,7 +5,6 @@ import org.eclipse.jdt.annotation.*;
 import drlc.Main;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.expression.*;
-import drlc.intermediate.component.data.ValueDataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.node.Node;
 
@@ -103,7 +102,7 @@ public class ReturnNode extends StopNode {
 			routine.addReturnAction(this, expressionNode.dataId);
 		}
 		else {
-			routine.addReturnAction(this, new ValueDataId(Main.generator.unitValue));
+			routine.addReturnAction(this, Main.generator.unitValue.dataId());
 		}
 	}
 }

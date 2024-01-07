@@ -5,7 +5,6 @@ import org.eclipse.jdt.annotation.*;
 import drlc.Main;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.expression.*;
-import drlc.intermediate.component.data.ValueDataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.node.Node;
 
@@ -91,7 +90,7 @@ public class ExitNode extends StopNode {
 			routine.addExitAction(this, expressionNode.dataId);
 		}
 		else {
-			routine.addExitAction(this, new ValueDataId(Main.generator.intValue(0)));
+			routine.addExitAction(this, Main.generator.intValue(0).dataId());
 		}
 	}
 }

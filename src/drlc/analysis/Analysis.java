@@ -69,7 +69,7 @@ public interface Analysis extends Switch
     void caseAMutVariableModifier(AMutVariableModifier node);
     void caseADeclaratorList(ADeclaratorList node);
     void caseADeclaratorListTail(ADeclaratorListTail node);
-    void caseAIterativeSectionLabel(AIterativeSectionLabel node);
+    void caseALabel(ALabel node);
     void caseAPrioritizedExpression(APrioritizedExpression node);
     void caseAAssignmentExpression(AAssignmentExpression node);
     void caseAPrioritizedTernaryExpression(APrioritizedTernaryExpression node);
@@ -103,9 +103,14 @@ public interface Analysis extends Switch
     void caseAParenthesesExpression(AParenthesesExpression node);
     void caseAValueSimpleExpression(AValueSimpleExpression node);
     void caseAVariableSimpleExpression(AVariableSimpleExpression node);
-    void caseATupleExpressionList(ATupleExpressionList node);
     void caseAExpressionList(AExpressionList node);
     void caseAExpressionListTail(AExpressionListTail node);
+    void caseATupleExpressionList(ATupleExpressionList node);
+    void caseABasicStructExpressionList(ABasicStructExpressionList node);
+    void caseALabelledStructExpressionList(ALabelledStructExpressionList node);
+    void caseALabelledExpressionList(ALabelledExpressionList node);
+    void caseALabelledExpressionListTail(ALabelledExpressionListTail node);
+    void caseALabelledExpression(ALabelledExpression node);
     void caseABoolValue(ABoolValue node);
     void caseAIntValue(AIntValue node);
     void caseANatValue(ANatValue node);

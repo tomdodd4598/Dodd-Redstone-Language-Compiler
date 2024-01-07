@@ -15,6 +15,11 @@ public class CharValue extends BasicValue {
 	}
 	
 	@Override
+	public byte charValue(ASTNode<?, ?> node) {
+		return value;
+	}
+	
+	@Override
 	public int hashCode() {
 		return Objects.hash(typeInfo, value);
 	}

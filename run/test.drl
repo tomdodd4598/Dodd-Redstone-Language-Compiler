@@ -499,13 +499,17 @@ fn main() {
 }
 */
 
+let x = 1;
+
 fn main() {
-	let x: Int;
-	
-	fn init() {
-		x = 4;
-	}
-	init();
+	let y = 2;
 	
 	outint(x);
+	
+	let z = inner;
+	
+	fn inner() {
+		outint(x);
+		outint(y);
+	}
 }

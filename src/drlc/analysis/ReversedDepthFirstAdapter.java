@@ -813,9 +813,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getLoop().apply(this);
         }
-        if(node.getIterativeSectionLabel() != null)
+        if(node.getLabel() != null)
         {
-            node.getIterativeSectionLabel().apply(this);
+            node.getLabel().apply(this);
         }
         outALoopIterativeSection(node);
     }
@@ -854,9 +854,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getConditionalIterativeKeyword().apply(this);
         }
-        if(node.getIterativeSectionLabel() != null)
+        if(node.getLabel() != null)
         {
-            node.getIterativeSectionLabel().apply(this);
+            node.getLabel().apply(this);
         }
         outAConditionalIterativeSection(node);
     }
@@ -903,9 +903,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getDo().apply(this);
         }
-        if(node.getIterativeSectionLabel() != null)
+        if(node.getLabel() != null)
         {
-            node.getIterativeSectionLabel().apply(this);
+            node.getLabel().apply(this);
         }
         outADoConditionalIterativeSection(node);
     }
@@ -1697,20 +1697,20 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outADeclaratorListTail(node);
     }
 
-    public void inAIterativeSectionLabel(AIterativeSectionLabel node)
+    public void inALabel(ALabel node)
     {
         defaultIn(node);
     }
 
-    public void outAIterativeSectionLabel(AIterativeSectionLabel node)
+    public void outALabel(ALabel node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAIterativeSectionLabel(AIterativeSectionLabel node)
+    public void caseALabel(ALabel node)
     {
-        inAIterativeSectionLabel(node);
+        inALabel(node);
         if(node.getColon() != null)
         {
             node.getColon().apply(this);
@@ -1719,7 +1719,7 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getName().apply(this);
         }
-        outAIterativeSectionLabel(node);
+        outALabel(node);
     }
 
     public void inAPrioritizedExpression(APrioritizedExpression node)
@@ -2447,9 +2447,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getRBrace().apply(this);
         }
-        if(node.getExpressionList() != null)
+        if(node.getStructExpressionList() != null)
         {
-            node.getExpressionList().apply(this);
+            node.getStructExpressionList().apply(this);
         }
         if(node.getLBrace() != null)
         {
@@ -2595,35 +2595,6 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outAVariableSimpleExpression(node);
     }
 
-    public void inATupleExpressionList(ATupleExpressionList node)
-    {
-        defaultIn(node);
-    }
-
-    public void outATupleExpressionList(ATupleExpressionList node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseATupleExpressionList(ATupleExpressionList node)
-    {
-        inATupleExpressionList(node);
-        if(node.getExpressionList() != null)
-        {
-            node.getExpressionList().apply(this);
-        }
-        if(node.getComma() != null)
-        {
-            node.getComma().apply(this);
-        }
-        if(node.getExpression() != null)
-        {
-            node.getExpression().apply(this);
-        }
-        outATupleExpressionList(node);
-    }
-
     public void inAExpressionList(AExpressionList node)
     {
         defaultIn(node);
@@ -2680,6 +2651,160 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
             node.getComma().apply(this);
         }
         outAExpressionListTail(node);
+    }
+
+    public void inATupleExpressionList(ATupleExpressionList node)
+    {
+        defaultIn(node);
+    }
+
+    public void outATupleExpressionList(ATupleExpressionList node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseATupleExpressionList(ATupleExpressionList node)
+    {
+        inATupleExpressionList(node);
+        if(node.getExpressionList() != null)
+        {
+            node.getExpressionList().apply(this);
+        }
+        if(node.getComma() != null)
+        {
+            node.getComma().apply(this);
+        }
+        if(node.getExpression() != null)
+        {
+            node.getExpression().apply(this);
+        }
+        outATupleExpressionList(node);
+    }
+
+    public void inABasicStructExpressionList(ABasicStructExpressionList node)
+    {
+        defaultIn(node);
+    }
+
+    public void outABasicStructExpressionList(ABasicStructExpressionList node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseABasicStructExpressionList(ABasicStructExpressionList node)
+    {
+        inABasicStructExpressionList(node);
+        if(node.getExpressionList() != null)
+        {
+            node.getExpressionList().apply(this);
+        }
+        outABasicStructExpressionList(node);
+    }
+
+    public void inALabelledStructExpressionList(ALabelledStructExpressionList node)
+    {
+        defaultIn(node);
+    }
+
+    public void outALabelledStructExpressionList(ALabelledStructExpressionList node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseALabelledStructExpressionList(ALabelledStructExpressionList node)
+    {
+        inALabelledStructExpressionList(node);
+        if(node.getLabelledExpressionList() != null)
+        {
+            node.getLabelledExpressionList().apply(this);
+        }
+        outALabelledStructExpressionList(node);
+    }
+
+    public void inALabelledExpressionList(ALabelledExpressionList node)
+    {
+        defaultIn(node);
+    }
+
+    public void outALabelledExpressionList(ALabelledExpressionList node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseALabelledExpressionList(ALabelledExpressionList node)
+    {
+        inALabelledExpressionList(node);
+        if(node.getComma() != null)
+        {
+            node.getComma().apply(this);
+        }
+        {
+            List<PLabelledExpressionListTail> copy = new ArrayList<PLabelledExpressionListTail>(node.getLabelledExpressionListTail());
+            Collections.reverse(copy);
+            for(PLabelledExpressionListTail e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        if(node.getLabelledExpression() != null)
+        {
+            node.getLabelledExpression().apply(this);
+        }
+        outALabelledExpressionList(node);
+    }
+
+    public void inALabelledExpressionListTail(ALabelledExpressionListTail node)
+    {
+        defaultIn(node);
+    }
+
+    public void outALabelledExpressionListTail(ALabelledExpressionListTail node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseALabelledExpressionListTail(ALabelledExpressionListTail node)
+    {
+        inALabelledExpressionListTail(node);
+        if(node.getLabelledExpression() != null)
+        {
+            node.getLabelledExpression().apply(this);
+        }
+        if(node.getComma() != null)
+        {
+            node.getComma().apply(this);
+        }
+        outALabelledExpressionListTail(node);
+    }
+
+    public void inALabelledExpression(ALabelledExpression node)
+    {
+        defaultIn(node);
+    }
+
+    public void outALabelledExpression(ALabelledExpression node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseALabelledExpression(ALabelledExpression node)
+    {
+        inALabelledExpression(node);
+        if(node.getExpression() != null)
+        {
+            node.getExpression().apply(this);
+        }
+        if(node.getLabel() != null)
+        {
+            node.getLabel().apply(this);
+        }
+        outALabelledExpression(node);
     }
 
     public void inABoolValue(ABoolValue node)

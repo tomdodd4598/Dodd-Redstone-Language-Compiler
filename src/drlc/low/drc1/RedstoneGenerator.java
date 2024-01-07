@@ -67,8 +67,14 @@ public abstract class RedstoneGenerator extends Generator {
 			case MULTIPLY:
 				return intValue(leftShort * rightShort);
 			case DIVIDE:
+				if (rightShort == 0) {
+					throw Helpers.nodeError(node, "Can not divide by zero!");
+				}
 				return intValue(leftShort / rightShort);
 			case REMAINDER:
+				if (rightShort == 0) {
+					throw Helpers.nodeError(node, "Can not divide by zero!");
+				}
 				return intValue(leftShort % rightShort);
 			case LEFT_SHIFT:
 				return intValue(leftShort << rightShort);
@@ -112,8 +118,14 @@ public abstract class RedstoneGenerator extends Generator {
 			case MULTIPLY:
 				return natValue(leftShort * rightShort);
 			case DIVIDE:
+				if (rightShort == 0) {
+					throw Helpers.nodeError(node, "Can not divide by zero!");
+				}
 				return natValue(Helpers.shortDivideUnsigned(leftShort, rightShort));
 			case REMAINDER:
+				if (rightShort == 0) {
+					throw Helpers.nodeError(node, "Can not divide by zero!");
+				}
 				return natValue(Helpers.shortRemainderUnsigned(leftShort, rightShort));
 			case LEFT_SHIFT:
 				return natValue(leftShort << rightShort);

@@ -7,14 +7,13 @@ import org.eclipse.jdt.annotation.NonNull;
 import drlc.*;
 import drlc.intermediate.action.ExitAction;
 import drlc.intermediate.component.DeclaratorInfo;
-import drlc.intermediate.component.data.ValueDataId;
 import drlc.intermediate.component.type.TypeInfo;
 
 public class RootRoutine extends Routine {
 	
 	public RootRoutine() {
 		super(Global.ROOT_ROUTINE);
-		getDestructionActionList().add(new ExitAction(null, new ValueDataId(Main.generator.intValue(0))));
+		getDestructionActionList().add(new ExitAction(null, Main.generator.intValue(0).dataId()));
 	}
 	
 	@Override

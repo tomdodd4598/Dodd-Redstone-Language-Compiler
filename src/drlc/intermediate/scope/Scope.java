@@ -392,10 +392,20 @@ public class Scope {
 	}
 	
 	public boolean isVariableDefinitelyInitialized(Variable variable) {
-		return variable.scope.isVariableDefinitelyInitializedInternal(variable);
+		return variable.scope.isVariableDefinitelyInitializedInternal(variable, this);
 	}
 	
-	protected boolean isVariableDefinitelyInitializedInternal(Variable variable) {
-		return initializationSet.contains(variable) || children.stream().anyMatch(x -> x.definiteExecution && x.isVariableDefinitelyInitializedInternal(variable));
+	protected boolean isVariableDefinitelyInitializedInternal(Variable variable, Scope location) {
+		return initializationSet.contains(variable) || children.stream().anyMatch(x -> (x.definiteExecution || x.isSubScope(location)) && x.isVariableDefinitelyInitializedInternal(variable, location));
+	}
+	
+	public boolean isCapture(Variable variable) {
+		if (variable.modifier._static) {
+			return false;
+		}
+		else {
+			Function contextFunction = getContextFunction();
+			return contextFunction != null && !contextFunction.equals(variable.scope.getContextFunction());
+		}
 	}
 }

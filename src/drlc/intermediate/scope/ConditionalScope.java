@@ -28,7 +28,7 @@ public class ConditionalScope extends Scope {
 	}
 	
 	@Override
-	protected boolean isVariableDefinitelyInitializedInternal(Variable variable) {
-		return super.isVariableDefinitelyInitializedInternal(variable) || (hasElseBranch && branchingChildren().allMatch(x -> x.isVariableDefinitelyInitializedInternal(variable)));
+	protected boolean isVariableDefinitelyInitializedInternal(Variable variable, Scope location) {
+		return super.isVariableDefinitelyInitializedInternal(variable, location) || (hasElseBranch && branchingChildren().allMatch(x -> x.isVariableDefinitelyInitializedInternal(variable, location)));
 	}
 }

@@ -9,7 +9,7 @@ import drlc.intermediate.*;
 import drlc.intermediate.action.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
-import drlc.intermediate.component.data.*;
+import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.routine.*;
@@ -325,8 +325,14 @@ public abstract class Generator {
 			case MULTIPLY:
 				return intValue(left.value * right.value);
 			case DIVIDE:
+				if (right.value == 0) {
+					throw Helpers.nodeError(node, "Can not divide by zero!");
+				}
 				return intValue(left.value / right.value);
 			case REMAINDER:
+				if (right.value == 0) {
+					throw Helpers.nodeError(node, "Can not divide by zero!");
+				}
 				return intValue(left.value % right.value);
 			case LEFT_SHIFT:
 				return intValue(left.value << right.intValue(node));
@@ -368,8 +374,14 @@ public abstract class Generator {
 			case MULTIPLY:
 				return natValue(left.value * right.value);
 			case DIVIDE:
+				if (right.value == 0) {
+					throw Helpers.nodeError(node, "Can not divide by zero!");
+				}
 				return natValue(Long.divideUnsigned(left.value, right.value));
 			case REMAINDER:
+				if (right.value == 0) {
+					throw Helpers.nodeError(node, "Can not divide by zero!");
+				}
 				return natValue(Long.remainderUnsigned(left.value, right.value));
 			case LEFT_SHIFT:
 				return natValue(left.value << right.intValue(node));
@@ -907,7 +919,7 @@ public abstract class Generator {
 					case MINUS:
 						DataId raw = routine.nextRegId(intTypeInfo);
 						routine.addAction(BinaryActionType.INT_MINUS_INT.action(node, raw, arg1, arg2));
-						routine.addAction(BinaryActionType.INT_DIVIDE_INT.action(node, target, raw, new ValueDataId(sizeValue(leftType.getAddressOffsetSize(node)))));
+						routine.addAction(BinaryActionType.INT_DIVIDE_INT.action(node, target, raw, sizeValue(leftType.getAddressOffsetSize(node)).dataId()));
 						return;
 					case MULTIPLY:
 					case DIVIDE:
@@ -924,7 +936,7 @@ public abstract class Generator {
 			else {
 				if (plusOrMinus && rightType.isWord()) {
 					DataId offset = routine.nextRegId(intTypeInfo);
-					routine.addAction(BinaryActionType.INT_MULTIPLY_INT.action(node, offset, arg2, new ValueDataId(sizeValue(leftType.getAddressOffsetSize(node)))));
+					routine.addAction(BinaryActionType.INT_MULTIPLY_INT.action(node, offset, arg2, sizeValue(leftType.getAddressOffsetSize(node)).dataId()));
 					routine.addAction((opType == BinaryOpType.PLUS ? BinaryActionType.INT_PLUS_INT : BinaryActionType.INT_MINUS_INT).action(node, target, arg1, offset));
 					return;
 				}
@@ -937,7 +949,7 @@ public abstract class Generator {
 			if (rightType.isAddress()) {
 				if (plusOrMinus && leftType.isWord()) {
 					DataId offset = routine.nextRegId(intTypeInfo);
-					routine.addAction(BinaryActionType.INT_MULTIPLY_INT.action(node, offset, arg1, new ValueDataId(sizeValue(rightType.getAddressOffsetSize(node)))));
+					routine.addAction(BinaryActionType.INT_MULTIPLY_INT.action(node, offset, arg1, sizeValue(rightType.getAddressOffsetSize(node)).dataId()));
 					routine.addAction((opType == BinaryOpType.PLUS ? BinaryActionType.INT_PLUS_INT : BinaryActionType.INT_MINUS_INT).action(node, target, offset, arg2));
 					return;
 				}
@@ -1133,7 +1145,7 @@ public abstract class Generator {
 			throw Helpers.error("Main function must have type \"%s\"!", mainFunctionTypeInfo);
 		}
 		
-		Main.rootRoutine.addFunctionAction(null, Main.rootScope.getFunction(null, Global.MAIN_ROUTINE), Main.rootRoutine.nextRegId(voidTypeInfo), new ValueDataId(main), new ArrayList<>(), Main.rootScope);
+		Main.rootRoutine.addFunctionAction(null, Main.rootScope.getFunction(null, Global.MAIN_ROUTINE), Main.rootRoutine.nextRegId(voidTypeInfo), main.dataId(), new ArrayList<>(), Main.rootScope);
 	}
 	
 	public void optimizeIntermediate() {
@@ -1164,7 +1176,9 @@ public abstract class Generator {
 				flag |= IntermediateOptimization.compressRegisters(routine);
 				flag |= IntermediateOptimization.reorderRvalues(routine);
 				flag |= IntermediateOptimization.foldRvalues(routine);
+				flag |= IntermediateOptimization.simplifyBinaryOps(routine);
 				flag |= IntermediateOptimization.simplifyDereferences(routine);
+				flag |= IntermediateOptimization.removeUnusedAssignments(routine);
 				flag |= IntermediateOptimization.orderRegisters(routine);
 			}
 		}
