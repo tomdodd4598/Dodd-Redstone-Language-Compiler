@@ -35,6 +35,8 @@ public class DeclaratorNode extends ASTNode<Scope, Routine> {
 	public void setScopes(ASTNode<?, ?> parent) {
 		scope = parent.scope;
 		
+		scope.addConstantShadow(name);
+		
 		if (typeNode != null) {
 			typeNode.setScopes(this);
 		}

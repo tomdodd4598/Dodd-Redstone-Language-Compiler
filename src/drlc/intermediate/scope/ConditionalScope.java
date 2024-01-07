@@ -24,7 +24,7 @@ public class ConditionalScope extends Scope {
 	
 	@Override
 	protected boolean isVariablePotentiallyInitializedInternal(Variable variable, Scope location) {
-		return initializationSet.contains(variable) || children.stream().anyMatch(x -> (x.definiteExecution || location.isSubScope(x)) && x.isVariablePotentiallyInitializedInternal(variable, location));
+		return initializationSet.contains(variable) || children.stream().anyMatch(x -> (x.definiteExecution || x.isSubScopeOf(location)) && x.isVariablePotentiallyInitializedInternal(variable, location));
 	}
 	
 	@Override

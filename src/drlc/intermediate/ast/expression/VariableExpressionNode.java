@@ -57,10 +57,7 @@ public class VariableExpressionNode extends ExpressionNode {
 		setTypeInfo();
 		
 		if (variable != null) {
-			if (scope.isCapture(variable)) {
-				// TODO
-				System.out.println(variable);
-			}
+			scope.onVariableExpression(this, variable);
 			
 			if (!isLvalue && !scope.isVariableDefinitelyInitialized(variable)) {
 				throw Helpers.nodeError(parent, "Attempted to use potentially uninitialized variable \"%s\"!", variable.name);
@@ -160,7 +157,7 @@ public class VariableExpressionNode extends ExpressionNode {
 	public void checkIsAssignable(ASTNode<?, ?> parent) {
 		if (!isMutableLvalue()) {
 			if (scope.isVariablePotentiallyInitialized(variable)) {
-				throw Helpers.nodeError(parent, "Attempted to assign twice to immutable variable \"%s\"!", variable.name);
+				throw Helpers.nodeError(parent, "Attempted to potentially assign twice to immutable variable \"%s\"!", variable.name);
 			}
 		}
 	}

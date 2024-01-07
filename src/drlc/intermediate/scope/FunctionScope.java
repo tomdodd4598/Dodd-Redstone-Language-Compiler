@@ -1,6 +1,6 @@
 package drlc.intermediate.scope;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import drlc.intermediate.component.Function;
 
@@ -11,7 +11,13 @@ public class FunctionScope extends Scope {
 	
 	public FunctionScope(Scope parent) {
 		super(parent);
-		this.definiteExecution = false;
+		definiteExecution = false;
+		potentialOuterMultipleExecution = true;
+	}
+	
+	@Override
+	public @Nullable FunctionScope getFunctionScope() {
+		return this;
 	}
 	
 	@Override

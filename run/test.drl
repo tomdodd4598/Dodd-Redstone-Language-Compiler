@@ -499,17 +499,10 @@ fn main() {
 }
 */
 
-let x = 1;
+const x = 5;
 
 fn main() {
-	let y = 2;
-	
-	outint(x);
-	
-	let z = inner;
-	
-	fn inner() {
-		outint(x);
-		outint(y);
-	}
+	let x = true;
+	let arr: [Char; x];
+	arr = ['H', 'e', 'l', 'l', 'o'];
 }

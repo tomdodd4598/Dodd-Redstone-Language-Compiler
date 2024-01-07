@@ -14,6 +14,7 @@ public class IterativeScope extends Scope {
 	public IterativeScope(Scope parent, boolean definiteExecution, @Nullable String label) {
 		super(parent);
 		this.definiteExecution = definiteExecution;
+		potentialOuterMultipleExecution = true;
 		this.label = label;
 	}
 	

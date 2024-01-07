@@ -28,6 +28,8 @@ public class Scope {
 	
 	protected final List<Scope> children = new ArrayList<>();
 	
+	protected final Hierarchy<String, Scope> constantShadowMap;
+	
 	protected final Hierarchy<String, RawType> rawTypeMap;
 	protected final Hierarchy<String, TypeInfo> aliasTypeMap;
 	protected final Hierarchy<String, Constant> constantMap;
@@ -35,8 +37,8 @@ public class Scope {
 	protected final Hierarchy<String, Function> functionMap;
 	protected final Hierarchy<String, Routine> routineMap;
 	
-	public boolean definiteExecution = true;
 	public boolean definiteLocalReturn = false;
+	public boolean definiteExecution = true, potentialOuterMultipleExecution = false;
 	
 	protected final Set<Variable> initializationSet = new HashSet<>();
 	
@@ -44,6 +46,8 @@ public class Scope {
 		this.parent = parent;
 		
 		if (parent == null) {
+			constantShadowMap = new Hierarchy<>(null);
+			
 			rawTypeMap = new Hierarchy<>(null);
 			aliasTypeMap = new Hierarchy<>(null);
 			constantMap = new Hierarchy<>(null);
@@ -53,6 +57,9 @@ public class Scope {
 		}
 		else {
 			parent.children.add(this);
+			
+			constantShadowMap = new Hierarchy<>(parent.constantShadowMap);
+			
 			rawTypeMap = new Hierarchy<>(parent.rawTypeMap);
 			aliasTypeMap = new Hierarchy<>(parent.aliasTypeMap);
 			constantMap = new Hierarchy<>(parent.constantMap);
@@ -60,6 +67,10 @@ public class Scope {
 			functionMap = new Hierarchy<>(parent.functionMap);
 			routineMap = new Hierarchy<>(parent.routineMap);
 		}
+	}
+	
+	public boolean isSubScopeOf(Scope other) {
+		return equals(other) || other.children.stream().anyMatch(x -> isSubScopeOf(x));
 	}
 	
 	public long nextLocalId() {
@@ -156,7 +167,9 @@ public class Scope {
 	}
 	
 	public boolean constantExists(String name, boolean shallow) {
-		return constantMap.containsKey(name, shallow);
+		Constant constant = constantMap.get(name, shallow);
+		Scope shadowScope;
+		return constant != null && ((shadowScope = constantShadowMap.get(name, shallow)) == null || !shadowScope.isSubScopeOf(constant.scope));
 	}
 	
 	public boolean variableExists(String name, boolean shallow) {
@@ -230,12 +243,12 @@ public class Scope {
 		}
 	}
 	
+	@SuppressWarnings("null")
 	public @NonNull Constant getConstant(ASTNode<?, ?> node, String name) {
-		Constant constant = constantMap.get(name, false);
-		if (constant == null) {
+		if (!constantExists(name, false)) {
 			throw Helpers.nodeError(node, "Constant \"%s\" not defined in this scope!", name);
 		}
-		return constant;
+		return constantMap.get(name, false);
 	}
 	
 	public @NonNull Variable getVariable(ASTNode<?, ?> node, String name) {
@@ -263,6 +276,10 @@ public class Scope {
 	}
 	
 	// Adders
+	
+	public void addConstantShadow(String name) {
+		constantShadowMap.put(name, this, true);
+	}
 	
 	public void addRawType(ASTNode<?, ?> node, @NonNull RawType rawType) {
 		String name = rawType.name;
@@ -354,8 +371,16 @@ public class Scope {
 		return definiteLocalReturn || children.stream().anyMatch(x -> x.definiteExecution && x.hasDefiniteReturn());
 	}
 	
+	public @Nullable FunctionScope getFunctionScope() {
+		return parent == null ? null : parent.getFunctionScope();
+	}
+	
 	public @Nullable Function getContextFunction() {
 		return parent == null ? null : parent.getContextFunction();
+	}
+	
+	protected @Nullable Scope potentialMultipleExecutionScope() {
+		return potentialOuterMultipleExecution ? this : (parent == null ? null : parent.potentialMultipleExecutionScope());
 	}
 	
 	public boolean isBreakable(@Nullable String label) {
@@ -373,14 +398,10 @@ public class Scope {
 	// Variable initialization
 	
 	public void onVariableInitialization(ASTNode<?, ?> node, Variable variable) {
-		if (!variable.modifier.mutable && isVariablePotentiallyInitialized(variable)) {
-			throw Helpers.nodeError(node, "Attempted to assign twice to immutable variable \"%s\"!", variable.name);
+		if (!variable.modifier.mutable && (!Objects.equals(potentialMultipleExecutionScope(), variable.scope.potentialMultipleExecutionScope()) || isVariablePotentiallyInitialized(variable))) {
+			throw Helpers.nodeError(node, "Attempted to potentially assign twice to immutable variable \"%s\"!", variable.name);
 		}
 		initializationSet.add(variable);
-	}
-	
-	protected boolean isSubScope(Scope other) {
-		return equals(other) || children.stream().anyMatch(x -> x.isSubScope(other));
 	}
 	
 	public boolean isVariablePotentiallyInitialized(Variable variable) {
@@ -396,16 +417,18 @@ public class Scope {
 	}
 	
 	protected boolean isVariableDefinitelyInitializedInternal(Variable variable, Scope location) {
-		return initializationSet.contains(variable) || children.stream().anyMatch(x -> (x.definiteExecution || x.isSubScope(location)) && x.isVariableDefinitelyInitializedInternal(variable, location));
+		return initializationSet.contains(variable) || children.stream().anyMatch(x -> (x.definiteExecution || location.isSubScopeOf(x)) && x.isVariableDefinitelyInitializedInternal(variable, location));
 	}
 	
-	public boolean isCapture(Variable variable) {
-		if (variable.modifier._static) {
-			return false;
+	// Environment capture
+	
+	public void onVariableExpression(ASTNode<?, ?> node, Variable variable) {
+		if (!variable.modifier._static && !Objects.equals(getFunctionScope(), variable.scope.getFunctionScope())) {
+			onVariableCapture(node, variable);
 		}
-		else {
-			Function contextFunction = getContextFunction();
-			return contextFunction != null && !contextFunction.equals(variable.scope.getContextFunction());
-		}
+	}
+	
+	public void onVariableCapture(ASTNode<?, ?> node, Variable variable) {
+		throw Helpers.nodeError(node, "Attempted to capture environment in non-closure function!");
 	}
 }

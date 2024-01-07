@@ -1,23 +1,13 @@
 nesting fn \root() -> Int:
-{dec}:
-	static x: Int
 {0}:
-	x = $1
 	%0 = call $main()
 	exit $0
 
-stack fn main() -> ():
+leaf fn main() -> ():
 {dec}:
-	<2> y: Int
-	<2> z: fn() -> ()
+	<2> x: Bool
+	<2> arr: [Char; 5]
 {0}:
-	<2> y = $2
-	%0 = call builtin $outint(x)
-	<2> z = $<2> inner
-	ret $()
-
-leaf <2> fn inner() -> ():
-{0}:
-	%0 = call builtin $outint(x)
-	%1 = call builtin $outint(<2> y)
+	<2> x = $true
+	<2> arr = $['H', 'e', 'l', 'l', 'o']
 	ret $()

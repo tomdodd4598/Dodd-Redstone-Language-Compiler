@@ -351,7 +351,7 @@ public class ParseVisitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAEmptySection(AEmptySection node) {
-		
+		staticSectionStack.push(new EmptySectionNode(array(node)));
 	}
 	
 	@Override
