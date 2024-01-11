@@ -10,23 +10,28 @@ import drlc.intermediate.ast.element.DeclaratorNode;
 import drlc.intermediate.ast.type.TypeNode;
 import drlc.intermediate.component.Function;
 import drlc.intermediate.component.type.TypeInfo;
-import drlc.intermediate.routine.FunctionRoutine;
+import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.FunctionScope;
 import drlc.node.Node;
 
-public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope, FunctionRoutine> {
+public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 	
 	public final @NonNull String name;
 	public final @NonNull List<DeclaratorNode> parameterNodes;
 	public final @Nullable TypeNode returnTypeNode;
 	public final @NonNull ScopedBodyNode bodyNode;
+	public final boolean closure;
 	
-	public FunctionDefinitionNode(Node[] parseNodes, @NonNull String name, @NonNull List<DeclaratorNode> parameterNodes, @Nullable TypeNode returnTypeNode, @NonNull ScopedBodyNode bodyNode) {
+	@SuppressWarnings("null")
+	public @NonNull Function function = null;
+	
+	public FunctionDefinitionNode(Node[] parseNodes, @NonNull String name, @NonNull List<DeclaratorNode> parameterNodes, @Nullable TypeNode returnTypeNode, @NonNull ScopedBodyNode bodyNode, boolean closure) {
 		super(parseNodes);
 		this.name = name;
 		this.parameterNodes = parameterNodes;
 		this.returnTypeNode = returnTypeNode;
 		this.bodyNode = bodyNode;
+		this.closure = closure;
 		
 		for (DeclaratorNode parameterNode : parameterNodes) {
 			parameterNode.functionParameter = true;
@@ -37,8 +42,8 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope, Fun
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
-		scope = new FunctionScope(parent.scope);
+	public void setScopes(ASTNode<?> parent) {
+		scope = new FunctionScope(this, parent.scope);
 		
 		for (DeclaratorNode parameterNode : parameterNodes) {
 			parameterNode.setScopes(this);
@@ -50,7 +55,7 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope, Fun
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		for (DeclaratorNode parameterNode : parameterNodes) {
 			parameterNode.defineTypes(this);
 		}
@@ -61,7 +66,7 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope, Fun
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		for (DeclaratorNode parameterNode : parameterNodes) {
 			parameterNode.declareExpressions(this);
 		}
@@ -69,13 +74,13 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope, Fun
 			returnTypeNode.declareExpressions(this);
 		}
 		
-		@NonNull TypeInfo returnType = returnTypeNode != null ? returnTypeNode.typeInfo : Main.generator.voidTypeInfo;
+		@NonNull TypeInfo returnType = returnTypeNode != null ? returnTypeNode.typeInfo : Main.generator.unitTypeInfo;
 		
-		scope.function = new Function(this, name, false, returnType, Helpers.map(parameterNodes, x -> x.declaratorInfo), scope.parent.equals(Main.rootScope));
-		scope.parent.addFunction(this, scope.function, false);
+		function = scope.function = new Function(this, name, false, returnType, Helpers.map(parameterNodes, x -> x.declaratorInfo), closure, scope.parent.equals(Main.rootScope));
+		scope.parent.addFunction(this, function, false);
 		
-		routine = new FunctionRoutine(this, scope.function);
-		scope.parent.addRoutine(this, routine);
+		routine = new Routine(function);
+		Main.rootScope.addRoutine(this, routine);
 		
 		for (DeclaratorNode parameterNode : parameterNodes) {
 			parameterNode.routine = routine;
@@ -86,13 +91,15 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope, Fun
 		
 		bodyNode.declareExpressions(this);
 		
-		if (!returnType.equals(Main.generator.voidTypeInfo) && !scope.hasDefiniteReturn()) {
+		if (!returnType.equals(Main.generator.unitTypeInfo) && !scope.hasDefiniteReturn()) {
 			throw error("Function \"%s\" does not always return value of expected type \"%s\"!", name, returnType);
 		}
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
+		function.defined = true;
+		
 		for (DeclaratorNode parameterNode : parameterNodes) {
 			parameterNode.defineExpressions(this);
 		}
@@ -100,12 +107,10 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope, Fun
 			returnTypeNode.defineExpressions(this);
 		}
 		bodyNode.defineExpressions(this);
-		
-		scope.function.defined = true;
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		for (DeclaratorNode parameterNode : parameterNodes) {
 			parameterNode.checkTypes(this);
 		}
@@ -116,7 +121,7 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope, Fun
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		for (DeclaratorNode parameterNode : parameterNodes) {
 			parameterNode.foldConstants(this);
 		}
@@ -127,7 +132,7 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope, Fun
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		for (DeclaratorNode parameterNode : parameterNodes) {
 			parameterNode.trackFunctions(this);
 		}
@@ -138,7 +143,7 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope, Fun
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		for (DeclaratorNode parameterNode : parameterNodes) {
 			parameterNode.generateIntermediate(this);
 		}

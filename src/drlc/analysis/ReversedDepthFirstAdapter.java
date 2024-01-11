@@ -1736,27 +1736,219 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseAPrioritizedExpression(APrioritizedExpression node)
     {
         inAPrioritizedExpression(node);
-        if(node.getTernaryExpression() != null)
+        if(node.getAssignmentExpression() != null)
         {
-            node.getTernaryExpression().apply(this);
+            node.getAssignmentExpression().apply(this);
         }
         outAPrioritizedExpression(node);
     }
 
-    public void inAAssignmentExpression(AAssignmentExpression node)
+    public void inAClosureExpression(AClosureExpression node)
     {
         defaultIn(node);
     }
 
-    public void outAAssignmentExpression(AAssignmentExpression node)
+    public void outAClosureExpression(AClosureExpression node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAAssignmentExpression(AAssignmentExpression node)
+    public void caseAClosureExpression(AClosureExpression node)
     {
-        inAAssignmentExpression(node);
+        inAClosureExpression(node);
+        if(node.getClosureBody() != null)
+        {
+            node.getClosureBody().apply(this);
+        }
+        if(node.getClosureDeclaratorList() != null)
+        {
+            node.getClosureDeclaratorList().apply(this);
+        }
+        outAClosureExpression(node);
+    }
+
+    public void inAStandardClosureDeclaratorList(AStandardClosureDeclaratorList node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAStandardClosureDeclaratorList(AStandardClosureDeclaratorList node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAStandardClosureDeclaratorList(AStandardClosureDeclaratorList node)
+    {
+        inAStandardClosureDeclaratorList(node);
+        if(node.getRClosureList() != null)
+        {
+            node.getRClosureList().apply(this);
+        }
+        if(node.getDeclaratorList() != null)
+        {
+            node.getDeclaratorList().apply(this);
+        }
+        if(node.getLClosureList() != null)
+        {
+            node.getLClosureList().apply(this);
+        }
+        outAStandardClosureDeclaratorList(node);
+    }
+
+    public void inALogicalOrClosureDeclaratorList(ALogicalOrClosureDeclaratorList node)
+    {
+        defaultIn(node);
+    }
+
+    public void outALogicalOrClosureDeclaratorList(ALogicalOrClosureDeclaratorList node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseALogicalOrClosureDeclaratorList(ALogicalOrClosureDeclaratorList node)
+    {
+        inALogicalOrClosureDeclaratorList(node);
+        if(node.getLogicalOr() != null)
+        {
+            node.getLogicalOr().apply(this);
+        }
+        outALogicalOrClosureDeclaratorList(node);
+    }
+
+    public void inALClosureList(ALClosureList node)
+    {
+        defaultIn(node);
+    }
+
+    public void outALClosureList(ALClosureList node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseALClosureList(ALClosureList node)
+    {
+        inALClosureList(node);
+        if(node.getOr() != null)
+        {
+            node.getOr().apply(this);
+        }
+        outALClosureList(node);
+    }
+
+    public void inARClosureList(ARClosureList node)
+    {
+        defaultIn(node);
+    }
+
+    public void outARClosureList(ARClosureList node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseARClosureList(ARClosureList node)
+    {
+        inARClosureList(node);
+        if(node.getOr() != null)
+        {
+            node.getOr().apply(this);
+        }
+        outARClosureList(node);
+    }
+
+    public void inAExpressionClosureBody(AExpressionClosureBody node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAExpressionClosureBody(AExpressionClosureBody node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAExpressionClosureBody(AExpressionClosureBody node)
+    {
+        inAExpressionClosureBody(node);
+        if(node.getExpression() != null)
+        {
+            node.getExpression().apply(this);
+        }
+        outAExpressionClosureBody(node);
+    }
+
+    public void inABlockClosureBody(ABlockClosureBody node)
+    {
+        defaultIn(node);
+    }
+
+    public void outABlockClosureBody(ABlockClosureBody node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseABlockClosureBody(ABlockClosureBody node)
+    {
+        inABlockClosureBody(node);
+        if(node.getRBrace() != null)
+        {
+            node.getRBrace().apply(this);
+        }
+        if(node.getScopedBody() != null)
+        {
+            node.getScopedBody().apply(this);
+        }
+        if(node.getLBrace() != null)
+        {
+            node.getLBrace().apply(this);
+        }
+        if(node.getReturnType() != null)
+        {
+            node.getReturnType().apply(this);
+        }
+        outABlockClosureBody(node);
+    }
+
+    public void inAPrioritizedAssignmentExpression(APrioritizedAssignmentExpression node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAPrioritizedAssignmentExpression(APrioritizedAssignmentExpression node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAPrioritizedAssignmentExpression(APrioritizedAssignmentExpression node)
+    {
+        inAPrioritizedAssignmentExpression(node);
+        if(node.getTernaryExpression() != null)
+        {
+            node.getTernaryExpression().apply(this);
+        }
+        outAPrioritizedAssignmentExpression(node);
+    }
+
+    public void inAAssignmentAssignmentExpression(AAssignmentAssignmentExpression node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAAssignmentAssignmentExpression(AAssignmentAssignmentExpression node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAAssignmentAssignmentExpression(AAssignmentAssignmentExpression node)
+    {
+        inAAssignmentAssignmentExpression(node);
         if(node.getExpression() != null)
         {
             node.getExpression().apply(this);
@@ -1769,7 +1961,7 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getUnaryExpression().apply(this);
         }
-        outAAssignmentExpression(node);
+        outAAssignmentAssignmentExpression(node);
     }
 
     public void inAPrioritizedTernaryExpression(APrioritizedTernaryExpression node)
@@ -2870,6 +3062,27 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outANatValue(node);
     }
 
+    public void inAWordValue(AWordValue node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAWordValue(AWordValue node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAWordValue(AWordValue node)
+    {
+        inAWordValue(node);
+        if(node.getWordValue() != null)
+        {
+            node.getWordValue().apply(this);
+        }
+        outAWordValue(node);
+    }
+
     public void inACharValue(ACharValue node)
     {
         defaultIn(node);
@@ -2951,27 +3164,73 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseAPrioritizedConditionExpression(APrioritizedConditionExpression node)
     {
         inAPrioritizedConditionExpression(node);
-        if(node.getConditionTernaryExpression() != null)
+        if(node.getConditionAssignmentExpression() != null)
         {
-            node.getConditionTernaryExpression().apply(this);
+            node.getConditionAssignmentExpression().apply(this);
         }
         outAPrioritizedConditionExpression(node);
     }
 
-    public void inAAssignmentConditionExpression(AAssignmentConditionExpression node)
+    public void inAClosureConditionExpression(AClosureConditionExpression node)
     {
         defaultIn(node);
     }
 
-    public void outAAssignmentConditionExpression(AAssignmentConditionExpression node)
+    public void outAClosureConditionExpression(AClosureConditionExpression node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAAssignmentConditionExpression(AAssignmentConditionExpression node)
+    public void caseAClosureConditionExpression(AClosureConditionExpression node)
     {
-        inAAssignmentConditionExpression(node);
+        inAClosureConditionExpression(node);
+        if(node.getConditionExpression() != null)
+        {
+            node.getConditionExpression().apply(this);
+        }
+        if(node.getClosureDeclaratorList() != null)
+        {
+            node.getClosureDeclaratorList().apply(this);
+        }
+        outAClosureConditionExpression(node);
+    }
+
+    public void inAPrioritizedConditionAssignmentExpression(APrioritizedConditionAssignmentExpression node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAPrioritizedConditionAssignmentExpression(APrioritizedConditionAssignmentExpression node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAPrioritizedConditionAssignmentExpression(APrioritizedConditionAssignmentExpression node)
+    {
+        inAPrioritizedConditionAssignmentExpression(node);
+        if(node.getConditionTernaryExpression() != null)
+        {
+            node.getConditionTernaryExpression().apply(this);
+        }
+        outAPrioritizedConditionAssignmentExpression(node);
+    }
+
+    public void inAAssignmentConditionAssignmentExpression(AAssignmentConditionAssignmentExpression node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAAssignmentConditionAssignmentExpression(AAssignmentConditionAssignmentExpression node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAAssignmentConditionAssignmentExpression(AAssignmentConditionAssignmentExpression node)
+    {
+        inAAssignmentConditionAssignmentExpression(node);
         if(node.getConditionExpression() != null)
         {
             node.getConditionExpression().apply(this);
@@ -2984,7 +3243,7 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getConditionUnaryExpression().apply(this);
         }
-        outAAssignmentConditionExpression(node);
+        outAAssignmentConditionAssignmentExpression(node);
     }
 
     public void inAPrioritizedConditionTernaryExpression(APrioritizedConditionTernaryExpression node)

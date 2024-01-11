@@ -10,37 +10,31 @@ import drlc.intermediate.scope.Scope;
 
 public abstract class BasicTypeInfo extends TypeInfo {
 	
-	public final @NonNull RawType rawType;
+	public final @NonNull String name;
+	public int size;
 	
-	protected BasicTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, @NonNull RawType rawType) {
+	public BasicTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, @NonNull String name, int size) {
 		super(node, referenceMutability);
-		this.rawType = rawType;
-	}
-	
-	public BasicTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, Scope scope, @NonNull String rawTypeName) {
-		this(node, referenceMutability, scope.getRawType(node, rawTypeName));
+		this.name = name;
+		this.size = size;
 	}
 	
 	@Override
 	public boolean exists(Scope scope) {
-		return scope.rawTypeExists(rawType.name, false);
+		return true;
 	}
 	
 	@Override
 	public int getSize() {
-		return isAddress() ? Main.generator.getAddressSize() : rawType.size;
+		return isAddress() ? Main.generator.getAddressSize() : size;
 	}
 	
 	@Override
-	public void collectRawTypes(Set<RawType> rawTypes) {
-		if (!isAddress()) {
-			rawTypes.add(rawType);
-		}
-	}
+	public void collectTypedefs(Set<TypeDefinition> typedefs) {}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(referenceMutability, rawType);
+		return Objects.hash(referenceMutability, name, size);
 	}
 	
 	@Override
@@ -48,7 +42,7 @@ public abstract class BasicTypeInfo extends TypeInfo {
 		if (obj instanceof BasicTypeInfo) {
 			BasicTypeInfo other = (BasicTypeInfo) obj;
 			boolean equalReferenceMutability = ignoreReferenceMutability || referenceMutability.equals(other.referenceMutability);
-			return rawType.equals(other.rawType) && equalReferenceMutability;
+			return name.equals(other.name) && size == other.size && equalReferenceMutability;
 		}
 		else {
 			return false;
@@ -57,6 +51,6 @@ public abstract class BasicTypeInfo extends TypeInfo {
 	
 	@Override
 	public String rawString() {
-		return rawType.toString();
+		return name;
 	}
 }

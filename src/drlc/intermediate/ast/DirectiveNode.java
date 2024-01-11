@@ -9,11 +9,10 @@ import drlc.intermediate.ast.expression.ExpressionNode;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
-import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
-public class DirectiveNode extends ASTNode<Scope, Routine> {
+public class DirectiveNode extends ASTNode<Scope> {
 	
 	public final @NonNull String name;
 	public final @NonNull List<ExpressionNode> constantExpressionNodes;
@@ -25,7 +24,7 @@ public class DirectiveNode extends ASTNode<Scope, Routine> {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
+	public void setScopes(ASTNode<?> parent) {
 		for (ExpressionNode constantExpressionNode : constantExpressionNodes) {
 			constantExpressionNode.setScopes(this);
 		}
@@ -42,10 +41,11 @@ public class DirectiveNode extends ASTNode<Scope, Routine> {
 			throw error("Directive \"%s\" requires %d arguments but received %d!", name, params.length, constantExpressionCount);
 		}
 		
-		@NonNull Value[] values = new @NonNull Value[constantExpressionCount];
+		@NonNull Value<?>[] values = new @NonNull Value[constantExpressionCount];
 		for (int i = 0; i < constantExpressionCount; ++i) {
-			@Nullable Value constantValue = constantExpressionNodes.get(i).getConstantValue();
 			@NonNull TypeInfo paramType = params[i].getTypeInfo();
+			ExpressionNode expressionNode = constantExpressionNodes.get(i);
+			@Nullable Value<?> constantValue = expressionNode.getConstantValue(paramType);
 			if (constantValue != null && constantValue.typeInfo.canImplicitCastTo(paramType)) {
 				values[i] = constantValue;
 			}
@@ -58,37 +58,37 @@ public class DirectiveNode extends ASTNode<Scope, Routine> {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		
 	}
 }

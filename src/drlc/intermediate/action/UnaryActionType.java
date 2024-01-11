@@ -18,7 +18,7 @@ public enum UnaryActionType {
 		this.opType = opType;
 	}
 	
-	public UnaryOpAction action(ASTNode<?, ?> node, DataId target, DataId arg) {
+	public UnaryOpAction action(ASTNode<?> node, DataId target, DataId arg) {
 		return new UnaryOpAction(node, this, target, arg);
 	}
 	

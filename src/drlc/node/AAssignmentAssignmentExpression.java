@@ -5,18 +5,18 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AAssignmentExpression extends PExpression
+public final class AAssignmentAssignmentExpression extends PAssignmentExpression
 {
     private PUnaryExpression _unaryExpression_;
     private PAssignmentOp _assignmentOp_;
     private PExpression _expression_;
 
-    public AAssignmentExpression()
+    public AAssignmentAssignmentExpression()
     {
         // Constructor
     }
 
-    public AAssignmentExpression(
+    public AAssignmentAssignmentExpression(
         @SuppressWarnings("hiding") PUnaryExpression _unaryExpression_,
         @SuppressWarnings("hiding") PAssignmentOp _assignmentOp_,
         @SuppressWarnings("hiding") PExpression _expression_)
@@ -33,7 +33,7 @@ public final class AAssignmentExpression extends PExpression
     @Override
     public Object clone()
     {
-        return new AAssignmentExpression(
+        return new AAssignmentAssignmentExpression(
             cloneNode(this._unaryExpression_),
             cloneNode(this._assignmentOp_),
             cloneNode(this._expression_));
@@ -42,7 +42,7 @@ public final class AAssignmentExpression extends PExpression
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAAssignmentExpression(this);
+        ((Analysis) sw).caseAAssignmentAssignmentExpression(this);
     }
 
     public PUnaryExpression getUnaryExpression()

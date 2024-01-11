@@ -10,7 +10,7 @@ public class ReturnAction extends Action implements IDefiniteRedirectAction, IVa
 	
 	public final DataId arg;
 	
-	public ReturnAction(ASTNode<?, ?> node, DataId arg) {
+	public ReturnAction(ASTNode<?> node, DataId arg) {
 		super(node);
 		if (arg == null) {
 			throw Helpers.nodeError(node, "Return value action argument was null!");

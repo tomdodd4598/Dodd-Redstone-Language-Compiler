@@ -16,46 +16,46 @@ public class LoopIterativeSectionNode extends IterativeSectionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
-		scope = new IterativeScope(parent.scope, true, label);
+	public void setScopes(ASTNode<?> parent) {
+		scope = new IterativeScope(this, parent.scope, true, label);
 		
 		bodyNode.setScopes(this);
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		bodyNode.defineTypes(this);
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		bodyNode.declareExpressions(this);
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		bodyNode.defineExpressions(this);
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		bodyNode.checkTypes(this);
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		bodyNode.foldConstants(this);
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		bodyNode.trackFunctions(this);
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		routine.incrementSectionId();
 		scope.continueJump.setTarget(routine.currentSectionId());
 		bodyNode.generateIntermediate(this);

@@ -20,12 +20,12 @@ public class TransientDataId extends DataId {
 	}
 	
 	@Override
-	public @NonNull TransientDataId addDereference(ASTNode<?, ?> node) {
+	public @NonNull TransientDataId addDereference(ASTNode<?> node) {
 		throw Helpers.nodeError(node, "Attempted to add dereference to data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public @NonNull TransientDataId removeDereference(ASTNode<?, ?> node) {
+	public @NonNull TransientDataId removeDereference(ASTNode<?> node) {
 		throw Helpers.nodeError(node, "Attempted to remove dereference from data ID \"%s\"!", this);
 	}
 	
@@ -35,12 +35,12 @@ public class TransientDataId extends DataId {
 	}
 	
 	@Override
-	public @NonNull TransientDataId atOffset(ASTNode<?, ?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
+	public @NonNull TransientDataId atOffset(ASTNode<?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
 		throw Helpers.nodeError(node, "Attempted to index data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public @Nullable DataId getRawReplacer(ASTNode<?, ?> node, DataId rawInternal) {
+	public @Nullable DataId getRawReplacer(ASTNode<?> node, DataId rawInternal) {
 		return null;
 	}
 	

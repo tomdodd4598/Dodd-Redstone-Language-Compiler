@@ -8,12 +8,12 @@ import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.*;
 
-public abstract class CompoundValue extends Value {
+public abstract class CompoundValue<T extends CompoundTypeInfo> extends Value<T> {
 	
-	protected final List<Value> values;
+	protected final List<Value<?>> values;
 	public final int count;
 	
-	public CompoundValue(ASTNode<?, ?> node, @NonNull CompoundTypeInfo typeInfo, List<Value> values) {
+	public CompoundValue(ASTNode<?> node, @NonNull T typeInfo, List<Value<?>> values) {
 		super(node, typeInfo);
 		this.values = values;
 		count = values.size();
@@ -23,7 +23,7 @@ public abstract class CompoundValue extends Value {
 		}
 		
 		for (int i = 0; i < count; ++i) {
-			Value value = values.get(i);
+			Value<?> value = values.get(i);
 			TypeInfo memberType = typeInfo.typeInfos.get(i);
 			if (!value.typeInfo.canImplicitCastTo(memberType)) {
 				throw Helpers.nodeError(node, "Can not cast value \"%s\" to member type \"%s\"!", value, memberType);
@@ -33,7 +33,7 @@ public abstract class CompoundValue extends Value {
 	
 	@SuppressWarnings("null")
 	@Override
-	public @NonNull Value atIndex(ASTNode<?, ?> node, int index) {
+	public @NonNull Value<?> atIndex(ASTNode<?> node, int index) {
 		return values.get(index);
 	}
 	
@@ -45,7 +45,7 @@ public abstract class CompoundValue extends Value {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof CompoundValue) {
-			CompoundValue other = (CompoundValue) obj;
+			CompoundValue<?> other = (CompoundValue<?>) obj;
 			return typeInfo.equals(other.typeInfo) && values.equals(other.values);
 		}
 		else {

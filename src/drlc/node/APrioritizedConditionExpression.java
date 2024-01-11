@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class APrioritizedConditionExpression extends PConditionExpression
 {
-    private PConditionTernaryExpression _conditionTernaryExpression_;
+    private PConditionAssignmentExpression _conditionAssignmentExpression_;
 
     public APrioritizedConditionExpression()
     {
@@ -15,10 +15,10 @@ public final class APrioritizedConditionExpression extends PConditionExpression
     }
 
     public APrioritizedConditionExpression(
-        @SuppressWarnings("hiding") PConditionTernaryExpression _conditionTernaryExpression_)
+        @SuppressWarnings("hiding") PConditionAssignmentExpression _conditionAssignmentExpression_)
     {
         // Constructor
-        setConditionTernaryExpression(_conditionTernaryExpression_);
+        setConditionAssignmentExpression(_conditionAssignmentExpression_);
 
     }
 
@@ -26,7 +26,7 @@ public final class APrioritizedConditionExpression extends PConditionExpression
     public Object clone()
     {
         return new APrioritizedConditionExpression(
-            cloneNode(this._conditionTernaryExpression_));
+            cloneNode(this._conditionAssignmentExpression_));
     }
 
     @Override
@@ -35,16 +35,16 @@ public final class APrioritizedConditionExpression extends PConditionExpression
         ((Analysis) sw).caseAPrioritizedConditionExpression(this);
     }
 
-    public PConditionTernaryExpression getConditionTernaryExpression()
+    public PConditionAssignmentExpression getConditionAssignmentExpression()
     {
-        return this._conditionTernaryExpression_;
+        return this._conditionAssignmentExpression_;
     }
 
-    public void setConditionTernaryExpression(PConditionTernaryExpression node)
+    public void setConditionAssignmentExpression(PConditionAssignmentExpression node)
     {
-        if(this._conditionTernaryExpression_ != null)
+        if(this._conditionAssignmentExpression_ != null)
         {
-            this._conditionTernaryExpression_.parent(null);
+            this._conditionAssignmentExpression_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class APrioritizedConditionExpression extends PConditionExpression
             node.parent(this);
         }
 
-        this._conditionTernaryExpression_ = node;
+        this._conditionAssignmentExpression_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._conditionTernaryExpression_);
+            + toString(this._conditionAssignmentExpression_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._conditionTernaryExpression_ == child)
+        if(this._conditionAssignmentExpression_ == child)
         {
-            this._conditionTernaryExpression_ = null;
+            this._conditionAssignmentExpression_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class APrioritizedConditionExpression extends PConditionExpression
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._conditionTernaryExpression_ == oldChild)
+        if(this._conditionAssignmentExpression_ == oldChild)
         {
-            setConditionTernaryExpression((PConditionTernaryExpression) newChild);
+            setConditionAssignmentExpression((PConditionAssignmentExpression) newChild);
             return;
         }
 

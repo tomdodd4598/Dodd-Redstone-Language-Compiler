@@ -2,19 +2,20 @@ package drlc.intermediate.scope;
 
 import java.util.stream.Stream;
 
+import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Variable;
 
 public class ConditionalScope extends Scope {
 	
 	protected final boolean hasElseBranch;
 	
-	public ConditionalScope(Scope parent, boolean hasElseBranch) {
-		super(parent);
+	public ConditionalScope(ASTNode<?> node, Scope parent, boolean hasElseBranch) {
+		super(node, parent);
 		this.hasElseBranch = hasElseBranch;
 	}
 	
 	protected Stream<Scope> branchingChildren() {
-		return children.stream().filter(x -> !x.definiteExecution);
+		return childMap.values().stream().filter(x -> !x.definiteExecution);
 	}
 	
 	@Override
@@ -24,7 +25,7 @@ public class ConditionalScope extends Scope {
 	
 	@Override
 	protected boolean isVariablePotentiallyInitializedInternal(Variable variable, Scope location) {
-		return initializationSet.contains(variable) || children.stream().anyMatch(x -> (x.definiteExecution || x.isSubScopeOf(location)) && x.isVariablePotentiallyInitializedInternal(variable, location));
+		return initializationSet.contains(variable) || childMap.values().stream().anyMatch(x -> (x.definiteExecution || x.isSubScopeOf(location)) && x.isVariablePotentiallyInitializedInternal(variable, location));
 	}
 	
 	@Override

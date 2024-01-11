@@ -14,7 +14,7 @@ public class BinaryOpAction extends Action implements IValueAction {
 	public final @NonNull BinaryActionType type;
 	public final DataId target, arg1, arg2;
 	
-	protected BinaryOpAction(ASTNode<?, ?> node, @NonNull BinaryActionType type, DataId target, DataId arg1, DataId arg2) {
+	protected BinaryOpAction(ASTNode<?> node, @NonNull BinaryActionType type, DataId target, DataId arg1, DataId arg2) {
 		super(node);
 		this.type = type;
 		
@@ -220,7 +220,7 @@ public class BinaryOpAction extends Action implements IValueAction {
 			}
 		}
 		
-		Value left = arg1 instanceof ValueDataId ? ((ValueDataId) arg1).value : null, right = arg2 instanceof ValueDataId ? ((ValueDataId) arg2).value : null;
+		Value<?> left = arg1 instanceof ValueDataId ? ((ValueDataId) arg1).value : null, right = arg2 instanceof ValueDataId ? ((ValueDataId) arg2).value : null;
 		
 		if (left != null && right == null) {
 			switch (type) {

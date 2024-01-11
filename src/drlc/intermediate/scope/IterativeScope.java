@@ -11,11 +11,11 @@ public class IterativeScope extends Scope {
 	
 	public final @NonNull JumpAction continueJump = new JumpAction(null, -1), breakJump = new JumpAction(null, -1);
 	
-	public IterativeScope(Scope parent, boolean definiteExecution, @Nullable String label) {
-		super(parent);
+	public IterativeScope(ASTNode<?> node, Scope parent, boolean definiteExecution, @Nullable String label) {
+		super(node, parent);
 		this.definiteExecution = definiteExecution;
-		potentialOuterMultipleExecution = true;
 		this.label = label;
+		potentialOuterMultipleExecution = true;
 	}
 	
 	protected boolean labelMatch(@Nullable String label) {
@@ -28,12 +28,12 @@ public class IterativeScope extends Scope {
 	}
 	
 	@Override
-	public @NonNull JumpAction getContinueJump(ASTNode<?, ?> node, @Nullable String label) {
+	public @NonNull JumpAction getContinueJump(ASTNode<?> node, @Nullable String label) {
 		return labelMatch(label) ? continueJump : parent.getContinueJump(node, label);
 	}
 	
 	@Override
-	public @NonNull JumpAction getBreakJump(ASTNode<?, ?> node, @Nullable String label) {
+	public @NonNull JumpAction getBreakJump(ASTNode<?> node, @Nullable String label) {
 		return labelMatch(label) ? breakJump : parent.getBreakJump(node, label);
 	}
 }

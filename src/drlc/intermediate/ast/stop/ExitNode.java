@@ -18,7 +18,7 @@ public class ExitNode extends StopNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
+	public void setScopes(ASTNode<?> parent) {
 		scope = parent.scope;
 		
 		if (expressionNode != null) {
@@ -27,14 +27,14 @@ public class ExitNode extends StopNode {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		if (expressionNode != null) {
 			expressionNode.defineTypes(this);
 		}
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		if (expressionNode != null) {
@@ -45,14 +45,14 @@ public class ExitNode extends StopNode {
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		if (expressionNode != null) {
 			expressionNode.defineExpressions(this);
 		}
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		if (expressionNode != null) {
 			expressionNode.checkTypes(this);
 			
@@ -64,7 +64,7 @@ public class ExitNode extends StopNode {
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		if (expressionNode != null) {
 			expressionNode.foldConstants(this);
 			
@@ -76,14 +76,14 @@ public class ExitNode extends StopNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		if (expressionNode != null) {
 			expressionNode.trackFunctions(this);
 		}
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		if (expressionNode != null) {
 			expressionNode.generateIntermediate(this);
 			

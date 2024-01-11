@@ -4,18 +4,19 @@ import java.util.Objects;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.type.CharTypeInfo;
 
-public class CharValue extends BasicValue {
+public class CharValue extends BasicValue<CharTypeInfo> {
 	
 	public final byte value;
 	
-	public CharValue(ASTNode<?, ?> node, char value) {
+	public CharValue(ASTNode<?> node, char value) {
 		super(node, Main.generator.charTypeInfo);
 		this.value = (byte) value;
 	}
 	
 	@Override
-	public byte charValue(ASTNode<?, ?> node) {
+	public byte charValue(ASTNode<?> node) {
 		return value;
 	}
 	

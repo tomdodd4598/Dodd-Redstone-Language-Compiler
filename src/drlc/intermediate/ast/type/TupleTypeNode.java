@@ -19,7 +19,7 @@ public class TupleTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
+	public void setScopes(ASTNode<?> parent) {
 		scope = parent.scope;
 		
 		for (TypeNode typeNode : typeNodes) {
@@ -28,14 +28,14 @@ public class TupleTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		for (TypeNode typeNode : typeNodes) {
 			typeNode.defineTypes(this);
 		}
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		for (TypeNode typeNode : typeNodes) {
@@ -46,27 +46,27 @@ public class TupleTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		
 	}
 	
@@ -80,9 +80,9 @@ public class TupleTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void collectRawTypes(Set<RawType> rawTypes) {
+	public void collectTypedefs(Set<TypeDefinition> typedefs) {
 		for (TypeNode typeNode : typeNodes) {
-			typeNode.collectRawTypes(rawTypes);
+			typeNode.collectTypedefs(typedefs);
 		}
 	}
 }

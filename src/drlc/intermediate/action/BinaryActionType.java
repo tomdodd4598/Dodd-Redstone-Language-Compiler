@@ -58,7 +58,7 @@ public enum BinaryActionType {
 		this.opType = opType;
 	}
 	
-	public BinaryOpAction action(ASTNode<?, ?> node, DataId target, DataId arg1, DataId arg2) {
+	public BinaryOpAction action(ASTNode<?> node, DataId target, DataId arg1, DataId arg2) {
 		return new BinaryOpAction(node, this, target, arg1, arg2);
 	}
 	

@@ -1,8 +1,6 @@
 package drlc.intermediate.scope;
 
 import java.util.*;
-import java.util.Map.Entry;
-import java.util.function.*;
 
 import org.eclipse.jdt.annotation.*;
 
@@ -10,7 +8,6 @@ import drlc.*;
 import drlc.intermediate.action.JumpAction;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
-import drlc.intermediate.component.Function;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.FunctionItemValue;
@@ -26,51 +23,64 @@ public class Scope {
 	
 	public final Scope parent;
 	
-	protected final List<Scope> children = new ArrayList<>();
+	protected final Map<String, Scope> childMap = new LinkedHashMap<>();
 	
 	protected final Hierarchy<String, Scope> constantShadowMap;
 	
-	protected final Hierarchy<String, RawType> rawTypeMap;
-	protected final Hierarchy<String, TypeInfo> aliasTypeMap;
+	protected final Hierarchy<String, TypeDefinition> typedefMap;
+	protected final Hierarchy<String, TypeInfo> typealiasMap;
 	protected final Hierarchy<String, Constant> constantMap;
 	protected final Hierarchy<String, Variable> variableMap;
 	protected final Hierarchy<String, Function> functionMap;
-	protected final Hierarchy<String, Routine> routineMap;
 	
 	public boolean definiteLocalReturn = false;
 	public boolean definiteExecution = true, potentialOuterMultipleExecution = false;
 	
 	protected final Set<Variable> initializationSet = new HashSet<>();
 	
-	public Scope(Scope parent) {
+	public Scope(ASTNode<?> node, Scope parent) {
 		this.parent = parent;
 		
 		if (parent == null) {
 			constantShadowMap = new Hierarchy<>(null);
 			
-			rawTypeMap = new Hierarchy<>(null);
-			aliasTypeMap = new Hierarchy<>(null);
+			typedefMap = new Hierarchy<>(null);
+			typealiasMap = new Hierarchy<>(null);
 			constantMap = new Hierarchy<>(null);
 			variableMap = new Hierarchy<>(null);
 			functionMap = new Hierarchy<>(null);
-			routineMap = new Hierarchy<>(null);
 		}
 		else {
-			parent.children.add(this);
+			String name = getName();
+			if (parent.childMap.containsKey(name)) {
+				throw Helpers.nodeError(node, "Module name \"%s\" already used in this scope!", name);
+			}
+			parent.childMap.put(name, this);
 			
 			constantShadowMap = new Hierarchy<>(parent.constantShadowMap);
 			
-			rawTypeMap = new Hierarchy<>(parent.rawTypeMap);
-			aliasTypeMap = new Hierarchy<>(parent.aliasTypeMap);
+			typedefMap = new Hierarchy<>(parent.typedefMap);
+			typealiasMap = new Hierarchy<>(parent.typealiasMap);
 			constantMap = new Hierarchy<>(parent.constantMap);
 			variableMap = new Hierarchy<>(parent.variableMap);
 			functionMap = new Hierarchy<>(parent.functionMap);
-			routineMap = new Hierarchy<>(parent.routineMap);
 		}
 	}
 	
+	protected String getName() {
+		return "\\" + globalId;
+	}
+	
 	public boolean isSubScopeOf(Scope other) {
-		return equals(other) || other.children.stream().anyMatch(x -> isSubScopeOf(x));
+		return equals(other) || other.childMap.values().stream().anyMatch(x -> isSubScopeOf(x));
+	}
+	
+	public @Nullable FunctionScope getContextFunctionScope() {
+		return parent == null ? null : parent.getContextFunctionScope();
+	}
+	
+	public @Nullable Function getContextFunction() {
+		return parent == null ? null : parent.getContextFunction();
 	}
 	
 	public long nextLocalId() {
@@ -84,86 +94,14 @@ public class Scope {
 		return declarator.dataId();
 	}
 	
-	// Iterables
-	
-	protected <T, K, V> Iterable<T> iterable(java.util.function.Function<? super Scope, ? extends Hierarchy<K, V>> supplier, java.util.function.Function<? super Map<K, V>, ? extends Iterable<T>> mapFunction, BiFunction<? super Hierarchy<K, V>, ? super Boolean, ? extends Iterable<T>> hierarchyFunction, boolean children) {
-		return () -> new Iterator<T>() {
-			
-			Iterator<T> current = supplier.apply(Scope.this).iterable(mapFunction, hierarchyFunction, true).iterator();
-			Iterator<Scope> childIter = children ? Scope.this.children.iterator() : null;
-			
-			@Override
-			public boolean hasNext() {
-				while (!current.hasNext()) {
-					if (childIter == null || !childIter.hasNext()) {
-						return false;
-					}
-					current = childIter.next().iterable(supplier, mapFunction, hierarchyFunction, true).iterator();
-				}
-				return current.hasNext();
-			}
-			
-			@Override
-			public T next() {
-				return current.next();
-			}
-		};
-	}
-	
-	@SuppressWarnings("null")
-	protected <K, V> Iterable<Entry<K, V>> entryIterable(java.util.function.Function<? super Scope, ? extends Hierarchy<K, V>> supplier, boolean children) {
-		return iterable(supplier, Map::entrySet, Hierarchy::entryIterable, children);
-	}
-	
-	public Iterable<Entry<String, Routine>> routineEntryIterable(boolean children) {
-		return entryIterable(x -> x.routineMap, children);
-	}
-	
-	@SuppressWarnings("null")
-	protected <K, V> Iterable<V> valueIterable(java.util.function.Function<? super Scope, ? extends Hierarchy<K, V>> supplier, boolean children) {
-		return iterable(supplier, Map::values, Hierarchy::valueIterable, children);
-	}
-	
-	public Iterable<Routine> routineIterable(boolean children) {
-		return valueIterable(x -> x.routineMap, children);
-	}
-	
-	// Foreach
-	
-	protected <K, V> void forEachEntry(java.util.function.Function<? super Scope, ? extends Hierarchy<K, V>> supplier, BiConsumer<? super K, ? super V> consumer, boolean children) {
-		supplier.apply(this).forEachEntry(consumer, true);
-		if (children) {
-			for (Scope child : this.children) {
-				child.forEachEntry(supplier, consumer, true);
-			}
-		}
-	}
-	
-	public void forEachRoutineEntry(BiConsumer<? super String, ? super Routine> consumer, boolean children) {
-		forEachEntry(x -> x.routineMap, consumer, children);
-	}
-	
-	protected <K, V> void forEachValue(java.util.function.Function<? super Scope, ? extends Hierarchy<K, V>> supplier, Consumer<? super V> consumer, boolean children) {
-		supplier.apply(this).forEachValue(consumer, true);
-		if (children) {
-			for (Scope child : this.children) {
-				child.forEachValue(supplier, consumer, true);
-			}
-		}
-	}
-	
-	public void forEachRoutine(Consumer<? super Routine> consumer, boolean children) {
-		forEachValue(x -> x.routineMap, consumer, children);
-	}
-	
 	// Contains
 	
-	public boolean rawTypeExists(String name, boolean shallow) {
-		return rawTypeMap.containsKey(name, shallow);
+	public boolean typedefExists(String name, boolean shallow) {
+		return typedefMap.containsKey(name, shallow);
 	}
 	
-	public boolean aliasTypeExists(String name, boolean shallow) {
-		return aliasTypeMap.containsKey(name, shallow);
+	public boolean typealiasExists(String name, boolean shallow) {
+		return typealiasMap.containsKey(name, shallow);
 	}
 	
 	public boolean constantExists(String name, boolean shallow) {
@@ -180,78 +118,61 @@ public class Scope {
 		return functionMap.containsKey(name, shallow);
 	}
 	
-	public boolean routineExists(String name, boolean shallow) {
-		return routineMap.containsKey(name, shallow);
-	}
-	
 	public boolean typeNameCollision(String name) {
-		return rawTypeExists(name, true) || aliasTypeExists(name, true);
+		return typedefExists(name, true) || typealiasExists(name, true);
 	}
 	
 	public boolean valueNameCollision(String name) {
 		return constantExists(name, true) || variableExists(name, true) || functionExists(name, true);
 	}
 	
-	public boolean routineNameCollision(String name) {
-		return routineExists(name, true);
-	}
-	
-	// Removers
-	
-	public void removeRoutine(ASTNode<?, ?> node, String name, Routine value) {
-		boolean remove = routineMap.remove(name, value, false);
-		if (!remove) {
-			throw Helpers.nodeError(node, "Routine \"%s\" not defined in this scope!", value);
-		}
-	}
-	
 	// Getters
 	
-	public @NonNull RawType getRawType(ASTNode<?, ?> node, String name) {
-		RawType rawType = rawTypeMap.get(name, false);
-		if (rawType == null) {
-			throw Helpers.nodeError(node, "Raw type \"%s\" not defined in this scope!", name);
+	public @NonNull TypeDefinition getTypedef(ASTNode<?> node, String name) {
+		TypeDefinition typedef = typedefMap.get(name, false);
+		if (typedef == null) {
+			throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", name);
 		}
-		return rawType;
+		return typedef;
 	}
 	
-	public @NonNull TypeInfo getTypeInfo(ASTNode<?, ?> node, String name) {
-		RawType rawType = rawTypeMap.get(name, false);
-		if (rawType == null) {
-			TypeInfo aliasType = aliasTypeMap.get(name, false);
+	public @NonNull TypeInfo getTypeInfo(ASTNode<?> node, String name) {
+		TypeDefinition typedef = typedefMap.get(name, false);
+		if (typedef == null) {
+			TypeInfo aliasType = typealiasMap.get(name, false);
 			if (aliasType == null) {
 				throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", name);
 			}
 			return aliasType;
 		}
-		return rawType.getTypeInfo(node, new ArrayList<>(), this);
+		return typedef.getTypeInfo(node, new ArrayList<>(), this);
 	}
 	
-	public void collectRawTypes(ASTNode<?, ?> node, Set<RawType> rawTypes, String name) {
-		RawType rawType = rawTypeMap.get(name, false);
-		if (rawType == null) {
-			TypeInfo aliasType = aliasTypeMap.get(name, false);
+	public void collectTypedefs(ASTNode<?> node, Set<TypeDefinition> typedefs, String name) {
+		TypeDefinition typedef = typedefMap.get(name, false);
+		if (typedef == null) {
+			TypeInfo aliasType = typealiasMap.get(name, false);
 			if (aliasType == null) {
 				throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", name);
 			}
 			else {
-				aliasType.collectRawTypes(rawTypes);
+				aliasType.collectTypedefs(typedefs);
 			}
 		}
 		else {
-			rawTypes.add(rawType);
+			typedefs.add(typedef);
 		}
 	}
 	
 	@SuppressWarnings("null")
-	public @NonNull Constant getConstant(ASTNode<?, ?> node, String name) {
+	public @NonNull Constant getConstant(ASTNode<?> node, String name) {
 		if (!constantExists(name, false)) {
 			throw Helpers.nodeError(node, "Constant \"%s\" not defined in this scope!", name);
 		}
 		return constantMap.get(name, false);
 	}
 	
-	public @NonNull Variable getVariable(ASTNode<?, ?> node, String name) {
+	public @NonNull Variable getVariable(ASTNode<?> node, String name) {
 		Variable variable = variableMap.get(name, false);
 		if (variable == null) {
 			throw Helpers.nodeError(node, "Variable \"%s\" not defined in this scope!", name);
@@ -259,20 +180,12 @@ public class Scope {
 		return variable;
 	}
 	
-	public @NonNull Function getFunction(ASTNode<?, ?> node, String name) {
+	public @NonNull Function getFunction(ASTNode<?> node, String name) {
 		Function function = functionMap.get(name, false);
 		if (function == null) {
 			throw Helpers.nodeError(node, "Function \"%s\" not defined in this scope!", name);
 		}
 		return function;
-	}
-	
-	public @NonNull Routine getRoutine(ASTNode<?, ?> node, String name) {
-		Routine routine = routineMap.get(name, false);
-		if (routine == null) {
-			throw Helpers.nodeError(node, "Routine \"%s\" not defined in this scope!", name);
-		}
-		return routine;
 	}
 	
 	// Adders
@@ -281,17 +194,17 @@ public class Scope {
 		constantShadowMap.put(name, this, true);
 	}
 	
-	public void addRawType(ASTNode<?, ?> node, @NonNull RawType rawType) {
-		String name = rawType.name;
+	public void addTypedef(ASTNode<?> node, @NonNull TypeDefinition typedef) {
+		String name = typedef.name;
 		if (typeNameCollision(name)) {
 			throw Helpers.nodeError(node, "Type name \"%s\" already used in this scope!", name);
 		}
 		
-		rawType.scope = this;
-		rawTypeMap.put(name, rawType, true);
+		typedef.scope = this;
+		typedefMap.put(name, typedef, true);
 	}
 	
-	public void addAliasType(ASTNode<?, ?> node, @NonNull String name, @NonNull TypeInfo aliasType) {
+	public void addTypealias(ASTNode<?> node, @NonNull String name, @NonNull TypeInfo aliasType) {
 		if (typeNameCollision(name)) {
 			throw Helpers.nodeError(node, "Type name \"%s\" already used in this scope!", name);
 		}
@@ -300,10 +213,10 @@ public class Scope {
 			throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", aliasType.copy(node));
 		}
 		
-		aliasTypeMap.put(name, aliasType, true);
+		typealiasMap.put(name, aliasType, true);
 	}
 	
-	public void addConstant(ASTNode<?, ?> node, @NonNull Constant constant, boolean replace) {
+	public void addConstant(ASTNode<?> node, @NonNull Constant constant, boolean replace) {
 		String name = constant.name;
 		if (!replace && valueNameCollision(name)) {
 			throw Helpers.nodeError(node, "Name \"%s\" already used in this scope!", name);
@@ -318,7 +231,7 @@ public class Scope {
 		constantMap.put(name, constant, true);
 	}
 	
-	public void addVariable(ASTNode<?, ?> node, @NonNull Variable variable, boolean replace) {
+	public void addVariable(ASTNode<?> node, @NonNull Variable variable, boolean replace) {
 		String name = variable.name;
 		if (!replace && valueNameCollision(name)) {
 			throw Helpers.nodeError(node, "Name \"%s\" already used in this scope!", name);
@@ -333,7 +246,7 @@ public class Scope {
 		variableMap.put(name, variable, true);
 	}
 	
-	public void addFunction(ASTNode<?, ?> node, @NonNull Function function, boolean replace) {
+	public void addFunction(ASTNode<?> node, @NonNull Function function, boolean replace) {
 		String name = function.name;
 		if (!replace && valueNameCollision(name)) {
 			throw Helpers.nodeError(node, "Name \"%s\" already used in this scope!", name);
@@ -352,31 +265,15 @@ public class Scope {
 		
 		function.scope = this;
 		functionMap.put(name, function, true);
-		addConstant(node, new Constant(name, new FunctionItemValue(node, new FunctionItemTypeInfo(node, this, name), name, this)), true);
-	}
-	
-	public void addRoutine(ASTNode<?, ?> node, @NonNull Routine routine) {
-		String name = routine.name;
-		if (routineNameCollision(name)) {
-			throw Helpers.nodeError(node, "Routine name \"%s\" already used in this scope!", name);
-		}
-		
-		routine.scope = this;
-		routineMap.put(name, routine, true);
+		FunctionItemValue value = new FunctionItemValue(node, new FunctionItemTypeInfo(node, this, name), name, this);
+		addConstant(node, new Constant(name, value), true);
+		function.value = value;
 	}
 	
 	// Control flow
 	
 	public boolean hasDefiniteReturn() {
-		return definiteLocalReturn || children.stream().anyMatch(x -> x.definiteExecution && x.hasDefiniteReturn());
-	}
-	
-	public @Nullable FunctionScope getFunctionScope() {
-		return parent == null ? null : parent.getFunctionScope();
-	}
-	
-	public @Nullable Function getContextFunction() {
-		return parent == null ? null : parent.getContextFunction();
+		return definiteLocalReturn || childMap.values().stream().anyMatch(x -> x.definiteExecution && x.hasDefiniteReturn());
 	}
 	
 	protected @Nullable Scope potentialMultipleExecutionScope() {
@@ -387,17 +284,17 @@ public class Scope {
 		return parent != null && parent.isBreakable(label);
 	}
 	
-	public @NonNull JumpAction getContinueJump(ASTNode<?, ?> node, @Nullable String label) {
+	public @NonNull JumpAction getContinueJump(ASTNode<?> node, @Nullable String label) {
 		return parent.getContinueJump(node, label);
 	}
 	
-	public @NonNull JumpAction getBreakJump(ASTNode<?, ?> node, @Nullable String label) {
+	public @NonNull JumpAction getBreakJump(ASTNode<?> node, @Nullable String label) {
 		return parent.getBreakJump(node, label);
 	}
 	
 	// Variable initialization
 	
-	public void onVariableInitialization(ASTNode<?, ?> node, Variable variable) {
+	public void onVariableInitialization(ASTNode<?> node, Variable variable) {
 		if (!variable.modifier.mutable && (!Objects.equals(potentialMultipleExecutionScope(), variable.scope.potentialMultipleExecutionScope()) || isVariablePotentiallyInitialized(variable))) {
 			throw Helpers.nodeError(node, "Attempted to potentially assign twice to immutable variable \"%s\"!", variable.name);
 		}
@@ -408,27 +305,37 @@ public class Scope {
 		return variable.scope.isVariablePotentiallyInitializedInternal(variable, this);
 	}
 	
-	protected boolean isVariablePotentiallyInitializedInternal(Variable variable, Scope location) {
-		return initializationSet.contains(variable) || children.stream().anyMatch(x -> x.isVariablePotentiallyInitializedInternal(variable, location));
-	}
-	
 	public boolean isVariableDefinitelyInitialized(Variable variable) {
 		return variable.scope.isVariableDefinitelyInitializedInternal(variable, this);
 	}
 	
+	protected boolean isVariablePotentiallyInitializedInternal(Variable variable, Scope location) {
+		return initializationSet.contains(variable) || childMap.values().stream().anyMatch(x -> x.isVariablePotentiallyInitializedInternal(variable, location));
+	}
+	
 	protected boolean isVariableDefinitelyInitializedInternal(Variable variable, Scope location) {
-		return initializationSet.contains(variable) || children.stream().anyMatch(x -> (x.definiteExecution || location.isSubScopeOf(x)) && x.isVariableDefinitelyInitializedInternal(variable, location));
+		return initializationSet.contains(variable) || childMap.values().stream().anyMatch(x -> (x.definiteExecution || location.isSubScopeOf(x)) && x.isVariableDefinitelyInitializedInternal(variable, location));
 	}
 	
 	// Environment capture
 	
-	public void onVariableExpression(ASTNode<?, ?> node, Variable variable) {
-		if (!variable.modifier._static && !Objects.equals(getFunctionScope(), variable.scope.getFunctionScope())) {
-			onVariableCapture(node, variable);
+	public Variable captureVariable(ASTNode<?> node, Variable variable) {
+		FunctionScope functionScope = getContextFunctionScope();
+		if (!variable.modifier._static && functionScope != null && !functionScope.equals(variable.scope.getContextFunctionScope())) {
+			Function function = functionScope.function;
+			if (!function.closure) {
+				throw Helpers.nodeError(node, "Attempted to capture variable \"%s\" in non-closure function!", variable.name);
+			}
+			Variable copy = variable.copy();
+			functionScope.addVariable(node, copy, false);
+			if (isVariableDefinitelyInitialized(variable)) {
+				functionScope.initializationSet.add(copy);
+			}
+			functionScope.function.addCapture(variable, new DeclaratorInfo(copy));
+			return copy;
 		}
-	}
-	
-	public void onVariableCapture(ASTNode<?, ?> node, Variable variable) {
-		throw Helpers.nodeError(node, "Attempted to capture environment in non-closure function!");
+		else {
+			return variable;
+		}
 	}
 }

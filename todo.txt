@@ -1,21 +1,19 @@
-Closures
+Modules
 
-String literals
+Multiple files, 'use' keyword
+
+Impl blocks (Rust method call syntax?)
 
 Generics/templates
 
-Modules
+String literals
 
 Implement program arguments
 
 Enums (nominal typing, pattern matching)
 
-Impl blocks (Rust method call syntax?)
-
 For loops
 
 Add 'macro! name(...) { ... }' syntax
-
-Multiple files, 'use' keyword
 
 Small standard library

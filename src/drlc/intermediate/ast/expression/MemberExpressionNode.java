@@ -20,7 +20,7 @@ public class MemberExpressionNode extends ExpressionNode {
 	
 	public @Nullable TypeInfo baseTypeInfo = null;
 	
-	public @Nullable Value constantValue = null;
+	public @Nullable Value<?> constantValue = null;
 	
 	@SuppressWarnings("null")
 	public @NonNull MemberInfo memberInfo = null;
@@ -36,29 +36,29 @@ public class MemberExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
-		scope = new Scope(parent.scope);
+	public void setScopes(ASTNode<?> parent) {
+		scope = new Scope(this, parent.scope);
 		
 		expressionNode.setScopes(this);
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		expressionNode.defineTypes(this);
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		expressionNode.declareExpressions(this);
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		expressionNode.defineExpressions(this);
 		
-		setTypeInfo();
+		setTypeInfo(null);
 		
 		if (expressionNode.isValidLvalue()) {
 			expressionNode.setIsLvalue();
@@ -66,12 +66,12 @@ public class MemberExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		expressionNode.checkTypes(this);
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		expressionNode.foldConstants(this);
 		
 		if (!isLvalue) {
@@ -83,12 +83,12 @@ public class MemberExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		expressionNode.trackFunctions(this);
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		expressionNode.generateIntermediate(this);
 		
 		DataId baseDataId;
@@ -114,19 +114,20 @@ public class MemberExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	protected void setTypeInfoInternal() {
+	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
+		expressionNode.setTypeInfo(null);
 		typeInfo = getMemberInfo().typeInfo;
 	}
 	
 	@Override
-	protected @Nullable Value getConstantValueInternal() {
+	protected @Nullable Value<?> getConstantValueInternal() {
 		return constantValue;
 	}
 	
 	@Override
 	protected void setConstantValueInternal() {
 		if (!isLvalue) {
-			@Nullable Value baseConstantValue = expressionNode.getConstantValue();
+			@Nullable Value<?> baseConstantValue = expressionNode.getConstantValue();
 			if (baseConstantValue != null) {
 				@NonNull MemberInfo memberInfo = getMemberInfo();
 				constantValue = baseConstantValue.atOffset(this, memberInfo.offset, memberInfo.typeInfo);
@@ -156,6 +157,7 @@ public class MemberExpressionNode extends ExpressionNode {
 	
 	public @NonNull MemberInfo getMemberInfo() {
 		if (!setMemberInfo) {
+			expressionNode.setTypeInfo(null);
 			@NonNull TypeInfo expressionType = expressionNode.getTypeInfo();
 			@Nullable MemberInfo info = expressionType.getMemberInfo(memberName);
 			if (info == null) {

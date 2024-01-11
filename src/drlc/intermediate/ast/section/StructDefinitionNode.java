@@ -8,18 +8,16 @@ import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.element.DeclaratorNode;
 import drlc.intermediate.component.MemberInfo;
 import drlc.intermediate.component.type.*;
-import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
-public class StructDefinitionNode extends StaticSectionNode<Scope, Routine> {
+public class StructDefinitionNode extends StaticSectionNode<Scope> {
 	
 	public final @NonNull String name;
 	public final @NonNull List<DeclaratorNode> componentNodes;
 	
 	@SuppressWarnings("null")
-	@NonNull
-	RawType rawType = null;
+	public @NonNull TypeDefinition typedef = null;
 	
 	public StructDefinitionNode(Node[] parseNodes, @NonNull String name, @NonNull List<DeclaratorNode> componentNodes) {
 		super(parseNodes);
@@ -34,7 +32,7 @@ public class StructDefinitionNode extends StaticSectionNode<Scope, Routine> {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
+	public void setScopes(ASTNode<?> parent) {
 		scope = parent.scope;
 		
 		for (DeclaratorNode componentNode : componentNodes) {
@@ -44,24 +42,24 @@ public class StructDefinitionNode extends StaticSectionNode<Scope, Routine> {
 	
 	@SuppressWarnings("null")
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		Map<String, MemberInfo> memberMap = new HashMap<>();
 		List<TypeInfo> typeInfos = new ArrayList<>();
-		rawType = new RawType(name, 0, memberMap, (node, referenceLevel, scope) -> new StructTypeInfo(node, referenceLevel, typeInfos, scope, name));
+		typedef = new TypeDefinition(name, 0, memberMap, (node, referenceLevel, scope) -> new StructTypeInfo(node, referenceLevel, typeInfos, scope, name));
 		
-		scope.addRawType(this, rawType);
+		scope.addTypedef(this, typedef);
 		
 		for (DeclaratorNode componentNode : componentNodes) {
 			componentNode.defineTypes(this);
 		}
 		
-		Set<RawType> rawTypes = new HashSet<>();
+		Set<TypeDefinition> typedefs = new HashSet<>();
 		
 		for (DeclaratorNode componentNode : componentNodes) {
-			componentNode.typeNode.collectRawTypes(rawTypes);
+			componentNode.typeNode.collectTypedefs(typedefs);
 		}
 		
-		if (rawTypes.contains(rawType)) {
+		if (typedefs.contains(typedef)) {
 			throw error("Struct \"%s\" can not directly contain itself!", name);
 		}
 		
@@ -73,7 +71,7 @@ public class StructDefinitionNode extends StaticSectionNode<Scope, Routine> {
 			typeInfos.add(componentNode.typeNode.typeInfo);
 		}
 		
-		rawType.size = typeInfos.stream().mapToInt(TypeInfo::getSize).sum();
+		typedef.size = typeInfos.stream().mapToInt(TypeInfo::getSize).sum();
 		
 		int count = componentNodes.size(), offset = 0;
 		for (int i = 0; i < count; ++i) {
@@ -90,32 +88,32 @@ public class StructDefinitionNode extends StaticSectionNode<Scope, Routine> {
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
-		routine.typedefMap.put(rawType.toString(), rawType.getTypeInfo(this, new ArrayList<>(), scope));
+	public void generateIntermediate(ASTNode<?> parent) {
+		routine.typedefMap.put(typedef.toString(), typedef.getTypeInfo(this, new ArrayList<>(), scope));
 	}
 }

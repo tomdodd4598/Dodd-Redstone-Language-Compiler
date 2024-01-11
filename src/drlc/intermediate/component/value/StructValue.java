@@ -8,13 +8,13 @@ import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.*;
 
-public class StructValue extends CompoundValue {
+public class StructValue extends CompoundValue<StructTypeInfo> {
 	
-	public final @NonNull RawType rawType;
+	public final @NonNull TypeDefinition typedef;
 	
-	public StructValue(ASTNode<?, ?> node, @NonNull StructTypeInfo typeInfo, List<Value> values) {
+	public StructValue(ASTNode<?> node, @NonNull StructTypeInfo typeInfo, List<Value<?>> values) {
 		super(node, typeInfo, values);
-		this.rawType = typeInfo.rawType;
+		this.typedef = typeInfo.typedef;
 	}
 	
 	@Override
@@ -29,6 +29,6 @@ public class StructValue extends CompoundValue {
 	
 	@Override
 	public String valueString() {
-		return Helpers.structString(rawType, Helpers.map(values, Value::valueString));
+		return Helpers.structString(typedef, Helpers.map(values, Value::valueString));
 	}
 }

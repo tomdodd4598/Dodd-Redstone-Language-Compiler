@@ -25,7 +25,7 @@ public class ArrayTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
+	public void setScopes(ASTNode<?> parent) {
 		scope = parent.scope;
 		
 		typeNode.setScopes(this);
@@ -33,23 +33,23 @@ public class ArrayTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		typeNode.defineTypes(this);
 		
-		@Nullable Value constantValue = constantExpressionNode.getConstantValue();
-		if (constantValue != null && constantValue.typeInfo.canImplicitCastTo(Main.generator.indexTypeInfo)) {
+		@Nullable Value<?> constantValue = constantExpressionNode.getConstantValue(Main.generator.natTypeInfo);
+		if (constantValue != null && constantValue.typeInfo.canImplicitCastTo(Main.generator.natTypeInfo)) {
 			length = constantValue.intValue(this);
 			if (length < 0) {
 				throw error("Length of array type can not be negative!");
 			}
 		}
 		else {
-			throw error("Length of array type is not a compile-time non-negative \"%s\" constant!", Main.generator.indexTypeInfo);
+			throw error("Length of array type is not a compile-time non-negative \"%s\" constant!", Main.generator.natTypeInfo);
 		}
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		typeNode.declareExpressions(this);
@@ -58,27 +58,27 @@ public class ArrayTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		
 	}
 	
@@ -90,7 +90,7 @@ public class ArrayTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void collectRawTypes(Set<RawType> rawTypes) {
-		typeNode.collectRawTypes(rawTypes);
+	public void collectTypedefs(Set<TypeDefinition> typedefs) {
+		typeNode.collectTypedefs(typedefs);
 	}
 }

@@ -8,12 +8,12 @@ import drlc.intermediate.ast.ASTNode;
 
 public class FunctionPointerTypeInfo extends FunctionTypeInfo {
 	
-	public FunctionPointerTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, @NonNull TypeInfo returnTypeInfo, List<TypeInfo> paramTypeInfos) {
+	public FunctionPointerTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, @NonNull TypeInfo returnTypeInfo, List<TypeInfo> paramTypeInfos) {
 		super(node, referenceMutability, returnTypeInfo, paramTypeInfos);
 	}
 	
 	@Override
-	public @NonNull TypeInfo copy(ASTNode<?, ?> node, List<Boolean> referenceMutability) {
+	public @NonNull TypeInfo copy(ASTNode<?> node, List<Boolean> referenceMutability) {
 		return new FunctionPointerTypeInfo(node, referenceMutability, returnTypeInfo, paramTypeInfos);
 	}
 	

@@ -11,5 +11,5 @@ import drlc.intermediate.scope.Scope;
 @FunctionalInterface
 public interface TypeInfoFunction {
 	
-	public @NonNull TypeInfo create(ASTNode<?, ?> node, List<Boolean> referenceMutability, Scope scope);
+	public @NonNull TypeInfo create(ASTNode<?> node, List<Boolean> referenceMutability, Scope scope);
 }

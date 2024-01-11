@@ -52,7 +52,7 @@ public class IntermediateGenerator extends Generator {
 	public void generate() {
 		StringBuilder sb = new StringBuilder();
 		boolean begin = true;
-		for (Routine routine : Main.rootScope.routineIterable(true)) {
+		for (Routine routine : Main.rootScope.getRoutines()) {
 			if (!routine.isBuiltInFunctionRoutine()) {
 				if (begin) {
 					begin = false;

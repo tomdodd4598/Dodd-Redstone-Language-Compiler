@@ -126,8 +126,9 @@ Tokens
 	
 	name = (letter | '_') (digit | letter | '_')*;
 	
-	int_value = integer ('I' | 'i')?;
+	int_value = integer ('I' | 'i');
 	nat_value = integer ('N' | 'n');
+	word_value = integer;
 	
 	char_value = apostrophe c_char apostrophe;
 	
@@ -274,6 +275,24 @@ Productions
 		name colon;
 	
 	expression =
+		{prioritized} assignment_expression |
+		{closure} closure_declarator_list closure_body;
+	
+	closure_declarator_list =
+		{standard} l_closure_list declarator_list? r_closure_list |
+		{logical_or} logical_or;
+	
+	l_closure_list =
+		or;
+	
+	r_closure_list =
+		or;
+	
+	closure_body =
+		{expression} expression |
+		{block} return_type? l_brace scoped_body r_brace;
+	
+	assignment_expression =
 		{prioritized} ternary_expression |
 		{assignment} unary_expression assignment_op expression;
 	
@@ -356,6 +375,7 @@ Productions
 		{bool} bool_value |
 		{int} int_value |
 		{nat} nat_value |
+		{word} word_value |
 		{char} char_value |
 		{sizeof} sizeof type;
 	
@@ -363,6 +383,10 @@ Productions
 		expression;
 	
 	condition_expression =
+		{prioritized} condition_assignment_expression |
+		{closure} closure_declarator_list condition_expression;
+	
+	condition_assignment_expression =
 		{prioritized} condition_ternary_expression |
 		{assignment} condition_unary_expression assignment_op condition_expression;
 	

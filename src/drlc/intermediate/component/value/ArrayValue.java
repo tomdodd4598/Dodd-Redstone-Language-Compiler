@@ -8,12 +8,12 @@ import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.*;
 
-public class ArrayValue extends Value {
+public class ArrayValue extends Value<ArrayTypeInfo> {
 	
-	protected final List<Value> values;
+	protected final List<Value<?>> values;
 	protected final int length;
 	
-	public ArrayValue(ASTNode<?, ?> node, @NonNull ArrayTypeInfo typeInfo, List<Value> values) {
+	public ArrayValue(ASTNode<?> node, @NonNull ArrayTypeInfo typeInfo, List<Value<?>> values) {
 		super(node, typeInfo);
 		
 		length = values.size();
@@ -22,7 +22,7 @@ public class ArrayValue extends Value {
 		}
 		
 		@NonNull TypeInfo elementType = typeInfo.elementTypeInfo;
-		for (Value value : values) {
+		for (Value<?> value : values) {
 			if (!value.typeInfo.canImplicitCastTo(elementType)) {
 				throw Helpers.nodeError(node, "Can not cast value \"%s\" to array element type \"%s\"!", value, elementType);
 			}
@@ -33,7 +33,7 @@ public class ArrayValue extends Value {
 	
 	@SuppressWarnings("null")
 	@Override
-	public @NonNull Value atIndex(ASTNode<?, ?> node, int index) {
+	public @NonNull Value<?> atIndex(ASTNode<?> node, int index) {
 		return values.get(index);
 	}
 	

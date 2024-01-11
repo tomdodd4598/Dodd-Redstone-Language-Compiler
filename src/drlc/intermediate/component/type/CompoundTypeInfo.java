@@ -14,7 +14,7 @@ public abstract class CompoundTypeInfo extends TypeInfo {
 	public final List<TypeInfo> typeInfos;
 	public final int count;
 	
-	protected CompoundTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos) {
+	protected CompoundTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos) {
 		super(node, referenceMutability);
 		this.typeInfos = typeInfos;
 		count = typeInfos.size();
@@ -31,16 +31,16 @@ public abstract class CompoundTypeInfo extends TypeInfo {
 	}
 	
 	@Override
-	public void collectRawTypes(Set<RawType> rawTypes) {
+	public void collectTypedefs(Set<TypeDefinition> typedefs) {
 		if (!isAddress()) {
 			for (TypeInfo typeInfo : typeInfos) {
-				typeInfo.collectRawTypes(rawTypes);
+				typeInfo.collectTypedefs(typedefs);
 			}
 		}
 	}
 	
 	@Override
-	public int indexToOffsetShallow(ASTNode<?, ?> node, int index) {
+	public int indexToOffsetShallow(ASTNode<?> node, int index) {
 		if (index >= count) {
 			throw Helpers.nodeError(node, "Attempted to index type \"%s\" at position %d!", this, index);
 		}
@@ -54,7 +54,7 @@ public abstract class CompoundTypeInfo extends TypeInfo {
 	}
 	
 	@Override
-	public int offsetToIndexShallow(ASTNode<?, ?> node, int offset) {
+	public int offsetToIndexShallow(ASTNode<?> node, int offset) {
 		int index = 0;
 		while ((offset -= typeInfos.get(index).getSize()) >= 0) {
 			++index;
@@ -68,7 +68,7 @@ public abstract class CompoundTypeInfo extends TypeInfo {
 	}
 	
 	@Override
-	public @NonNull TypeInfo atIndex(ASTNode<?, ?> node, int index) {
+	public @NonNull TypeInfo atIndex(ASTNode<?> node, int index) {
 		return typeInfos.get(index).addressOf(node, referenceMutability);
 	}
 	

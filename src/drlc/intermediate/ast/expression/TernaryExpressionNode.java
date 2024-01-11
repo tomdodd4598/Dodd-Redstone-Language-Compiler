@@ -20,7 +20,7 @@ public class TernaryExpressionNode extends ExpressionNode {
 	@SuppressWarnings("null")
 	public @NonNull TypeInfo typeInfo = null;
 	
-	public @Nullable Value constantValue = null;
+	public @Nullable Value<?> constantValue = null;
 	
 	public TernaryExpressionNode(Node[] parseNodes, @NonNull ExpressionNode conditionExpressionNode, @NonNull ExpressionNode trueExpressionNode, @NonNull ExpressionNode falseExpressionNode) {
 		super(parseNodes);
@@ -30,9 +30,8 @@ public class TernaryExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
-		@NonNull ConditionalScope conditionalScope = new ConditionalScope(parent.scope, true);
-		scope = conditionalScope;
+	public void setScopes(ASTNode<?> parent) {
+		scope = new ConditionalScope(this, parent.scope, true);
 		
 		conditionExpressionNode.setScopes(this);
 		trueExpressionNode.setScopes(this);
@@ -43,14 +42,14 @@ public class TernaryExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		conditionExpressionNode.defineTypes(this);
 		trueExpressionNode.defineTypes(this);
 		falseExpressionNode.defineTypes(this);
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		conditionExpressionNode.declareExpressions(this);
@@ -59,16 +58,16 @@ public class TernaryExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		conditionExpressionNode.defineExpressions(this);
 		trueExpressionNode.defineExpressions(this);
 		falseExpressionNode.defineExpressions(this);
 		
-		setTypeInfo();
+		setTypeInfo(null);
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		conditionExpressionNode.checkTypes(this);
 		trueExpressionNode.checkTypes(this);
 		falseExpressionNode.checkTypes(this);
@@ -85,7 +84,7 @@ public class TernaryExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		conditionExpressionNode.foldConstants(this);
 		trueExpressionNode.foldConstants(this);
 		falseExpressionNode.foldConstants(this);
@@ -107,14 +106,14 @@ public class TernaryExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		conditionExpressionNode.trackFunctions(this);
 		trueExpressionNode.trackFunctions(this);
 		falseExpressionNode.trackFunctions(this);
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		DataId temp = scope.nextLocalDataId(routine, typeInfo);
 		conditionExpressionNode.generateIntermediate(this);
 		routine.addAssignmentAction(this, routine.nextRegId(Main.generator.boolTypeInfo), conditionExpressionNode.dataId);
@@ -140,18 +139,19 @@ public class TernaryExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	protected void setTypeInfoInternal() {
-		typeInfo = trueExpressionNode.getTypeInfo();
+	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
+		trueExpressionNode.setTypeInfo(targetType);
+		falseExpressionNode.setTypeInfo(typeInfo = trueExpressionNode.getTypeInfo());
 	}
 	
 	@Override
-	protected @Nullable Value getConstantValueInternal() {
+	protected @Nullable Value<?> getConstantValueInternal() {
 		return constantValue;
 	}
 	
 	@Override
 	protected void setConstantValueInternal() {
-		@Nullable Value conditionConstantValue = conditionExpressionNode.getConstantValue();
+		@Nullable Value<?> conditionConstantValue = conditionExpressionNode.getConstantValue();
 		if (Main.generator.trueValue.equals(conditionConstantValue)) {
 			constantValue = trueExpressionNode.getConstantValue();
 		}

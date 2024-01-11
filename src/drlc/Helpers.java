@@ -195,7 +195,7 @@ public class Helpers {
 		return nodeError(array(parseNode), s, args);
 	}
 	
-	public static RuntimeException nodeError(ASTNode<?, ?> node, String s, Object... args) {
+	public static RuntimeException nodeError(ASTNode<?> node, String s, Object... args) {
 		return nodeError(node == null ? null : node.parseNodes, s, args);
 	}
 	
@@ -303,6 +303,10 @@ public class Helpers {
 		return collectionString(collection, Global.LIST_SEPARATOR, Global.LIST_START, Global.LIST_END);
 	}
 	
+	public static <T> String captureString(Collection<T> collection) {
+		return collectionString(collection, Global.LIST_SEPARATOR, Global.BRACE_START, Global.BRACE_END);
+	}
+	
 	public static <T> String arrayString(Collection<T> collection) {
 		return collectionString(collection, Global.LIST_SEPARATOR, Global.ARRAY_START, Global.ARRAY_END);
 	}
@@ -311,8 +315,8 @@ public class Helpers {
 		return collection.size() == 1 ? Global.LIST_START + collection.iterator().next() + Global.LIST_SEPARATOR + Global.LIST_END : listString(collection);
 	}
 	
-	public static <T> String structString(@NonNull RawType rawType, Collection<T> collection) {
-		return rawType + " " + collectionString(collection, Global.LIST_SEPARATOR, Global.BRACE_START, Global.BRACE_END);
+	public static <T> String structString(@NonNull TypeDefinition typedef, Collection<T> collection) {
+		return typedef + " " + collectionString(collection, Global.LIST_SEPARATOR, Global.BRACE_START, Global.BRACE_END);
 	}
 	
 	public static <T> T[] array(T... objects) {
@@ -344,7 +348,7 @@ public class Helpers {
 	
 	public static @Nullable TypeInfo getCommonTypeInfo(List<TypeInfo> types) {
 		if (types.isEmpty()) {
-			return Main.generator.wildcardPtrTypeInfo;
+			return null;
 		}
 		else {
 			int count = types.size();

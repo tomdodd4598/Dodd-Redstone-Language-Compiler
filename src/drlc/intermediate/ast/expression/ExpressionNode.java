@@ -8,11 +8,10 @@ import drlc.intermediate.component.Function;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
-import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
-public abstract class ExpressionNode extends ASTNode<Scope, Routine> {
+public abstract class ExpressionNode extends ASTNode<Scope> {
 	
 	public boolean setTypeInfo = false;
 	public boolean setConstantValue = false;
@@ -25,29 +24,39 @@ public abstract class ExpressionNode extends ASTNode<Scope, Routine> {
 	}
 	
 	public @NonNull TypeInfo getTypeInfo() {
-		setTypeInfo();
-		
+		if (!setTypeInfo) {
+			throw error("Attempted to get type info before it is set!");
+		}
 		return getTypeInfoInternal();
 	}
 	
 	protected abstract @NonNull TypeInfo getTypeInfoInternal();
 	
-	public void setTypeInfo() {
+	public void setTypeInfo(@Nullable TypeInfo targetType) {
 		if (!setTypeInfo) {
-			setTypeInfoInternal();
+			setTypeInfoInternal(targetType);
+			
+			@NonNull TypeInfo typeInfo = getTypeInfoInternal();
+			if (targetType != null && !typeInfo.canImplicitCastTo(targetType)) {
+				throw castError("value", typeInfo, targetType);
+			}
 		}
 		setTypeInfo = true;
 	}
 	
-	protected abstract void setTypeInfoInternal();
+	protected abstract void setTypeInfoInternal(@Nullable TypeInfo targetType);
 	
-	public @Nullable Value getConstantValue() {
+	public @Nullable Value<?> getConstantValue() {
+		return getConstantValue(setTypeInfo ? getTypeInfo() : null);
+	}
+	
+	public @Nullable Value<?> getConstantValue(@Nullable TypeInfo targetType) {
+		setTypeInfo(targetType);
 		setConstantValue();
-		
 		return getConstantValueInternal();
 	}
 	
-	protected abstract @Nullable Value getConstantValueInternal();
+	protected abstract @Nullable Value<?> getConstantValueInternal();
 	
 	public void setConstantValue() {
 		if (!setConstantValue) {
@@ -59,7 +68,7 @@ public abstract class ExpressionNode extends ASTNode<Scope, Routine> {
 	protected abstract void setConstantValueInternal();
 	
 	public @Nullable ConstantExpressionNode constantExpressionNode() {
-		@Nullable Value constantValue = getConstantValue();
+		@Nullable Value<?> constantValue = getConstantValue();
 		if (constantValue != null) {
 			return new ValueExpressionNode(parseNodes, scope, routine, constantValue);
 		}
@@ -88,13 +97,13 @@ public abstract class ExpressionNode extends ASTNode<Scope, Routine> {
 		throw error("Attempted to set invalid expression as lvalue!");
 	}
 	
-	public void checkIsAssignable(ASTNode<?, ?> parent) {
+	public void checkIsAssignable(ASTNode<?> parent) {
 		if (!isMutableLvalue()) {
 			throw Helpers.nodeError(parent, "Attempted to assign to immutable lvalue expression!");
 		}
 	}
 	
-	public void initialize(ASTNode<?, ?> parent) {
+	public void initialize(ASTNode<?> parent) {
 		
 	}
 	

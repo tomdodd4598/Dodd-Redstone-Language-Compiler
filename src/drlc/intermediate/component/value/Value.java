@@ -7,11 +7,11 @@ import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.data.ValueDataId;
 import drlc.intermediate.component.type.TypeInfo;
 
-public abstract class Value {
+public abstract class Value<T extends TypeInfo> {
 	
-	public final @NonNull TypeInfo typeInfo;
+	public final @NonNull T typeInfo;
 	
-	protected Value(ASTNode<?, ?> node, @NonNull TypeInfo typeInfo) {
+	protected Value(ASTNode<?> node, @NonNull T typeInfo) {
 		if (this instanceof AddressValue) {
 			if (!typeInfo.isAddress()) {
 				throw Helpers.nodeError(node, "Address value can not have non-address type \"%s\"!", typeInfo);
@@ -29,43 +29,43 @@ public abstract class Value {
 		return new ValueDataId(this);
 	}
 	
-	public boolean boolValue(ASTNode<?, ?> node) {
+	public boolean boolValue(ASTNode<?> node) {
 		throw Helpers.nodeError(node, "Value of type \"%s\" can not be cast to a Bool!", typeInfo);
 	}
 	
-	public long longValue(ASTNode<?, ?> node) {
+	public long longValue(ASTNode<?> node) {
 		throw Helpers.nodeError(node, "Value of type \"%s\" can not be cast to an integer!", typeInfo);
 	}
 	
-	public int intValue(ASTNode<?, ?> node) {
+	public int intValue(ASTNode<?> node) {
 		return (int) longValue(node);
 	}
 	
-	public short shortValue(ASTNode<?, ?> node) {
+	public short shortValue(ASTNode<?> node) {
 		return (short) longValue(node);
 	}
 	
-	public byte byteValue(ASTNode<?, ?> node) {
+	public byte byteValue(ASTNode<?> node) {
 		return (byte) longValue(node);
 	}
 	
-	public IntValue toInt(ASTNode<?, ?> node) {
+	public IntValue toInt(ASTNode<?> node) {
 		throw Helpers.nodeError(node, "Value of type \"%s\" can not be cast to an Int!", typeInfo);
 	}
 	
-	public NatValue toNat(ASTNode<?, ?> node) {
+	public NatValue toNat(ASTNode<?> node) {
 		throw Helpers.nodeError(node, "Value of type \"%s\" can not be cast to a Nat!", typeInfo);
 	}
 	
-	public byte charValue(ASTNode<?, ?> node) {
+	public byte charValue(ASTNode<?> node) {
 		throw Helpers.nodeError(node, "Value of type \"%s\" can not be cast to a Char!", typeInfo);
 	}
 	
-	public @NonNull Value atIndex(ASTNode<?, ?> node, int index) {
+	public @NonNull Value<?> atIndex(ASTNode<?> node, int index) {
 		throw Helpers.nodeError(node, "Value of type \"%s\" can not be indexed!", typeInfo);
 	}
 	
-	public @NonNull Value atOffset(ASTNode<?, ?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
+	public @NonNull Value<?> atOffset(ASTNode<?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
 		if (offset == 0 && typeInfo.equalsOther(expectedTypeInfo, true) && typeInfo.getReferenceLevel() == expectedTypeInfo.getReferenceLevel()) {
 			return this;
 		}

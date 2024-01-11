@@ -13,7 +13,9 @@ public class VariableExpressionNode extends ExpressionNode {
 	
 	public final @NonNull String name;
 	
-	public @Nullable Value value = null;
+	public boolean setInternal = false;
+	
+	public @Nullable Value<?> value = null;
 	
 	public @Nullable Variable variable = null;
 	
@@ -32,32 +34,28 @@ public class VariableExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
+	public void setScopes(ASTNode<?> parent) {
 		scope = parent.scope;
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
-		setConstantValue();
+	public void defineExpressions(ASTNode<?> parent) {
+		setInternal();
 		
-		if (value == null) {
-			variable = scope.getVariable(this, name);
-		}
-		
-		setTypeInfo();
+		setTypeInfo(null);
 		
 		if (variable != null) {
-			scope.onVariableExpression(this, variable);
+			variable = scope.captureVariable(this, variable);
 			
 			if (!isLvalue && !scope.isVariableDefinitelyInitialized(variable)) {
 				throw Helpers.nodeError(parent, "Attempted to use potentially uninitialized variable \"%s\"!", variable.name);
@@ -66,17 +64,17 @@ public class VariableExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		Function directFunction = getDirectFunction();
 		if (directFunction != null) {
 			routine.onNonLocalFunctionItemExpression(this, directFunction);
@@ -85,7 +83,9 @@ public class VariableExpressionNode extends ExpressionNode {
 	
 	@SuppressWarnings("null")
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
+		@NonNull TypeInfo typeInfo = getTypeInfo();
+		
 		if (value != null) {
 			routine.addValueAssignmentAction(this, dataId = routine.nextRegId(typeInfo), value);
 		}
@@ -99,13 +99,26 @@ public class VariableExpressionNode extends ExpressionNode {
 		}
 	}
 	
-	@Override
-	protected @NonNull TypeInfo getTypeInfoInternal() {
-		return typeInfo;
+	protected void setInternal() {
+		if (!setInternal) {
+			setConstantValue();
+			
+			if (value == null) {
+				variable = scope.getVariable(this, name);
+			}
+		}
+		setInternal = true;
 	}
 	
 	@Override
-	protected void setTypeInfoInternal() {
+	protected @NonNull TypeInfo getTypeInfoInternal() {
+		return typeInfo instanceof FunctionItemTypeInfo ? ((FunctionItemTypeInfo) typeInfo).functionPointerTypeInfo : typeInfo;
+	}
+	
+	@Override
+	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
+		setInternal();
+		
 		if (value != null) {
 			typeInfo = value.typeInfo;
 		}
@@ -114,12 +127,14 @@ public class VariableExpressionNode extends ExpressionNode {
 		}
 		
 		if (typeInfo instanceof FunctionItemTypeInfo) {
-			typeInfo = ((FunctionItemTypeInfo) typeInfo).functionPointerTypeInfo;
+			if (!((FunctionItemTypeInfo) typeInfo).function.defined) {
+				throw error("Nested function \"%s\" not yet defined in this scope!", name);
+			}
 		}
 	}
 	
 	@Override
-	protected @Nullable Value getConstantValueInternal() {
+	protected @Nullable Value<?> getConstantValueInternal() {
 		return value;
 	}
 	
@@ -154,7 +169,7 @@ public class VariableExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void checkIsAssignable(ASTNode<?, ?> parent) {
+	public void checkIsAssignable(ASTNode<?> parent) {
 		if (!isMutableLvalue()) {
 			if (scope.isVariablePotentiallyInitialized(variable)) {
 				throw Helpers.nodeError(parent, "Attempted to potentially assign twice to immutable variable \"%s\"!", variable.name);
@@ -163,7 +178,7 @@ public class VariableExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void initialize(ASTNode<?, ?> parent) {
+	public void initialize(ASTNode<?> parent) {
 		if (variable != null) {
 			scope.onVariableInitialization(parent, variable);
 		}

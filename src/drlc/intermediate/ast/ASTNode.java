@@ -8,14 +8,14 @@ import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
-public abstract class ASTNode<SCOPE extends Scope, ROUTINE extends Routine> {
+public abstract class ASTNode<SCOPE extends Scope> {
 	
 	public Node[] parseNodes;
 	
 	@SuppressWarnings("null")
 	public @NonNull SCOPE scope = null;
 	@SuppressWarnings("null")
-	public @NonNull ROUTINE routine = null;
+	public @NonNull Routine routine = null;
 	
 	protected ASTNode(Node[] parseNodes) {
 		this.parseNodes = parseNodes;
@@ -32,21 +32,21 @@ public abstract class ASTNode<SCOPE extends Scope, ROUTINE extends Routine> {
 		generateIntermediate(null);
 	}
 	
-	public abstract void setScopes(ASTNode<?, ?> parent);
+	public abstract void setScopes(ASTNode<?> parent);
 	
-	public abstract void defineTypes(ASTNode<?, ?> parent);
+	public abstract void defineTypes(ASTNode<?> parent);
 	
-	public abstract void declareExpressions(ASTNode<?, ?> parent);
+	public abstract void declareExpressions(ASTNode<?> parent);
 	
-	public abstract void defineExpressions(ASTNode<?, ?> parent);
+	public abstract void defineExpressions(ASTNode<?> parent);
 	
-	public abstract void checkTypes(ASTNode<?, ?> parent);
+	public abstract void checkTypes(ASTNode<?> parent);
 	
-	public abstract void foldConstants(ASTNode<?, ?> parent);
+	public abstract void foldConstants(ASTNode<?> parent);
 	
-	public abstract void trackFunctions(ASTNode<?, ?> parent);
+	public abstract void trackFunctions(ASTNode<?> parent);
 	
-	public abstract void generateIntermediate(ASTNode<?, ?> parent);
+	public abstract void generateIntermediate(ASTNode<?> parent);
 	
 	protected RuntimeException error(String s, Object... args) {
 		return Helpers.nodeError(parseNodes, s, args);

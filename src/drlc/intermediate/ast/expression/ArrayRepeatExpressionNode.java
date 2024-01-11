@@ -30,50 +30,50 @@ public class ArrayRepeatExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
-		scope = new Scope(parent.scope);
+	public void setScopes(ASTNode<?> parent) {
+		scope = new Scope(this, parent.scope);
 		
 		constantExpressionNode.setScopes(this);
 		repeatExpressionNode.setScopes(this);
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
-		@Nullable Value constantValue = constantExpressionNode.getConstantValue();
-		if (constantValue != null && constantValue.typeInfo.canImplicitCastTo(Main.generator.indexTypeInfo)) {
+	public void defineTypes(ASTNode<?> parent) {
+		@Nullable Value<?> constantValue = constantExpressionNode.getConstantValue(Main.generator.natTypeInfo);
+		if (constantValue != null && constantValue.typeInfo.canImplicitCastTo(Main.generator.natTypeInfo)) {
 			length = constantValue.intValue(this);
 			if (length < 0) {
 				throw error("Length of array can not be negative!");
 			}
 		}
 		else {
-			throw error("Length of array is not a compile-time non-negative \"%s\" constant!", Main.generator.indexTypeInfo);
+			throw error("Length of array is not a compile-time non-negative \"%s\" constant!", Main.generator.natTypeInfo);
 		}
 		
 		repeatExpressionNode.defineTypes(this);
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		repeatExpressionNode.declareExpressions(this);
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		repeatExpressionNode.defineExpressions(this);
 		
-		setTypeInfo();
+		setTypeInfo(null);
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		repeatExpressionNode.checkTypes(this);
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		repeatExpressionNode.foldConstants(this);
 		
 		@Nullable ConstantExpressionNode constantRepeatExpressionNode = repeatExpressionNode.constantExpressionNode();
@@ -83,12 +83,12 @@ public class ArrayRepeatExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		repeatExpressionNode.trackFunctions(this);
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		repeatExpressionNode.generateIntermediate(this);
 		
 		routine.addCompoundAssignmentAction(this, dataId = routine.nextRegId(typeInfo), Collections.nCopies(length, repeatExpressionNode.dataId));
@@ -100,25 +100,33 @@ public class ArrayRepeatExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	protected void setTypeInfoInternal() {
+	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
+		ArrayTypeInfo arrayTargetType = null;
+		if (targetType.isArray()) {
+			arrayTargetType = (ArrayTypeInfo) targetType;
+			if (arrayTargetType.length != length) {
+				arrayTargetType = null;
+			}
+		}
+		
+		repeatExpressionNode.setTypeInfo(arrayTargetType == null ? null : arrayTargetType.elementTypeInfo);
+		
 		typeInfo = new ArrayTypeInfo(this, new ArrayList<>(), repeatExpressionNode.getTypeInfo(), length);
 	}
 	
 	@Override
-	protected @Nullable Value getConstantValueInternal() {
+	protected @Nullable Value<?> getConstantValueInternal() {
 		return constantValue;
 	}
 	
 	@Override
 	protected void setConstantValueInternal() {
-		if (length == 0) {
-			constantValue = Main.generator.emptyArrayValue;
-			return;
-		}
-		
-		@Nullable Value repeatConstantValue = repeatExpressionNode.getConstantValue();
+		@Nullable Value<?> repeatConstantValue = repeatExpressionNode.getConstantValue();
 		if (repeatConstantValue != null) {
 			constantValue = new ArrayValue(this, typeInfo, Collections.nCopies(length, repeatConstantValue));
+		}
+		else if (length == 0) {
+			constantValue = new ArrayValue(this, typeInfo, new ArrayList<>());
 		}
 		else {
 			constantValue = null;

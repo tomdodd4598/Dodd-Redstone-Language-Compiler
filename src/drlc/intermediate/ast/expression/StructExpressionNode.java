@@ -36,8 +36,8 @@ public class StructExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
-		scope = new Scope(parent.scope);
+	public void setScopes(ASTNode<?> parent) {
+		scope = new Scope(this, parent.scope);
 		
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.setScopes(this);
@@ -45,14 +45,14 @@ public class StructExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.defineTypes(this);
 		}
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		for (ExpressionNode expressionNode : expressionNodes) {
@@ -61,12 +61,12 @@ public class StructExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.defineExpressions(this);
 		}
 		
-		setTypeInfo();
+		setTypeInfo(null);
 		
 		if (labels != null) {
 			int count = expressionNodes.size();
@@ -86,7 +86,7 @@ public class StructExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.checkTypes(this);
 		}
@@ -101,7 +101,7 @@ public class StructExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.foldConstants(this);
 		}
@@ -116,14 +116,14 @@ public class StructExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.trackFunctions(this);
 		}
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.generateIntermediate(this);
 		}
@@ -142,18 +142,27 @@ public class StructExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	protected void setTypeInfoInternal() {
+	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
 		@NonNull TypeInfo typeInfo = scope.getTypeInfo(this, name);
-		if (typeInfo instanceof StructTypeInfo) {
-			this.typeInfo = (StructTypeInfo) typeInfo;
-		}
-		else {
+		if (!(typeInfo instanceof StructTypeInfo)) {
 			throw error("Type \"%s\" is not a struct type!", typeInfo);
+		}
+		
+		this.typeInfo = (StructTypeInfo) typeInfo;
+		
+		List<TypeInfo> memberTypeInfos = this.typeInfo.typeInfos;
+		int structMemberCount = memberTypeInfos.size(), expressionCount = sortedExpressionNodes.size();
+		if (structMemberCount != expressionCount) {
+			throw error("Struct expression requires %d members but received %d!", structMemberCount, expressionCount);
+		}
+		
+		for (int i = 0; i < expressionCount; ++i) {
+			sortedExpressionNodes.get(i).setTypeInfo(memberTypeInfos.get(i));
 		}
 	}
 	
 	@Override
-	protected @Nullable Value getConstantValueInternal() {
+	protected @Nullable Value<?> getConstantValueInternal() {
 		return constantValue;
 	}
 	
@@ -163,9 +172,9 @@ public class StructExpressionNode extends ExpressionNode {
 			return;
 		}
 		
-		List<Value> values = new ArrayList<>();
+		List<Value<?>> values = new ArrayList<>();
 		for (ExpressionNode expressionNode : sortedExpressionNodes) {
-			@Nullable Value elementConstantValue = expressionNode.getConstantValue();
+			@Nullable Value<?> elementConstantValue = expressionNode.getConstantValue();
 			if (elementConstantValue == null) {
 				return;
 			}

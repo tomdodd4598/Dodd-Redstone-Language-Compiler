@@ -5,7 +5,7 @@ import java.util.Set;
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.component.type.RawType;
+import drlc.intermediate.component.type.TypeDefinition;
 import drlc.node.Node;
 
 public class NominalTypeNode extends TypeNode {
@@ -18,44 +18,44 @@ public class NominalTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
+	public void setScopes(ASTNode<?> parent) {
 		scope = parent.scope;
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		setTypeInfo();
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		
 	}
 	
@@ -65,7 +65,7 @@ public class NominalTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void collectRawTypes(Set<RawType> rawTypes) {
-		scope.collectRawTypes(this, rawTypes, name);
+	public void collectTypedefs(Set<TypeDefinition> typedefs) {
+		scope.collectTypedefs(this, typedefs, name);
 	}
 }

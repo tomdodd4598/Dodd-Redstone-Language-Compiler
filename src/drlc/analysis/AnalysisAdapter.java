@@ -429,7 +429,55 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAAssignmentExpression(AAssignmentExpression node)
+    public void caseAClosureExpression(AClosureExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAStandardClosureDeclaratorList(AStandardClosureDeclaratorList node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALogicalOrClosureDeclaratorList(ALogicalOrClosureDeclaratorList node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALClosureList(ALClosureList node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseARClosureList(ARClosureList node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAExpressionClosureBody(AExpressionClosureBody node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABlockClosureBody(ABlockClosureBody node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPrioritizedAssignmentExpression(APrioritizedAssignmentExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAAssignmentAssignmentExpression(AAssignmentAssignmentExpression node)
     {
         defaultCase(node);
     }
@@ -687,6 +735,12 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseAWordValue(AWordValue node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseACharValue(ACharValue node)
     {
         defaultCase(node);
@@ -711,7 +765,19 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAAssignmentConditionExpression(AAssignmentConditionExpression node)
+    public void caseAClosureConditionExpression(AClosureConditionExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPrioritizedConditionAssignmentExpression(APrioritizedConditionAssignmentExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAAssignmentConditionAssignmentExpression(AAssignmentConditionAssignmentExpression node)
     {
         defaultCase(node);
     }
@@ -1492,6 +1558,12 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTNatValue(TNatValue node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTWordValue(TWordValue node)
     {
         defaultCase(node);
     }

@@ -7,18 +7,17 @@ import drlc.intermediate.action.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.expression.*;
 import drlc.intermediate.component.type.TypeInfo;
-import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.ConditionalScope;
 import drlc.node.Node;
 
-public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope, Routine> {
+public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope> {
 	
 	public final boolean unless;
 	public @NonNull ExpressionNode expressionNode;
 	public final @NonNull ScopedBodyNode thenNode;
-	public final @Nullable ASTNode<?, ?> elseNode;
+	public final @Nullable ASTNode<?> elseNode;
 	
-	public ConditionalSectionNode(Node[] parseNodes, boolean unless, @NonNull ExpressionNode expressionNode, @NonNull ScopedBodyNode thenNode, @Nullable ASTNode<?, ?> elseNode) {
+	public ConditionalSectionNode(Node[] parseNodes, boolean unless, @NonNull ExpressionNode expressionNode, @NonNull ScopedBodyNode thenNode, @Nullable ASTNode<?> elseNode) {
 		super(parseNodes);
 		this.unless = unless;
 		this.expressionNode = expressionNode;
@@ -27,8 +26,8 @@ public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope,
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
-		scope = new ConditionalScope(parent.scope, elseNode != null);
+	public void setScopes(ASTNode<?> parent) {
+		scope = new ConditionalScope(this, parent.scope, elseNode != null);
 		
 		expressionNode.setScopes(this);
 		thenNode.setScopes(this);
@@ -43,7 +42,7 @@ public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope,
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		expressionNode.defineTypes(this);
 		thenNode.defineTypes(this);
 		if (elseNode != null) {
@@ -52,7 +51,7 @@ public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope,
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		expressionNode.declareExpressions(this);
@@ -63,7 +62,7 @@ public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope,
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		expressionNode.defineExpressions(this);
 		thenNode.defineExpressions(this);
 		if (elseNode != null) {
@@ -72,7 +71,7 @@ public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope,
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		expressionNode.checkTypes(this);
 		thenNode.checkTypes(this);
 		if (elseNode != null) {
@@ -86,7 +85,7 @@ public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope,
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		expressionNode.foldConstants(this);
 		thenNode.foldConstants(this);
 		if (elseNode != null) {
@@ -100,7 +99,7 @@ public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope,
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		expressionNode.trackFunctions(this);
 		thenNode.trackFunctions(this);
 		if (elseNode != null) {
@@ -109,7 +108,7 @@ public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope,
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		expressionNode.generateIntermediate(this);
 		ConditionalJumpAction cja = routine.addConditionalJumpAction(this, -1, unless);
 		thenNode.generateIntermediate(this);

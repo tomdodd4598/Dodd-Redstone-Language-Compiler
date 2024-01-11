@@ -1,11 +1,11 @@
 package drlc.intermediate.ast.expression;
 
-import java.util.List;
+import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.Value;
 import drlc.intermediate.scope.Scope;
@@ -19,6 +19,8 @@ public class FunctionCallExpressionNode extends ExpressionNode {
 	@SuppressWarnings("null")
 	public @NonNull FunctionTypeInfo functionTypeInfo = null;
 	
+	public @Nullable ClosureTypeInfo closureTypeInfo = null;
+	
 	public FunctionCallExpressionNode(Node[] parseNodes, @NonNull ExpressionNode expressionNode, @NonNull List<ExpressionNode> argExpressionNodes) {
 		super(parseNodes);
 		this.expressionNode = expressionNode;
@@ -26,8 +28,8 @@ public class FunctionCallExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
-		scope = new Scope(parent.scope);
+	public void setScopes(ASTNode<?> parent) {
+		scope = new Scope(this, parent.scope);
 		
 		expressionNode.setScopes(this);
 		for (ExpressionNode argExpressionNode : argExpressionNodes) {
@@ -36,7 +38,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		expressionNode.defineTypes(this);
 		for (ExpressionNode argExpressionNode : argExpressionNodes) {
 			argExpressionNode.defineTypes(this);
@@ -44,7 +46,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		expressionNode.declareExpressions(this);
@@ -54,44 +56,47 @@ public class FunctionCallExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		expressionNode.defineExpressions(this);
 		for (ExpressionNode argExpressionNode : argExpressionNodes) {
 			argExpressionNode.defineExpressions(this);
 		}
 		
-		setTypeInfo();
+		setTypeInfo(null);
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		expressionNode.checkTypes(this);
 		for (ExpressionNode argExpressionNode : argExpressionNodes) {
 			argExpressionNode.checkTypes(this);
 		}
 		
-		@NonNull TypeInfo expressionType = expressionNode.getTypeInfo();
+		@Nullable TypeInfo expressionType = expressionNode.getTypeInfo();
+		
+		if (expressionType.isClosure()) {
+			closureTypeInfo = (ClosureTypeInfo) expressionType;
+			expressionType = expressionType.getFunction();
+		}
+		
 		if (!expressionType.canImplicitCastTo(functionTypeInfo)) {
 			throw castError("function value", expressionType, functionTypeInfo);
 		}
 		
-		List<TypeInfo> paramTypeInfos = functionTypeInfo.paramTypeInfos;
-		int functionParamCount = paramTypeInfos.size(), argExpressionCount = argExpressionNodes.size();
-		if (functionParamCount != argExpressionCount) {
-			throw error("Function call requires %d arguments but received %d!", functionParamCount, argExpressionCount);
-		}
+		List<TypeInfo> argTypeInfos = functionTypeInfo.getArgTypeInfos();
+		int argExpressionCount = argExpressionNodes.size();
 		
 		for (int i = 0; i < argExpressionCount; ++i) {
-			expressionType = argExpressionNodes.get(i).getTypeInfo();
-			TypeInfo paramType = paramTypeInfos.get(i);
-			if (!expressionType.canImplicitCastTo(paramType)) {
-				throw castError("argument value", expressionType, paramType);
+			@NonNull TypeInfo argExpressionType = argExpressionNodes.get(i).getTypeInfo();
+			TypeInfo argType = argTypeInfos.get(i);
+			if (!argExpressionType.canImplicitCastTo(argType)) {
+				throw castError("argument value", argExpressionType, argType);
 			}
 		}
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		expressionNode.foldConstants(this);
 		for (ExpressionNode argExpressionNode : argExpressionNodes) {
 			argExpressionNode.foldConstants(this);
@@ -112,7 +117,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		if (expressionNode.getDirectFunction() == null) {
 			expressionNode.trackFunctions(this);
 		}
@@ -122,14 +127,25 @@ public class FunctionCallExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		expressionNode.generateIntermediate(this);
 		
 		for (ExpressionNode argExpressionNode : argExpressionNodes) {
 			argExpressionNode.generateIntermediate(this);
 		}
 		
-		routine.addFunctionAction(this, expressionNode.getDirectFunction(), dataId = routine.nextRegId(functionTypeInfo.returnTypeInfo), expressionNode.dataId, Helpers.map(argExpressionNodes, x -> x.dataId), scope);
+		List<DataId> args = new ArrayList<>();
+		for (ExpressionNode argExpressionNode : argExpressionNodes) {
+			args.add(argExpressionNode.dataId);
+		}
+		
+		@NonNull DataId functionDataId = closureTypeInfo == null ? expressionNode.dataId : closureTypeInfo.function.value.dataId();
+		
+		if (closureTypeInfo != null) {
+			args.add(expressionNode.dataId);
+		}
+		
+		routine.addFunctionAction(this, expressionNode.getDirectFunction(), dataId = routine.nextRegId(functionTypeInfo.returnTypeInfo), functionDataId, args, scope);
 	}
 	
 	@Override
@@ -138,17 +154,29 @@ public class FunctionCallExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	protected void setTypeInfoInternal() {
+	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
+		expressionNode.setTypeInfo(null);
 		@NonNull TypeInfo expressionType = expressionNode.getTypeInfo();
-		if (!expressionType.isFunction()) {
+		FunctionTypeInfo functionTypeInfo = expressionType.getFunction();
+		if (functionTypeInfo == null) {
 			throw error("Attempted to use expression of incompatible type \"%s\" as function expression!", expressionType);
 		}
 		
-		functionTypeInfo = (FunctionTypeInfo) expressionType;
+		this.functionTypeInfo = functionTypeInfo;
+		
+		List<TypeInfo> argTypeInfos = this.functionTypeInfo.getArgTypeInfos();
+		int functionArgCount = argTypeInfos.size(), argExpressionCount = argExpressionNodes.size();
+		if (functionArgCount != argExpressionCount) {
+			throw error("Function call requires %d arguments but received %d!", functionArgCount, argExpressionCount);
+		}
+		
+		for (int i = 0; i < argExpressionCount; ++i) {
+			argExpressionNodes.get(i).setTypeInfo(argTypeInfos.get(i));
+		}
 	}
 	
 	@Override
-	protected @Nullable Value getConstantValueInternal() {
+	protected @Nullable Value<?> getConstantValueInternal() {
 		return null;
 	}
 	

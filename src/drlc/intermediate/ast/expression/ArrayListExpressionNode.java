@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.*;
+import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
@@ -29,8 +29,8 @@ public class ArrayListExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
-		scope = new Scope(parent.scope);
+	public void setScopes(ASTNode<?> parent) {
+		scope = new Scope(this, parent.scope);
 		
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.setScopes(this);
@@ -38,14 +38,14 @@ public class ArrayListExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.defineTypes(this);
 		}
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		for (ExpressionNode expressionNode : expressionNodes) {
@@ -54,23 +54,23 @@ public class ArrayListExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.defineExpressions(this);
 		}
 		
-		setTypeInfo();
+		setTypeInfo(null);
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.checkTypes(this);
 		}
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.foldConstants(this);
 		}
@@ -84,14 +84,14 @@ public class ArrayListExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.trackFunctions(this);
 		}
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.generateIntermediate(this);
 		}
@@ -105,38 +105,61 @@ public class ArrayListExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	protected void setTypeInfoInternal() {
-		List<TypeInfo> expressionTypes = Helpers.map(expressionNodes, ExpressionNode::getTypeInfo);
-		@Nullable TypeInfo elementTypeInfo = Helpers.getCommonTypeInfo(expressionTypes);
-		if (elementTypeInfo != null) {
-			for (ExpressionNode expressionNode : expressionNodes) {
-				@NonNull TypeInfo expressionType = expressionNode.getTypeInfo();
-				if (!expressionType.canImplicitCastTo(elementTypeInfo)) {
-					throw castError("array element", expressionType, elementTypeInfo);
+	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
+		ArrayTypeInfo arrayTargetType = null;
+		boolean invalidTargetType = false;
+		if (targetType != null) {
+			if (targetType.isArray()) {
+				arrayTargetType = (ArrayTypeInfo) targetType;
+				if (arrayTargetType.length != length) {
+					arrayTargetType = null;
+					invalidTargetType = true;
 				}
 			}
-			typeInfo = new ArrayTypeInfo(this, new ArrayList<>(), elementTypeInfo, length);
+			else {
+				invalidTargetType = true;
+			}
+		}
+		
+		if (invalidTargetType) {
+			throw error("Attempted to use array of length %d as expression of incompatible type \"%s\"!", length, targetType);
+		}
+		
+		@Nullable TypeInfo elementTargetType = arrayTargetType == null ? null : arrayTargetType.elementTypeInfo;
+		for (int i = 0; i < length; ++i) {
+			expressionNodes.get(i).setTypeInfo(elementTargetType);
+		}
+		
+		List<TypeInfo> expressionTypes = Helpers.map(expressionNodes, ExpressionNode::getTypeInfo);
+		
+		if (elementTargetType == null) {
+			elementTargetType = Helpers.getCommonTypeInfo(expressionTypes);
+		}
+		
+		if (elementTargetType != null) {
+			for (ExpressionNode expressionNode : expressionNodes) {
+				@NonNull TypeInfo expressionType = expressionNode.getTypeInfo();
+				if (!expressionType.canImplicitCastTo(elementTargetType)) {
+					throw castError("array element", expressionType, elementTargetType);
+				}
+			}
+			typeInfo = new ArrayTypeInfo(this, new ArrayList<>(), elementTargetType, length);
 		}
 		else {
-			throw error("Can not determine common type of element types %s!", Helpers.arrayString(expressionTypes));
+			throw error("Can not determine element type of array %s!", Helpers.arrayString(expressionTypes));
 		}
 	}
 	
 	@Override
-	protected @Nullable Value getConstantValueInternal() {
+	protected @Nullable Value<?> getConstantValueInternal() {
 		return constantValue;
 	}
 	
 	@Override
 	protected void setConstantValueInternal() {
-		if (length == 0) {
-			constantValue = Main.generator.emptyArrayValue;
-			return;
-		}
-		
-		List<Value> values = new ArrayList<>();
+		List<Value<?>> values = new ArrayList<>();
 		for (ExpressionNode expressionNode : expressionNodes) {
-			@Nullable Value elementConstantValue = expressionNode.getConstantValue();
+			@Nullable Value<?> elementConstantValue = expressionNode.getConstantValue();
 			if (elementConstantValue == null) {
 				return;
 			}

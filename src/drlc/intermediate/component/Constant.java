@@ -10,11 +10,11 @@ import drlc.intermediate.scope.Scope;
 public class Constant {
 	
 	public final @NonNull String name;
-	public final @NonNull Value value;
+	public final @NonNull Value<?> value;
 	
 	public Scope scope = null;
 	
-	public Constant(@NonNull String name, @NonNull Value value) {
+	public Constant(@NonNull String name, @NonNull Value<?> value) {
 		this.name = name;
 		this.value = value;
 	}

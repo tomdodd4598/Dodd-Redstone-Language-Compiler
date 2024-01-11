@@ -1,8 +1,6 @@
 package drlc;
 
 import java.util.*;
-import java.util.Map.Entry;
-import java.util.function.*;
 
 public class Hierarchy<K, V> {
 	
@@ -29,6 +27,14 @@ public class Hierarchy<K, V> {
 		return shallow || parent == null ? null : parent.get(key, false);
 	}
 	
+	public V remove(K key, boolean shallow) {
+		V remove;
+		if ((remove = internal.remove(key)) != null) {
+			return remove;
+		}
+		return shallow || parent == null ? null : parent.remove(key, false);
+	}
+	
 	public boolean remove(K key, V value, boolean shallow) {
 		if (internal.remove(key, value)) {
 			return true;
@@ -43,52 +49,10 @@ public class Hierarchy<K, V> {
 		return shallow || parent == null ? false : parent.containsKey(key, false);
 	}
 	
-	public <T> Iterable<T> iterable(Function<? super Map<K, V>, ? extends Iterable<T>> mapFunction, BiFunction<? super Hierarchy<K, V>, ? super Boolean, ? extends Iterable<T>> hierarchyFunction, boolean shallow) {
-		return () -> new Iterator<T>() {
-			
-			boolean start = true;
-			Iterator<T> current = mapFunction.apply(internal).iterator();
-			
-			@Override
-			public boolean hasNext() {
-				if (start && !current.hasNext()) {
-					if (shallow || parent == null) {
-						return false;
-					}
-					start = false;
-					current = hierarchyFunction.apply(parent, false).iterator();
-				}
-				return current.hasNext();
-			}
-			
-			@Override
-			public T next() {
-				return current.next();
-			}
-		};
-	}
-	
-	@SuppressWarnings("null")
-	public Iterable<Entry<K, V>> entryIterable(boolean shallow) {
-		return iterable(Map::entrySet, Hierarchy::entryIterable, shallow);
-	}
-	
-	@SuppressWarnings("null")
-	public Iterable<V> valueIterable(boolean shallow) {
-		return iterable(Map::values, Hierarchy::valueIterable, shallow);
-	}
-	
-	public void forEachEntry(BiConsumer<? super K, ? super V> consumer, boolean shallow) {
-		internal.forEach(consumer);
-		if (!shallow && parent != null) {
-			parent.forEachEntry(consumer, false);
+	public boolean containsValue(K key, boolean shallow) {
+		if (internal.containsKey(key)) {
+			return true;
 		}
-	}
-	
-	public void forEachValue(Consumer<? super V> consumer, boolean shallow) {
-		internal.values().forEach(consumer);
-		if (!shallow && parent != null) {
-			parent.forEachValue(consumer, false);
-		}
+		return shallow || parent == null ? false : parent.containsKey(key, false);
 	}
 }

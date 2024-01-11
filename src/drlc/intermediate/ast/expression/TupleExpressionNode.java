@@ -29,8 +29,8 @@ public class TupleExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
-		scope = new Scope(parent.scope);
+	public void setScopes(ASTNode<?> parent) {
+		scope = new Scope(this, parent.scope);
 		
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.setScopes(this);
@@ -38,14 +38,14 @@ public class TupleExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.defineTypes(this);
 		}
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		for (ExpressionNode expressionNode : expressionNodes) {
@@ -54,23 +54,23 @@ public class TupleExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.defineExpressions(this);
 		}
 		
-		setTypeInfo();
+		setTypeInfo(null);
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.checkTypes(this);
 		}
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.foldConstants(this);
 		}
@@ -84,14 +84,14 @@ public class TupleExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.trackFunctions(this);
 		}
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.generateIntermediate(this);
 		}
@@ -105,12 +105,35 @@ public class TupleExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	protected void setTypeInfoInternal() {
+	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
+		TupleTypeInfo tupleTargetType = null;
+		boolean invalidTargetType = false;
+		if (targetType != null) {
+			if (targetType.isTuple()) {
+				tupleTargetType = (TupleTypeInfo) targetType;
+				if (tupleTargetType.count != count) {
+					tupleTargetType = null;
+					invalidTargetType = true;
+				}
+			}
+			else {
+				invalidTargetType = true;
+			}
+		}
+		
+		if (invalidTargetType) {
+			throw error("Attempted to use tuple of size %d as expression of incompatible type \"%s\"!", count, targetType);
+		}
+		
+		for (int i = 0; i < count; ++i) {
+			expressionNodes.get(i).setTypeInfo(tupleTargetType == null ? null : tupleTargetType.typeInfos.get(i));
+		}
+		
 		typeInfo = new TupleTypeInfo(this, new ArrayList<>(), Helpers.map(expressionNodes, ExpressionNode::getTypeInfo));
 	}
 	
 	@Override
-	protected @Nullable Value getConstantValueInternal() {
+	protected @Nullable Value<?> getConstantValueInternal() {
 		return constantValue;
 	}
 	
@@ -121,9 +144,9 @@ public class TupleExpressionNode extends ExpressionNode {
 			return;
 		}
 		
-		List<Value> values = new ArrayList<>();
+		List<Value<?>> values = new ArrayList<>();
 		for (ExpressionNode expressionNode : expressionNodes) {
-			@Nullable Value elementConstantValue = expressionNode.getConstantValue();
+			@Nullable Value<?> elementConstantValue = expressionNode.getConstantValue();
 			if (elementConstantValue == null) {
 				return;
 			}

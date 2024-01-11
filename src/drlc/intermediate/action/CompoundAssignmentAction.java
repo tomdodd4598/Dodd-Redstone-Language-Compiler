@@ -11,7 +11,7 @@ public class CompoundAssignmentAction extends Action implements IValueAction {
 	public final DataId target;
 	public final List<DataId> args;
 	
-	public CompoundAssignmentAction(ASTNode<?, ?> node, DataId target, List<DataId> args) {
+	public CompoundAssignmentAction(ASTNode<?> node, DataId target, List<DataId> args) {
 		super(node);
 		if (target == null) {
 			throw Helpers.nodeError(node, "Compound assignment action target was null!");

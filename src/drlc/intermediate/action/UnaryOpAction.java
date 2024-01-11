@@ -13,7 +13,7 @@ public class UnaryOpAction extends Action implements IValueAction {
 	public final @NonNull UnaryActionType type;
 	public final DataId target, arg;
 	
-	protected UnaryOpAction(ASTNode<?, ?> node, @NonNull UnaryActionType type, DataId target, DataId arg) {
+	protected UnaryOpAction(ASTNode<?> node, @NonNull UnaryActionType type, DataId target, DataId arg) {
 		super(node);
 		this.type = type;
 		

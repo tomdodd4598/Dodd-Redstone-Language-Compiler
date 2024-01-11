@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.Global;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Function;
 import drlc.intermediate.scope.Scope;
@@ -13,34 +13,50 @@ public class FunctionItemTypeInfo extends FunctionTypeInfo {
 	
 	public final @NonNull Function function;
 	
-	public final @NonNull FunctionPointerTypeInfo functionPointerTypeInfo;
+	@SuppressWarnings("null")
+	public @NonNull FunctionPointerTypeInfo functionPointerTypeInfo = null;
 	
-	protected FunctionItemTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, @NonNull Function function, @NonNull TypeInfo returnTypeInfo, List<TypeInfo> paramTypeInfos) {
+	protected FunctionItemTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, @NonNull TypeInfo returnTypeInfo, List<TypeInfo> paramTypeInfos, @NonNull Function function) {
 		super(node, referenceMutability, returnTypeInfo, paramTypeInfos);
 		this.function = function;
-		functionPointerTypeInfo = new FunctionPointerTypeInfo(null, referenceMutability, returnTypeInfo, paramTypeInfos);
+		setFunctionPointerTypeInfo();
 	}
 	
-	protected FunctionItemTypeInfo(ASTNode<?, ?> node, @NonNull Function function) {
-		this(node, new ArrayList<>(), function, function.returnTypeInfo, function.paramTypeInfos);
+	protected FunctionItemTypeInfo(ASTNode<?> node, @NonNull Function function) {
+		this(node, new ArrayList<>(), function.returnTypeInfo, function.paramTypeInfos, function);
 	}
 	
-	public FunctionItemTypeInfo(ASTNode<?, ?> node, Scope scope, String functionName) {
+	public FunctionItemTypeInfo(ASTNode<?> node, Scope scope, String functionName) {
 		this(node, scope.getFunction(node, functionName));
 	}
 	
 	@Override
-	public @NonNull TypeInfo copy(ASTNode<?, ?> node, List<Boolean> referenceMutability) {
-		return new FunctionItemTypeInfo(node, referenceMutability, function, returnTypeInfo, paramTypeInfos);
+	public List<TypeInfo> getArgTypeInfos() {
+		return function.paramTypeInfos.subList(0, function.paramTypeInfos.size() - function.captureTypeInfos.size());
+	}
+	
+	@Override
+	public void updateReturnType(@NonNull TypeInfo returnType) {
+		super.updateReturnType(returnType);
+		setFunctionPointerTypeInfo();
+	}
+	
+	public void setFunctionPointerTypeInfo() {
+		functionPointerTypeInfo = new FunctionPointerTypeInfo(null, referenceMutability, returnTypeInfo, paramTypeInfos);
+	}
+	
+	@Override
+	public @NonNull TypeInfo copy(ASTNode<?> node, List<Boolean> referenceMutability) {
+		return new FunctionItemTypeInfo(node, referenceMutability, returnTypeInfo, paramTypeInfos, function);
 	}
 	
 	@Override
 	public boolean canImplicitCastTo(TypeInfo otherInfo) {
-		if (super.equalsOther(otherInfo, true) && canImplicitCastToReferenceMutability(otherInfo)) {
+		if (super.canImplicitCastTo(otherInfo)) {
 			return !(otherInfo instanceof FunctionItemTypeInfo) || function.equals(((FunctionItemTypeInfo) otherInfo).function);
 		}
 		else {
-			return otherInfo.equals(functionPointerTypeInfo) || (isAddress() && otherInfo.equals(Main.generator.wildcardPtrTypeInfo));
+			return functionPointerTypeInfo.canImplicitCastTo(otherInfo);
 		}
 	}
 	
@@ -67,11 +83,11 @@ public class FunctionItemTypeInfo extends FunctionTypeInfo {
 	
 	@Override
 	public String rawString() {
-		return super.rawString() + " {" + function.name + '}';
+		return super.rawString() + " " + Global.BRACE_START + function.name + Global.BRACE_END;
 	}
 	
 	@Override
 	public String routineString() {
-		return super.routineString() + " {" + function.name + '}';
+		return super.routineString() + " " + Global.BRACE_START + function.name + Global.BRACE_END;
 	}
 }

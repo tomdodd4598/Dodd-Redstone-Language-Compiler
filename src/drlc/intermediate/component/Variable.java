@@ -6,6 +6,7 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.Global;
 import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.data.VariableDataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.scope.Scope;
 
@@ -23,7 +24,15 @@ public class Variable {
 		this.typeInfo = typeInfo;
 	}
 	
-	public @NonNull Variable atOffset(ASTNode<?, ?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
+	public @NonNull Variable copy() {
+		return new Variable(name, modifier, typeInfo);
+	}
+	
+	public @NonNull VariableDataId dataId() {
+		return new VariableDataId(0, this);
+	}
+	
+	public @NonNull Variable atOffset(ASTNode<?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
 		@NonNull Variable atIndex = new Variable(name, modifier, typeInfo.atOffset(node, offset, expectedTypeInfo));
 		atIndex.scope = scope;
 		return atIndex;

@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class APrioritizedExpression extends PExpression
 {
-    private PTernaryExpression _ternaryExpression_;
+    private PAssignmentExpression _assignmentExpression_;
 
     public APrioritizedExpression()
     {
@@ -15,10 +15,10 @@ public final class APrioritizedExpression extends PExpression
     }
 
     public APrioritizedExpression(
-        @SuppressWarnings("hiding") PTernaryExpression _ternaryExpression_)
+        @SuppressWarnings("hiding") PAssignmentExpression _assignmentExpression_)
     {
         // Constructor
-        setTernaryExpression(_ternaryExpression_);
+        setAssignmentExpression(_assignmentExpression_);
 
     }
 
@@ -26,7 +26,7 @@ public final class APrioritizedExpression extends PExpression
     public Object clone()
     {
         return new APrioritizedExpression(
-            cloneNode(this._ternaryExpression_));
+            cloneNode(this._assignmentExpression_));
     }
 
     @Override
@@ -35,16 +35,16 @@ public final class APrioritizedExpression extends PExpression
         ((Analysis) sw).caseAPrioritizedExpression(this);
     }
 
-    public PTernaryExpression getTernaryExpression()
+    public PAssignmentExpression getAssignmentExpression()
     {
-        return this._ternaryExpression_;
+        return this._assignmentExpression_;
     }
 
-    public void setTernaryExpression(PTernaryExpression node)
+    public void setAssignmentExpression(PAssignmentExpression node)
     {
-        if(this._ternaryExpression_ != null)
+        if(this._assignmentExpression_ != null)
         {
-            this._ternaryExpression_.parent(null);
+            this._assignmentExpression_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class APrioritizedExpression extends PExpression
             node.parent(this);
         }
 
-        this._ternaryExpression_ = node;
+        this._assignmentExpression_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._ternaryExpression_);
+            + toString(this._assignmentExpression_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._ternaryExpression_ == child)
+        if(this._assignmentExpression_ == child)
         {
-            this._ternaryExpression_ = null;
+            this._assignmentExpression_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class APrioritizedExpression extends PExpression
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._ternaryExpression_ == oldChild)
+        if(this._assignmentExpression_ == oldChild)
         {
-            setTernaryExpression((PTernaryExpression) newChild);
+            setAssignmentExpression((PAssignmentExpression) newChild);
             return;
         }
 

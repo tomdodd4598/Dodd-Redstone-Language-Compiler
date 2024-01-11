@@ -18,7 +18,7 @@ public class UnaryExpressionNode extends ExpressionNode {
 	@SuppressWarnings("null")
 	public @NonNull TypeInfo typeInfo = null;
 	
-	public @Nullable Value constantValue = null;
+	public @Nullable Value<?> constantValue = null;
 	
 	public UnaryExpressionNode(Node[] parseNodes, @NonNull UnaryOpType unaryOpType, @NonNull ExpressionNode expressionNode) {
 		super(parseNodes);
@@ -27,38 +27,38 @@ public class UnaryExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
-		scope = new Scope(parent.scope);
+	public void setScopes(ASTNode<?> parent) {
+		scope = new Scope(this, parent.scope);
 		
 		expressionNode.setScopes(this);
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		expressionNode.defineTypes(this);
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		expressionNode.declareExpressions(this);
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		expressionNode.defineExpressions(this);
 		
-		setTypeInfo();
+		setTypeInfo(null);
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		expressionNode.checkTypes(this);
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		expressionNode.foldConstants(this);
 		
 		@Nullable ConstantExpressionNode constantExpressionNode = expressionNode.constantExpressionNode();
@@ -68,12 +68,12 @@ public class UnaryExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		expressionNode.trackFunctions(this);
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		expressionNode.generateIntermediate(this);
 		routine.addUnaryOpAction(this, unaryOpType, expressionNode.getTypeInfo(), dataId = routine.nextRegId(typeInfo), expressionNode.dataId);
 	}
@@ -84,18 +84,19 @@ public class UnaryExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	protected void setTypeInfoInternal() {
+	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
+		expressionNode.setTypeInfo(targetType == null ? null : Main.generator.unaryOpInverseTypeInfo(this, targetType, unaryOpType));
 		typeInfo = Main.generator.unaryOpTypeInfo(this, unaryOpType, expressionNode.getTypeInfo());
 	}
 	
 	@Override
-	protected @Nullable Value getConstantValueInternal() {
+	protected @Nullable Value<?> getConstantValueInternal() {
 		return constantValue;
 	}
 	
 	@Override
 	protected void setConstantValueInternal() {
-		@Nullable Value innerConstantValue = expressionNode.getConstantValue();
+		@Nullable Value<?> innerConstantValue = expressionNode.getConstantValue();
 		if (innerConstantValue != null) {
 			constantValue = Main.generator.unaryOp(this, unaryOpType, innerConstantValue);
 		}

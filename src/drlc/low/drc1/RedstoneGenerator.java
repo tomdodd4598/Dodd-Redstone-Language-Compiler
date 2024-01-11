@@ -17,7 +17,7 @@ public abstract class RedstoneGenerator extends Generator {
 	public void addBuiltInDirectives() {
 		super.addBuiltInDirectives();
 		
-		directiveMap.put(Global.SETARGC, new Directive(1, Helpers.array(Helpers.builtInDeclarator("x", intTypeInfo))) {
+		directiveMap.put(Global.SETARGC, new Directive(1, Helpers.array(Helpers.builtInDeclarator("x", natTypeInfo))) {
 			
 			@Override
 			public void run(@NonNull Value[] values) {
@@ -39,7 +39,7 @@ public abstract class RedstoneGenerator extends Generator {
 	}
 	
 	@Override
-	public @NonNull Value intIntBinaryOp(ASTNode<?, ?> node, IntValue left, @NonNull BinaryOpType opType, IntValue right) {
+	public @NonNull Value intIntBinaryOp(ASTNode<?> node, IntValue left, @NonNull BinaryOpType opType, IntValue right) {
 		short leftShort = left.shortValue(node), rightShort = right.shortValue(node);
 		switch (opType) {
 			case EQUAL_TO:
@@ -90,7 +90,7 @@ public abstract class RedstoneGenerator extends Generator {
 	}
 	
 	@Override
-	public @NonNull Value natNatBinaryOp(ASTNode<?, ?> node, NatValue left, @NonNull BinaryOpType opType, NatValue right) {
+	public @NonNull Value natNatBinaryOp(ASTNode<?> node, NatValue left, @NonNull BinaryOpType opType, NatValue right) {
 		short leftShort = left.shortValue(node), rightShort = right.shortValue(node);
 		switch (opType) {
 			case EQUAL_TO:
@@ -141,7 +141,7 @@ public abstract class RedstoneGenerator extends Generator {
 	}
 	
 	@Override
-	public @NonNull Value intUnaryOp(ASTNode<?, ?> node, @NonNull UnaryOpType opType, @NonNull IntValue value) {
+	public @NonNull Value intUnaryOp(ASTNode<?> node, @NonNull UnaryOpType opType, @NonNull IntValue value) {
 		short shortValue = value.shortValue(node);
 		switch (opType) {
 			case MINUS:
@@ -154,7 +154,7 @@ public abstract class RedstoneGenerator extends Generator {
 	}
 	
 	@Override
-	public @NonNull Value natUnaryOp(ASTNode<?, ?> node, @NonNull UnaryOpType opType, @NonNull NatValue value) {
+	public @NonNull Value natUnaryOp(ASTNode<?> node, @NonNull UnaryOpType opType, @NonNull NatValue value) {
 		short shortValue = value.shortValue(node);
 		switch (opType) {
 			case MINUS:

@@ -16,8 +16,6 @@ public final class Global {
 	public static final String STATIC = "static";
 	public static final String MUT = "mut";
 	
-	public static final String NULL = "null";
-	
 	public static final String ARGC = "argc";
 	public static final String ARGV = "argv";
 	
@@ -31,8 +29,8 @@ public final class Global {
 	public static final String OUTNAT = "outnat";
 	public static final String OUTCHAR = "outchar";
 	
-	public static final String ROOT_ROUTINE = "\\root";
-	public static final String MAIN_ROUTINE = "main";
+	public static final String ROOT = "\\root";
+	public static final String MAIN = "main";
 	
 	public static final String BRACE_START = "{";
 	public static final String BRACE_END = "}";
@@ -75,6 +73,8 @@ public final class Global {
 	public static final String ARRAY_END = "]";
 	
 	public static final String TYPE_ANNOTATION_PREFIX = ":";
+	
+	public static final String UNKNOWN_TYPE = "_";
 	
 	public static final String FULL_STOP = ".";
 	public static final String ARROW = "->";

@@ -510,7 +510,7 @@ public class RedstoneRoutine {
 			return new RedstoneDataInfo(name, arg, RedstoneDataType.TEMP, tempId(arg));
 		}
 		else if (code.rootIdMap.containsKey(arg)) {
-			return new RedstoneDataInfo(Global.ROOT_ROUTINE, arg, RedstoneDataType.STATIC, code.rootIdMap.get(arg));
+			return new RedstoneDataInfo(Global.ROOT, arg, RedstoneDataType.STATIC, code.rootIdMap.get(arg));
 		}
 		else {
 			return new RedstoneDataInfo(name, arg, isStackRoutine() ? RedstoneDataType.STACK : RedstoneDataType.STATIC, dataId(arg));

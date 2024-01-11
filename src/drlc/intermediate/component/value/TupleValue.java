@@ -8,9 +8,9 @@ import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.TupleTypeInfo;
 
-public class TupleValue extends CompoundValue {
+public class TupleValue extends CompoundValue<TupleTypeInfo> {
 	
-	public TupleValue(ASTNode<?, ?> node, @NonNull TupleTypeInfo typeInfo, List<Value> values) {
+	public TupleValue(ASTNode<?> node, @NonNull TupleTypeInfo typeInfo, List<Value<?>> values) {
 		super(node, typeInfo, values);
 	}
 	

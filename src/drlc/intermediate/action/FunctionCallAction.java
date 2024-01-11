@@ -14,7 +14,7 @@ public class FunctionCallAction extends Action implements IValueAction {
 	public final List<DataId> args;
 	public final Scope scope;
 	
-	public FunctionCallAction(ASTNode<?, ?> node, DataId target, DataId function, List<DataId> args, Scope scope) {
+	public FunctionCallAction(ASTNode<?> node, DataId target, DataId function, List<DataId> args, Scope scope) {
 		super(node);
 		if (target == null) {
 			throw Helpers.nodeError(node, "Function call action target was null!");
@@ -45,7 +45,7 @@ public class FunctionCallAction extends Action implements IValueAction {
 		}
 	}
 	
-	protected FunctionCallAction copy(ASTNode<?, ?> node, DataId target, DataId function, List<DataId> args, Scope scope) {
+	protected FunctionCallAction copy(ASTNode<?> node, DataId target, DataId function, List<DataId> args, Scope scope) {
 		return new FunctionCallAction(node, target, function, args, scope);
 	}
 	

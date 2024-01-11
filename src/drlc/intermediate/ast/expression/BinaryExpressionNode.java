@@ -21,7 +21,7 @@ public class BinaryExpressionNode extends ExpressionNode {
 	@SuppressWarnings("null")
 	public @NonNull TypeInfo typeInfo = null;
 	
-	public @Nullable Value constantValue = null;
+	public @Nullable Value<?> constantValue = null;
 	
 	public BinaryExpressionNode(Node[] parseNodes, @NonNull ExpressionNode leftExpressionNode, @NonNull BinaryOpType binaryOpType, @NonNull ExpressionNode rightExpressionNode) {
 		super(parseNodes);
@@ -31,10 +31,9 @@ public class BinaryExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
+	public void setScopes(ASTNode<?> parent) {
 		if (binaryOpType.isLogical()) {
-			@NonNull ConditionalScope conditionalScope = new ConditionalScope(parent.scope, false);
-			scope = conditionalScope;
+			scope = new ConditionalScope(this, parent.scope, false);
 			
 			leftExpressionNode.setScopes(this);
 			rightExpressionNode.setScopes(this);
@@ -42,7 +41,7 @@ public class BinaryExpressionNode extends ExpressionNode {
 			rightExpressionNode.scope.definiteExecution = false;
 		}
 		else {
-			scope = new Scope(parent.scope);
+			scope = new Scope(this, parent.scope);
 			
 			leftExpressionNode.setScopes(this);
 			rightExpressionNode.setScopes(this);
@@ -50,13 +49,13 @@ public class BinaryExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		leftExpressionNode.defineTypes(this);
 		rightExpressionNode.defineTypes(this);
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		leftExpressionNode.declareExpressions(this);
@@ -64,21 +63,21 @@ public class BinaryExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		leftExpressionNode.defineExpressions(this);
 		rightExpressionNode.defineExpressions(this);
 		
-		setTypeInfo();
+		setTypeInfo(null);
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		leftExpressionNode.checkTypes(this);
 		rightExpressionNode.checkTypes(this);
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		leftExpressionNode.foldConstants(this);
 		rightExpressionNode.foldConstants(this);
 		
@@ -94,13 +93,13 @@ public class BinaryExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		leftExpressionNode.trackFunctions(this);
 		rightExpressionNode.trackFunctions(this);
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		if (binaryOpType.isLogical()) {
 			boolean logicalOr = binaryOpType.equals(BinaryOpType.LOGICAL_OR);
 			DataId temp = scope.nextLocalDataId(routine, Main.generator.boolTypeInfo);
@@ -133,20 +132,22 @@ public class BinaryExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	protected void setTypeInfoInternal() {
+	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
+		leftExpressionNode.setTypeInfo(targetType == null ? null : Main.generator.binaryOpLeftInverseTypeInfo(this, targetType, binaryOpType));
+		rightExpressionNode.setTypeInfo(Main.generator.binaryOpRightInverseTypeInfo(this, targetType, leftExpressionNode.getTypeInfo(), binaryOpType));
 		typeInfo = Main.generator.binaryOpTypeInfo(this, leftExpressionNode.getTypeInfo(), binaryOpType, rightExpressionNode.getTypeInfo());
 	}
 	
 	@Override
-	protected @Nullable Value getConstantValueInternal() {
+	protected @Nullable Value<?> getConstantValueInternal() {
 		return constantValue;
 	}
 	
 	@Override
 	protected void setConstantValueInternal() {
-		@Nullable Value leftConstantValue = leftExpressionNode.getConstantValue();
+		@Nullable Value<?> leftConstantValue = leftExpressionNode.getConstantValue();
 		if (leftConstantValue != null) {
-			@Nullable Value rightConstantValue = rightExpressionNode.getConstantValue();
+			@Nullable Value<?> rightConstantValue = rightExpressionNode.getConstantValue();
 			if (rightConstantValue != null) {
 				constantValue = Main.generator.binaryOp(this, leftConstantValue, binaryOpType, rightConstantValue);
 				return;

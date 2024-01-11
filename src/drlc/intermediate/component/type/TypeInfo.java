@@ -14,27 +14,27 @@ public abstract class TypeInfo {
 	
 	public final List<Boolean> referenceMutability;
 	
-	protected TypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability) {
+	protected TypeInfo(ASTNode<?> node, List<Boolean> referenceMutability) {
 		this.referenceMutability = referenceMutability;
 	}
 	
-	public abstract @NonNull TypeInfo copy(ASTNode<?, ?> node, List<Boolean> referenceMutability);
+	public abstract @NonNull TypeInfo copy(ASTNode<?> node, List<Boolean> referenceMutability);
 	
-	public @NonNull TypeInfo copy(ASTNode<?, ?> node, Boolean... referenceMutability) {
+	public @NonNull TypeInfo copy(ASTNode<?> node, Boolean... referenceMutability) {
 		return copy(node, Arrays.asList(referenceMutability));
 	}
 	
-	public @NonNull TypeInfo addressOf(ASTNode<?, ?> node, List<Boolean> referenceMutabilityDiff) {
+	public @NonNull TypeInfo addressOf(ASTNode<?> node, List<Boolean> referenceMutabilityDiff) {
 		List<Boolean> referenceMutabilityCopy = new ArrayList<>(referenceMutability);
 		referenceMutabilityCopy.addAll(referenceMutabilityDiff);
 		return copy(node, referenceMutabilityCopy);
 	}
 	
-	public @NonNull TypeInfo addressOf(ASTNode<?, ?> node, Boolean... referenceMutabilityDiff) {
+	public @NonNull TypeInfo addressOf(ASTNode<?> node, Boolean... referenceMutabilityDiff) {
 		return addressOf(node, Arrays.asList(referenceMutabilityDiff));
 	}
 	
-	public @NonNull TypeInfo dereference(ASTNode<?, ?> node, int dereferenceLevel) {
+	public @NonNull TypeInfo dereference(ASTNode<?> node, int dereferenceLevel) {
 		int referenceLevel = getReferenceLevel() - dereferenceLevel;
 		if (referenceLevel < 0) {
 			throw Helpers.nodeError(node, "Reference level of type \"%s\" can not be negative!", rawString());
@@ -46,14 +46,14 @@ public abstract class TypeInfo {
 		return copy(node, referenceMutabilityCopy);
 	}
 	
-	public @NonNull TypeInfo copyMutable(ASTNode<?, ?> node, int referenceLevel) {
+	public @NonNull TypeInfo copyMutable(ASTNode<?> node, int referenceLevel) {
 		if (referenceLevel < 0) {
 			throw Helpers.nodeError(node, "Reference level of type \"%s\" can not be negative!", rawString());
 		}
 		return copy(node, Collections.nCopies(referenceLevel, true));
 	}
 	
-	public @NonNull TypeInfo modifyMutable(ASTNode<?, ?> node, int referenceLevelDiff) {
+	public @NonNull TypeInfo modifyMutable(ASTNode<?> node, int referenceLevelDiff) {
 		return referenceLevelDiff >= 0 ? addressOf(node, Collections.nCopies(referenceLevelDiff, true)) : dereference(node, -referenceLevelDiff);
 	}
 	
@@ -82,17 +82,12 @@ public abstract class TypeInfo {
 	
 	public abstract int getSize();
 	
-	public int getAddressOffsetSize(ASTNode<?, ?> node) {
+	public int getAddressOffsetSize(ASTNode<?> node) {
 		return dereference(node, 1).getSize();
 	}
 	
 	public boolean canImplicitCastTo(TypeInfo otherInfo) {
-		if (equalsOther(otherInfo, true) && canImplicitCastToReferenceMutability(otherInfo)) {
-			return true;
-		}
-		else {
-			return isAddress() && otherInfo.equals(Main.generator.wildcardPtrTypeInfo);
-		}
+		return equalsOther(otherInfo, true) && canImplicitCastToReferenceMutability(otherInfo);
 	}
 	
 	public boolean canImplicitCastToReferenceMutability(TypeInfo otherInfo) {
@@ -112,10 +107,14 @@ public abstract class TypeInfo {
 	}
 	
 	public @Nullable TypeInfo getSuperType() {
-		return isAddress() ? Main.generator.wildcardPtrTypeInfo : null;
+		return null;
 	}
 	
-	public boolean isFunction() {
+	public @Nullable FunctionTypeInfo getFunction() {
+		return null;
+	}
+	
+	public boolean isClosure() {
 		return false;
 	}
 	
@@ -123,25 +122,29 @@ public abstract class TypeInfo {
 		return false;
 	}
 	
+	public boolean isTuple() {
+		return false;
+	}
+	
 	public @Nullable MemberInfo getMemberInfo(@NonNull String memberName) {
 		return null;
 	}
 	
-	public abstract void collectRawTypes(Set<RawType> rawTypes);
+	public abstract void collectTypedefs(Set<TypeDefinition> typedef);
 	
-	public int indexToOffsetShallow(ASTNode<?, ?> node, int index) {
+	public int indexToOffsetShallow(ASTNode<?> node, int index) {
 		throw Helpers.nodeError(node, "Type \"%s\" can not be indexed!", this);
 	}
 	
-	public int offsetToIndexShallow(ASTNode<?, ?> node, int offset) {
+	public int offsetToIndexShallow(ASTNode<?> node, int offset) {
 		throw Helpers.nodeError(node, "Type \"%s\" can not be indexed!", this);
 	}
 	
-	public @NonNull TypeInfo atIndex(ASTNode<?, ?> node, int index) {
+	public @NonNull TypeInfo atIndex(ASTNode<?> node, int index) {
 		throw Helpers.nodeError(node, "Type \"%s\" can not be indexed!", this);
 	}
 	
-	public @NonNull TypeInfo atOffset(ASTNode<?, ?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
+	public @NonNull TypeInfo atOffset(ASTNode<?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
 		if (offset == 0 && equalsOther(expectedTypeInfo, true) && getReferenceLevel() == expectedTypeInfo.getReferenceLevel()) {
 			return this;
 		}

@@ -33,12 +33,12 @@ public class VariableDataId extends DataId {
 	}
 	
 	@Override
-	public @NonNull VariableDataId addDereference(ASTNode<?, ?> node) {
+	public @NonNull VariableDataId addDereference(ASTNode<?> node) {
 		return new VariableDataId(dereferenceLevel + 1, variable, offset, offsetFrom);
 	}
 	
 	@Override
-	public @NonNull VariableDataId removeDereference(ASTNode<?, ?> node) {
+	public @NonNull VariableDataId removeDereference(ASTNode<?> node) {
 		return new VariableDataId(-1, variable, offset, offsetFrom);
 	}
 	
@@ -55,13 +55,13 @@ public class VariableDataId extends DataId {
 	}
 	
 	@Override
-	public @NonNull VariableDataId atOffset(ASTNode<?, ?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
+	public @NonNull VariableDataId atOffset(ASTNode<?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
 		@NonNull Variable offsetVariable = variable.atOffset(node, offset, expectedTypeInfo);
 		return new VariableDataId(dereferenceLevel, offsetVariable, this.offset + offset, nextIndexFrom());
 	}
 	
 	@Override
-	public @Nullable DataId getRawReplacer(ASTNode<?, ?> node, DataId rawInternal) {
+	public @Nullable DataId getRawReplacer(ASTNode<?> node, DataId rawInternal) {
 		if (rawInternal instanceof RegDataId) {
 			RegDataId raw = (RegDataId) rawInternal;
 			return new RegDataId(raw.dereferenceLevel, raw.typeInfo.atOffset(node, offset, typeInfo.copyMutable(node, raw.dereferenceLevel)), raw.regId, offset, new ArrayList<>());

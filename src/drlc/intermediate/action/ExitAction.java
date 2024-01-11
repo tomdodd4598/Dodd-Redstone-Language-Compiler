@@ -10,7 +10,7 @@ public class ExitAction extends Action implements IDefiniteRedirectAction, IValu
 	
 	public final DataId arg;
 	
-	public ExitAction(ASTNode<?, ?> node, DataId arg) {
+	public ExitAction(ASTNode<?> node, DataId arg) {
 		super(node);
 		if (arg == null) {
 			throw Helpers.nodeError(node, "Exit value action argument was null!");

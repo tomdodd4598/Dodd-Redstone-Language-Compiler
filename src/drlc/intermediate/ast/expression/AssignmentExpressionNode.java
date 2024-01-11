@@ -28,21 +28,21 @@ public class AssignmentExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
-		scope = new Scope(parent.scope);
+	public void setScopes(ASTNode<?> parent) {
+		scope = new Scope(this, parent.scope);
 		
 		rvalueExpressionNode.setScopes(this);
 		lvalueExpressionNode.setScopes(this);
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		rvalueExpressionNode.defineTypes(this);
 		lvalueExpressionNode.defineTypes(this);
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		rvalueExpressionNode.declareExpressions(this);
@@ -50,14 +50,14 @@ public class AssignmentExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		rvalueExpressionNode.defineExpressions(this);
 		
 		lvalueExpressionNode.setIsLvalue();
 		
 		lvalueExpressionNode.defineExpressions(this);
 		
-		setTypeInfo();
+		setTypeInfo(null);
 		
 		if (!lvalueExpressionNode.isValidLvalue()) {
 			throw error("Attempted to assign to invalid lvalue expression!");
@@ -67,7 +67,7 @@ public class AssignmentExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		rvalueExpressionNode.checkTypes(this);
 		lvalueExpressionNode.checkTypes(this);
 		
@@ -82,7 +82,7 @@ public class AssignmentExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		rvalueExpressionNode.foldConstants(this);
 		lvalueExpressionNode.foldConstants(this);
 		
@@ -93,13 +93,13 @@ public class AssignmentExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		rvalueExpressionNode.trackFunctions(this);
 		lvalueExpressionNode.trackFunctions(this);
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		rvalueExpressionNode.generateIntermediate(this);
 		lvalueExpressionNode.generateIntermediate(this);
 		
@@ -123,12 +123,21 @@ public class AssignmentExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	protected void setTypeInfoInternal() {
+	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
+		lvalueExpressionNode.setTypeInfo(targetType);
 		typeInfo = lvalueExpressionNode.getTypeInfo();
+		
+		@Nullable BinaryOpType binaryOpType = assignmentOpType.binaryOpType;
+		if (binaryOpType != null) {
+			rvalueExpressionNode.setTypeInfo(Main.generator.binaryOpRightInverseTypeInfo(this, targetType, typeInfo, binaryOpType));
+		}
+		else {
+			rvalueExpressionNode.setTypeInfo(typeInfo);
+		}
 	}
 	
 	@Override
-	protected @Nullable Value getConstantValueInternal() {
+	protected @Nullable Value<?> getConstantValueInternal() {
 		return null;
 	}
 	

@@ -5,7 +5,7 @@ import java.util.Set;
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.component.type.RawType;
+import drlc.intermediate.component.type.TypeDefinition;
 import drlc.node.Node;
 
 public class AddressTypeNode extends TypeNode {
@@ -20,19 +20,19 @@ public class AddressTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
+	public void setScopes(ASTNode<?> parent) {
 		scope = parent.scope;
 		
 		typeNode.setScopes(this);
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		typeNode.defineTypes(this);
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		typeNode.declareExpressions(this);
@@ -41,27 +41,27 @@ public class AddressTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		
 	}
 	
@@ -72,7 +72,7 @@ public class AddressTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void collectRawTypes(Set<RawType> rawTypes) {
+	public void collectTypedefs(Set<TypeDefinition> typedefs) {
 		
 	}
 }

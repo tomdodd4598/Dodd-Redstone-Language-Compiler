@@ -155,7 +155,7 @@ public class IntermediateOptimization {
 							if (arg instanceof ValueDataId) {
 								flag = true;
 								ConditionalJumpAction cja = (ConditionalJumpAction) action;
-								Value value = ((ValueDataId) arg).value;
+								Value<?> value = ((ValueDataId) arg).value;
 								if (value.typeInfo.equals(Main.generator.boolTypeInfo)) {
 									boolean noop = value.boolValue(null) ^ cja.jumpCondition;
 									list.set(j, noop ? new NoOpAction() : new JumpAction(null, cja.getTarget()));

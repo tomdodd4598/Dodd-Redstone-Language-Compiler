@@ -3,21 +3,17 @@ nesting fn \root() -> Int:
 	%0 = call $main()
 	exit $0
 
-stack fn main() -> ():
-{dec}:
-	<2> m: fn() -> ()
-	<2> a: fn() -> ()
-	<2> b: fn() -> ()
+nesting fn main() -> ():
 {0}:
-	<2> m = $main
-	<2> a = $<2> apple
-	<2> b = $<2> banana
+	%0 = call $<2> main()
 	ret $()
 
-leaf <2> fn banana() -> ():
+nesting <2> fn main() -> ():
 {0}:
+	%0 = call $<4> main()
 	ret $()
 
-leaf <2> fn apple() -> ():
+stack <4> fn main() -> ():
 {0}:
+	%0 = call $<4> main()
 	ret $()

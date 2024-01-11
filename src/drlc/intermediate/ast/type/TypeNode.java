@@ -6,11 +6,10 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.*;
-import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
-public abstract class TypeNode extends ASTNode<Scope, Routine> {
+public abstract class TypeNode extends ASTNode<Scope> {
 	
 	public boolean setTypeInfo = false;
 	
@@ -30,5 +29,5 @@ public abstract class TypeNode extends ASTNode<Scope, Routine> {
 	
 	protected abstract void setTypeInfoInternal();
 	
-	public abstract void collectRawTypes(Set<RawType> rawTypes);
+	public abstract void collectTypedefs(Set<TypeDefinition> typedefs);
 }

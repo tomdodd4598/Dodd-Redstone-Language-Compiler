@@ -9,12 +9,12 @@ import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.FunctionItemTypeInfo;
 import drlc.intermediate.scope.Scope;
 
-public class FunctionItemValue extends Value {
+public class FunctionItemValue extends Value<FunctionItemTypeInfo> {
 	
 	public final String name;
 	public final Scope scope;
 	
-	public FunctionItemValue(ASTNode<?, ?> node, @NonNull FunctionItemTypeInfo typeInfo, String name, Scope scope) {
+	public FunctionItemValue(ASTNode<?> node, @NonNull FunctionItemTypeInfo typeInfo, String name, Scope scope) {
 		super(node, typeInfo);
 		this.name = name;
 		this.scope = scope;

@@ -9,12 +9,12 @@ import drlc.intermediate.scope.Scope;
 
 public class BuiltInFunctionCallAction extends FunctionCallAction {
 	
-	public BuiltInFunctionCallAction(ASTNode<?, ?> node, DataId target, DataId function, List<DataId> args, Scope scope) {
+	public BuiltInFunctionCallAction(ASTNode<?> node, DataId target, DataId function, List<DataId> args, Scope scope) {
 		super(node, target, function, args, scope);
 	}
 	
 	@Override
-	protected BuiltInFunctionCallAction copy(ASTNode<?, ?> node, DataId target, DataId function, List<DataId> args, Scope scope) {
+	protected BuiltInFunctionCallAction copy(ASTNode<?> node, DataId target, DataId function, List<DataId> args, Scope scope) {
 		return new BuiltInFunctionCallAction(node, target, function, args, scope);
 	}
 	

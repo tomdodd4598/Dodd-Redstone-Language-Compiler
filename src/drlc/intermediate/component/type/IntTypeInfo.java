@@ -4,23 +4,18 @@ import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import drlc.Global;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.scope.Scope;
 
 public class IntTypeInfo extends BasicTypeInfo {
 	
-	protected IntTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, @NonNull RawType type) {
-		super(node, referenceMutability, type);
-	}
-	
-	public IntTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, Scope scope) {
-		super(node, referenceMutability, scope, Global.INT);
+	public IntTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability) {
+		super(node, referenceMutability, Global.INT, Main.generator.getWordSize());
 	}
 	
 	@Override
-	public @NonNull TypeInfo copy(ASTNode<?, ?> node, List<Boolean> referenceMutability) {
-		return new IntTypeInfo(node, referenceMutability, rawType);
+	public @NonNull TypeInfo copy(ASTNode<?> node, List<Boolean> referenceMutability) {
+		return new IntTypeInfo(node, referenceMutability);
 	}
 	
 	@Override

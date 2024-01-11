@@ -500,12 +500,11 @@ fn main() {
 */
 
 fn main() {
-	let m = main;
-	
-	fn banana() {}
-	
-	let a = apple;
-	let b = banana;
-	
-	fn apple () {}
+	fn main() {
+		fn main() {
+			main();
+		}
+		main();
+	}
+	main();
 }

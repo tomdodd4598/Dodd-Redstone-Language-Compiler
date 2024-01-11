@@ -24,21 +24,21 @@ public class ConditionalIterativeSectionNode extends IterativeSectionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
-		scope = new IterativeScope(parent.scope, _do, label);
+	public void setScopes(ASTNode<?> parent) {
+		scope = new IterativeScope(this, parent.scope, _do, label);
 		
 		expressionNode.setScopes(this);
 		bodyNode.setScopes(this);
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		expressionNode.defineTypes(this);
 		bodyNode.defineTypes(this);
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		expressionNode.declareExpressions(this);
@@ -46,13 +46,13 @@ public class ConditionalIterativeSectionNode extends IterativeSectionNode {
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		expressionNode.defineExpressions(this);
 		bodyNode.defineExpressions(this);
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		expressionNode.checkTypes(this);
 		bodyNode.checkTypes(this);
 		
@@ -63,7 +63,7 @@ public class ConditionalIterativeSectionNode extends IterativeSectionNode {
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		expressionNode.foldConstants(this);
 		bodyNode.foldConstants(this);
 		
@@ -74,13 +74,13 @@ public class ConditionalIterativeSectionNode extends IterativeSectionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		expressionNode.trackFunctions(this);
 		bodyNode.trackFunctions(this);
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		if (!_do) {
 			routine.addAction(scope.continueJump);
 		}

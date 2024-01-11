@@ -5,26 +5,22 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AAssignmentConditionExpression extends PConditionExpression
+public final class AClosureConditionExpression extends PConditionExpression
 {
-    private PConditionUnaryExpression _conditionUnaryExpression_;
-    private PAssignmentOp _assignmentOp_;
+    private PClosureDeclaratorList _closureDeclaratorList_;
     private PConditionExpression _conditionExpression_;
 
-    public AAssignmentConditionExpression()
+    public AClosureConditionExpression()
     {
         // Constructor
     }
 
-    public AAssignmentConditionExpression(
-        @SuppressWarnings("hiding") PConditionUnaryExpression _conditionUnaryExpression_,
-        @SuppressWarnings("hiding") PAssignmentOp _assignmentOp_,
+    public AClosureConditionExpression(
+        @SuppressWarnings("hiding") PClosureDeclaratorList _closureDeclaratorList_,
         @SuppressWarnings("hiding") PConditionExpression _conditionExpression_)
     {
         // Constructor
-        setConditionUnaryExpression(_conditionUnaryExpression_);
-
-        setAssignmentOp(_assignmentOp_);
+        setClosureDeclaratorList(_closureDeclaratorList_);
 
         setConditionExpression(_conditionExpression_);
 
@@ -33,28 +29,27 @@ public final class AAssignmentConditionExpression extends PConditionExpression
     @Override
     public Object clone()
     {
-        return new AAssignmentConditionExpression(
-            cloneNode(this._conditionUnaryExpression_),
-            cloneNode(this._assignmentOp_),
+        return new AClosureConditionExpression(
+            cloneNode(this._closureDeclaratorList_),
             cloneNode(this._conditionExpression_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAAssignmentConditionExpression(this);
+        ((Analysis) sw).caseAClosureConditionExpression(this);
     }
 
-    public PConditionUnaryExpression getConditionUnaryExpression()
+    public PClosureDeclaratorList getClosureDeclaratorList()
     {
-        return this._conditionUnaryExpression_;
+        return this._closureDeclaratorList_;
     }
 
-    public void setConditionUnaryExpression(PConditionUnaryExpression node)
+    public void setClosureDeclaratorList(PClosureDeclaratorList node)
     {
-        if(this._conditionUnaryExpression_ != null)
+        if(this._closureDeclaratorList_ != null)
         {
-            this._conditionUnaryExpression_.parent(null);
+            this._closureDeclaratorList_.parent(null);
         }
 
         if(node != null)
@@ -67,32 +62,7 @@ public final class AAssignmentConditionExpression extends PConditionExpression
             node.parent(this);
         }
 
-        this._conditionUnaryExpression_ = node;
-    }
-
-    public PAssignmentOp getAssignmentOp()
-    {
-        return this._assignmentOp_;
-    }
-
-    public void setAssignmentOp(PAssignmentOp node)
-    {
-        if(this._assignmentOp_ != null)
-        {
-            this._assignmentOp_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._assignmentOp_ = node;
+        this._closureDeclaratorList_ = node;
     }
 
     public PConditionExpression getConditionExpression()
@@ -124,8 +94,7 @@ public final class AAssignmentConditionExpression extends PConditionExpression
     public String toString()
     {
         return ""
-            + toString(this._conditionUnaryExpression_)
-            + toString(this._assignmentOp_)
+            + toString(this._closureDeclaratorList_)
             + toString(this._conditionExpression_);
     }
 
@@ -133,15 +102,9 @@ public final class AAssignmentConditionExpression extends PConditionExpression
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._conditionUnaryExpression_ == child)
+        if(this._closureDeclaratorList_ == child)
         {
-            this._conditionUnaryExpression_ = null;
-            return;
-        }
-
-        if(this._assignmentOp_ == child)
-        {
-            this._assignmentOp_ = null;
+            this._closureDeclaratorList_ = null;
             return;
         }
 
@@ -158,15 +121,9 @@ public final class AAssignmentConditionExpression extends PConditionExpression
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._conditionUnaryExpression_ == oldChild)
+        if(this._closureDeclaratorList_ == oldChild)
         {
-            setConditionUnaryExpression((PConditionUnaryExpression) newChild);
-            return;
-        }
-
-        if(this._assignmentOp_ == oldChild)
-        {
-            setAssignmentOp((PAssignmentOp) newChild);
+            setClosureDeclaratorList((PClosureDeclaratorList) newChild);
             return;
         }
 

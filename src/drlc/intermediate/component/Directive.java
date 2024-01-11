@@ -14,5 +14,5 @@ public abstract class Directive {
 		this.params = params;
 	}
 	
-	public abstract void run(@NonNull Value[] values);
+	public abstract void run(@NonNull Value<?>[] values);
 }

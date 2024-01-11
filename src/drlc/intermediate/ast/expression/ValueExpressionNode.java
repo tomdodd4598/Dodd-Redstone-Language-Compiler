@@ -12,16 +12,13 @@ import drlc.node.Node;
 
 public class ValueExpressionNode extends ConstantExpressionNode {
 	
-	public final @NonNull Value value;
-	
-	@SuppressWarnings("null")
-	public @NonNull TypeInfo typeInfo = null;
+	public final @NonNull Value<?> value;
 	
 	public boolean setDirectFunction = false;
 	
 	public @Nullable Function directFunction = null;
 	
-	public ValueExpressionNode(Node[] parseNodes, @NonNull Scope scope, @NonNull Routine routine, @NonNull Value value) {
+	public ValueExpressionNode(Node[] parseNodes, @NonNull Scope scope, @NonNull Routine routine, @NonNull Value<?> value) {
 		super(parseNodes);
 		this.scope = scope;
 		this.routine = routine;
@@ -29,37 +26,37 @@ public class ValueExpressionNode extends ConstantExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
+	public void setScopes(ASTNode<?> parent) {
 		scope = parent.scope;
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		Function directFunction = getDirectFunction();
 		if (directFunction != null) {
 			routine.onNonLocalFunctionItemExpression(this, directFunction);
@@ -67,26 +64,22 @@ public class ValueExpressionNode extends ConstantExpressionNode {
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		routine.addValueAssignmentAction(this, dataId = routine.nextRegId(getTypeInfo()), value);
 	}
 	
 	@Override
 	protected @NonNull TypeInfo getTypeInfoInternal() {
-		return typeInfo;
+		return value.typeInfo instanceof FunctionItemTypeInfo ? ((FunctionItemTypeInfo) value.typeInfo).functionPointerTypeInfo : value.typeInfo;
 	}
 	
 	@Override
-	protected void setTypeInfoInternal() {
-		typeInfo = value.typeInfo;
+	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
 		
-		if (typeInfo instanceof FunctionItemTypeInfo) {
-			typeInfo = ((FunctionItemTypeInfo) typeInfo).functionPointerTypeInfo;
-		}
 	}
 	
 	@Override
-	protected @NonNull Value getConstantValueInternal() {
+	protected @NonNull Value<?> getConstantValueInternal() {
 		return value;
 	}
 	

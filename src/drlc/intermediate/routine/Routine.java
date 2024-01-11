@@ -13,9 +13,9 @@ import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.scope.Scope;
 
-public abstract class Routine {
+public class Routine {
 	
-	public final String name;
+	public final @NonNull Function function;
 	
 	protected RoutineCallType type = RoutineCallType.LEAF;
 	
@@ -29,52 +29,49 @@ public abstract class Routine {
 	
 	private long regId = 0;
 	
-	public Scope scope;
-	
-	protected Routine(String name) {
-		this.name = name;
+	public Routine(@NonNull Function function) {
+		this.function = function;
 		body.add(new ArrayList<>());
+		if (function.returnTypeInfo.equals(Main.generator.unitTypeInfo)) {
+			getDestructionActionList().add(new ReturnAction(null, Main.generator.unitValue.dataId()));
+		}
 	}
 	
 	public RoutineCallType getType() {
 		return type;
 	}
 	
-	public abstract void onRequiresNesting();
+	public void onRequiresNesting() {
+		type = type.onRequiresNesting();
+	}
 	
-	public abstract void onRequiresStack();
+	public void onRequiresStack() {
+		type = type.onRequiresRecursion();
+	}
 	
 	public boolean isLeafRoutine() {
-		return getType().equals(RoutineCallType.LEAF);
+		return type.equals(RoutineCallType.LEAF);
 	}
 	
 	public boolean isNestingRoutine() {
-		return getType().equals(RoutineCallType.NESTING);
+		return type.equals(RoutineCallType.NESTING);
 	}
 	
 	public boolean isStackRoutine() {
-		return getType().equals(RoutineCallType.STACK);
-	}
-	
-	public boolean isRootRoutine() {
-		return false;
-	}
-	
-	public boolean isFunctionRoutine() {
-		return false;
+		return type.equals(RoutineCallType.STACK);
 	}
 	
 	public boolean isBuiltInFunctionRoutine() {
-		return false;
+		return function.builtIn;
 	}
 	
-	public Function getFunction() {
-		return null;
+	public @NonNull TypeInfo getReturnTypeInfo() {
+		return function.returnTypeInfo;
 	}
 	
-	public abstract @NonNull TypeInfo getReturnTypeInfo();
-	
-	public abstract List<DeclaratorInfo> getParams();
+	public List<DeclaratorInfo> getParams() {
+		return function.params;
+	}
 	
 	public List<List<Action>> getBodyActionLists() {
 		return body;
@@ -132,9 +129,9 @@ public abstract class Routine {
 					if (aa.arg instanceof ValueDataId) {
 						ValueDataId valueData = (ValueDataId) aa.arg;
 						if (valueData.value instanceof FunctionItemValue) {
-							String functionName = ((FunctionItemValue) valueData.value).name;
-							if (Main.rootScope.functionExists(functionName, false) && !Main.rootScope.routineExists(functionName, false)) {
-								throw Helpers.error("Function \"%s\" was not defined! %s", functionName, aa);
+							Function function = ((FunctionItemValue) valueData.value).typeInfo.function;
+							if (function.scope.functionExists(function.name, false) && !Main.rootScope.routineExists(function)) {
+								throw Helpers.error("Function \"%s\" was not defined! %s", function, aa);
 							}
 						}
 					}
@@ -149,63 +146,63 @@ public abstract class Routine {
 		currentSection().add(action);
 	}
 	
-	public void addValueAssignmentAction(ASTNode<?, ?> node, DataId target, @NonNull Value value) {
+	public void addValueAssignmentAction(ASTNode<?> node, DataId target, @NonNull Value<?> value) {
 		addAssignmentAction(node, target, value.dataId());
 	}
 	
-	public void addAddressVariableAssignmentAction(ASTNode<?, ?> node, DataId target, @NonNull Variable variable) {
+	public void addAddressVariableAssignmentAction(ASTNode<?> node, DataId target, @NonNull Variable variable) {
 		addAssignmentAction(node, target, new VariableDataId(-1, variable));
 	}
 	
-	public void addVariableAssignmentAction(ASTNode<?, ?> node, DataId target, @NonNull Variable variable) {
+	public void addVariableAssignmentAction(ASTNode<?> node, DataId target, @NonNull Variable variable) {
 		addAssignmentAction(node, target, new VariableDataId(0, variable));
 	}
 	
-	public void addAddressAssignmentAction(ASTNode<?, ?> node, DataId target, DataId arg) {
+	public void addAddressAssignmentAction(ASTNode<?> node, DataId target, DataId arg) {
 		addAssignmentAction(node, target, arg.removeDereference(node));
 	}
 	
-	public void addAssignmentAction(ASTNode<?, ?> node, DataId target, DataId arg) {
+	public void addAssignmentAction(ASTNode<?> node, DataId target, DataId arg) {
 		addAction(new AssignmentAction(node, target, arg));
 	}
 	
-	public void addCompoundAssignmentAction(ASTNode<?, ?> node, DataId target, List<DataId> args) {
+	public void addCompoundAssignmentAction(ASTNode<?> node, DataId target, List<DataId> args) {
 		addAction(new CompoundAssignmentAction(node, target, args));
 	}
 	
-	public void addBinaryOpAction(ASTNode<?, ?> node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType, DataId target, DataId arg1, DataId arg2) {
+	public void addBinaryOpAction(ASTNode<?> node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType, DataId target, DataId arg1, DataId arg2) {
 		Main.generator.binaryOp(node, this, leftType, opType, rightType, target, arg1, arg2);
 	}
 	
-	public void addUnaryOpAction(ASTNode<?, ?> node, @NonNull UnaryOpType opType, @NonNull TypeInfo typeInfo, DataId target, DataId arg) {
+	public void addUnaryOpAction(ASTNode<?> node, @NonNull UnaryOpType opType, @NonNull TypeInfo typeInfo, DataId target, DataId arg) {
 		Main.generator.unaryOp(node, this, opType, typeInfo, target, arg);
 	}
 	
-	public void addDereferenceAssignmentAction(ASTNode<?, ?> node, DataId target, DataId arg) {
+	public void addDereferenceAssignmentAction(ASTNode<?> node, DataId target, DataId arg) {
 		addAssignmentAction(node, target, arg.addDereference(node));
 	}
 	
-	public void addExitAction(ASTNode<?, ?> node, DataId arg) {
+	public void addExitAction(ASTNode<?> node, DataId arg) {
 		addAction(new ExitAction(node, arg));
 	}
 	
-	public void addReturnAction(ASTNode<?, ?> node, DataId arg) {
+	public void addReturnAction(ASTNode<?> node, DataId arg) {
 		addAction(new ReturnAction(node, arg));
 	}
 	
-	public JumpAction addJumpAction(ASTNode<?, ?> node, int target) {
+	public JumpAction addJumpAction(ASTNode<?> node, int target) {
 		JumpAction ja = new JumpAction(node, target);
 		addAction(ja);
 		return ja;
 	}
 	
-	public ConditionalJumpAction addConditionalJumpAction(ASTNode<?, ?> node, int target, boolean jumpCondition) {
+	public ConditionalJumpAction addConditionalJumpAction(ASTNode<?> node, int target, boolean jumpCondition) {
 		ConditionalJumpAction cja = new ConditionalJumpAction(node, target, jumpCondition);
 		addAction(cja);
 		return cja;
 	}
 	
-	public void addFunctionAction(ASTNode<?, ?> node, Function directFunction, DataId target, DataId function, List<DataId> args, Scope scope) {
+	public void addFunctionAction(ASTNode<?> node, Function directFunction, DataId target, DataId function, List<DataId> args, Scope scope) {
 		if (directFunction != null) {
 			directFunction.setRequired(false);
 		}
@@ -218,10 +215,11 @@ public abstract class Routine {
 		}
 	}
 	
-	public void onNonLocalFunctionItemExpression(ASTNode<?, ?> node, Function function) {
+	public void onNonLocalFunctionItemExpression(ASTNode<?> node, Function function) {
+		onRequiresStack();
 		function.setRequired(true);
-		if (Main.rootScope.routineExists(function.name, false)) {
-			Main.rootScope.getRoutine(node, function.name).onRequiresStack();
+		if (Main.rootScope.routineExists(function)) {
+			Main.rootScope.getRoutine(node, function).onRequiresStack();
 		}
 	}
 	
@@ -250,18 +248,20 @@ public abstract class Routine {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, scope);
+		return Objects.hash(function);
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Routine) {
 			Routine other = (Routine) obj;
-			return name.equals(other.name) && Objects.equals(scope, other.scope);
+			return function.equals(other.function);
 		}
 		return false;
 	}
 	
 	@Override
-	public abstract String toString();
+	public String toString() {
+		return function.routineString();
+	}
 }

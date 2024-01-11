@@ -10,7 +10,7 @@ public class AssignmentAction extends Action implements IValueAction {
 	
 	public final DataId target, arg;
 	
-	public AssignmentAction(ASTNode<?, ?> node, DataId target, DataId arg) {
+	public AssignmentAction(ASTNode<?> node, DataId target, DataId arg) {
 		super(node);
 		if (target == null) {
 			throw Helpers.nodeError(node, "Assignment action target was null!");

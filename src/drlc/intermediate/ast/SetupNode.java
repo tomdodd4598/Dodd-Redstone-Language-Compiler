@@ -4,11 +4,10 @@ import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
-public class SetupNode extends ASTNode<Scope, Routine> {
+public class SetupNode extends ASTNode<Scope> {
 	
 	public final @NonNull List<DirectiveNode> directiveNodes;
 	
@@ -18,7 +17,7 @@ public class SetupNode extends ASTNode<Scope, Routine> {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
+	public void setScopes(ASTNode<?> parent) {
 		scope = parent.scope;
 		
 		for (DirectiveNode directiveNode : directiveNodes) {
@@ -27,14 +26,14 @@ public class SetupNode extends ASTNode<Scope, Routine> {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		for (DirectiveNode directiveNode : directiveNodes) {
 			directiveNode.defineTypes(this);
 		}
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		for (DirectiveNode directiveNode : directiveNodes) {
@@ -43,35 +42,35 @@ public class SetupNode extends ASTNode<Scope, Routine> {
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		for (DirectiveNode directiveNode : directiveNodes) {
 			directiveNode.defineExpressions(this);
 		}
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		for (DirectiveNode directiveNode : directiveNodes) {
 			directiveNode.checkTypes(this);
 		}
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		for (DirectiveNode directiveNode : directiveNodes) {
 			directiveNode.foldConstants(this);
 		}
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		for (DirectiveNode directiveNode : directiveNodes) {
 			directiveNode.trackFunctions(this);
 		}
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		for (DirectiveNode directiveNode : directiveNodes) {
 			directiveNode.generateIntermediate(this);
 		}

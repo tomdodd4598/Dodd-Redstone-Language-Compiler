@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.*;
+import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.MemberInfo;
 
@@ -13,7 +13,7 @@ public class TupleTypeInfo extends CompoundTypeInfo {
 	protected Map<String, MemberInfo> memberMap = new HashMap<>();
 	
 	@SuppressWarnings("null")
-	public TupleTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos) {
+	public TupleTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos) {
 		super(node, referenceMutability, typeInfos);
 		
 		if (referenceMutability.isEmpty()) {
@@ -28,28 +28,13 @@ public class TupleTypeInfo extends CompoundTypeInfo {
 	}
 	
 	@Override
-	public @NonNull TypeInfo copy(ASTNode<?, ?> node, List<Boolean> referenceMutability) {
+	public @NonNull TypeInfo copy(ASTNode<?> node, List<Boolean> referenceMutability) {
 		return new TupleTypeInfo(node, referenceMutability, typeInfos);
 	}
 	
 	@Override
-	public int getAddressOffsetSize(ASTNode<?, ?> node) {
-		return equals(Main.generator.wildcardPtrTypeInfo) ? 1 : super.getAddressOffsetSize(node);
-	}
-	
-	@Override
-	public boolean canImplicitCastTo(TypeInfo otherInfo) {
-		if (equalsOther(otherInfo, true) && canImplicitCastToReferenceMutability(otherInfo)) {
-			return true;
-		}
-		else {
-			return equals(Main.generator.wildcardPtrTypeInfo) && otherInfo.isAddress();
-		}
-	}
-	
-	@Override
-	public @Nullable TypeInfo getSuperType() {
-		return isAddress() && !equals(Main.generator.wildcardPtrTypeInfo) ? Main.generator.wildcardPtrTypeInfo : null;
+	public boolean isTuple() {
+		return !isAddress();
 	}
 	
 	@Override

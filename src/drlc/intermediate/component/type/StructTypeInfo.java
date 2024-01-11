@@ -11,42 +11,42 @@ import drlc.intermediate.scope.Scope;
 
 public class StructTypeInfo extends CompoundTypeInfo {
 	
-	public final @NonNull RawType rawType;
+	public final @NonNull TypeDefinition typedef;
 	
 	public final @NonNull TupleTypeInfo tupleTypeInfo;
 	
-	protected StructTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos, @NonNull RawType rawType) {
+	protected StructTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos, @NonNull TypeDefinition typedef) {
 		super(node, referenceMutability, typeInfos);
-		this.rawType = rawType;
+		this.typedef = typedef;
 		tupleTypeInfo = new TupleTypeInfo(null, referenceMutability, typeInfos);
 	}
 	
-	public StructTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos, Scope scope, @NonNull String rawTypeName) {
-		this(node, referenceMutability, typeInfos, scope.getRawType(node, rawTypeName));
+	public StructTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos, Scope scope, @NonNull String typedefName) {
+		this(node, referenceMutability, typeInfos, scope.getTypedef(node, typedefName));
 	}
 	
 	@Override
-	public @NonNull TypeInfo copy(ASTNode<?, ?> node, List<Boolean> referenceMutability) {
-		return new StructTypeInfo(node, referenceMutability, typeInfos, rawType);
+	public @NonNull TypeInfo copy(ASTNode<?> node, List<Boolean> referenceMutability) {
+		return new StructTypeInfo(node, referenceMutability, typeInfos, typedef);
 	}
 	
 	@Override
 	public boolean exists(Scope scope) {
-		return scope.rawTypeExists(rawType.name, false) && super.exists(scope);
+		return scope.typedefExists(typedef.name, false) && super.exists(scope);
 	}
 	
 	@Override
 	public int getSize() {
-		return isAddress() ? Main.generator.getAddressSize() : rawType.size;
+		return isAddress() ? Main.generator.getAddressSize() : typedef.size;
 	}
 	
 	@Override
 	public boolean canImplicitCastTo(TypeInfo otherInfo) {
 		if (super.equalsOther(otherInfo, true) && canImplicitCastToReferenceMutability(otherInfo)) {
-			return !(otherInfo instanceof StructTypeInfo) || rawType.equals(((StructTypeInfo) otherInfo).rawType);
+			return !(otherInfo instanceof StructTypeInfo) || typedef.equals(((StructTypeInfo) otherInfo).typedef);
 		}
 		else {
-			return tupleTypeInfo.canImplicitCastTo(otherInfo) || (isAddress() && otherInfo.equals(Main.generator.wildcardPtrTypeInfo));
+			return tupleTypeInfo.canImplicitCastTo(otherInfo);
 		}
 	}
 	
@@ -57,27 +57,27 @@ public class StructTypeInfo extends CompoundTypeInfo {
 	
 	@Override
 	public @Nullable MemberInfo getMemberInfo(@NonNull String memberName) {
-		return isAddress() ? null : rawType.getMemberInfo(memberName);
+		return isAddress() ? null : typedef.getMemberInfo(memberName);
 	}
 	
 	@Override
-	public void collectRawTypes(Set<RawType> rawTypes) {
+	public void collectTypedefs(Set<TypeDefinition> typedefs) {
 		if (!isAddress()) {
-			rawTypes.add(rawType);
+			typedefs.add(typedef);
 		}
-		super.collectRawTypes(rawTypes);
+		super.collectTypedefs(typedefs);
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(referenceMutability, nonRecursiveTypeInfos(x -> null), rawType);
+		return Objects.hash(referenceMutability, nonRecursiveTypeInfos(x -> null), typedef);
 	}
 	
 	@Override
 	public boolean equalsOther(Object obj, boolean ignoreReferenceMutability) {
 		if (obj instanceof StructTypeInfo) {
 			StructTypeInfo other = (StructTypeInfo) obj;
-			return super.equalsOther(obj, ignoreReferenceMutability) && rawType.equals(other.rawType);
+			return super.equalsOther(obj, ignoreReferenceMutability) && typedef.equals(other.typedef);
 		}
 		else {
 			return false;
@@ -86,11 +86,11 @@ public class StructTypeInfo extends CompoundTypeInfo {
 	
 	@Override
 	public String rawString() {
-		return Helpers.structString(rawType, nonRecursiveTypeInfos(x -> x.getReferenceMutabilityString() + ((StructTypeInfo) x).rawType));
+		return Helpers.structString(typedef, nonRecursiveTypeInfos(x -> x.getReferenceMutabilityString() + ((StructTypeInfo) x).typedef));
 	}
 	
 	@Override
 	public String routineString() {
-		return getRoutineReferenceString() + Helpers.structString(rawType, nonRecursiveTypeInfos(x -> x.getRoutineReferenceString() + ((StructTypeInfo) x).rawType));
+		return getRoutineReferenceString() + Helpers.structString(typedef, nonRecursiveTypeInfos(x -> x.getRoutineReferenceString() + ((StructTypeInfo) x).typedef));
 	}
 }

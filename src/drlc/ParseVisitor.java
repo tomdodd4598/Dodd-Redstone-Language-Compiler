@@ -28,12 +28,12 @@ public class ParseVisitor extends AnalysisAdapter {
 	
 	public final Deque<DirectiveNode> directiveStack = new ArrayDeque<>();
 	
-	public final Deque<StaticSectionNode<?, ?>> staticSectionStack = new ArrayDeque<>();
-	public final Deque<RuntimeSectionNode<?, ?>> runtimeSectionStack = new ArrayDeque<>();
+	public final Deque<StaticSectionNode<?>> staticSectionStack = new ArrayDeque<>();
+	public final Deque<RuntimeSectionNode<?>> runtimeSectionStack = new ArrayDeque<>();
 	
 	public final Deque<ScopedBodyNode> scopedBodyNodeStack = new ArrayDeque<>();
 	
-	public final Deque<ASTNode<?, ?>> conditionalEndStack = new ArrayDeque<>();
+	public final Deque<ASTNode<?>> conditionalEndStack = new ArrayDeque<>();
 	public final Deque<ConditionalSectionNode> conditionalSectionStack = new ArrayDeque<>();
 	
 	public final Deque<StopNode> stopStack = new ArrayDeque<>();
@@ -121,6 +121,33 @@ public class ParseVisitor extends AnalysisAdapter {
 		else {
 			ATypeList typeList = (ATypeList) node;
 			return traverseList(typeList.getType(), typeList.getTypeListTail(), typeStack);
+		}
+	}
+	
+	private @Nullable TypeNode closureReturnType(PClosureBody node) {
+		return node instanceof AExpressionClosureBody ? null : returnType(((ABlockClosureBody) node).getReturnType());
+	}
+	
+	private @NonNull Pair<@NonNull ScopedBodyNode, @Nullable ReturnNode> closureBodyPair(PClosureBody node) {
+		if (node instanceof AExpressionClosureBody) {
+			return expressionClosureBodyPair(((AExpressionClosureBody) node).getExpression());
+		}
+		else {
+			return new Pair<>(scope(((ABlockClosureBody) node).getScopedBody()), null);
+		}
+	}
+	
+	private @NonNull Pair<@NonNull ScopedBodyNode, @Nullable ReturnNode> expressionClosureBodyPair(Node node) {
+		ReturnNode returnNode = new ReturnNode(array(node), expression(node));
+		return new Pair<>(new ScopedBodyNode(array(node), new ArrayList<>(), returnNode), returnNode);
+	}
+	
+	private @NonNull List<DeclaratorNode> closureDeclaratorList(PClosureDeclaratorList node) {
+		if (node instanceof AStandardClosureDeclaratorList) {
+			return declaratorList(((AStandardClosureDeclaratorList) node).getDeclaratorList());
+		}
+		else {
+			return new ArrayList<>();
 		}
 	}
 	
@@ -321,7 +348,7 @@ public class ParseVisitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAFunctionDefinition(AFunctionDefinition node) {
-		staticSectionStack.push(new FunctionDefinitionNode(array(node), text(node.getName()), declaratorList(node.getDeclaratorList()), returnType(node.getReturnType()), scope(node.getScopedBody())));
+		staticSectionStack.push(new FunctionDefinitionNode(array(node), text(node.getName()), declaratorList(node.getDeclaratorList()), returnType(node.getReturnType()), scope(node.getScopedBody()), false));
 	}
 	
 	@Override
@@ -518,11 +545,27 @@ public class ParseVisitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAPrioritizedExpression(APrioritizedExpression node) {
+		node.getAssignmentExpression().apply(this);
+	}
+	
+	@Override
+	public void caseAClosureExpression(AClosureExpression node) {
+		long id = Main.rootScope.nextLocalId();
+		@NonNull Pair<@NonNull ScopedBodyNode, @Nullable ReturnNode> closureBodyPair = closureBodyPair(node.getClosureBody());
+		@NonNull FunctionDefinitionNode functionNode = new FunctionDefinitionNode(array(node), "\\fn" + id, closureDeclaratorList(node.getClosureDeclaratorList()), closureReturnType(node.getClosureBody()), closureBodyPair.left, true);
+		if (closureBodyPair.right != null) {
+			closureBodyPair.right.closureDefinition = functionNode;
+		}
+		expressionStack.push(new ClosureExpressionNode(array(node), "\\Closure" + id, functionNode));
+	}
+	
+	@Override
+	public void caseAPrioritizedAssignmentExpression(APrioritizedAssignmentExpression node) {
 		node.getTernaryExpression().apply(this);
 	}
 	
 	@Override
-	public void caseAAssignmentExpression(AAssignmentExpression node) {
+	public void caseAAssignmentAssignmentExpression(AAssignmentAssignmentExpression node) {
 		expressionStack.push(new AssignmentExpressionNode(array(node), expression(node.getUnaryExpression()), AssignmentOpType.get(trim(node.getAssignmentOp())), expression(node.getExpression())));
 	}
 	
@@ -723,6 +766,11 @@ public class ParseVisitor extends AnalysisAdapter {
 	}
 	
 	@Override
+	public void caseAWordValue(AWordValue node) {
+		expressionStack.push(new WordExpressionNode(array(node), Helpers.parseBigInt(text(node.getWordValue())).longValue()));
+	}
+	
+	@Override
 	public void caseACharValue(ACharValue node) {
 		expressionStack.push(new CharExpressionNode(array(node), Helpers.unescapeChar(node.getCharValue().getText())));
 	}
@@ -739,11 +787,27 @@ public class ParseVisitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAPrioritizedConditionExpression(APrioritizedConditionExpression node) {
+		node.getConditionAssignmentExpression().apply(this);
+	}
+	
+	@Override
+	public void caseAClosureConditionExpression(AClosureConditionExpression node) {
+		long id = Main.rootScope.nextLocalId();
+		@NonNull Pair<@NonNull ScopedBodyNode, @Nullable ReturnNode> closureBodyPair = expressionClosureBodyPair(node.getConditionExpression());
+		@NonNull FunctionDefinitionNode functionNode = new FunctionDefinitionNode(array(node), "\\fn" + id, closureDeclaratorList(node.getClosureDeclaratorList()), null, closureBodyPair.left, true);
+		if (closureBodyPair.right != null) {
+			closureBodyPair.right.closureDefinition = functionNode;
+		}
+		expressionStack.push(new ClosureExpressionNode(array(node), "\\Closure" + id, functionNode));
+	}
+	
+	@Override
+	public void caseAPrioritizedConditionAssignmentExpression(APrioritizedConditionAssignmentExpression node) {
 		node.getConditionTernaryExpression().apply(this);
 	}
 	
 	@Override
-	public void caseAAssignmentConditionExpression(AAssignmentConditionExpression node) {
+	public void caseAAssignmentConditionAssignmentExpression(AAssignmentConditionAssignmentExpression node) {
 		expressionStack.push(new AssignmentExpressionNode(array(node), expression(node.getConditionUnaryExpression()), AssignmentOpType.get(trim(node.getAssignmentOp())), expression(node.getConditionExpression())));
 	}
 	

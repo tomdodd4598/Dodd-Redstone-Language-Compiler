@@ -15,7 +15,7 @@ public class ArrayTypeInfo extends TypeInfo {
 	
 	public final @NonNull TypeInfo decayTypeInfo;
 	
-	public ArrayTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, @NonNull TypeInfo elementTypeInfo, int length) {
+	public ArrayTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, @NonNull TypeInfo elementTypeInfo, int length) {
 		super(node, referenceMutability);
 		this.elementTypeInfo = elementTypeInfo;
 		this.length = length;
@@ -28,7 +28,7 @@ public class ArrayTypeInfo extends TypeInfo {
 	}
 	
 	@Override
-	public @NonNull TypeInfo copy(ASTNode<?, ?> node, List<Boolean> referenceMutability) {
+	public @NonNull TypeInfo copy(ASTNode<?> node, List<Boolean> referenceMutability) {
 		return new ArrayTypeInfo(node, referenceMutability, elementTypeInfo, length);
 	}
 	
@@ -46,14 +46,11 @@ public class ArrayTypeInfo extends TypeInfo {
 	public boolean canImplicitCastTo(TypeInfo otherInfo) {
 		if (otherInfo instanceof ArrayTypeInfo) {
 			@NonNull ArrayTypeInfo otherArrayInfo = (ArrayTypeInfo) otherInfo;
-			if (length == otherArrayInfo.length && canImplicitCastToReferenceMutability(otherInfo)) {
-				@NonNull TypeInfo otherElementInfo = otherArrayInfo.elementTypeInfo;
-				if ((length == 0 && (elementTypeInfo.equals(Main.generator.wildcardPtrTypeInfo) || otherElementInfo.equals(Main.generator.wildcardPtrTypeInfo))) || elementTypeInfo.equals(otherElementInfo)) {
-					return true;
-				}
+			if (length == otherArrayInfo.length && canImplicitCastToReferenceMutability(otherInfo) && elementTypeInfo.canImplicitCastTo(otherArrayInfo.elementTypeInfo)) {
+				return true;
 			}
 		}
-		return isAddress() && (otherInfo.equals(Main.generator.wildcardPtrTypeInfo) || decayTypeInfo.canImplicitCastTo(otherInfo));
+		return isAddress() && decayTypeInfo.canImplicitCastTo(otherInfo);
 	}
 	
 	@Override
@@ -67,14 +64,14 @@ public class ArrayTypeInfo extends TypeInfo {
 	}
 	
 	@Override
-	public void collectRawTypes(Set<RawType> rawTypes) {
+	public void collectTypedefs(Set<TypeDefinition> typedefs) {
 		if (!isAddress()) {
-			elementTypeInfo.collectRawTypes(rawTypes);
+			elementTypeInfo.collectTypedefs(typedefs);
 		}
 	}
 	
 	@Override
-	public int indexToOffsetShallow(ASTNode<?, ?> node, int index) {
+	public int indexToOffsetShallow(ASTNode<?> node, int index) {
 		if (index >= length) {
 			throw Helpers.nodeError(node, "Attempted to index array type \"%s\" at position %d!", this, index);
 		}
@@ -84,7 +81,7 @@ public class ArrayTypeInfo extends TypeInfo {
 	}
 	
 	@Override
-	public int offsetToIndexShallow(ASTNode<?, ?> node, int offset) {
+	public int offsetToIndexShallow(ASTNode<?> node, int offset) {
 		int index = offset / elementTypeInfo.getSize();
 		if (index >= length) {
 			throw Helpers.nodeError(node, "Attempted to index array type \"%s\" at position %d!", this, index);
@@ -95,7 +92,7 @@ public class ArrayTypeInfo extends TypeInfo {
 	}
 	
 	@Override
-	public @NonNull TypeInfo atIndex(ASTNode<?, ?> node, int index) {
+	public @NonNull TypeInfo atIndex(ASTNode<?> node, int index) {
 		return decayTypeInfo;
 	}
 	

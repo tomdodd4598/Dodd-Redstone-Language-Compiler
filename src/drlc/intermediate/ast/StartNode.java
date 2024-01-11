@@ -3,11 +3,10 @@ package drlc.intermediate.ast;
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.Main;
-import drlc.intermediate.routine.RootRoutine;
 import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
-public class StartNode extends ASTNode<Scope, RootRoutine> {
+public class StartNode extends ASTNode<Scope> {
 	
 	public final @NonNull UnitNode unitNode;
 	
@@ -16,49 +15,47 @@ public class StartNode extends ASTNode<Scope, RootRoutine> {
 		this.unitNode = unitNode;
 	}
 	
-	@SuppressWarnings("null")
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
+	public void setScopes(ASTNode<?> parent) {
 		scope = Main.rootScope;
 		
 		unitNode.setScopes(this);
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		unitNode.defineTypes(this);
 	}
 	
-	@SuppressWarnings("null")
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = Main.rootRoutine;
 		
 		unitNode.declareExpressions(this);
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		unitNode.defineExpressions(this);
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		unitNode.checkTypes(this);
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		unitNode.foldConstants(this);
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		unitNode.trackFunctions(this);
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		unitNode.generateIntermediate(this);
 	}
 }

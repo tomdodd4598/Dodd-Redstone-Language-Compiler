@@ -11,9 +11,9 @@ import drlc.intermediate.component.value.Value;
 
 public class ValueDataId extends DataId {
 	
-	public final @NonNull Value value;
+	public final @NonNull Value<?> value;
 	
-	public ValueDataId(@NonNull Value value) {
+	public ValueDataId(@NonNull Value<?> value) {
 		super(null, 0, value.typeInfo);
 		this.value = value;
 	}
@@ -24,12 +24,12 @@ public class ValueDataId extends DataId {
 	}
 	
 	@Override
-	public @NonNull ValueDataId addDereference(ASTNode<?, ?> node) {
+	public @NonNull ValueDataId addDereference(ASTNode<?> node) {
 		throw Helpers.nodeError(node, "Attempted to add dereference to data ID \"%s\"!", this);
 	}
 	
 	@Override
-	public @NonNull ValueDataId removeDereference(ASTNode<?, ?> node) {
+	public @NonNull ValueDataId removeDereference(ASTNode<?> node) {
 		throw Helpers.nodeError(node, "Attempted to remove dereference from data ID \"%s\"!", this);
 	}
 	
@@ -39,12 +39,12 @@ public class ValueDataId extends DataId {
 	}
 	
 	@Override
-	public @NonNull ValueDataId atOffset(ASTNode<?, ?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
+	public @NonNull ValueDataId atOffset(ASTNode<?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
 		return value.atOffset(node, offset, expectedTypeInfo).dataId();
 	}
 	
 	@Override
-	public @Nullable DataId getRawReplacer(ASTNode<?, ?> node, DataId rawInternal) {
+	public @Nullable DataId getRawReplacer(ASTNode<?> node, DataId rawInternal) {
 		return null;
 	}
 	

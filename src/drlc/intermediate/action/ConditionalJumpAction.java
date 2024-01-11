@@ -8,7 +8,7 @@ public class ConditionalJumpAction extends Action implements IJumpAction {
 	protected int target;
 	public final boolean jumpCondition;
 	
-	public ConditionalJumpAction(ASTNode<?, ?> node, int target, boolean jumpCondition) {
+	public ConditionalJumpAction(ASTNode<?> node, int target, boolean jumpCondition) {
 		super(node);
 		this.target = target;
 		this.jumpCondition = jumpCondition;

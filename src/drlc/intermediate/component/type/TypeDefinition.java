@@ -9,7 +9,7 @@ import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
 import drlc.intermediate.scope.Scope;
 
-public class RawType {
+public class TypeDefinition {
 	
 	public final @NonNull String name;
 	public int size;
@@ -18,14 +18,14 @@ public class RawType {
 	
 	public Scope scope = null;
 	
-	public RawType(@NonNull String name, int size, Map<String, MemberInfo> memberMap, @NonNull TypeInfoFunction supplier) {
+	public TypeDefinition(@NonNull String name, int size, Map<String, MemberInfo> memberMap, @NonNull TypeInfoFunction supplier) {
 		this.name = name;
 		this.size = size;
 		this.memberMap = memberMap;
 		this.supplier = supplier;
 	}
 	
-	public @NonNull TypeInfo getTypeInfo(ASTNode<?, ?> node, List<Boolean> referenceMutability, Scope scope) {
+	public @NonNull TypeInfo getTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, Scope scope) {
 		return supplier.create(node, referenceMutability, scope);
 	}
 	
@@ -40,8 +40,8 @@ public class RawType {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof RawType) {
-			RawType other = (RawType) obj;
+		if (obj instanceof TypeDefinition) {
+			TypeDefinition other = (TypeDefinition) obj;
 			return name.equals(other.name) && size == other.size && memberMap.equals(other.memberMap) && Objects.equals(scope, other.scope);
 		}
 		else {

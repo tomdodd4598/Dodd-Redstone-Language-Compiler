@@ -2,6 +2,7 @@ package drlc.intermediate.ast.expression;
 
 import org.eclipse.jdt.annotation.*;
 
+import drlc.Main;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.BinaryOpType;
 import drlc.intermediate.component.data.DataId;
@@ -25,7 +26,7 @@ public class IndexExpressionNode extends ExpressionNode {
 	
 	public boolean baseIsArray = false;
 	
-	public @Nullable Value constantValue = null;
+	public @Nullable Value<?> constantValue = null;
 	
 	public @Nullable Integer constantIndex = null;
 	
@@ -40,21 +41,21 @@ public class IndexExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
-		scope = new Scope(parent.scope);
+	public void setScopes(ASTNode<?> parent) {
+		scope = new Scope(this, parent.scope);
 		
 		baseExpressionNode.setScopes(this);
 		indexExpressionNode.setScopes(this);
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		baseExpressionNode.defineTypes(this);
 		indexExpressionNode.defineTypes(this);
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		baseExpressionNode.declareExpressions(this);
@@ -62,11 +63,11 @@ public class IndexExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		baseExpressionNode.defineExpressions(this);
 		indexExpressionNode.defineExpressions(this);
 		
-		setTypeInfo();
+		setTypeInfo(null);
 		
 		if (baseIsArray && baseExpressionNode.isValidLvalue()) {
 			baseExpressionNode.setIsLvalue();
@@ -74,13 +75,13 @@ public class IndexExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		baseExpressionNode.checkTypes(this);
 		indexExpressionNode.checkTypes(this);
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		baseExpressionNode.foldConstants(this);
 		indexExpressionNode.foldConstants(this);
 		
@@ -98,13 +99,13 @@ public class IndexExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		baseExpressionNode.trackFunctions(this);
 		indexExpressionNode.trackFunctions(this);
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		baseExpressionNode.generateIntermediate(this);
 		
 		boolean constantArrayIndex = baseIsArray && setConstantIndex();
@@ -151,7 +152,8 @@ public class IndexExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	protected void setTypeInfoInternal() {
+	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
+		baseExpressionNode.setTypeInfo(null);
 		@NonNull TypeInfo baseExpressionType = baseExpressionNode.getTypeInfo();
 		if (baseExpressionType.isAddress()) {
 			typeInfo = baseExpressionType.dereference(this, 1);
@@ -166,17 +168,18 @@ public class IndexExpressionNode extends ExpressionNode {
 		else {
 			throw error("Attempted to use expression of incompatible type \"%s\" as indexable expression!", baseExpressionType);
 		}
+		indexExpressionNode.setTypeInfo(Main.generator.natTypeInfo);
 	}
 	
 	@Override
-	protected @Nullable Value getConstantValueInternal() {
+	protected @Nullable Value<?> getConstantValueInternal() {
 		return constantValue;
 	}
 	
 	@Override
 	protected void setConstantValueInternal() {
 		if (setConstantIndex() && !isLvalue) {
-			@Nullable Value baseConstantValue = baseExpressionNode.getConstantValue();
+			@Nullable Value<?> baseConstantValue = baseExpressionNode.getConstantValue();
 			if (baseConstantValue instanceof ArrayValue) {
 				ArrayTypeInfo arrayTypeInfo = (ArrayTypeInfo) baseConstantValue.typeInfo;
 				constantValue = baseConstantValue.atOffset(this, arrayTypeInfo.indexToOffsetShallow(this, constantIndex), arrayTypeInfo.elementTypeInfo);
@@ -211,7 +214,7 @@ public class IndexExpressionNode extends ExpressionNode {
 	
 	protected boolean setConstantIndex() {
 		if (!setConstantIndex) {
-			@Nullable Value indexConstantValue = indexExpressionNode.getConstantValue();
+			@Nullable Value<?> indexConstantValue = indexExpressionNode.getConstantValue(Main.generator.natTypeInfo);
 			if (indexConstantValue != null) {
 				constantIndex = indexConstantValue.intValue(this);
 			}

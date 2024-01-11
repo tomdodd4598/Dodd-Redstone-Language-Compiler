@@ -7,7 +7,7 @@ public abstract class BasicAction extends Action {
 	
 	public final String arg;
 	
-	public BasicAction(ASTNode<?, ?> node, String arg) {
+	public BasicAction(ASTNode<?> node, String arg) {
 		super(node);
 		if (arg == null) {
 			throw Helpers.nodeError(node, "Basic action argument was null!");

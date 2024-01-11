@@ -36,12 +36,12 @@ public class RegDataId extends DataId {
 	}
 	
 	@Override
-	public @NonNull RegDataId addDereference(ASTNode<?, ?> node) {
+	public @NonNull RegDataId addDereference(ASTNode<?> node) {
 		return new RegDataId(dereferenceLevel + 1, typeInfo.modifyMutable(node, -1), regId, offset, offsetFrom);
 	}
 	
 	@Override
-	public @NonNull RegDataId removeDereference(ASTNode<?, ?> node) {
+	public @NonNull RegDataId removeDereference(ASTNode<?> node) {
 		return new RegDataId(-1, typeInfo.modifyMutable(node, 1), regId, offset, offsetFrom);
 	}
 	
@@ -58,13 +58,13 @@ public class RegDataId extends DataId {
 	}
 	
 	@Override
-	public @NonNull RegDataId atOffset(ASTNode<?, ?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
+	public @NonNull RegDataId atOffset(ASTNode<?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
 		@NonNull TypeInfo offsetType = typeInfo.atOffset(node, offset, expectedTypeInfo);
 		return new RegDataId(dereferenceLevel, offsetType, regId, this.offset + offset, nextIndexFrom());
 	}
 	
 	@Override
-	public @Nullable DataId getRawReplacer(ASTNode<?, ?> node, DataId rawInternal) {
+	public @Nullable DataId getRawReplacer(ASTNode<?> node, DataId rawInternal) {
 		if (rawInternal instanceof RegDataId) {
 			RegDataId raw = (RegDataId) rawInternal;
 			return new RegDataId(raw.dereferenceLevel, raw.typeInfo.atOffset(node, offset, typeInfo.copyMutable(node, raw.dereferenceLevel)), raw.regId, offset, new ArrayList<>());

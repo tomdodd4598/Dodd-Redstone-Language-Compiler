@@ -7,7 +7,7 @@ public class JumpAction extends Action implements IJumpAction, IDefiniteRedirect
 	
 	protected int target;
 	
-	public JumpAction(ASTNode<?, ?> node, int target) {
+	public JumpAction(ASTNode<?> node, int target) {
 		super(node);
 		this.target = target;
 	}

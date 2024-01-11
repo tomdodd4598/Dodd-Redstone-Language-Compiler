@@ -6,26 +6,25 @@ import org.eclipse.jdt.annotation.*;
 
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.stop.StopNode;
-import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.Scope;
 import drlc.node.Node;
 
-public class ScopedBodyNode extends RuntimeSectionNode<Scope, Routine> {
+public class ScopedBodyNode extends RuntimeSectionNode<Scope> {
 	
-	public final @NonNull List<RuntimeSectionNode<?, ?>> sectionNodes;
+	public final @NonNull List<RuntimeSectionNode<?>> sectionNodes;
 	public final @Nullable StopNode stopNode;
 	
-	public ScopedBodyNode(Node[] parseNodes, @NonNull List<RuntimeSectionNode<?, ?>> sectionNodes, @Nullable StopNode stopNode) {
+	public ScopedBodyNode(Node[] parseNodes, @NonNull List<RuntimeSectionNode<?>> sectionNodes, @Nullable StopNode stopNode) {
 		super(parseNodes);
 		this.sectionNodes = sectionNodes;
 		this.stopNode = stopNode;
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
-		scope = new Scope(parent.scope);
+	public void setScopes(ASTNode<?> parent) {
+		scope = new Scope(this, parent.scope);
 		
-		for (RuntimeSectionNode<?, ?> sectionNode : sectionNodes) {
+		for (RuntimeSectionNode<?> sectionNode : sectionNodes) {
 			sectionNode.setScopes(this);
 		}
 		if (stopNode != null) {
@@ -34,8 +33,8 @@ public class ScopedBodyNode extends RuntimeSectionNode<Scope, Routine> {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
-		for (RuntimeSectionNode<?, ?> sectionNode : sectionNodes) {
+	public void defineTypes(ASTNode<?> parent) {
+		for (RuntimeSectionNode<?> sectionNode : sectionNodes) {
 			sectionNode.defineTypes(this);
 		}
 		if (stopNode != null) {
@@ -44,10 +43,10 @@ public class ScopedBodyNode extends RuntimeSectionNode<Scope, Routine> {
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
-		for (RuntimeSectionNode<?, ?> sectionNode : sectionNodes) {
+		for (RuntimeSectionNode<?> sectionNode : sectionNodes) {
 			sectionNode.declareExpressions(this);
 		}
 		if (stopNode != null) {
@@ -56,8 +55,8 @@ public class ScopedBodyNode extends RuntimeSectionNode<Scope, Routine> {
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
-		for (RuntimeSectionNode<?, ?> sectionNode : sectionNodes) {
+	public void defineExpressions(ASTNode<?> parent) {
+		for (RuntimeSectionNode<?> sectionNode : sectionNodes) {
 			sectionNode.defineExpressions(this);
 		}
 		if (stopNode != null) {
@@ -66,8 +65,8 @@ public class ScopedBodyNode extends RuntimeSectionNode<Scope, Routine> {
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
-		for (RuntimeSectionNode<?, ?> sectionNode : sectionNodes) {
+	public void checkTypes(ASTNode<?> parent) {
+		for (RuntimeSectionNode<?> sectionNode : sectionNodes) {
 			sectionNode.checkTypes(this);
 		}
 		if (stopNode != null) {
@@ -76,8 +75,8 @@ public class ScopedBodyNode extends RuntimeSectionNode<Scope, Routine> {
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
-		for (RuntimeSectionNode<?, ?> sectionNode : sectionNodes) {
+	public void foldConstants(ASTNode<?> parent) {
+		for (RuntimeSectionNode<?> sectionNode : sectionNodes) {
 			sectionNode.foldConstants(this);
 		}
 		if (stopNode != null) {
@@ -86,8 +85,8 @@ public class ScopedBodyNode extends RuntimeSectionNode<Scope, Routine> {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
-		for (RuntimeSectionNode<?, ?> sectionNode : sectionNodes) {
+	public void trackFunctions(ASTNode<?> parent) {
+		for (RuntimeSectionNode<?> sectionNode : sectionNodes) {
 			sectionNode.trackFunctions(this);
 		}
 		if (stopNode != null) {
@@ -96,8 +95,8 @@ public class ScopedBodyNode extends RuntimeSectionNode<Scope, Routine> {
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
-		for (RuntimeSectionNode<?, ?> sectionNode : sectionNodes) {
+	public void generateIntermediate(ASTNode<?> parent) {
+		for (RuntimeSectionNode<?> sectionNode : sectionNodes) {
 			sectionNode.generateIntermediate(this);
 		}
 		if (stopNode != null) {

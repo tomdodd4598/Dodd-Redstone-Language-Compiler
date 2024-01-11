@@ -21,7 +21,7 @@ public class FunctionTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void setScopes(ASTNode<?, ?> parent) {
+	public void setScopes(ASTNode<?> parent) {
 		scope = parent.scope;
 		
 		for (TypeNode paramTypeNode : paramTypeNodes) {
@@ -33,7 +33,7 @@ public class FunctionTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void defineTypes(ASTNode<?, ?> parent) {
+	public void defineTypes(ASTNode<?> parent) {
 		for (TypeNode paramTypeNode : paramTypeNodes) {
 			paramTypeNode.defineTypes(this);
 		}
@@ -43,7 +43,7 @@ public class FunctionTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void declareExpressions(ASTNode<?, ?> parent) {
+	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
 		for (TypeNode paramTypeNode : paramTypeNodes) {
@@ -57,27 +57,27 @@ public class FunctionTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void defineExpressions(ASTNode<?, ?> parent) {
+	public void defineExpressions(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void checkTypes(ASTNode<?, ?> parent) {
+	public void checkTypes(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void foldConstants(ASTNode<?, ?> parent) {
+	public void foldConstants(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?, ?> parent) {
+	public void trackFunctions(ASTNode<?> parent) {
 		
 	}
 	
 	@Override
-	public void generateIntermediate(ASTNode<?, ?> parent) {
+	public void generateIntermediate(ASTNode<?> parent) {
 		
 	}
 	
@@ -90,12 +90,12 @@ public class FunctionTypeNode extends TypeNode {
 			returnTypeNode.setTypeInfo();
 		}
 		
-		@NonNull TypeInfo returnType = returnTypeNode != null ? returnTypeNode.typeInfo : Main.generator.voidTypeInfo;
+		@NonNull TypeInfo returnType = returnTypeNode != null ? returnTypeNode.typeInfo : Main.generator.unitTypeInfo;
 		typeInfo = new FunctionPointerTypeInfo(this, new ArrayList<>(), returnType, Helpers.map(paramTypeNodes, x -> x.typeInfo));
 	}
 	
 	@Override
-	public void collectRawTypes(Set<RawType> rawTypes) {
+	public void collectTypedefs(Set<TypeDefinition> typedefs) {
 		
 	}
 }

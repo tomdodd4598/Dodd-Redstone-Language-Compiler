@@ -4,18 +4,19 @@ import java.util.Objects;
 
 import drlc.Main;
 import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.type.BoolTypeInfo;
 
-public class BoolValue extends BasicValue {
+public class BoolValue extends BasicValue<BoolTypeInfo> {
 	
 	public final boolean value;
 	
-	public BoolValue(ASTNode<?, ?> node, boolean value) {
+	public BoolValue(ASTNode<?> node, boolean value) {
 		super(node, Main.generator.boolTypeInfo);
 		this.value = value;
 	}
 	
 	@Override
-	public boolean boolValue(ASTNode<?, ?> node) {
+	public boolean boolValue(ASTNode<?> node) {
 		return value;
 	}
 	

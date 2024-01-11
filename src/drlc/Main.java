@@ -4,8 +4,11 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import drlc.intermediate.ast.StartNode;
-import drlc.intermediate.routine.RootRoutine;
+import drlc.intermediate.component.Function;
+import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.RootScope;
 import drlc.lexer.*;
 import drlc.node.Start;
@@ -61,8 +64,10 @@ public class Main {
 	
 	public static Generator generator;
 	
-	public static RootScope rootScope;
-	public static RootRoutine rootRoutine;
+	@SuppressWarnings("null")
+	public static @NonNull RootScope rootScope;
+	@SuppressWarnings("null")
+	public static @NonNull Routine rootRoutine;
 	
 	private static boolean first = true;
 	
@@ -73,11 +78,15 @@ public class Main {
 		
 		generator = Generator.CONSTRUCTOR_MAP.get(target).apply(outputFile);
 		
-		rootScope = new RootScope();
+		rootScope = new RootScope(null);
 		
 		generator.init();
 		
-		rootRoutine = new RootRoutine();
+		Function rootFunction = new Function(null, Global.ROOT, false, generator.intTypeInfo, new ArrayList<>(), false, true);
+		rootFunction.setRequired(true);
+		rootScope.addFunction(null, rootFunction, false);
+		
+		rootRoutine = new Routine(rootFunction);
 		rootScope.addRoutine(null, rootRoutine);
 		
 		if (first) {
@@ -98,11 +107,11 @@ public class Main {
 		};
 		
 		source = Helpers.readFile(inputFile);
+		Lexer lexer = Helpers.stringLexer(source);
 		
 		printTime.accept("Reading");
 		
 		/* Create parse tree */
-		Lexer lexer = Helpers.stringLexer(source);
 		Parser parser = new Parser(lexer);
 		Start parseTree;
 		
