@@ -1,6 +1,6 @@
 package drlc.intermediate.scope;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Function;
@@ -10,8 +10,8 @@ public class FunctionScope extends Scope {
 	@SuppressWarnings("null")
 	public @NonNull Function function = null;
 	
-	public FunctionScope(ASTNode<?> node, Scope parent) {
-		super(node, parent);
+	public FunctionScope(ASTNode<?> node, @Nullable Scope parent) {
+		super(node, null, parent, false);
 		definiteExecution = false;
 		potentialOuterMultipleExecution = true;
 	}

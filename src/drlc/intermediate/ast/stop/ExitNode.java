@@ -2,18 +2,17 @@ package drlc.intermediate.ast.stop;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.expression.*;
 import drlc.intermediate.component.type.TypeInfo;
-import drlc.node.Node;
 
 public class ExitNode extends StopNode {
 	
 	public @Nullable ExpressionNode expressionNode;
 	
-	public ExitNode(Node[] parseNodes, @Nullable ExpressionNode expressionNode) {
-		super(parseNodes);
+	public ExitNode(Source source, @Nullable ExpressionNode expressionNode) {
+		super(source);
 		this.expressionNode = expressionNode;
 	}
 	

@@ -2,13 +2,12 @@ package drlc.intermediate.ast.element;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.type.TypeNode;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public class DeclaratorNode extends ASTNode<Scope> {
 	
@@ -24,8 +23,8 @@ public class DeclaratorNode extends ASTNode<Scope> {
 	
 	public boolean functionParameter = false;
 	
-	public DeclaratorNode(Node[] parseNodes, @NonNull VariableModifier variableModifier, @NonNull String name, @Nullable TypeNode typeNode) {
-		super(parseNodes);
+	public DeclaratorNode(Source source, @NonNull VariableModifier variableModifier, @NonNull String name, @Nullable TypeNode typeNode) {
+		super(source);
 		this.variableModifier = variableModifier;
 		this.name = name;
 		this.typeNode = typeNode;
@@ -62,8 +61,8 @@ public class DeclaratorNode extends ASTNode<Scope> {
 		}
 		
 		if (functionParameter) {
-			declaratorInfo = new DeclaratorInfo(new Variable(name, variableModifier, typeNode.typeInfo));
-			scope.addVariable(this, declaratorInfo.variable, false);
+			declaratorInfo = new DeclaratorInfo(new Variable(name, variableModifier, typeNode.getTypeInfo()));
+			scope.addVariable(this, declaratorInfo.variable);
 			scope.onVariableInitialization(this, declaratorInfo.variable);
 		}
 	}
@@ -75,8 +74,8 @@ public class DeclaratorNode extends ASTNode<Scope> {
 		}
 		
 		if (!functionParameter) {
-			declaratorInfo = new DeclaratorInfo(new Variable(name, variableModifier, typeNode == null ? inferredTypeInfo : typeNode.typeInfo));
-			scope.addVariable(this, declaratorInfo.variable, false);
+			declaratorInfo = new DeclaratorInfo(new Variable(name, variableModifier, typeNode == null ? inferredTypeInfo : typeNode.getTypeInfo()));
+			scope.addVariable(this, declaratorInfo.variable);
 		}
 	}
 	

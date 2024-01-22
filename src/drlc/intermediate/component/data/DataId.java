@@ -80,6 +80,6 @@ public abstract class DataId {
 	
 	@Override
 	public String toString() {
-		return (dereferenceLevel >= 0 ? Helpers.dereferenceString(dereferenceLevel) : Global.ADDRESS_OF) + Helpers.scopeStringPrefix(scope) + rawString();
+		return (dereferenceLevel >= 0 ? Helpers.dereferenceString(dereferenceLevel) : Global.ADDRESS_OF) + Helpers.scopeStringPrefix(scope) + rawString() /*+ Global.TYPE_ANNOTATION_PREFIX + " " + typeInfo.routineString()*/;
 	}
 }

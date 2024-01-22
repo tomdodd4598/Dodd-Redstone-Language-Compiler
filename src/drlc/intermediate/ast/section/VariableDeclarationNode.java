@@ -2,20 +2,20 @@ package drlc.intermediate.ast.section;
 
 import org.eclipse.jdt.annotation.*;
 
+import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.element.DeclaratorNode;
 import drlc.intermediate.ast.expression.*;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public class VariableDeclarationNode extends StaticSectionNode<Scope> {
 	
 	public final @NonNull DeclaratorNode declaratorNode;
 	public @Nullable ExpressionNode expressionNode;
 	
-	public VariableDeclarationNode(Node[] parseNodes, @NonNull DeclaratorNode declaratorNode, @Nullable ExpressionNode expressionNode) {
-		super(parseNodes);
+	public VariableDeclarationNode(Source source, @NonNull DeclaratorNode declaratorNode, @Nullable ExpressionNode expressionNode) {
+		super(source);
 		this.declaratorNode = declaratorNode;
 		this.expressionNode = expressionNode;
 		
@@ -60,7 +60,7 @@ public class VariableDeclarationNode extends StaticSectionNode<Scope> {
 	@Override
 	public void defineExpressions(ASTNode<?> parent) {
 		if (expressionNode != null) {
-			expressionNode.setTypeInfo(declaratorNode.typeNode == null ? null : declaratorNode.typeNode.typeInfo);
+			expressionNode.setTypeInfo(declaratorNode.typeNode == null ? null : declaratorNode.typeNode.getTypeInfo());
 			expressionNode.defineExpressions(this);
 		}
 		

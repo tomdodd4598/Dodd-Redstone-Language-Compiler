@@ -2,12 +2,11 @@ package drlc.intermediate.ast.stop;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.expression.*;
 import drlc.intermediate.ast.section.FunctionDefinitionNode;
 import drlc.intermediate.component.type.TypeInfo;
-import drlc.node.Node;
 
 public class ReturnNode extends StopNode {
 	
@@ -18,8 +17,8 @@ public class ReturnNode extends StopNode {
 	@SuppressWarnings("null")
 	public @NonNull TypeInfo expectedTypeInfo = null;
 	
-	public ReturnNode(Node[] parseNodes, @Nullable ExpressionNode expressionNode) {
-		super(parseNodes);
+	public ReturnNode(Source source, @Nullable ExpressionNode expressionNode) {
+		super(source);
 		this.expressionNode = expressionNode;
 	}
 	

@@ -2,14 +2,13 @@ package drlc.intermediate.ast.expression;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public class AssignmentExpressionNode extends ExpressionNode {
 	
@@ -20,8 +19,8 @@ public class AssignmentExpressionNode extends ExpressionNode {
 	@SuppressWarnings("null")
 	public @NonNull TypeInfo typeInfo = null;
 	
-	public AssignmentExpressionNode(Node[] parseNodes, @NonNull ExpressionNode lvalueExpressionNode, @NonNull AssignmentOpType assignmentOpType, @NonNull ExpressionNode rvalueExpressionNode) {
-		super(parseNodes);
+	public AssignmentExpressionNode(Source source, @NonNull ExpressionNode lvalueExpressionNode, @NonNull AssignmentOpType assignmentOpType, @NonNull ExpressionNode rvalueExpressionNode) {
+		super(source);
 		this.lvalueExpressionNode = lvalueExpressionNode;
 		this.assignmentOpType = assignmentOpType;
 		this.rvalueExpressionNode = rvalueExpressionNode;
@@ -29,7 +28,7 @@ public class AssignmentExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, parent.scope);
+		scope = new Scope(this, null, parent.scope, true);
 		
 		rvalueExpressionNode.setScopes(this);
 		lvalueExpressionNode.setScopes(this);
@@ -51,13 +50,15 @@ public class AssignmentExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void defineExpressions(ASTNode<?> parent) {
+		lvalueExpressionNode.setTypeInfo(null);
+		
+		setTypeInfo(lvalueExpressionNode.getTypeInfo());
+		
 		rvalueExpressionNode.defineExpressions(this);
 		
 		lvalueExpressionNode.setIsLvalue();
 		
 		lvalueExpressionNode.defineExpressions(this);
-		
-		setTypeInfo(null);
 		
 		if (!lvalueExpressionNode.isValidLvalue()) {
 			throw error("Attempted to assign to invalid lvalue expression!");

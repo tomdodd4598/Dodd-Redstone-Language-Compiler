@@ -1,19 +1,37 @@
-nesting fn \root() -> Int:
+nesting fn root() -> Int:
 {0}:
 	%0 = call $main()
 	exit $0
 
+stack <2> fn fact(<3> n: Int) -> Int:
+{0}:
+	%t = <3> n <= $1
+	cnj 1
+	ret $1
+{1}:
+	%1 = <3> n - $1
+	%2 = call $<2> fact(%1)
+	%3 = %2 * <3> n
+	ret %3
+
+stack <11> fn fib(<12> n: Int) -> Int:
+{0}:
+	%t = <12> n <= $1
+	cnj 1
+	ret $1
+{1}:
+	%1 = <12> n - $1
+	%2 = call $<11> fib(%1)
+	%3 = <12> n - $2
+	%4 = call $<11> fib(%3)
+	%5 = %4 + %2
+	ret %5
+
 nesting fn main() -> ():
+{dec}:
+	<23> x: Int
+	<23> y: Int
 {0}:
-	%0 = call $<2> main()
-	ret $()
-
-nesting <2> fn main() -> ():
-{0}:
-	%0 = call $<4> main()
-	ret $()
-
-stack <4> fn main() -> ():
-{0}:
-	%0 = call $<4> main()
+	<23> x = call $<2> fact($3)
+	<23> y = call $<11> fib($5)
 	ret $()

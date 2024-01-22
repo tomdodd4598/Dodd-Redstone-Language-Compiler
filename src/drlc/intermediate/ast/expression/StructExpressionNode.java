@@ -4,19 +4,17 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Helpers;
+import drlc.*;
 import drlc.Helpers.Pair;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.MemberInfo;
-import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public class StructExpressionNode extends ExpressionNode {
 	
-	public final @NonNull String name;
+	public final @NonNull List<String> path;
 	public final @Nullable List<String> labels;
 	public final @NonNull List<ExpressionNode> expressionNodes;
 	
@@ -28,16 +26,16 @@ public class StructExpressionNode extends ExpressionNode {
 	
 	public @Nullable StructValue constantValue = null;
 	
-	public StructExpressionNode(Node[] parseNodes, @NonNull String name, @NonNull Pair<List<String>, @NonNull List<ExpressionNode>> expressionNodesPair) {
-		super(parseNodes);
-		this.name = name;
+	public StructExpressionNode(Source source, @NonNull List<String> path, @NonNull Pair<List<String>, @NonNull List<ExpressionNode>> expressionNodesPair) {
+		super(source);
+		this.path = path;
 		labels = expressionNodesPair.left;
 		expressionNodes = expressionNodesPair.right;
 	}
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, parent.scope);
+		scope = new Scope(this, null, parent.scope, true);
 		
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.setScopes(this);
@@ -67,22 +65,6 @@ public class StructExpressionNode extends ExpressionNode {
 		}
 		
 		setTypeInfo(null);
-		
-		if (labels != null) {
-			int count = expressionNodes.size();
-			sortedExpressionNodes = new ArrayList<>(Collections.nCopies(count, null));
-			for (int i = 0; i < count; ++i) {
-				@SuppressWarnings("null") @NonNull String label = labels.get(i);
-				MemberInfo info = typeInfo.getMemberInfo(label);
-				if (info == null) {
-					throw error("Expression of type \"%s\" has no member \"%s\"!", typeInfo, label);
-				}
-				sortedExpressionNodes.set(info.index, expressionNodes.get(i));
-			}
-		}
-		else {
-			sortedExpressionNodes = expressionNodes;
-		}
 	}
 	
 	@Override
@@ -95,7 +77,7 @@ public class StructExpressionNode extends ExpressionNode {
 		for (int i = 0; i < count; ++i) {
 			@SuppressWarnings("null") @NonNull TypeInfo expressionType = sortedExpressionNodes.get(i).getTypeInfo(), memberType = typeInfo.typeInfos.get(i);
 			if (!expressionType.canImplicitCastTo(memberType)) {
-				throw castError("member value", expressionType, memberType);
+				throw castError("member", expressionType, memberType);
 			}
 		}
 	}
@@ -128,12 +110,10 @@ public class StructExpressionNode extends ExpressionNode {
 			expressionNode.generateIntermediate(this);
 		}
 		
-		routine.addCompoundAssignmentAction(this, dataId = routine.nextRegId(typeInfo.copy(this)), Helpers.map(sortedExpressionNodes, x -> x.dataId));
+		@NonNull TypeInfo rawTypeInfo = typeInfo.copy(this);
+		routine.addCompoundAssignmentAction(this, dataId = typeInfo.isAddress() ? scope.nextLocalDataId(routine, rawTypeInfo) : routine.nextRegId(rawTypeInfo), Helpers.map(sortedExpressionNodes, x -> x.dataId));
 		
-		for (int i = typeInfo.getReferenceLevel() - 1; i >= 0; --i) {
-			@NonNull DataId arg = dataId;
-			routine.addAddressAssignmentAction(this, dataId = routine.nextRegId(typeInfo.dereference(this, i)), arg);
-		}
+		dataId = routine.addSelfAddressAssignmentAction(this, scope, typeInfo.getReferenceLevel(), dataId);
 	}
 	
 	@Override
@@ -143,12 +123,28 @@ public class StructExpressionNode extends ExpressionNode {
 	
 	@Override
 	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
-		@NonNull TypeInfo typeInfo = scope.getTypeInfo(this, name);
+		@NonNull TypeInfo typeInfo = scope.pathGet(this, path, (x, name) -> x.getTypeInfo(this, name, false));
 		if (!(typeInfo instanceof StructTypeInfo)) {
 			throw error("Type \"%s\" is not a struct type!", typeInfo);
 		}
 		
 		this.typeInfo = (StructTypeInfo) typeInfo;
+		
+		if (labels != null) {
+			int count = expressionNodes.size();
+			sortedExpressionNodes = new ArrayList<>(Collections.nCopies(count, null));
+			for (int i = 0; i < count; ++i) {
+				@SuppressWarnings("null") @NonNull String label = labels.get(i);
+				MemberInfo info = typeInfo.getMemberInfo(label);
+				if (info == null) {
+					throw error("Expression of type \"%s\" has no member \"%s\"!", typeInfo, label);
+				}
+				sortedExpressionNodes.set(info.index, expressionNodes.get(i));
+			}
+		}
+		else {
+			sortedExpressionNodes = expressionNodes;
+		}
 		
 		List<TypeInfo> memberTypeInfos = this.typeInfo.typeInfos;
 		int structMemberCount = memberTypeInfos.size(), expressionCount = sortedExpressionNodes.size();

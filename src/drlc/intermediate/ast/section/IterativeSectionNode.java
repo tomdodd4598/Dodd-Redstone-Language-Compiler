@@ -2,15 +2,15 @@ package drlc.intermediate.ast.section;
 
 import org.eclipse.jdt.annotation.Nullable;
 
+import drlc.Source;
 import drlc.intermediate.scope.IterativeScope;
-import drlc.node.Node;
 
 public abstract class IterativeSectionNode extends RuntimeSectionNode<IterativeScope> {
 	
 	public final @Nullable String label;
 	
-	protected IterativeSectionNode(Node[] parseNodes, @Nullable String label) {
-		super(parseNodes);
+	protected IterativeSectionNode(Source source, @Nullable String label) {
+		super(source);
 		this.label = label;
 	}
 }

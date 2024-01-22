@@ -49,18 +49,6 @@ public abstract class Value<T extends TypeInfo> {
 		return (byte) longValue(node);
 	}
 	
-	public IntValue toInt(ASTNode<?> node) {
-		throw Helpers.nodeError(node, "Value of type \"%s\" can not be cast to an Int!", typeInfo);
-	}
-	
-	public NatValue toNat(ASTNode<?> node) {
-		throw Helpers.nodeError(node, "Value of type \"%s\" can not be cast to a Nat!", typeInfo);
-	}
-	
-	public byte charValue(ASTNode<?> node) {
-		throw Helpers.nodeError(node, "Value of type \"%s\" can not be cast to a Char!", typeInfo);
-	}
-	
 	public @NonNull Value<?> atIndex(ASTNode<?> node, int index) {
 		throw Helpers.nodeError(node, "Value of type \"%s\" can not be indexed!", typeInfo);
 	}

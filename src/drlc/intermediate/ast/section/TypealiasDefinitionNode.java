@@ -2,18 +2,18 @@ package drlc.intermediate.ast.section;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.type.TypeNode;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public class TypealiasDefinitionNode extends StaticSectionNode<Scope> {
 	
 	public final @NonNull String name;
 	public final @NonNull TypeNode typeNode;
 	
-	public TypealiasDefinitionNode(Node[] parseNodes, @NonNull String name, @NonNull TypeNode typeNode) {
-		super(parseNodes);
+	public TypealiasDefinitionNode(Source source, @NonNull String name, @NonNull TypeNode typeNode) {
+		super(source);
 		this.name = name;
 		this.typeNode = typeNode;
 	}
@@ -31,7 +31,7 @@ public class TypealiasDefinitionNode extends StaticSectionNode<Scope> {
 		
 		typeNode.setTypeInfo();
 		
-		scope.addTypealias(this, name, typeNode.typeInfo);
+		scope.addTypealias(this, name, typeNode.getTypeInfo());
 	}
 	
 	@Override
@@ -61,6 +61,6 @@ public class TypealiasDefinitionNode extends StaticSectionNode<Scope> {
 	
 	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
-		// routine.typedefMap.put(name, typeNode.typeInfo);
+		// routine.typeDefMap.put(name, typeNode.typeInfo);
 	}
 }

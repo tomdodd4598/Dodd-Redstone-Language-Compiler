@@ -2,23 +2,22 @@ package drlc.intermediate.ast;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import drlc.Helpers;
+import drlc.*;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public abstract class ASTNode<SCOPE extends Scope> {
 	
-	public Node[] parseNodes;
+	public final Source source;
 	
 	@SuppressWarnings("null")
 	public @NonNull SCOPE scope = null;
 	@SuppressWarnings("null")
 	public @NonNull Routine routine = null;
 	
-	protected ASTNode(Node[] parseNodes) {
-		this.parseNodes = parseNodes;
+	protected ASTNode(Source source) {
+		this.source = source;
 	}
 	
 	public void traverse() {
@@ -49,7 +48,7 @@ public abstract class ASTNode<SCOPE extends Scope> {
 	public abstract void generateIntermediate(ASTNode<?> parent);
 	
 	protected RuntimeException error(String s, Object... args) {
-		return Helpers.nodeError(parseNodes, s, args);
+		return Helpers.nodeError(this, s, args);
 	}
 	
 	protected RuntimeException castError(String descriptor, TypeInfo actualTypeInfo, TypeInfo expectedTypeInfo) {

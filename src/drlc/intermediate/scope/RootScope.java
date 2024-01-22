@@ -13,13 +13,12 @@ import drlc.intermediate.component.data.ValueDataId;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.routine.Routine;
 
-public class RootScope extends Scope {
+public class RootScope extends ModuleScope {
 	
 	protected final Map<Function, Routine> routineMap = new LinkedHashMap<>();
 	
 	public RootScope(ASTNode<?> node) {
-		super(node, null);
-		definiteLocalReturn = true;
+		super(node, Global.ROOT, null);
 	}
 	
 	@Override
@@ -80,10 +79,10 @@ public class RootScope extends Scope {
 		List<List<Action>> body = routine.getBodyActionLists();
 		for (List<Action> list : body) {
 			for (Action action : list) {
-				if (action instanceof FunctionCallAction) {
-					FunctionCallAction fca = (FunctionCallAction) action;
-					if (fca.function instanceof ValueDataId) {
-						Value<?> value = ((ValueDataId) fca.function).value;
+				if (action instanceof CallAction) {
+					CallAction fca = (CallAction) action;
+					if (fca.caller instanceof ValueDataId) {
+						Value<?> value = ((ValueDataId) fca.caller).value;
 						if (value instanceof FunctionItemValue) {
 							Function callFunction = ((FunctionItemValue) value).typeInfo.function;
 							if (routineExists(callFunction)) {

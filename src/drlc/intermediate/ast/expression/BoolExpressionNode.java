@@ -2,18 +2,17 @@ package drlc.intermediate.ast.expression;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.*;
-import drlc.node.Node;
 
 public class BoolExpressionNode extends ConstantExpressionNode {
 	
 	public final @NonNull BoolValue value;
 	
-	public BoolExpressionNode(Node[] parseNodes, boolean value) {
-		super(parseNodes);
+	public BoolExpressionNode(Source source, boolean value) {
+		super(source);
 		this.value = Main.generator.boolValue(value);
 	}
 	

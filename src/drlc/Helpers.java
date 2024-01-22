@@ -12,13 +12,14 @@ import java.util.stream.*;
 import org.apache.commons.text.translate.*;
 import org.eclipse.jdt.annotation.*;
 
-import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.ast.*;
 import drlc.intermediate.component.*;
-import drlc.intermediate.component.type.*;
+import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.scope.Scope;
-import drlc.lexer.Lexer;
+import drlc.lexer.*;
+import drlc.node.*;
 import drlc.node.Node;
-import drlc.node.Token;
+import drlc.parser.*;
 
 public class Helpers {
 	
@@ -42,6 +43,31 @@ public class Helpers {
 	
 	public static Lexer stringLexer(String str) {
 		return new Lexer(new PushbackReader(new StringReader(str), 16384));
+	}
+	
+	public static StartNode getAST(String fileName) throws IOException {
+		String contents = Helpers.readFile(fileName);
+		Lexer lexer = Helpers.stringLexer(contents);
+		
+		/* Create parse tree */
+		Parser parser = new Parser(lexer);
+		Start parseTree;
+		
+		try {
+			parseTree = parser.parse();
+		}
+		catch (ParserException e) {
+			throw Helpers.sourceError(new Source(fileName, contents, e.getToken()), e.getMessage());
+		}
+		catch (LexerException e) {
+			throw Helpers.sourceError(new Source(fileName, contents, e.getToken()), e.getMessage());
+		}
+		
+		/* Build AST */
+		Visitor visitor = new Visitor(fileName, contents);
+		parseTree.apply(visitor);
+		
+		return visitor.ast;
 	}
 	
 	private static final Map<String, String> ESCAPE_MAP = new HashMap<>();
@@ -153,50 +179,61 @@ public class Helpers {
 			return Stream.of((Token) parseNode);
 		}
 		else {
-			return Arrays.stream(parseNode.getClass().getDeclaredMethods()).filter(x -> x.getParameterCount() == 0 && Node.class.isAssignableFrom(x.getReturnType())).map(x -> {
+			return Arrays.stream(parseNode.getClass().getDeclaredMethods()).filter(x -> {
+				if (x.getParameterCount() > 0) {
+					return false;
+				}
+				else {
+					Class<?> returnType = x.getReturnType();
+					return Node.class.isAssignableFrom(returnType) || LinkedList.class.isAssignableFrom(returnType);
+				}
+			}).map(x -> {
 				try {
 					return x.invoke(parseNode);
 				}
 				catch (Exception e) {
 					return null;
 				}
-			}).filter(x -> x instanceof Node).flatMap(x -> allTokens((Node) x));
+			}).filter(x -> x instanceof Node || x instanceof LinkedList).flatMap(x -> {
+				if (x instanceof Node) {
+					return allTokens((Node) x);
+				}
+				else {
+					return ((LinkedList<?>) x).stream().filter(y -> y instanceof Node).flatMap(y -> allTokens((Node) y));
+				}
+			});
 		}
 	}
 	
-	public static Pair<String, String> nodeInfo(Node[] parseNodes) {
+	public static Pair<String, String> sourceInfo(Source source) {
 		MinMax<Token> mm = new MinMax<>((x, y) -> {
 			int lineCompare = Integer.compare(x.getLine(), y.getLine());
 			return lineCompare != 0 ? lineCompare : Integer.compare(x.getPos(), y.getPos());
 		});
 		
-		for (Node parseNode : parseNodes) {
+		for (Node parseNode : source.parseNodes) {
 			allTokens(parseNode).forEach(x -> mm.update(x));
 		}
 		
 		Token min = mm.min, max = mm.max;
 		int minLine = min.getLine(), minPos = min.getPos(), maxLine = max.getLine(), maxPos = max.getPos() + max.getText().length();
 		
-		String range = String.format("%s:%s -> %s:%s", minLine, minPos, maxLine, maxPos);
-		String source = substring(Main.source.split("\\R", -1), minLine - 1, minPos - 1, maxLine - 1, maxPos - 1);
-		return new Pair<>(range, source);
+		String range = String.format("%s: %s:%s -> %s:%s", source.fileName, minLine, minPos, maxLine, maxPos);
+		String contents = substring(source.contents.split("\\R", -1), minLine - 1, minPos - 1, maxLine - 1, maxPos - 1);
+		return new Pair<>(range, contents);
 	}
 	
-	public static RuntimeException nodeError(Node[] parseNodes, String s, Object... args) {
+	public static RuntimeException sourceError(Source source, String s, Object... args) {
 		StringBuilder sb = new StringBuilder(String.format(s, args));
-		if (parseNodes != null && parseNodes.length > 0) {
-			Pair<String, String> info = nodeInfo(parseNodes);
+		if (source != null && source.parseNodes.length > 0) {
+			Pair<String, String> info = sourceInfo(source);
 			sb.append("\n\n").append(info.left).append("\n\n").append(info.right).append("\n");
 		}
 		return new IllegalArgumentException(sb.toString());
 	}
 	
-	public static RuntimeException nodeError(Node parseNode, String s, Object... args) {
-		return nodeError(array(parseNode), s, args);
-	}
-	
 	public static RuntimeException nodeError(ASTNode<?> node, String s, Object... args) {
-		return nodeError(node == null ? null : node.parseNodes, s, args);
+		return sourceError(node == null ? null : node.source, s, args);
 	}
 	
 	public static RuntimeException error(String s, Object... args) {
@@ -312,11 +349,15 @@ public class Helpers {
 	}
 	
 	public static <T> String tupleString(Collection<T> collection) {
-		return collection.size() == 1 ? Global.LIST_START + collection.iterator().next() + Global.LIST_SEPARATOR + Global.LIST_END : listString(collection);
+		return collection.size() == 1 ? Global.LIST_START + collection.iterator().next() + Global.TUPLE_SINGLE_END : listString(collection);
 	}
 	
-	public static <T> String structString(@NonNull TypeDefinition typedef, Collection<T> collection) {
-		return typedef + " " + collectionString(collection, Global.LIST_SEPARATOR, Global.BRACE_START, Global.BRACE_END);
+	public static <T> String structString(String typeDef, Collection<T> collection) {
+		return typeDef + " " + collectionString(collection, Global.LIST_SEPARATOR, Global.BRACE_START, Global.BRACE_END);
+	}
+	
+	public static <T> String pathString(Collection<T> collection) {
+		return collectionString(collection, Global.PATH_SEPARATOR, "", "");
 	}
 	
 	public static <T> T[] array(T... objects) {
@@ -346,62 +387,19 @@ public class Helpers {
 		return (value < 0 ? "-0x" : "0x") + String.format("%" + length + "s", Long.toHexString(Math.abs(value))).replace(' ', '0').toUpperCase(Locale.ROOT);
 	}
 	
-	public static @Nullable TypeInfo getCommonTypeInfo(List<TypeInfo> types) {
-		if (types.isEmpty()) {
+	public static @Nullable TypeInfo getCommonTypeInfo(ASTNode<?> node, List<TypeInfo> typeInfos) {
+		if (typeInfos.isEmpty()) {
 			return null;
 		}
-		else {
-			int count = types.size();
-			List<List<@NonNull TypeInfo>> typeLists = new ArrayList<>();
-			int[] ends = new int[count];
-			for (int i = 0; i < count; ++i) {
-				List<@NonNull TypeInfo> list = getSuperTypeList(types.get(i));
-				typeLists.add(list);
-				ends[i] = list.size() - 1;
-			}
-			return getCommonTypeInfoInternal(typeLists, ends);
+		
+		TypeInfo firstTypeInfo = typeInfos.get(0);
+		int firstReferenceLevel = firstTypeInfo.getReferenceLevel();
+		if (!typeInfos.stream().allMatch(x -> x.equalsOther(firstTypeInfo, true)) || !typeInfos.stream().allMatch(x -> x.getReferenceLevel() == firstReferenceLevel)) {
+			return null;
 		}
-	}
-	
-	private static List<@NonNull TypeInfo> getSuperTypeList(TypeInfo type) {
-		List<@NonNull TypeInfo> list = new ArrayList<>();
-		while (type != null) {
-			list.add(type);
-			type = type.getSuperType();
-		}
-		return list;
-	}
-	
-	private static @Nullable TypeInfo getCommonTypeInfoInternal(List<List<@NonNull TypeInfo>> typeLists, int[] ends) {
-		int count = typeLists.size();
-		int[] indices = new int[count];
-		List<TypeInfo> firstTypeList = typeLists.get(0);
-		outer: while (true) {
-			boolean success = true;
-			TypeInfo firstType = firstTypeList.get(indices[0]);
-			for (int i = 1; i < count; ++i) {
-				if (!firstType.equals(typeLists.get(i).get(indices[i]))) {
-					success = false;
-					break;
-				}
-			}
-			if (success) {
-				return firstType;
-			}
-			else {
-				for (int i = 0; i < count; ++i) {
-					if (indices[i] == ends[i]) {
-						indices[i] = 0;
-					}
-					else {
-						++indices[i];
-						continue outer;
-					}
-				}
-				break;
-			}
-		}
-		return null;
+		
+		List<Boolean> commonReferenceMutability = IntStream.range(0, firstReferenceLevel).mapToObj(x -> typeInfos.stream().allMatch(y -> y.referenceMutability.get(x))).collect(Collectors.toList());
+		return firstTypeInfo.copy(node, commonReferenceMutability);
 	}
 	
 	public static class Pair<L, R> {

@@ -2,13 +2,12 @@ package drlc.intermediate.ast.section;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.action.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.expression.*;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.scope.ConditionalScope;
-import drlc.node.Node;
 
 public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope> {
 	
@@ -17,8 +16,8 @@ public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope>
 	public final @NonNull ScopedBodyNode thenNode;
 	public final @Nullable ASTNode<?> elseNode;
 	
-	public ConditionalSectionNode(Node[] parseNodes, boolean unless, @NonNull ExpressionNode expressionNode, @NonNull ScopedBodyNode thenNode, @Nullable ASTNode<?> elseNode) {
-		super(parseNodes);
+	public ConditionalSectionNode(Source source, boolean unless, @NonNull ExpressionNode expressionNode, @NonNull ScopedBodyNode thenNode, @Nullable ASTNode<?> elseNode) {
+		super(source);
 		this.unless = unless;
 		this.expressionNode = expressionNode;
 		this.thenNode = thenNode;
@@ -27,7 +26,7 @@ public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope>
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new ConditionalScope(this, parent.scope, elseNode != null);
+		scope = new ConditionalScope(this, null, parent.scope, false, elseNode != null);
 		
 		expressionNode.setScopes(this);
 		thenNode.setScopes(this);
@@ -80,7 +79,7 @@ public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope>
 		
 		@NonNull TypeInfo expressionType = expressionNode.getTypeInfo();
 		if (!expressionType.canImplicitCastTo(Main.generator.boolTypeInfo)) {
-			throw castError("conditional value", expressionType, Main.generator.boolTypeInfo);
+			throw castError("condition value", expressionType, Main.generator.boolTypeInfo);
 		}
 	}
 	

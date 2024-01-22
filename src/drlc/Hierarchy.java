@@ -1,6 +1,7 @@
 package drlc;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 
 public class Hierarchy<K, V> {
 	
@@ -54,5 +55,12 @@ public class Hierarchy<K, V> {
 			return true;
 		}
 		return shallow || parent == null ? false : parent.containsKey(key, false);
+	}
+	
+	public void forEach(BiConsumer<? super K, ? super V> consumer, boolean shallow) {
+		internal.forEach(consumer);
+		if (!shallow && parent != null) {
+			parent.forEach(consumer, false);
+		}
 	}
 }

@@ -10,11 +10,11 @@ import drlc.intermediate.component.type.*;
 
 public class StructValue extends CompoundValue<StructTypeInfo> {
 	
-	public final @NonNull TypeDefinition typedef;
+	public final @NonNull TypeDef typeDef;
 	
 	public StructValue(ASTNode<?> node, @NonNull StructTypeInfo typeInfo, List<Value<?>> values) {
 		super(node, typeInfo, values);
-		this.typedef = typeInfo.typedef;
+		this.typeDef = typeInfo.typeDef;
 	}
 	
 	@Override
@@ -29,6 +29,6 @@ public class StructValue extends CompoundValue<StructTypeInfo> {
 	
 	@Override
 	public String valueString() {
-		return Helpers.structString(typedef, Helpers.map(values, Value::valueString));
+		return Helpers.structString(typeDef.toString(), Helpers.map(values, Value::valueString));
 	}
 }

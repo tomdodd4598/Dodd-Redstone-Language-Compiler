@@ -4,17 +4,16 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import drlc.Helpers;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.*;
-import drlc.node.Node;
 
 public class TupleTypeNode extends TypeNode {
 	
 	public final @NonNull List<TypeNode> typeNodes;
 	
-	public TupleTypeNode(Node[] parseNodes, @NonNull List<TypeNode> typeNodes) {
-		super(parseNodes);
+	public TupleTypeNode(Source source, @NonNull List<TypeNode> typeNodes) {
+		super(source);
 		this.typeNodes = typeNodes;
 	}
 	
@@ -80,9 +79,9 @@ public class TupleTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void collectTypedefs(Set<TypeDefinition> typedefs) {
+	public void collectTypeDefs(Set<TypeDef> typeDefs) {
 		for (TypeNode typeNode : typeNodes) {
-			typeNode.collectTypedefs(typedefs);
+			typeNode.collectTypeDefs(typeDefs);
 		}
 	}
 }

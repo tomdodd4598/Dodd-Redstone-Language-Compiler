@@ -5,7 +5,9 @@ import org.eclipse.jdt.annotation.NonNull;
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
+import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.value.*;
+import drlc.intermediate.routine.Routine;
 
 public abstract class RedstoneGenerator extends Generator {
 	
@@ -14,23 +16,8 @@ public abstract class RedstoneGenerator extends Generator {
 	}
 	
 	@Override
-	public void addBuiltInDirectives() {
-		super.addBuiltInDirectives();
-		
-		directiveMap.put(Global.SETARGC, new Directive(1, Helpers.array(Helpers.builtInDeclarator("x", natTypeInfo))) {
-			
-			@Override
-			public void run(@NonNull Value[] values) {
-				Main.rootScope.addConstant(null, new Constant(Global.ARGC, values[0]), true);
-			}
-		});
-	}
-	
-	@Override
 	public void addBuiltInConstants() {
 		super.addBuiltInConstants();
-		
-		Main.rootScope.addConstant(null, new Constant(Global.ARGC, intValue(0)), false);
 	}
 	
 	@Override
@@ -39,7 +26,37 @@ public abstract class RedstoneGenerator extends Generator {
 	}
 	
 	@Override
-	public @NonNull Value intIntBinaryOp(ASTNode<?> node, IntValue left, @NonNull BinaryOpType opType, IntValue right) {
+	public void addBuiltInFunctions() {
+		super.addBuiltInFunctions();
+	}
+	
+	@Override
+	public @NonNull IntValue intValue(long value) {
+		return new IntValue(null, (short) value);
+	}
+	
+	@Override
+	public @NonNull NatValue natValue(long value) {
+		return new NatValue(null, (short) value);
+	}
+	
+	@Override
+	public int getWordSize() {
+		return 1;
+	}
+	
+	@Override
+	public int getFunctionSize() {
+		return getWordSize();
+	}
+	
+	@Override
+	public int getAddressSize() {
+		return getWordSize();
+	}
+	
+	@Override
+	public @NonNull Value<?> intIntBinaryOp(ASTNode<?> node, IntValue left, @NonNull BinaryOpType opType, IntValue right) {
 		short leftShort = left.shortValue(node), rightShort = right.shortValue(node);
 		switch (opType) {
 			case EQUAL_TO:
@@ -90,7 +107,7 @@ public abstract class RedstoneGenerator extends Generator {
 	}
 	
 	@Override
-	public @NonNull Value natNatBinaryOp(ASTNode<?> node, NatValue left, @NonNull BinaryOpType opType, NatValue right) {
+	public @NonNull Value<?> natNatBinaryOp(ASTNode<?> node, NatValue left, @NonNull BinaryOpType opType, NatValue right) {
 		short leftShort = left.shortValue(node), rightShort = right.shortValue(node);
 		switch (opType) {
 			case EQUAL_TO:
@@ -141,7 +158,7 @@ public abstract class RedstoneGenerator extends Generator {
 	}
 	
 	@Override
-	public @NonNull Value intUnaryOp(ASTNode<?> node, @NonNull UnaryOpType opType, @NonNull IntValue value) {
+	public @NonNull Value<?> intUnaryOp(ASTNode<?> node, @NonNull UnaryOpType opType, @NonNull IntValue value) {
 		short shortValue = value.shortValue(node);
 		switch (opType) {
 			case MINUS:
@@ -154,7 +171,7 @@ public abstract class RedstoneGenerator extends Generator {
 	}
 	
 	@Override
-	public @NonNull Value natUnaryOp(ASTNode<?> node, @NonNull UnaryOpType opType, @NonNull NatValue value) {
+	public @NonNull Value<?> natUnaryOp(ASTNode<?> node, @NonNull UnaryOpType opType, @NonNull NatValue value) {
 		short shortValue = value.shortValue(node);
 		switch (opType) {
 			case MINUS:
@@ -167,28 +184,33 @@ public abstract class RedstoneGenerator extends Generator {
 	}
 	
 	@Override
-	public @NonNull IntValue intValue(long value) {
-		return new IntValue(null, (short) value);
+	public void addressToWordCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg) {
+		routine.addAssignmentAction(node, target, arg);
 	}
 	
 	@Override
-	public @NonNull NatValue natValue(long value) {
-		return new NatValue(null, (short) value);
+	public void boolToWordCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg) {
+		routine.addAssignmentAction(node, target, arg);
 	}
 	
 	@Override
-	public int getWordSize() {
-		return 1;
+	public void intToAddressCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg) {
+		routine.addAssignmentAction(node, target, arg);
 	}
 	
 	@Override
-	public int getFunctionSize() {
-		return getWordSize();
+	public void natToAddressCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg) {
+		routine.addAssignmentAction(node, target, arg);
 	}
 	
 	@Override
-	public int getAddressSize() {
-		return getWordSize();
+	public void wordToCharCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg) {
+		routine.addBinaryOpAction(node, intTypeInfo, BinaryOpType.AND, intTypeInfo, target, arg, intValue(255).dataId());
+	}
+	
+	@Override
+	public void charToWordCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg) {
+		routine.addAssignmentAction(node, target, arg);
 	}
 	
 	public RedstoneCode generateCode() {

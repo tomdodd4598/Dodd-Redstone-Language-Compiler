@@ -10,13 +10,13 @@ public class CharValue extends BasicValue<CharTypeInfo> {
 	
 	public final byte value;
 	
-	public CharValue(ASTNode<?> node, char value) {
+	public CharValue(ASTNode<?> node, byte value) {
 		super(node, Main.generator.charTypeInfo);
-		this.value = (byte) value;
+		this.value = value;
 	}
 	
 	@Override
-	public byte charValue(ASTNode<?> node) {
+	public long longValue(ASTNode<?> node) {
 		return value;
 	}
 	

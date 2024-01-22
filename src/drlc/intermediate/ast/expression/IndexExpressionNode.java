@@ -2,14 +2,13 @@ package drlc.intermediate.ast.expression;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.BinaryOpType;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public class IndexExpressionNode extends ExpressionNode {
 	
@@ -34,15 +33,15 @@ public class IndexExpressionNode extends ExpressionNode {
 	
 	public boolean isLvalue = false;
 	
-	public IndexExpressionNode(Node[] parseNodes, @NonNull ExpressionNode baseExpressionNode, @NonNull ExpressionNode indexExpressionNode) {
-		super(parseNodes);
+	public IndexExpressionNode(Source source, @NonNull ExpressionNode baseExpressionNode, @NonNull ExpressionNode indexExpressionNode) {
+		super(source);
 		this.baseExpressionNode = baseExpressionNode;
 		this.indexExpressionNode = indexExpressionNode;
 	}
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, parent.scope);
+		scope = new Scope(this, null, parent.scope, true);
 		
 		baseExpressionNode.setScopes(this);
 		indexExpressionNode.setScopes(this);
@@ -112,7 +111,9 @@ public class IndexExpressionNode extends ExpressionNode {
 		
 		DataId baseDataId;
 		if (baseIsArray && !baseExpressionNode.getIsLvalue()) {
-			routine.addAddressAssignmentAction(this, baseDataId = routine.nextRegId(constantArrayIndex ? baseArrayTypeInfo.addressOf(this, true) : addressTypeInfo), baseExpressionNode.dataId);
+			DataId temp = scope.nextLocalDataId(routine, baseExpressionNode.getTypeInfo());
+			routine.addAssignmentAction(this, temp, baseExpressionNode.dataId);
+			routine.addAddressAssignmentAction(this, baseDataId = routine.nextRegId(constantArrayIndex ? baseArrayTypeInfo.addressOf(this, true) : addressTypeInfo), temp);
 		}
 		else {
 			baseDataId = baseExpressionNode.dataId;

@@ -2,15 +2,15 @@ package drlc.intermediate.ast.stop;
 
 import org.eclipse.jdt.annotation.Nullable;
 
+import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
-import drlc.node.Node;
 
 public class ContinueNode extends StopNode {
 	
 	public final @Nullable String label;
 	
-	public ContinueNode(Node[] parseNodes, @Nullable String label) {
-		super(parseNodes);
+	public ContinueNode(Source source, @Nullable String label) {
+		super(source);
 		this.label = label;
 	}
 	

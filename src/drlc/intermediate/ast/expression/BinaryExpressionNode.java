@@ -2,7 +2,7 @@ package drlc.intermediate.ast.expression;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.action.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.BinaryOpType;
@@ -10,7 +10,6 @@ import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
 import drlc.intermediate.scope.*;
-import drlc.node.Node;
 
 public class BinaryExpressionNode extends ExpressionNode {
 	
@@ -23,8 +22,8 @@ public class BinaryExpressionNode extends ExpressionNode {
 	
 	public @Nullable Value<?> constantValue = null;
 	
-	public BinaryExpressionNode(Node[] parseNodes, @NonNull ExpressionNode leftExpressionNode, @NonNull BinaryOpType binaryOpType, @NonNull ExpressionNode rightExpressionNode) {
-		super(parseNodes);
+	public BinaryExpressionNode(Source source, @NonNull ExpressionNode leftExpressionNode, @NonNull BinaryOpType binaryOpType, @NonNull ExpressionNode rightExpressionNode) {
+		super(source);
 		this.leftExpressionNode = leftExpressionNode;
 		this.binaryOpType = binaryOpType;
 		this.rightExpressionNode = rightExpressionNode;
@@ -33,7 +32,7 @@ public class BinaryExpressionNode extends ExpressionNode {
 	@Override
 	public void setScopes(ASTNode<?> parent) {
 		if (binaryOpType.isLogical()) {
-			scope = new ConditionalScope(this, parent.scope, false);
+			scope = new ConditionalScope(this, null, parent.scope, true, false);
 			
 			leftExpressionNode.setScopes(this);
 			rightExpressionNode.setScopes(this);
@@ -41,7 +40,7 @@ public class BinaryExpressionNode extends ExpressionNode {
 			rightExpressionNode.scope.definiteExecution = false;
 		}
 		else {
-			scope = new Scope(this, parent.scope);
+			scope = new Scope(this, null, parent.scope, true);
 			
 			leftExpressionNode.setScopes(this);
 			rightExpressionNode.setScopes(this);

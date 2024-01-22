@@ -4,13 +4,12 @@ import java.util.ArrayList;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Helpers;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.section.FunctionDefinitionNode;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.Value;
-import drlc.node.Node;
 
 public class ClosureExpressionNode extends ExpressionNode {
 	
@@ -23,8 +22,8 @@ public class ClosureExpressionNode extends ExpressionNode {
 	@SuppressWarnings("null")
 	public @NonNull ClosureTypeInfo typeInfo = null;
 	
-	public ClosureExpressionNode(Node[] parseNodes, @NonNull String name, @NonNull FunctionDefinitionNode functionNode) {
-		super(parseNodes);
+	public ClosureExpressionNode(Source source, @NonNull String name, @NonNull FunctionDefinitionNode functionNode) {
+		super(source);
 		this.name = name;
 		this.functionNode = functionNode;
 	}

@@ -2,14 +2,13 @@ package drlc.intermediate.ast.expression;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.action.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
 import drlc.intermediate.scope.ConditionalScope;
-import drlc.node.Node;
 
 public class TernaryExpressionNode extends ExpressionNode {
 	
@@ -22,8 +21,8 @@ public class TernaryExpressionNode extends ExpressionNode {
 	
 	public @Nullable Value<?> constantValue = null;
 	
-	public TernaryExpressionNode(Node[] parseNodes, @NonNull ExpressionNode conditionExpressionNode, @NonNull ExpressionNode trueExpressionNode, @NonNull ExpressionNode falseExpressionNode) {
-		super(parseNodes);
+	public TernaryExpressionNode(Source source, @NonNull ExpressionNode conditionExpressionNode, @NonNull ExpressionNode trueExpressionNode, @NonNull ExpressionNode falseExpressionNode) {
+		super(source);
 		this.conditionExpressionNode = conditionExpressionNode;
 		this.trueExpressionNode = trueExpressionNode;
 		this.falseExpressionNode = falseExpressionNode;
@@ -31,7 +30,7 @@ public class TernaryExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new ConditionalScope(this, parent.scope, true);
+		scope = new ConditionalScope(this, null, parent.scope, true, true);
 		
 		conditionExpressionNode.setScopes(this);
 		trueExpressionNode.setScopes(this);
@@ -74,7 +73,7 @@ public class TernaryExpressionNode extends ExpressionNode {
 		
 		@NonNull TypeInfo conditionExpressionType = conditionExpressionNode.getTypeInfo();
 		if (!conditionExpressionType.canImplicitCastTo(Main.generator.boolTypeInfo)) {
-			throw castError("conditional value", conditionExpressionType, Main.generator.boolTypeInfo);
+			throw castError("condition value", conditionExpressionType, Main.generator.boolTypeInfo);
 		}
 		
 		@NonNull TypeInfo trueExpressionType = trueExpressionNode.getTypeInfo(), falseExpressionType = falseExpressionNode.getTypeInfo();

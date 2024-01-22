@@ -2,14 +2,14 @@
 
 package drlc.node;
 
+import java.util.*;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
 public final class ATupleExpressionList extends PTupleExpressionList
 {
+    private final LinkedList<PTupleExpressionListHead> _tupleExpressionListHead_ = new LinkedList<PTupleExpressionListHead>();
     private PExpression _expression_;
-    private TComma _comma_;
-    private PExpressionList _expressionList_;
 
     public ATupleExpressionList()
     {
@@ -17,16 +17,13 @@ public final class ATupleExpressionList extends PTupleExpressionList
     }
 
     public ATupleExpressionList(
-        @SuppressWarnings("hiding") PExpression _expression_,
-        @SuppressWarnings("hiding") TComma _comma_,
-        @SuppressWarnings("hiding") PExpressionList _expressionList_)
+        @SuppressWarnings("hiding") List<?> _tupleExpressionListHead_,
+        @SuppressWarnings("hiding") PExpression _expression_)
     {
         // Constructor
+        setTupleExpressionListHead(_tupleExpressionListHead_);
+
         setExpression(_expression_);
-
-        setComma(_comma_);
-
-        setExpressionList(_expressionList_);
 
     }
 
@@ -34,15 +31,40 @@ public final class ATupleExpressionList extends PTupleExpressionList
     public Object clone()
     {
         return new ATupleExpressionList(
-            cloneNode(this._expression_),
-            cloneNode(this._comma_),
-            cloneNode(this._expressionList_));
+            cloneList(this._tupleExpressionListHead_),
+            cloneNode(this._expression_));
     }
 
     @Override
     public void apply(Switch sw)
     {
         ((Analysis) sw).caseATupleExpressionList(this);
+    }
+
+    public LinkedList<PTupleExpressionListHead> getTupleExpressionListHead()
+    {
+        return this._tupleExpressionListHead_;
+    }
+
+    public void setTupleExpressionListHead(List<?> list)
+    {
+        for(PTupleExpressionListHead e : this._tupleExpressionListHead_)
+        {
+            e.parent(null);
+        }
+        this._tupleExpressionListHead_.clear();
+
+        for(Object obj_e : list)
+        {
+            PTupleExpressionListHead e = (PTupleExpressionListHead) obj_e;
+            if(e.parent() != null)
+            {
+                e.parent().removeChild(e);
+            }
+
+            e.parent(this);
+            this._tupleExpressionListHead_.add(e);
+        }
     }
 
     public PExpression getExpression()
@@ -70,84 +92,26 @@ public final class ATupleExpressionList extends PTupleExpressionList
         this._expression_ = node;
     }
 
-    public TComma getComma()
-    {
-        return this._comma_;
-    }
-
-    public void setComma(TComma node)
-    {
-        if(this._comma_ != null)
-        {
-            this._comma_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._comma_ = node;
-    }
-
-    public PExpressionList getExpressionList()
-    {
-        return this._expressionList_;
-    }
-
-    public void setExpressionList(PExpressionList node)
-    {
-        if(this._expressionList_ != null)
-        {
-            this._expressionList_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._expressionList_ = node;
-    }
-
     @Override
     public String toString()
     {
         return ""
-            + toString(this._expression_)
-            + toString(this._comma_)
-            + toString(this._expressionList_);
+            + toString(this._tupleExpressionListHead_)
+            + toString(this._expression_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
+        if(this._tupleExpressionListHead_.remove(child))
+        {
+            return;
+        }
+
         if(this._expression_ == child)
         {
             this._expression_ = null;
-            return;
-        }
-
-        if(this._comma_ == child)
-        {
-            this._comma_ = null;
-            return;
-        }
-
-        if(this._expressionList_ == child)
-        {
-            this._expressionList_ = null;
             return;
         }
 
@@ -158,21 +122,27 @@ public final class ATupleExpressionList extends PTupleExpressionList
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
+        for(ListIterator<PTupleExpressionListHead> i = this._tupleExpressionListHead_.listIterator(); i.hasNext();)
+        {
+            if(i.next() == oldChild)
+            {
+                if(newChild != null)
+                {
+                    i.set((PTupleExpressionListHead) newChild);
+                    newChild.parent(this);
+                    oldChild.parent(null);
+                    return;
+                }
+
+                i.remove();
+                oldChild.parent(null);
+                return;
+            }
+        }
+
         if(this._expression_ == oldChild)
         {
             setExpression((PExpression) newChild);
-            return;
-        }
-
-        if(this._comma_ == oldChild)
-        {
-            setComma((TComma) newChild);
-            return;
-        }
-
-        if(this._expressionList_ == oldChild)
-        {
-            setExpressionList((PExpressionList) newChild);
             return;
         }
 

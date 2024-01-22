@@ -4,12 +4,11 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.expression.ExpressionNode;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.Value;
-import drlc.node.Node;
 
 public class ArrayTypeNode extends TypeNode {
 	
@@ -18,8 +17,8 @@ public class ArrayTypeNode extends TypeNode {
 	
 	public int length;
 	
-	public ArrayTypeNode(Node[] parseNodes, @NonNull TypeNode typeNode, @NonNull ExpressionNode constantExpressionNode) {
-		super(parseNodes);
+	public ArrayTypeNode(Source source, @NonNull TypeNode typeNode, @NonNull ExpressionNode constantExpressionNode) {
+		super(source);
 		this.typeNode = typeNode;
 		this.constantExpressionNode = constantExpressionNode;
 	}
@@ -90,7 +89,7 @@ public class ArrayTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void collectTypedefs(Set<TypeDefinition> typedefs) {
-		typeNode.collectTypedefs(typedefs);
+	public void collectTypeDefs(Set<TypeDef> typeDefs) {
+		typeNode.collectTypeDefs(typeDefs);
 	}
 }

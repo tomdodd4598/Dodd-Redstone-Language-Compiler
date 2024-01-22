@@ -4,12 +4,12 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.element.DeclaratorNode;
 import drlc.intermediate.component.MemberInfo;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public class StructDefinitionNode extends StaticSectionNode<Scope> {
 	
@@ -17,10 +17,10 @@ public class StructDefinitionNode extends StaticSectionNode<Scope> {
 	public final @NonNull List<DeclaratorNode> componentNodes;
 	
 	@SuppressWarnings("null")
-	public @NonNull TypeDefinition typedef = null;
+	public @NonNull TypeDef typeDef = null;
 	
-	public StructDefinitionNode(Node[] parseNodes, @NonNull String name, @NonNull List<DeclaratorNode> componentNodes) {
-		super(parseNodes);
+	public StructDefinitionNode(Source source, @NonNull String name, @NonNull List<DeclaratorNode> componentNodes) {
+		super(source);
 		this.name = name;
 		this.componentNodes = componentNodes;
 		
@@ -45,21 +45,21 @@ public class StructDefinitionNode extends StaticSectionNode<Scope> {
 	public void defineTypes(ASTNode<?> parent) {
 		Map<String, MemberInfo> memberMap = new HashMap<>();
 		List<TypeInfo> typeInfos = new ArrayList<>();
-		typedef = new TypeDefinition(name, 0, memberMap, (node, referenceLevel, scope) -> new StructTypeInfo(node, referenceLevel, typeInfos, scope, name));
+		typeDef = new TypeDef(name, 0, memberMap, (node, referenceLevel, scope) -> new StructTypeInfo(node, referenceLevel, typeInfos, scope, name));
 		
-		scope.addTypedef(this, typedef);
+		scope.addTypeDef(this, typeDef);
 		
 		for (DeclaratorNode componentNode : componentNodes) {
 			componentNode.defineTypes(this);
 		}
 		
-		Set<TypeDefinition> typedefs = new HashSet<>();
+		Set<TypeDef> typeDefs = new HashSet<>();
 		
 		for (DeclaratorNode componentNode : componentNodes) {
-			componentNode.typeNode.collectTypedefs(typedefs);
+			componentNode.typeNode.collectTypeDefs(typeDefs);
 		}
 		
-		if (typedefs.contains(typedef)) {
+		if (typeDefs.contains(typeDef)) {
 			throw error("Struct \"%s\" can not directly contain itself!", name);
 		}
 		
@@ -68,10 +68,10 @@ public class StructDefinitionNode extends StaticSectionNode<Scope> {
 		}
 		
 		for (DeclaratorNode componentNode : componentNodes) {
-			typeInfos.add(componentNode.typeNode.typeInfo);
+			typeInfos.add(componentNode.typeNode.getTypeInfo());
 		}
 		
-		typedef.size = typeInfos.stream().mapToInt(TypeInfo::getSize).sum();
+		typeDef.size = typeInfos.stream().mapToInt(TypeInfo::getSize).sum();
 		
 		int count = componentNodes.size(), offset = 0;
 		for (int i = 0; i < count; ++i) {
@@ -114,6 +114,6 @@ public class StructDefinitionNode extends StaticSectionNode<Scope> {
 	
 	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
-		routine.typedefMap.put(typedef.toString(), typedef.getTypeInfo(this, new ArrayList<>(), scope));
+		routine.typeDefMap.put(typeDef.toString(), typeDef.getTypeInfo(this, new ArrayList<>(), scope));
 	}
 }

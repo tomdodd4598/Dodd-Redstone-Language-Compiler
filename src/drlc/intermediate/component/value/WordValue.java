@@ -22,16 +22,6 @@ public abstract class WordValue<T extends BasicTypeInfo> extends BasicValue<T> {
 	}
 	
 	@Override
-	public IntValue toInt(ASTNode<?> node) {
-		return new IntValue(node, value);
-	}
-	
-	@Override
-	public NatValue toNat(ASTNode<?> node) {
-		return new NatValue(node, value);
-	}
-	
-	@Override
 	public int hashCode() {
 		return Objects.hash(typeInfo, value);
 	}

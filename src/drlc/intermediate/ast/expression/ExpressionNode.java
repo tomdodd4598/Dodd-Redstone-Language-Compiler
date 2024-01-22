@@ -2,14 +2,13 @@ package drlc.intermediate.ast.expression;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Helpers;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Function;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public abstract class ExpressionNode extends ASTNode<Scope> {
 	
@@ -19,8 +18,8 @@ public abstract class ExpressionNode extends ASTNode<Scope> {
 	@SuppressWarnings("null")
 	public @NonNull DataId dataId = null;
 	
-	protected ExpressionNode(Node[] parseNodes) {
-		super(parseNodes);
+	protected ExpressionNode(Source source) {
+		super(source);
 	}
 	
 	public @NonNull TypeInfo getTypeInfo() {
@@ -70,7 +69,7 @@ public abstract class ExpressionNode extends ASTNode<Scope> {
 	public @Nullable ConstantExpressionNode constantExpressionNode() {
 		@Nullable Value<?> constantValue = getConstantValue();
 		if (constantValue != null) {
-			return new ValueExpressionNode(parseNodes, scope, routine, constantValue);
+			return new ValueExpressionNode(source, scope, routine, constantValue);
 		}
 		else {
 			return null;
@@ -87,6 +86,10 @@ public abstract class ExpressionNode extends ASTNode<Scope> {
 	
 	public boolean isMutableReference() {
 		return getTypeInfo().isMutableReference();
+	}
+	
+	public boolean isMutable() {
+		return !getIsLvalue() || isMutableLvalue();
 	}
 	
 	public boolean getIsLvalue() {

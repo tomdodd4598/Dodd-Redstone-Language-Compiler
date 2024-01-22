@@ -37,33 +37,9 @@ Helpers
 	block_comment = '/*' not_star* '*'+ (not_star_slash not_star* '*'+)* '/';
 
 Tokens
-	directive_prefix = '%!';
-	
-	typealias = 'typealias';
-	struct = 'struct';
-	
-	fn = 'fn';
-	const = 'const';
-	let = 'let';
-	
-	static = 'static';
-	mut = 'mut';
+	path_separator = '::';
 	
 	arrow = '->';
-	
-	conditional_branch_keyword = 'if' | 'unless';
-	else = 'else';
-	
-	loop = 'loop';
-	conditional_iterative_keyword = 'while' | 'until';
-	do = 'do';
-	
-	exit = 'exit';
-	return = 'return';
-	continue = 'continue';
-	break = 'break';
-	
-	sizeof = 'sizeof';
 	
 	l_par = '(';
 	r_par = ')';
@@ -122,9 +98,43 @@ Tokens
 	
 	not = '!';
 	
+	mod = 'mod';
+	use = 'use';
+	
+	root = 'root';
+	super = 'super';
+	self = 'self';
+	
+	fn = 'fn';
+	alias = 'alias';
+	struct = 'struct';
+	const = 'const';
+	let = 'let';
+	
+	as = 'as';
+	
+	static = 'static';
+	mut = 'mut';
+	
+	conditional_branch_keyword = 'if' | 'unless';
+	else = 'else';
+	
+	loop = 'loop';
+	conditional_iterative_keyword = 'while' | 'until';
+	do = 'do';
+	
+	exit = 'exit';
+	return = 'return';
+	continue = 'continue';
+	break = 'break';
+	
+	sizeof = 'sizeof';
+	
+	null_value = 'null';
+	
 	bool_value = 'false' | 'true';
 	
-	name = (letter | '_') (digit | letter | '_')*;
+	name = letter (digit | letter | '_')*;
 	
 	int_value = integer ('I' | 'i');
 	nat_value = integer ('N' | 'n');
@@ -140,23 +150,13 @@ Ignored Tokens
 	comment;
 
 Productions
-	unit =
-		setup program;
-	
-	setup =
-		directive*;
-	
-	program =
+	module =
 		static_section*;
 	
-	
-	
-	/* UNIT SPECIFICATION */
-	
-	directive =
-		directive_prefix name expression_list? semicolon;
-	
 	static_section =
+		{module_declaration} module_declaration |
+		{module_definition} module_definition |
+		{use_declaration} use_declaration |
 		{function_definition} function_definition |
 		{typealias_definition} typealias_definition |
 		{struct_definition} struct_definition |
@@ -175,14 +175,40 @@ Productions
 	
 	/* SECTION SPECIFICATIONS */
 	
+	module_declaration =
+		mod name semicolon;
+	
+	module_definition =
+		mod name l_brace module r_brace;
+	
+	use_declaration =
+		use use_tree semicolon;
+	
+	use_tree =
+		{nested} path_prefix* l_brace use_tree_list? r_brace |
+		{wildcard} path_prefix* multiply |
+		{leaf} path_prefix* path_segment use_alias?;
+	
+	path_prefix =
+		path_segment path_separator;
+	
+	use_tree_list =
+		use_tree use_tree_list_tail* comma?;
+	
+	use_tree_list_tail =
+		comma use_tree;
+	
+	use_alias =
+		as name;
+	
 	function_definition =
-		fn name l_par declarator_list? r_par return_type? l_brace scoped_body r_brace;
+		fn name template_parameter_list? l_par declarator_list? r_par return_type? l_brace scoped_body r_brace;
 	
 	typealias_definition =
-		typealias name equals type semicolon;
+		alias name template_parameter_list? equals type semicolon;
 	
 	struct_definition =
-		struct name l_brace declarator_list? r_brace;
+		struct name template_parameter_list? l_brace declarator_list? r_brace;
 	
 	constant_definition =
 		const name type_annotation? equals constant_expression semicolon;
@@ -201,7 +227,7 @@ Productions
 		expression semicolon;
 	
 	conditional_section =
-		conditional_branch_keyword condition_expression l_brace scoped_body r_brace else_section?;
+		conditional_branch_keyword brace_expression l_brace scoped_body r_brace else_section?;
 	
 	else_section =
 		{excluding_branch} else l_brace scoped_body r_brace |
@@ -209,7 +235,7 @@ Productions
 	
 	iterative_section =
 		{loop} label? loop l_brace scoped_body r_brace |
-		{conditional} label? conditional_iterative_keyword condition_expression l_brace scoped_body r_brace |
+		{conditional} label? conditional_iterative_keyword brace_expression l_brace scoped_body r_brace |
 		{do_conditional} label? do l_brace scoped_body r_brace conditional_iterative_keyword expression semicolon;
 	
 	scoped_body =
@@ -238,13 +264,16 @@ Productions
 		{double_address_of} logical_and mut? type;
 	
 	raw_type =
-		{nominal} name |
+		{nominal} path |
 		{array} l_bracket type semicolon constant_expression r_bracket |
 		{tuple} l_par tuple_type_list? r_par |
 		{function} fn l_par type_list? r_par return_type?;
 	
 	tuple_type_list =
-		type comma type_list?;
+		tuple_type_list_head+ type?;
+	
+	tuple_type_list_head =
+		type comma;
 	
 	type_list =
 		type type_list_tail* comma?;
@@ -257,6 +286,27 @@ Productions
 	
 	type_annotation =
 		colon type;
+	
+	template_parameter_list =
+		less_than template_parameter_list_head* name comma? more_than;
+	
+	template_parameter_list_head =
+		name comma;
+	
+	path =
+		path_segment path_tail* template_argument_path_list?;
+	
+	path_tail =
+		path_separator path_segment;
+	
+	path_segment =
+		{root} root |
+		{super} super |
+		{self} self |
+		{name} name;
+	
+	template_argument_path_list =
+		path_separator less_than tuple_type_list_head* type comma? more_than;
 	
 	declarator =
 		variable_modifier* name type_annotation?;
@@ -297,8 +347,12 @@ Productions
 		{assignment} unary_expression assignment_op expression;
 	
 	ternary_expression =
+		{prioritized} cast_expression |
+		{ternary} cast_expression question_mark expression colon ternary_expression;
+	
+	cast_expression =
 		{prioritized} logical_expression |
-		{ternary} logical_expression question_mark expression colon ternary_expression;
+		{cast} unary_expression as type;
 	
 	logical_expression =
 		{prioritized} equality_expression |
@@ -325,29 +379,36 @@ Productions
 		{binary} shift_expression shift_binary_op unary_expression;
 	
 	unary_expression =
-		{prioritized} compound_expression |
+		{prioritized} suffix_expression |
 		{unary} unary_op unary_expression |
 		{dereference} multiply unary_expression |
 		{address_of} and mut? unary_expression |
 		{double_address_of} logical_and mut? unary_expression;
 	
+	suffix_expression =
+		{prioritized} call_expression |
+		{index} suffix_expression l_bracket expression r_bracket |
+		{member} suffix_expression full_stop member |
+		{method} suffix_expression full_stop path l_par expression_list? r_par;
+	
+	call_expression =
+		{prioritized} compound_expression |
+		{call} call_expression l_par expression_list? r_par;
+	
 	compound_expression =
 		{parentheses} parentheses_expression |
-		{simple} simple_expression |
+		{primary} primary_expression |
 		{array_list} l_bracket expression_list? r_bracket |
 		{array_repeat} l_bracket expression semicolon constant_expression r_bracket |
-		{index} compound_expression l_bracket expression r_bracket |
 		{tuple} l_par tuple_expression_list? r_par |
-		{struct} name l_brace struct_expression_list? r_brace |
-		{member} compound_expression full_stop simple_expression |
-		{function} compound_expression l_par expression_list? r_par;
+		{struct} path l_brace struct_expression_list? r_brace;
 	
 	parentheses_expression =
 		l_par expression r_par;
 	
-	simple_expression =
-		{value} value |
-		{variable} name;
+	primary_expression =
+		{scalar} scalar |
+		{path} path;
 	
 	expression_list =
 		expression expression_list_tail* comma?;
@@ -356,7 +417,10 @@ Productions
 		comma expression;
 	
 	tuple_expression_list =
-		expression comma expression_list?;
+		tuple_expression_list_head+ expression?;
+	
+	tuple_expression_list_head =
+		expression comma;
 	
 	struct_expression_list =
 		{basic} expression_list |
@@ -371,7 +435,12 @@ Productions
 	labelled_expression =
 		label expression;
 	
-	value =
+	member =
+		{name} name |
+		{word} word_value;
+	
+	scalar =
+		{null} null_value |
 		{bool} bool_value |
 		{int} int_value |
 		{nat} nat_value |
@@ -382,58 +451,69 @@ Productions
 	constant_expression =
 		expression;
 	
-	condition_expression =
-		{prioritized} condition_assignment_expression |
-		{closure} closure_declarator_list condition_expression;
+	brace_expression =
+		{prioritized} brace_assignment_expression |
+		{closure} closure_declarator_list brace_expression;
 	
-	condition_assignment_expression =
-		{prioritized} condition_ternary_expression |
-		{assignment} condition_unary_expression assignment_op condition_expression;
+	brace_assignment_expression =
+		{prioritized} brace_ternary_expression |
+		{assignment} brace_unary_expression assignment_op brace_expression;
 	
-	condition_ternary_expression =
-		{prioritized} condition_logical_expression |
-		{ternary} condition_logical_expression question_mark expression colon condition_ternary_expression;
+	brace_ternary_expression =
+		{prioritized} brace_cast_expression |
+		{ternary} brace_cast_expression question_mark expression colon brace_ternary_expression;
 	
-	condition_logical_expression =
-		{prioritized} condition_equality_expression |
-		{binary} condition_logical_expression logical_binary_op condition_equality_expression;
+	brace_cast_expression =
+		{prioritized} brace_logical_expression |
+		{cast} brace_unary_expression as type;
 	
-	condition_equality_expression =
-		{prioritized} condition_comparative_expression |
-		{binary} condition_equality_expression equality_binary_op condition_comparative_expression;
+	brace_logical_expression =
+		{prioritized} brace_equality_expression |
+		{binary} brace_logical_expression logical_binary_op brace_equality_expression;
 	
-	condition_comparative_expression =
-		{prioritized} condition_additive_expression |
-		{binary} condition_comparative_expression comparative_binary_op condition_additive_expression;
+	brace_equality_expression =
+		{prioritized} brace_comparative_expression |
+		{binary} brace_equality_expression equality_binary_op brace_comparative_expression;
 	
-	condition_additive_expression =
-		{prioritized} condition_multiplicative_expression |
-		{binary} condition_additive_expression additive_binary_op condition_multiplicative_expression;
+	brace_comparative_expression =
+		{prioritized} brace_additive_expression |
+		{binary} brace_comparative_expression comparative_binary_op brace_additive_expression;
 	
-	condition_multiplicative_expression =
-		{prioritized} condition_shift_expression |
-		{binary} condition_multiplicative_expression multiplicative_binary_op condition_shift_expression;
+	brace_additive_expression =
+		{prioritized} brace_multiplicative_expression |
+		{binary} brace_additive_expression additive_binary_op brace_multiplicative_expression;
 	
-	condition_shift_expression =
-		{prioritized} condition_unary_expression |
-		{binary} condition_shift_expression shift_binary_op condition_unary_expression;
+	brace_multiplicative_expression =
+		{prioritized} brace_shift_expression |
+		{binary} brace_multiplicative_expression multiplicative_binary_op brace_shift_expression;
 	
-	condition_unary_expression =
-		{prioritized} condition_compound_expression |
-		{unary} unary_op condition_unary_expression |
-		{dereference} multiply condition_unary_expression |
-		{address_of} and mut? condition_unary_expression |
-		{double_address_of} logical_and mut? condition_unary_expression;
+	brace_shift_expression =
+		{prioritized} brace_unary_expression |
+		{binary} brace_shift_expression shift_binary_op brace_unary_expression;
 	
-	condition_compound_expression =
+	brace_unary_expression =
+		{prioritized} brace_suffix_expression |
+		{unary} unary_op brace_unary_expression |
+		{dereference} multiply brace_unary_expression |
+		{address_of} and mut? brace_unary_expression |
+		{double_address_of} logical_and mut? brace_unary_expression;
+	
+	brace_suffix_expression =
+		{prioritized} brace_call_expression |
+		{index} brace_suffix_expression l_bracket expression r_bracket |
+		{member} brace_suffix_expression full_stop member |
+		{method} brace_suffix_expression full_stop path l_par expression_list? r_par;
+	
+	brace_call_expression =
+		{prioritized} brace_compound_expression |
+		{call} brace_call_expression l_par expression_list? r_par;
+	
+	brace_compound_expression =
 		{parentheses} parentheses_expression |
-		{simple} simple_expression |
+		{primary} primary_expression |
 		{array_list} l_bracket expression_list? r_bracket |
 		{array_repeat} l_bracket expression semicolon constant_expression r_bracket |
-		{index} condition_compound_expression l_bracket expression r_bracket |
-		{tuple} l_par tuple_expression_list? r_par |
-		{member} condition_compound_expression full_stop simple_expression |
-		{function} condition_compound_expression l_par expression_list? r_par;
+		{tuple} l_par tuple_expression_list? r_par;
 	
 	
 	

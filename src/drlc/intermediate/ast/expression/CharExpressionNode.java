@@ -2,19 +2,18 @@ package drlc.intermediate.ast.expression;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.*;
-import drlc.node.Node;
 
 public class CharExpressionNode extends ConstantExpressionNode {
 	
 	public final @NonNull CharValue value;
 	
-	public CharExpressionNode(Node[] parseNodes, char value) {
-		super(parseNodes);
-		this.value = Main.generator.charValue(value);
+	public CharExpressionNode(Source source, char value) {
+		super(source);
+		this.value = Main.generator.charValue((byte) value);
 	}
 	
 	@Override

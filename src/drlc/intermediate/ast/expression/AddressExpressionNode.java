@@ -2,13 +2,13 @@ package drlc.intermediate.ast.expression;
 
 import org.eclipse.jdt.annotation.*;
 
+import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Function;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public class AddressExpressionNode extends ExpressionNode {
 	
@@ -18,15 +18,15 @@ public class AddressExpressionNode extends ExpressionNode {
 	@SuppressWarnings("null")
 	public @NonNull TypeInfo typeInfo = null;
 	
-	public AddressExpressionNode(Node[] parseNodes, boolean mutable, @NonNull ExpressionNode expressionNode) {
-		super(parseNodes);
+	public AddressExpressionNode(Source source, boolean mutable, @NonNull ExpressionNode expressionNode) {
+		super(source);
 		this.mutable = mutable;
 		this.expressionNode = expressionNode;
 	}
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, parent.scope);
+		scope = new Scope(this, null, parent.scope, true);
 		
 		expressionNode.setScopes(this);
 	}
@@ -51,10 +51,10 @@ public class AddressExpressionNode extends ExpressionNode {
 		
 		if (expressionNode.isValidLvalue()) {
 			expressionNode.setIsLvalue();
-			
-			if (mutable && !expressionNode.isMutableLvalue()) {
-				throw error("Attempted to create mutable reference of immutable lvalue expression!");
-			}
+		}
+		
+		if (mutable && !expressionNode.isMutable()) {
+			throw error("Attempted to create mutable reference of immutable expression!");
 		}
 	}
 	

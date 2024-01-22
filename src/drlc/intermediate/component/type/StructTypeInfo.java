@@ -11,73 +11,59 @@ import drlc.intermediate.scope.Scope;
 
 public class StructTypeInfo extends CompoundTypeInfo {
 	
-	public final @NonNull TypeDefinition typedef;
+	public final @NonNull TypeDef typeDef;
 	
-	public final @NonNull TupleTypeInfo tupleTypeInfo;
-	
-	protected StructTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos, @NonNull TypeDefinition typedef) {
+	protected StructTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos, @NonNull TypeDef typeDef) {
 		super(node, referenceMutability, typeInfos);
-		this.typedef = typedef;
-		tupleTypeInfo = new TupleTypeInfo(null, referenceMutability, typeInfos);
+		this.typeDef = typeDef;
 	}
 	
-	public StructTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos, Scope scope, @NonNull String typedefName) {
-		this(node, referenceMutability, typeInfos, scope.getTypedef(node, typedefName));
+	public StructTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos, Scope scope, @NonNull String typeDefName) {
+		this(node, referenceMutability, typeInfos, scope.getTypeDef(node, typeDefName, false));
 	}
 	
 	@Override
 	public @NonNull TypeInfo copy(ASTNode<?> node, List<Boolean> referenceMutability) {
-		return new StructTypeInfo(node, referenceMutability, typeInfos, typedef);
-	}
-	
-	@Override
-	public boolean exists(Scope scope) {
-		return scope.typedefExists(typedef.name, false) && super.exists(scope);
+		return new StructTypeInfo(node, referenceMutability, typeInfos, typeDef);
 	}
 	
 	@Override
 	public int getSize() {
-		return isAddress() ? Main.generator.getAddressSize() : typedef.size;
+		return isAddress() ? Main.generator.getAddressSize() : typeDef.size;
 	}
 	
 	@Override
 	public boolean canImplicitCastTo(TypeInfo otherInfo) {
-		if (super.equalsOther(otherInfo, true) && canImplicitCastToReferenceMutability(otherInfo)) {
-			return !(otherInfo instanceof StructTypeInfo) || typedef.equals(((StructTypeInfo) otherInfo).typedef);
-		}
-		else {
-			return tupleTypeInfo.canImplicitCastTo(otherInfo);
-		}
+		return equalsOther(otherInfo, true) && canImplicitCastToReferenceMutability(otherInfo);
 	}
 	
 	@Override
-	public @Nullable TypeInfo getSuperType() {
-		return tupleTypeInfo;
+	public boolean isMemberAccessValid() {
+		return true;
 	}
 	
 	@Override
 	public @Nullable MemberInfo getMemberInfo(@NonNull String memberName) {
-		return isAddress() ? null : typedef.getMemberInfo(memberName);
+		return typeDef.memberMap.get(memberName);
 	}
 	
 	@Override
-	public void collectTypedefs(Set<TypeDefinition> typedefs) {
+	public void collectTypeDefs(Set<TypeDef> typeDefs) {
 		if (!isAddress()) {
-			typedefs.add(typedef);
+			typeDefs.add(typeDef);
 		}
-		super.collectTypedefs(typedefs);
+		super.collectTypeDefs(typeDefs);
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(referenceMutability, nonRecursiveTypeInfos(x -> null), typedef);
+		return Objects.hash(referenceMutability, nonRecursiveTypeInfos(x -> null), typeDef);
 	}
 	
 	@Override
 	public boolean equalsOther(Object obj, boolean ignoreReferenceMutability) {
 		if (obj instanceof StructTypeInfo) {
-			StructTypeInfo other = (StructTypeInfo) obj;
-			return super.equalsOther(obj, ignoreReferenceMutability) && typedef.equals(other.typedef);
+			return super.equalsOther(obj, ignoreReferenceMutability) && typeDef.equals(((StructTypeInfo) obj).typeDef);
 		}
 		else {
 			return false;
@@ -86,11 +72,11 @@ public class StructTypeInfo extends CompoundTypeInfo {
 	
 	@Override
 	public String rawString() {
-		return Helpers.structString(typedef, nonRecursiveTypeInfos(x -> x.getReferenceMutabilityString() + ((StructTypeInfo) x).typedef));
+		return typeDef.rawString();
 	}
 	
 	@Override
-	public String routineString() {
-		return getRoutineReferenceString() + Helpers.structString(typedef, nonRecursiveTypeInfos(x -> x.getRoutineReferenceString() + ((StructTypeInfo) x).typedef));
+	public String rawRoutineString() {
+		return Helpers.structString(typeDef.toString(), nonRecursiveTypeInfos(x -> x.getRoutineReferenceString() + ((StructTypeInfo) x).typeDef));
 	}
 }

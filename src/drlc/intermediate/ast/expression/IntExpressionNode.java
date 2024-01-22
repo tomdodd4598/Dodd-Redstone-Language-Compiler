@@ -2,18 +2,17 @@ package drlc.intermediate.ast.expression;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.*;
-import drlc.node.Node;
 
 public class IntExpressionNode extends ConstantExpressionNode {
 	
 	public final @NonNull IntValue value;
 	
-	public IntExpressionNode(Node[] parseNodes, long value) {
-		super(parseNodes);
+	public IntExpressionNode(Source source, long value) {
+		super(source);
 		this.value = Main.generator.intValue(value);
 	}
 	

@@ -2,22 +2,22 @@ package drlc.intermediate.ast.section;
 
 import org.eclipse.jdt.annotation.*;
 
+import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.scope.IterativeScope;
-import drlc.node.Node;
 
 public class LoopIterativeSectionNode extends IterativeSectionNode {
 	
 	public final @NonNull ScopedBodyNode bodyNode;
 	
-	public LoopIterativeSectionNode(Node[] parseNodes, @Nullable String label, @NonNull ScopedBodyNode bodyNode) {
-		super(parseNodes, label);
+	public LoopIterativeSectionNode(Source source, @Nullable String label, @NonNull ScopedBodyNode bodyNode) {
+		super(source, label);
 		this.bodyNode = bodyNode;
 	}
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new IterativeScope(this, parent.scope, true, label);
+		scope = new IterativeScope(this, null, parent.scope, false, true, label);
 		
 		bodyNode.setScopes(this);
 	}

@@ -4,25 +4,25 @@ import java.util.List;
 
 import org.eclipse.jdt.annotation.*;
 
+import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.stop.StopNode;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public class ScopedBodyNode extends RuntimeSectionNode<Scope> {
 	
 	public final @NonNull List<RuntimeSectionNode<?>> sectionNodes;
 	public final @Nullable StopNode stopNode;
 	
-	public ScopedBodyNode(Node[] parseNodes, @NonNull List<RuntimeSectionNode<?>> sectionNodes, @Nullable StopNode stopNode) {
-		super(parseNodes);
+	public ScopedBodyNode(Source source, @NonNull List<RuntimeSectionNode<?>> sectionNodes, @Nullable StopNode stopNode) {
+		super(source);
 		this.sectionNodes = sectionNodes;
 		this.stopNode = stopNode;
 	}
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, parent.scope);
+		scope = new Scope(this, null, parent.scope, false);
 		
 		for (RuntimeSectionNode<?> sectionNode : sectionNodes) {
 			sectionNode.setScopes(this);

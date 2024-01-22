@@ -9,7 +9,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
 {
     private PLabel _label_;
     private TConditionalIterativeKeyword _conditionalIterativeKeyword_;
-    private PConditionExpression _conditionExpression_;
+    private PBraceExpression _braceExpression_;
     private TLBrace _lBrace_;
     private PScopedBody _scopedBody_;
     private TRBrace _rBrace_;
@@ -22,7 +22,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
     public AConditionalIterativeSection(
         @SuppressWarnings("hiding") PLabel _label_,
         @SuppressWarnings("hiding") TConditionalIterativeKeyword _conditionalIterativeKeyword_,
-        @SuppressWarnings("hiding") PConditionExpression _conditionExpression_,
+        @SuppressWarnings("hiding") PBraceExpression _braceExpression_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
         @SuppressWarnings("hiding") PScopedBody _scopedBody_,
         @SuppressWarnings("hiding") TRBrace _rBrace_)
@@ -32,7 +32,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
 
         setConditionalIterativeKeyword(_conditionalIterativeKeyword_);
 
-        setConditionExpression(_conditionExpression_);
+        setBraceExpression(_braceExpression_);
 
         setLBrace(_lBrace_);
 
@@ -48,7 +48,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
         return new AConditionalIterativeSection(
             cloneNode(this._label_),
             cloneNode(this._conditionalIterativeKeyword_),
-            cloneNode(this._conditionExpression_),
+            cloneNode(this._braceExpression_),
             cloneNode(this._lBrace_),
             cloneNode(this._scopedBody_),
             cloneNode(this._rBrace_));
@@ -110,16 +110,16 @@ public final class AConditionalIterativeSection extends PIterativeSection
         this._conditionalIterativeKeyword_ = node;
     }
 
-    public PConditionExpression getConditionExpression()
+    public PBraceExpression getBraceExpression()
     {
-        return this._conditionExpression_;
+        return this._braceExpression_;
     }
 
-    public void setConditionExpression(PConditionExpression node)
+    public void setBraceExpression(PBraceExpression node)
     {
-        if(this._conditionExpression_ != null)
+        if(this._braceExpression_ != null)
         {
-            this._conditionExpression_.parent(null);
+            this._braceExpression_.parent(null);
         }
 
         if(node != null)
@@ -132,7 +132,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
             node.parent(this);
         }
 
-        this._conditionExpression_ = node;
+        this._braceExpression_ = node;
     }
 
     public TLBrace getLBrace()
@@ -216,7 +216,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
         return ""
             + toString(this._label_)
             + toString(this._conditionalIterativeKeyword_)
-            + toString(this._conditionExpression_)
+            + toString(this._braceExpression_)
             + toString(this._lBrace_)
             + toString(this._scopedBody_)
             + toString(this._rBrace_);
@@ -238,9 +238,9 @@ public final class AConditionalIterativeSection extends PIterativeSection
             return;
         }
 
-        if(this._conditionExpression_ == child)
+        if(this._braceExpression_ == child)
         {
-            this._conditionExpression_ = null;
+            this._braceExpression_ = null;
             return;
         }
 
@@ -281,9 +281,9 @@ public final class AConditionalIterativeSection extends PIterativeSection
             return;
         }
 
-        if(this._conditionExpression_ == oldChild)
+        if(this._braceExpression_ == oldChild)
         {
-            setConditionExpression((PConditionExpression) newChild);
+            setBraceExpression((PBraceExpression) newChild);
             return;
         }
 

@@ -12,7 +12,6 @@ import drlc.intermediate.component.Function;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.FunctionScope;
-import drlc.node.Node;
 
 public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 	
@@ -25,8 +24,8 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 	@SuppressWarnings("null")
 	public @NonNull Function function = null;
 	
-	public FunctionDefinitionNode(Node[] parseNodes, @NonNull String name, @NonNull List<DeclaratorNode> parameterNodes, @Nullable TypeNode returnTypeNode, @NonNull ScopedBodyNode bodyNode, boolean closure) {
-		super(parseNodes);
+	public FunctionDefinitionNode(Source source, @NonNull String name, @NonNull List<DeclaratorNode> parameterNodes, @Nullable TypeNode returnTypeNode, @NonNull ScopedBodyNode bodyNode, boolean closure) {
+		super(source);
 		this.name = name;
 		this.parameterNodes = parameterNodes;
 		this.returnTypeNode = returnTypeNode;
@@ -74,10 +73,10 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 			returnTypeNode.declareExpressions(this);
 		}
 		
-		@NonNull TypeInfo returnType = returnTypeNode != null ? returnTypeNode.typeInfo : Main.generator.unitTypeInfo;
+		@NonNull TypeInfo returnType = returnTypeNode != null ? returnTypeNode.getTypeInfo() : Main.generator.unitTypeInfo;
 		
-		function = scope.function = new Function(this, name, false, returnType, Helpers.map(parameterNodes, x -> x.declaratorInfo), closure, scope.parent.equals(Main.rootScope));
-		scope.parent.addFunction(this, function, false);
+		function = scope.function = new Function(this, name, false, returnType, Helpers.map(parameterNodes, x -> x.declaratorInfo), closure, scope.parent.isModule);
+		scope.parent.addFunction(this, function);
 		
 		routine = new Routine(function);
 		Main.rootScope.addRoutine(this, routine);

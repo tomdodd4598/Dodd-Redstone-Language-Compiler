@@ -3,9 +3,13 @@ package drlc.intermediate;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import drlc.*;
 import drlc.intermediate.action.Action;
-import drlc.intermediate.component.DeclaratorInfo;
+import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.*;
+import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.routine.Routine;
 
@@ -16,11 +20,6 @@ public class IntermediateGenerator extends Generator {
 	}
 	
 	@Override
-	public void addBuiltInDirectives() {
-		super.addBuiltInDirectives();
-	}
-	
-	@Override
 	public void addBuiltInConstants() {
 		super.addBuiltInConstants();
 	}
@@ -28,9 +27,6 @@ public class IntermediateGenerator extends Generator {
 	@Override
 	public void addBuiltInVariables() {
 		super.addBuiltInVariables();
-		
-		// Main.rootScope.addVariable(null, Helpers.rootVariable(Global.ARGC, intTypeInfo), false);
-		// Main.rootScope.addVariable(null, Helpers.rootVariable(Global.ARGV, charTypeInfo(true, true)), false);
 	}
 	
 	@Override
@@ -49,6 +45,36 @@ public class IntermediateGenerator extends Generator {
 	}
 	
 	@Override
+	public void addressToWordCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg) {
+		routine.addAssignmentAction(node, target, arg);
+	}
+	
+	@Override
+	public void boolToWordCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg) {
+		routine.addAssignmentAction(node, target, arg);
+	}
+	
+	@Override
+	public void intToAddressCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg) {
+		routine.addAssignmentAction(node, target, arg);
+	}
+	
+	@Override
+	public void natToAddressCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg) {
+		routine.addAssignmentAction(node, target, arg);
+	}
+	
+	@Override
+	public void wordToCharCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg) {
+		routine.addBinaryOpAction(node, intTypeInfo, BinaryOpType.AND, intTypeInfo, target, arg, intValue(255).dataId());
+	}
+	
+	@Override
+	public void charToWordCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg) {
+		routine.addAssignmentAction(node, target, arg);
+	}
+	
+	@Override
 	public void generate() {
 		StringBuilder sb = new StringBuilder();
 		boolean begin = true;
@@ -62,9 +88,9 @@ public class IntermediateGenerator extends Generator {
 				}
 				sb.append(routine.getType()).append(" ").append(routine).append(":\n");
 				
-				if (!routine.typedefMap.isEmpty()) {
+				if (!routine.typeDefMap.isEmpty()) {
 					sb.append("{def}:\n");
-					for (Entry<String, TypeInfo> entry : routine.typedefMap.entrySet()) {
+					for (Entry<String, TypeInfo> entry : routine.typeDefMap.entrySet()) {
 						sb.append('\t').append(entry.getKey()).append(Global.TYPE_ANNOTATION_PREFIX).append(" ").append(entry.getValue().routineString()).append('\n');
 					}
 				}

@@ -4,12 +4,11 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public class ArrayRepeatExpressionNode extends ExpressionNode {
 	
@@ -23,15 +22,15 @@ public class ArrayRepeatExpressionNode extends ExpressionNode {
 	
 	public @Nullable ArrayValue constantValue = null;
 	
-	public ArrayRepeatExpressionNode(Node[] parseNodes, @NonNull ExpressionNode repeatExpressionNode, @NonNull ExpressionNode constantExpressionNode) {
-		super(parseNodes);
+	public ArrayRepeatExpressionNode(Source source, @NonNull ExpressionNode repeatExpressionNode, @NonNull ExpressionNode constantExpressionNode) {
+		super(source);
 		this.repeatExpressionNode = repeatExpressionNode;
 		this.constantExpressionNode = constantExpressionNode;
 	}
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, parent.scope);
+		scope = new Scope(this, null, parent.scope, true);
 		
 		constantExpressionNode.setScopes(this);
 		repeatExpressionNode.setScopes(this);
@@ -102,11 +101,22 @@ public class ArrayRepeatExpressionNode extends ExpressionNode {
 	@Override
 	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
 		ArrayTypeInfo arrayTargetType = null;
-		if (targetType.isArray()) {
-			arrayTargetType = (ArrayTypeInfo) targetType;
-			if (arrayTargetType.length != length) {
-				arrayTargetType = null;
+		boolean invalidTargetType = false;
+		if (targetType != null) {
+			if (targetType.isArray()) {
+				arrayTargetType = (ArrayTypeInfo) targetType;
+				if (arrayTargetType.length != length) {
+					arrayTargetType = null;
+					invalidTargetType = true;
+				}
 			}
+			else {
+				invalidTargetType = true;
+			}
+		}
+		
+		if (invalidTargetType) {
+			throw error("Attempted to use array of length %d as expression of incompatible type \"%s\"!", length, targetType);
 		}
 		
 		repeatExpressionNode.setTypeInfo(arrayTargetType == null ? null : arrayTargetType.elementTypeInfo);

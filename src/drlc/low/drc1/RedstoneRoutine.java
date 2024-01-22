@@ -201,12 +201,12 @@ public class RedstoneRoutine {
 					}
 				}
 				
-				else if (action instanceof FunctionCallAction) {
-					if (action instanceof BuiltInFunctionCallAction) {
-						builtInFunctionCall(text, (BuiltInFunctionCallAction) action);
+				else if (action instanceof CallAction) {
+					if (action instanceof BuiltInCallAction) {
+						builtInFunctionCall(text, (BuiltInCallAction) action);
 					}
 					else {
-						FunctionCallAction fca = (FunctionCallAction) action;
+						CallAction fca = (CallAction) action;
 						DataId function = fca.function;
 						List<DataId> args = fca.args;
 						
@@ -1378,7 +1378,7 @@ public class RedstoneRoutine {
 		}
 	}
 	
-	protected void builtInFunctionCall(List<Instruction> text, BuiltInFunctionCallAction action) {
+	protected void builtInFunctionCall(List<Instruction> text, BuiltInCallAction action) {
 		String functionName = action.function.name;
 		if (functionName.equals(Global.OUTCHAR)) {
 			load(text, action.args.get(0));

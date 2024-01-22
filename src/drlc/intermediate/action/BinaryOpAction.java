@@ -342,13 +342,13 @@ public class BinaryOpAction extends Action implements IValueAction {
 				case CHAR_NOT_EQUAL_TO_CHAR:
 					return null;
 				case CHAR_LESS_THAN_CHAR:
-					return left.charValue(null) == -1 ? new AssignmentAction(null, target, Main.generator.falseValue.dataId()) : null;
+					return left.byteValue(null) == -1 ? new AssignmentAction(null, target, Main.generator.falseValue.dataId()) : null;
 				case CHAR_LESS_OR_EQUAL_CHAR:
-					return left.charValue(null) == 0 ? new AssignmentAction(null, target, Main.generator.trueValue.dataId()) : null;
+					return left.byteValue(null) == 0 ? new AssignmentAction(null, target, Main.generator.trueValue.dataId()) : null;
 				case CHAR_MORE_THAN_CHAR:
-					return left.charValue(null) == 0 ? new AssignmentAction(null, target, Main.generator.falseValue.dataId()) : null;
+					return left.byteValue(null) == 0 ? new AssignmentAction(null, target, Main.generator.falseValue.dataId()) : null;
 				case CHAR_MORE_OR_EQUAL_CHAR:
-					return left.charValue(null) == -1 ? new AssignmentAction(null, target, Main.generator.trueValue.dataId()) : null;
+					return left.byteValue(null) == -1 ? new AssignmentAction(null, target, Main.generator.trueValue.dataId()) : null;
 			}
 		}
 		else if (left == null && right != null) {

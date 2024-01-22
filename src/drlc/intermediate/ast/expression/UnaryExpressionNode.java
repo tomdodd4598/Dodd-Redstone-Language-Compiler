@@ -2,13 +2,12 @@ package drlc.intermediate.ast.expression;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.UnaryOpType;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public class UnaryExpressionNode extends ExpressionNode {
 	
@@ -20,15 +19,15 @@ public class UnaryExpressionNode extends ExpressionNode {
 	
 	public @Nullable Value<?> constantValue = null;
 	
-	public UnaryExpressionNode(Node[] parseNodes, @NonNull UnaryOpType unaryOpType, @NonNull ExpressionNode expressionNode) {
-		super(parseNodes);
+	public UnaryExpressionNode(Source source, @NonNull UnaryOpType unaryOpType, @NonNull ExpressionNode expressionNode) {
+		super(source);
 		this.unaryOpType = unaryOpType;
 		this.expressionNode = expressionNode;
 	}
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, parent.scope);
+		scope = new Scope(this, null, parent.scope, true);
 		
 		expressionNode.setScopes(this);
 	}

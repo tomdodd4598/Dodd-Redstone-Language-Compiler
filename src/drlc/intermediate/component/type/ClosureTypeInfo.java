@@ -2,7 +2,7 @@ package drlc.intermediate.component.type;
 
 import java.util.*;
 
-import org.eclipse.jdt.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
@@ -25,13 +25,13 @@ public class ClosureTypeInfo extends CompoundTypeInfo {
 	}
 	
 	@Override
-	public @Nullable FunctionTypeInfo getFunction() {
-		return isAddress() ? null : (FunctionTypeInfo) function.value.typeInfo;
-	}
-	
-	@Override
-	public boolean isClosure() {
-		return !isAddress();
+	public boolean canImplicitCastTo(TypeInfo otherInfo) {
+		if (otherInfo instanceof ClosureTypeInfo) {
+			return super.canImplicitCastTo(otherInfo) && function.equals(((ClosureTypeInfo) otherInfo).function);
+		}
+		else {
+			return false;
+		}
 	}
 	
 	@Override
@@ -42,8 +42,7 @@ public class ClosureTypeInfo extends CompoundTypeInfo {
 	@Override
 	public boolean equalsOther(Object obj, boolean ignoreReferenceMutability) {
 		if (obj instanceof ClosureTypeInfo) {
-			ClosureTypeInfo other = (ClosureTypeInfo) obj;
-			return super.equalsOther(obj, ignoreReferenceMutability) && function.equals(other.function);
+			return super.equalsOther(obj, ignoreReferenceMutability) && function.equals(((ClosureTypeInfo) obj).function);
 		}
 		else {
 			return false;
@@ -52,11 +51,11 @@ public class ClosureTypeInfo extends CompoundTypeInfo {
 	
 	@Override
 	public String rawString() {
-		return Global.FN + Helpers.captureString(typeInfos) + Helpers.listString(((FunctionTypeInfo) function.value.typeInfo).getArgTypeInfos()) + " " + Global.ARROW + " " + function.returnTypeInfo + " " + Global.BRACE_START + function.name + Global.BRACE_END;
+		return Global.FN + " " + function.name + Helpers.captureString(typeInfos) + Helpers.listString((function.value.typeInfo).getArgTypeInfos()) + " " + Global.ARROW + " " + function.returnTypeInfo;
 	}
 	
 	@Override
-	public String routineString() {
-		return Global.FN + Helpers.captureString(Helpers.map(typeInfos, TypeInfo::routineString)) + Helpers.listString(Helpers.map(((FunctionTypeInfo) function.value.typeInfo).getArgTypeInfos(), TypeInfo::routineString)) + " " + Global.ARROW + " " + function.returnTypeInfo.routineString() + " " + Global.BRACE_START + function.name + Global.BRACE_END;
+	public String rawRoutineString() {
+		return Global.FN + " " + function.name + Helpers.captureString(Helpers.map(typeInfos, TypeInfo::routineString)) + Helpers.listString(Helpers.map((function.value.typeInfo).getArgTypeInfos(), TypeInfo::routineString)) + " " + Global.ARROW + " " + function.returnTypeInfo.routineString();
 	}
 }

@@ -9,6 +9,7 @@ public final class AStructDefinition extends PStructDefinition
 {
     private TStruct _struct_;
     private TName _name_;
+    private PTemplateParameterList _templateParameterList_;
     private TLBrace _lBrace_;
     private PDeclaratorList _declaratorList_;
     private TRBrace _rBrace_;
@@ -21,6 +22,7 @@ public final class AStructDefinition extends PStructDefinition
     public AStructDefinition(
         @SuppressWarnings("hiding") TStruct _struct_,
         @SuppressWarnings("hiding") TName _name_,
+        @SuppressWarnings("hiding") PTemplateParameterList _templateParameterList_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
         @SuppressWarnings("hiding") PDeclaratorList _declaratorList_,
         @SuppressWarnings("hiding") TRBrace _rBrace_)
@@ -29,6 +31,8 @@ public final class AStructDefinition extends PStructDefinition
         setStruct(_struct_);
 
         setName(_name_);
+
+        setTemplateParameterList(_templateParameterList_);
 
         setLBrace(_lBrace_);
 
@@ -44,6 +48,7 @@ public final class AStructDefinition extends PStructDefinition
         return new AStructDefinition(
             cloneNode(this._struct_),
             cloneNode(this._name_),
+            cloneNode(this._templateParameterList_),
             cloneNode(this._lBrace_),
             cloneNode(this._declaratorList_),
             cloneNode(this._rBrace_));
@@ -103,6 +108,31 @@ public final class AStructDefinition extends PStructDefinition
         }
 
         this._name_ = node;
+    }
+
+    public PTemplateParameterList getTemplateParameterList()
+    {
+        return this._templateParameterList_;
+    }
+
+    public void setTemplateParameterList(PTemplateParameterList node)
+    {
+        if(this._templateParameterList_ != null)
+        {
+            this._templateParameterList_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._templateParameterList_ = node;
     }
 
     public TLBrace getLBrace()
@@ -186,6 +216,7 @@ public final class AStructDefinition extends PStructDefinition
         return ""
             + toString(this._struct_)
             + toString(this._name_)
+            + toString(this._templateParameterList_)
             + toString(this._lBrace_)
             + toString(this._declaratorList_)
             + toString(this._rBrace_);
@@ -204,6 +235,12 @@ public final class AStructDefinition extends PStructDefinition
         if(this._name_ == child)
         {
             this._name_ = null;
+            return;
+        }
+
+        if(this._templateParameterList_ == child)
+        {
+            this._templateParameterList_ = null;
             return;
         }
 
@@ -241,6 +278,12 @@ public final class AStructDefinition extends PStructDefinition
         if(this._name_ == oldChild)
         {
             setName((TName) newChild);
+            return;
+        }
+
+        if(this._templateParameterList_ == oldChild)
+        {
+            setTemplateParameterList((PTemplateParameterList) newChild);
             return;
         }
 

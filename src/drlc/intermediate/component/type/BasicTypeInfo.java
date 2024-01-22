@@ -6,7 +6,6 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.Main;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.scope.Scope;
 
 public abstract class BasicTypeInfo extends TypeInfo {
 	
@@ -20,17 +19,12 @@ public abstract class BasicTypeInfo extends TypeInfo {
 	}
 	
 	@Override
-	public boolean exists(Scope scope) {
-		return true;
-	}
-	
-	@Override
 	public int getSize() {
 		return isAddress() ? Main.generator.getAddressSize() : size;
 	}
 	
 	@Override
-	public void collectTypedefs(Set<TypeDefinition> typedefs) {}
+	public void collectTypeDefs(Set<TypeDef> typeDefs) {}
 	
 	@Override
 	public int hashCode() {

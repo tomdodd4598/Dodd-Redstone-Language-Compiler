@@ -8,7 +8,6 @@ import org.eclipse.jdt.annotation.*;
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.MemberInfo;
-import drlc.intermediate.scope.Scope;
 
 public abstract class TypeInfo {
 	
@@ -54,10 +53,12 @@ public abstract class TypeInfo {
 	}
 	
 	public @NonNull TypeInfo modifyMutable(ASTNode<?> node, int referenceLevelDiff) {
-		return referenceLevelDiff >= 0 ? addressOf(node, Collections.nCopies(referenceLevelDiff, true)) : dereference(node, -referenceLevelDiff);
+		return modifyReferenceLevel(node, referenceLevelDiff, true);
 	}
 	
-	public abstract boolean exists(Scope scope);
+	public @NonNull TypeInfo modifyReferenceLevel(ASTNode<?> node, int referenceLevelDiff, boolean mutability) {
+		return referenceLevelDiff >= 0 ? addressOf(node, Collections.nCopies(referenceLevelDiff, mutability)) : dereference(node, -referenceLevelDiff);
+	}
 	
 	public int getReferenceLevel() {
 		return referenceMutability.size();
@@ -72,11 +73,15 @@ public abstract class TypeInfo {
 		return referenceLevel > 0 && referenceMutability.get(referenceLevel - 1);
 	}
 	
-	public boolean isVoid() {
+	public boolean isWord() {
 		return false;
 	}
 	
-	public boolean isWord() {
+	public boolean isArray() {
+		return false;
+	}
+	
+	public boolean isTuple() {
 		return false;
 	}
 	
@@ -84,6 +89,10 @@ public abstract class TypeInfo {
 	
 	public int getAddressOffsetSize(ASTNode<?> node) {
 		return dereference(node, 1).getSize();
+	}
+	
+	public @NonNull TypeInfo getImmediateCastType() {
+		return this;
 	}
 	
 	public boolean canImplicitCastTo(TypeInfo otherInfo) {
@@ -106,23 +115,7 @@ public abstract class TypeInfo {
 		}
 	}
 	
-	public @Nullable TypeInfo getSuperType() {
-		return null;
-	}
-	
-	public @Nullable FunctionTypeInfo getFunction() {
-		return null;
-	}
-	
-	public boolean isClosure() {
-		return false;
-	}
-	
-	public boolean isArray() {
-		return false;
-	}
-	
-	public boolean isTuple() {
+	public boolean isMemberAccessValid() {
 		return false;
 	}
 	
@@ -130,7 +123,7 @@ public abstract class TypeInfo {
 		return null;
 	}
 	
-	public abstract void collectTypedefs(Set<TypeDefinition> typedef);
+	public abstract void collectTypeDefs(Set<TypeDef> typeDef);
 	
 	public int indexToOffsetShallow(ASTNode<?> node, int index) {
 		throw Helpers.nodeError(node, "Type \"%s\" can not be indexed!", this);
@@ -177,11 +170,15 @@ public abstract class TypeInfo {
 		return getReferenceMutabilityString() + rawString();
 	}
 	
+	public String rawRoutineString() {
+		return rawString();
+	}
+	
 	public String getRoutineReferenceString() {
 		return String.join("", Collections.nCopies(getReferenceLevel(), Global.ADDRESS_OF));
 	}
 	
 	public String routineString() {
-		return getRoutineReferenceString() + rawString();
+		return getRoutineReferenceString() + rawRoutineString();
 	}
 }

@@ -19,7 +19,7 @@ public class Routine {
 	
 	protected RoutineCallType type = RoutineCallType.LEAF;
 	
-	public final Map<String, TypeInfo> typedefMap = new LinkedHashMap<>();
+	public final Map<String, TypeInfo> typeDefMap = new LinkedHashMap<>();
 	public final List<DeclaratorInfo> declaratorList = new ArrayList<>();
 	
 	private final List<List<Action>> body = new ArrayList<>();
@@ -158,8 +158,31 @@ public class Routine {
 		addAssignmentAction(node, target, new VariableDataId(0, variable));
 	}
 	
+	public void addDereferenceAssignmentAction(ASTNode<?> node, DataId target, DataId arg) {
+		addAssignmentAction(node, target, arg.addDereference(node));
+	}
+	
+	/** Type(&...&T), Data(&...&T) -> Data(T) */
+	public @NonNull DataId addSelfDereferenceAssignmentAction(ASTNode<?> node, int dereferenceLevel, @NonNull DataId dataId) {
+		for (int i = 0; i < dereferenceLevel; ++i) {
+			@NonNull DataId arg = dataId;
+			addDereferenceAssignmentAction(node, dataId = nextRegId(dataId.typeInfo.dereference(node, 1)), arg);
+		}
+		return dataId;
+	}
+	
 	public void addAddressAssignmentAction(ASTNode<?> node, DataId target, DataId arg) {
 		addAssignmentAction(node, target, arg.removeDereference(node));
+	}
+	
+	/** Type(&...&T), Data(T) -> Data(&...&T) */
+	public @NonNull DataId addSelfAddressAssignmentAction(ASTNode<?> node, Scope scope, int referenceLevel, @NonNull DataId dataId) {
+		for (int i = 0; i < referenceLevel; ++i) {
+			@NonNull DataId arg = dataId;
+			@NonNull TypeInfo nextTypeInfo = dataId.typeInfo.addressOf(node, true);
+			addAddressAssignmentAction(node, dataId = i == referenceLevel - 1 ? nextRegId(nextTypeInfo) : scope.nextLocalDataId(this, nextTypeInfo), arg);
+		}
+		return dataId;
 	}
 	
 	public void addAssignmentAction(ASTNode<?> node, DataId target, DataId arg) {
@@ -171,15 +194,15 @@ public class Routine {
 	}
 	
 	public void addBinaryOpAction(ASTNode<?> node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType, DataId target, DataId arg1, DataId arg2) {
-		Main.generator.binaryOp(node, this, leftType, opType, rightType, target, arg1, arg2);
+		Main.generator.binaryOpAction(node, this, leftType, opType, rightType, target, arg1, arg2);
 	}
 	
 	public void addUnaryOpAction(ASTNode<?> node, @NonNull UnaryOpType opType, @NonNull TypeInfo typeInfo, DataId target, DataId arg) {
-		Main.generator.unaryOp(node, this, opType, typeInfo, target, arg);
+		Main.generator.unaryOpAction(node, this, opType, typeInfo, target, arg);
 	}
 	
-	public void addDereferenceAssignmentAction(ASTNode<?> node, DataId target, DataId arg) {
-		addAssignmentAction(node, target, arg.addDereference(node));
+	public void addTypeCastAction(ASTNode<?> node, Scope scope, @NonNull TypeInfo castType, @NonNull TypeInfo typeInfo, DataId target, DataId arg) {
+		Main.generator.typeCastAction(node, scope, this, castType, typeInfo, target, arg);
 	}
 	
 	public void addExitAction(ASTNode<?> node, DataId arg) {
@@ -202,16 +225,16 @@ public class Routine {
 		return cja;
 	}
 	
-	public void addFunctionAction(ASTNode<?> node, Function directFunction, DataId target, DataId function, List<DataId> args, Scope scope) {
+	public void addCallAction(ASTNode<?> node, Scope scope, Function directFunction, DataId target, DataId caller, List<DataId> args) {
 		if (directFunction != null) {
 			directFunction.setRequired(false);
 		}
 		
 		if (directFunction != null && directFunction.builtIn) {
-			addAction(new BuiltInFunctionCallAction(node, target, function, args, scope));
+			addAction(new BuiltInCallAction(node, scope, target, caller, args));
 		}
 		else {
-			addAction(new FunctionCallAction(node, target, function, args, scope));
+			addAction(new CallAction(node, scope, target, caller, args));
 		}
 	}
 	

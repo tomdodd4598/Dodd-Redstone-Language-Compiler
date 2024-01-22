@@ -2,14 +2,14 @@
 
 package drlc.node;
 
+import java.util.*;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
 public final class ATupleTypeList extends PTupleTypeList
 {
+    private final LinkedList<PTupleTypeListHead> _tupleTypeListHead_ = new LinkedList<PTupleTypeListHead>();
     private PType _type_;
-    private TComma _comma_;
-    private PTypeList _typeList_;
 
     public ATupleTypeList()
     {
@@ -17,16 +17,13 @@ public final class ATupleTypeList extends PTupleTypeList
     }
 
     public ATupleTypeList(
-        @SuppressWarnings("hiding") PType _type_,
-        @SuppressWarnings("hiding") TComma _comma_,
-        @SuppressWarnings("hiding") PTypeList _typeList_)
+        @SuppressWarnings("hiding") List<?> _tupleTypeListHead_,
+        @SuppressWarnings("hiding") PType _type_)
     {
         // Constructor
+        setTupleTypeListHead(_tupleTypeListHead_);
+
         setType(_type_);
-
-        setComma(_comma_);
-
-        setTypeList(_typeList_);
 
     }
 
@@ -34,15 +31,40 @@ public final class ATupleTypeList extends PTupleTypeList
     public Object clone()
     {
         return new ATupleTypeList(
-            cloneNode(this._type_),
-            cloneNode(this._comma_),
-            cloneNode(this._typeList_));
+            cloneList(this._tupleTypeListHead_),
+            cloneNode(this._type_));
     }
 
     @Override
     public void apply(Switch sw)
     {
         ((Analysis) sw).caseATupleTypeList(this);
+    }
+
+    public LinkedList<PTupleTypeListHead> getTupleTypeListHead()
+    {
+        return this._tupleTypeListHead_;
+    }
+
+    public void setTupleTypeListHead(List<?> list)
+    {
+        for(PTupleTypeListHead e : this._tupleTypeListHead_)
+        {
+            e.parent(null);
+        }
+        this._tupleTypeListHead_.clear();
+
+        for(Object obj_e : list)
+        {
+            PTupleTypeListHead e = (PTupleTypeListHead) obj_e;
+            if(e.parent() != null)
+            {
+                e.parent().removeChild(e);
+            }
+
+            e.parent(this);
+            this._tupleTypeListHead_.add(e);
+        }
     }
 
     public PType getType()
@@ -70,84 +92,26 @@ public final class ATupleTypeList extends PTupleTypeList
         this._type_ = node;
     }
 
-    public TComma getComma()
-    {
-        return this._comma_;
-    }
-
-    public void setComma(TComma node)
-    {
-        if(this._comma_ != null)
-        {
-            this._comma_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._comma_ = node;
-    }
-
-    public PTypeList getTypeList()
-    {
-        return this._typeList_;
-    }
-
-    public void setTypeList(PTypeList node)
-    {
-        if(this._typeList_ != null)
-        {
-            this._typeList_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._typeList_ = node;
-    }
-
     @Override
     public String toString()
     {
         return ""
-            + toString(this._type_)
-            + toString(this._comma_)
-            + toString(this._typeList_);
+            + toString(this._tupleTypeListHead_)
+            + toString(this._type_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
+        if(this._tupleTypeListHead_.remove(child))
+        {
+            return;
+        }
+
         if(this._type_ == child)
         {
             this._type_ = null;
-            return;
-        }
-
-        if(this._comma_ == child)
-        {
-            this._comma_ = null;
-            return;
-        }
-
-        if(this._typeList_ == child)
-        {
-            this._typeList_ = null;
             return;
         }
 
@@ -158,21 +122,27 @@ public final class ATupleTypeList extends PTupleTypeList
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
+        for(ListIterator<PTupleTypeListHead> i = this._tupleTypeListHead_.listIterator(); i.hasNext();)
+        {
+            if(i.next() == oldChild)
+            {
+                if(newChild != null)
+                {
+                    i.set((PTupleTypeListHead) newChild);
+                    newChild.parent(this);
+                    oldChild.parent(null);
+                    return;
+                }
+
+                i.remove();
+                oldChild.parent(null);
+                return;
+            }
+        }
+
         if(this._type_ == oldChild)
         {
             setType((PType) newChild);
-            return;
-        }
-
-        if(this._comma_ == oldChild)
-        {
-            setComma((TComma) newChild);
-            return;
-        }
-
-        if(this._typeList_ == oldChild)
-        {
-            setTypeList((PTypeList) newChild);
             return;
         }
 

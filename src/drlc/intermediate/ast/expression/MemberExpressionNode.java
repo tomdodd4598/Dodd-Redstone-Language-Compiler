@@ -2,13 +2,13 @@ package drlc.intermediate.ast.expression;
 
 import org.eclipse.jdt.annotation.*;
 
+import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.MemberInfo;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public class MemberExpressionNode extends ExpressionNode {
 	
@@ -17,8 +17,6 @@ public class MemberExpressionNode extends ExpressionNode {
 	
 	@SuppressWarnings("null")
 	public @NonNull TypeInfo typeInfo = null;
-	
-	public @Nullable TypeInfo baseTypeInfo = null;
 	
 	public @Nullable Value<?> constantValue = null;
 	
@@ -29,15 +27,15 @@ public class MemberExpressionNode extends ExpressionNode {
 	
 	public boolean isLvalue = false;
 	
-	public MemberExpressionNode(Node[] parseNodes, @NonNull ExpressionNode baseExpressionNode, @NonNull String memberName) {
-		super(parseNodes);
+	public MemberExpressionNode(Source source, @NonNull ExpressionNode baseExpressionNode, @NonNull String memberName) {
+		super(source);
 		this.expressionNode = baseExpressionNode;
 		this.memberName = memberName;
 	}
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, parent.scope);
+		scope = new Scope(this, null, parent.scope, true);
 		
 		expressionNode.setScopes(this);
 	}
@@ -92,11 +90,17 @@ public class MemberExpressionNode extends ExpressionNode {
 		expressionNode.generateIntermediate(this);
 		
 		DataId baseDataId;
+		@NonNull TypeInfo expressionTypeInfo = expressionNode.getTypeInfo();
 		if (!expressionNode.getIsLvalue()) {
-			routine.addAddressAssignmentAction(this, baseDataId = routine.nextRegId(baseTypeInfo.addressOf(this, true)), expressionNode.dataId);
+			if (expressionTypeInfo.isAddress()) {
+				baseDataId = routine.addSelfDereferenceAssignmentAction(this, expressionTypeInfo.getReferenceLevel() - 1, expressionNode.dataId);
+			}
+			else {
+				routine.addAddressAssignmentAction(this, baseDataId = routine.nextRegId(expressionTypeInfo.copy(this, true)), expressionNode.dataId);
+			}
 		}
 		else {
-			baseDataId = expressionNode.dataId;
+			baseDataId = routine.addSelfDereferenceAssignmentAction(this, expressionTypeInfo.getReferenceLevel(), expressionNode.dataId);
 		}
 		
 		DataId baseDataIdIndexed = baseDataId.atOffset(this, getMemberInfo().offset, typeInfo.addressOf(this, true));
@@ -115,7 +119,6 @@ public class MemberExpressionNode extends ExpressionNode {
 	
 	@Override
 	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
-		expressionNode.setTypeInfo(null);
 		typeInfo = getMemberInfo().typeInfo;
 	}
 	
@@ -128,7 +131,7 @@ public class MemberExpressionNode extends ExpressionNode {
 	protected void setConstantValueInternal() {
 		if (!isLvalue) {
 			@Nullable Value<?> baseConstantValue = expressionNode.getConstantValue();
-			if (baseConstantValue != null) {
+			if (baseConstantValue != null && !baseConstantValue.typeInfo.isAddress()) {
 				@NonNull MemberInfo memberInfo = getMemberInfo();
 				constantValue = baseConstantValue.atOffset(this, memberInfo.offset, memberInfo.typeInfo);
 			}
@@ -159,6 +162,10 @@ public class MemberExpressionNode extends ExpressionNode {
 		if (!setMemberInfo) {
 			expressionNode.setTypeInfo(null);
 			@NonNull TypeInfo expressionType = expressionNode.getTypeInfo();
+			if (!expressionType.isMemberAccessValid()) {
+				throw error("Member access not valid for expression of type \"%s\"!", expressionType);
+			}
+			
 			@Nullable MemberInfo info = expressionType.getMemberInfo(memberName);
 			if (info == null) {
 				throw error("Expression of type \"%s\" has no member \"%s\"!", expressionType, memberName);

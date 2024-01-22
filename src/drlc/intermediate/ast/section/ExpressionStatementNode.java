@@ -2,17 +2,17 @@ package drlc.intermediate.ast.section;
 
 import org.eclipse.jdt.annotation.*;
 
+import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.expression.*;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public class ExpressionStatementNode extends RuntimeSectionNode<Scope> {
 	
 	public @NonNull ExpressionNode expressionNode;
 	
-	public ExpressionStatementNode(Node[] parseNodes, @NonNull ExpressionNode expressionNode) {
-		super(parseNodes);
+	public ExpressionStatementNode(Source source, @NonNull ExpressionNode expressionNode) {
+		super(source);
 		this.expressionNode = expressionNode;
 	}
 	

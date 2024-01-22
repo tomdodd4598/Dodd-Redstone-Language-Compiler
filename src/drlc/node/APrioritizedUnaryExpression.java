@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class APrioritizedUnaryExpression extends PUnaryExpression
 {
-    private PCompoundExpression _compoundExpression_;
+    private PSuffixExpression _suffixExpression_;
 
     public APrioritizedUnaryExpression()
     {
@@ -15,10 +15,10 @@ public final class APrioritizedUnaryExpression extends PUnaryExpression
     }
 
     public APrioritizedUnaryExpression(
-        @SuppressWarnings("hiding") PCompoundExpression _compoundExpression_)
+        @SuppressWarnings("hiding") PSuffixExpression _suffixExpression_)
     {
         // Constructor
-        setCompoundExpression(_compoundExpression_);
+        setSuffixExpression(_suffixExpression_);
 
     }
 
@@ -26,7 +26,7 @@ public final class APrioritizedUnaryExpression extends PUnaryExpression
     public Object clone()
     {
         return new APrioritizedUnaryExpression(
-            cloneNode(this._compoundExpression_));
+            cloneNode(this._suffixExpression_));
     }
 
     @Override
@@ -35,16 +35,16 @@ public final class APrioritizedUnaryExpression extends PUnaryExpression
         ((Analysis) sw).caseAPrioritizedUnaryExpression(this);
     }
 
-    public PCompoundExpression getCompoundExpression()
+    public PSuffixExpression getSuffixExpression()
     {
-        return this._compoundExpression_;
+        return this._suffixExpression_;
     }
 
-    public void setCompoundExpression(PCompoundExpression node)
+    public void setSuffixExpression(PSuffixExpression node)
     {
-        if(this._compoundExpression_ != null)
+        if(this._suffixExpression_ != null)
         {
-            this._compoundExpression_.parent(null);
+            this._suffixExpression_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class APrioritizedUnaryExpression extends PUnaryExpression
             node.parent(this);
         }
 
-        this._compoundExpression_ = node;
+        this._suffixExpression_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._compoundExpression_);
+            + toString(this._suffixExpression_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._compoundExpression_ == child)
+        if(this._suffixExpression_ == child)
         {
-            this._compoundExpression_ = null;
+            this._suffixExpression_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class APrioritizedUnaryExpression extends PUnaryExpression
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._compoundExpression_ == oldChild)
+        if(this._suffixExpression_ == oldChild)
         {
-            setCompoundExpression((PCompoundExpression) newChild);
+            setSuffixExpression((PSuffixExpression) newChild);
             return;
         }
 

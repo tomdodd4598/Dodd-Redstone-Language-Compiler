@@ -9,7 +9,6 @@ import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public class TupleExpressionNode extends ExpressionNode {
 	
@@ -22,15 +21,15 @@ public class TupleExpressionNode extends ExpressionNode {
 	
 	public @Nullable TupleValue constantValue = null;
 	
-	public TupleExpressionNode(Node[] parseNodes, @NonNull List<ExpressionNode> expressionNodes) {
-		super(parseNodes);
+	public TupleExpressionNode(Source source, @NonNull List<ExpressionNode> expressionNodes) {
+		super(source);
 		this.expressionNodes = expressionNodes;
 		count = expressionNodes.size();
 	}
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, parent.scope);
+		scope = new Scope(this, null, parent.scope, true);
 		
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.setScopes(this);

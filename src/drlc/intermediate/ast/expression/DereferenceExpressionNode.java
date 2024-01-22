@@ -2,12 +2,12 @@ package drlc.intermediate.ast.expression;
 
 import org.eclipse.jdt.annotation.*;
 
+import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Function;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public class DereferenceExpressionNode extends ExpressionNode {
 	
@@ -18,14 +18,14 @@ public class DereferenceExpressionNode extends ExpressionNode {
 	
 	public boolean isLvalue = false;
 	
-	public DereferenceExpressionNode(Node[] parseNodes, @NonNull ExpressionNode expressionNode) {
-		super(parseNodes);
+	public DereferenceExpressionNode(Source source, @NonNull ExpressionNode expressionNode) {
+		super(source);
 		this.expressionNode = expressionNode;
 	}
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, parent.scope);
+		scope = new Scope(this, null, parent.scope, true);
 		
 		expressionNode.setScopes(this);
 	}

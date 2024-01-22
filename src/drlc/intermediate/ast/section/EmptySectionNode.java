@@ -1,13 +1,13 @@
 package drlc.intermediate.ast.section;
 
+import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public class EmptySectionNode extends StaticSectionNode<Scope> {
 	
-	public EmptySectionNode(Node[] parseNodes) {
-		super(parseNodes);
+	public EmptySectionNode(Source source) {
+		super(source);
 	}
 	
 	@Override

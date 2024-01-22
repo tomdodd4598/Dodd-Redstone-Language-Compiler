@@ -1,18 +1,15 @@
 package drlc;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import drlc.intermediate.ast.StartNode;
 import drlc.intermediate.component.Function;
 import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.RootScope;
-import drlc.lexer.*;
-import drlc.node.Start;
-import drlc.parser.*;
 
 public class Main {
 	
@@ -28,7 +25,7 @@ public class Main {
 		}
 	}
 	
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws IOException {
 		Input input = new Input(args);
 		if (input.args.size() != 2) {
 			StringBuilder sb = new StringBuilder();
@@ -36,7 +33,7 @@ public class Main {
 			sb.append("Targets: ");
 			sb.append(Generator.NAME_MAP.entrySet().stream().map(x -> String.format("-%s (%s)\n", x.getKey(), x.getValue())).collect(Collectors.joining("         ")));
 			sb.append("Example: -s1 program.drs1 program.drl\n");
-			err(sb.toString());
+			throw Helpers.error(sb.toString());
 		}
 		else {
 			try {
@@ -54,29 +51,32 @@ public class Main {
 				}
 				System.out.print("Finished!\n");
 			}
-			catch (Exception e) {
+			catch (IOException e) {
 				throw e;
 			}
 		}
 	}
 	
-	public static String source;
-	
 	public static Generator generator;
+	
+	public static String rootFile;
 	
 	@SuppressWarnings("null")
 	public static @NonNull RootScope rootScope;
+	
 	@SuppressWarnings("null")
 	public static @NonNull Routine rootRoutine;
 	
 	private static boolean first = true;
 	
-	private static void generate(String target, String outputFile, String inputFile) throws Exception {
+	private static void generate(String target, String outputFile, String inputFile) throws IOException {
 		if (!Generator.CONSTRUCTOR_MAP.containsKey(target)) {
-			err("ERROR: output target \"%s\" not found!", target);
+			throw Helpers.error("Output target \"%s\" not found!", target);
 		}
 		
 		generator = Generator.CONSTRUCTOR_MAP.get(target).apply(outputFile);
+		
+		rootFile = inputFile;
 		
 		rootScope = new RootScope(null);
 		
@@ -84,7 +84,7 @@ public class Main {
 		
 		Function rootFunction = new Function(null, Global.ROOT, false, generator.intTypeInfo, new ArrayList<>(), false, true);
 		rootFunction.setRequired(true);
-		rootScope.addFunction(null, rootFunction, false);
+		rootScope.addFunction(null, rootFunction);
 		
 		rootRoutine = new Routine(rootFunction);
 		rootScope.addRoutine(null, rootRoutine);
@@ -106,52 +106,18 @@ public class Main {
 			previousTime[0] = currentTime[0];
 		};
 		
-		source = Helpers.readFile(inputFile);
-		Lexer lexer = Helpers.stringLexer(source);
+		Helpers.getAST(inputFile).traverse();
 		
-		printTime.accept("Reading");
-		
-		/* Create parse tree */
-		Parser parser = new Parser(lexer);
-		Start parseTree;
-		
-		try {
-			parseTree = parser.parse();
-		}
-		catch (ParserException e) {
-			throw Helpers.nodeError(e.getToken(), e.getMessage());
-		}
-		catch (LexerException e) {
-			throw Helpers.nodeError(e.getToken(), e.getMessage());
-		}
-		
-		printTime.accept("Parsing");
-		
-		/* Build AST */
-		ParseVisitor astBuilder = new ParseVisitor();
-		parseTree.apply(astBuilder);
-		StartNode ast = astBuilder.ast;
-		
-		printTime.accept("Building");
-		
-		/* Traverse AST */
-		ast.traverse();
+		printTime.accept("Frontend");
 		
 		generator.generateRootRoutine();
 		rootScope.flattenRoutines();
 		generator.optimizeIntermediate();
 		rootScope.finalizeRoutines();
 		
-		printTime.accept("Traversing");
-		
 		/* Generate code */
 		generator.generate();
 		
-		printTime.accept("Generating");
-	}
-	
-	private static void err(String string, Object... args) {
-		System.err.print(String.format(string, args));
-		System.exit(0);
+		printTime.accept("Backend");
 	}
 }

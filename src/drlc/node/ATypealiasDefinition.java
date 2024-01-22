@@ -7,8 +7,9 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class ATypealiasDefinition extends PTypealiasDefinition
 {
-    private TTypealias _typealias_;
+    private TAlias _alias_;
     private TName _name_;
+    private PTemplateParameterList _templateParameterList_;
     private TEquals _equals_;
     private PType _type_;
     private TSemicolon _semicolon_;
@@ -19,16 +20,19 @@ public final class ATypealiasDefinition extends PTypealiasDefinition
     }
 
     public ATypealiasDefinition(
-        @SuppressWarnings("hiding") TTypealias _typealias_,
+        @SuppressWarnings("hiding") TAlias _alias_,
         @SuppressWarnings("hiding") TName _name_,
+        @SuppressWarnings("hiding") PTemplateParameterList _templateParameterList_,
         @SuppressWarnings("hiding") TEquals _equals_,
         @SuppressWarnings("hiding") PType _type_,
         @SuppressWarnings("hiding") TSemicolon _semicolon_)
     {
         // Constructor
-        setTypealias(_typealias_);
+        setAlias(_alias_);
 
         setName(_name_);
+
+        setTemplateParameterList(_templateParameterList_);
 
         setEquals(_equals_);
 
@@ -42,8 +46,9 @@ public final class ATypealiasDefinition extends PTypealiasDefinition
     public Object clone()
     {
         return new ATypealiasDefinition(
-            cloneNode(this._typealias_),
+            cloneNode(this._alias_),
             cloneNode(this._name_),
+            cloneNode(this._templateParameterList_),
             cloneNode(this._equals_),
             cloneNode(this._type_),
             cloneNode(this._semicolon_));
@@ -55,16 +60,16 @@ public final class ATypealiasDefinition extends PTypealiasDefinition
         ((Analysis) sw).caseATypealiasDefinition(this);
     }
 
-    public TTypealias getTypealias()
+    public TAlias getAlias()
     {
-        return this._typealias_;
+        return this._alias_;
     }
 
-    public void setTypealias(TTypealias node)
+    public void setAlias(TAlias node)
     {
-        if(this._typealias_ != null)
+        if(this._alias_ != null)
         {
-            this._typealias_.parent(null);
+            this._alias_.parent(null);
         }
 
         if(node != null)
@@ -77,7 +82,7 @@ public final class ATypealiasDefinition extends PTypealiasDefinition
             node.parent(this);
         }
 
-        this._typealias_ = node;
+        this._alias_ = node;
     }
 
     public TName getName()
@@ -103,6 +108,31 @@ public final class ATypealiasDefinition extends PTypealiasDefinition
         }
 
         this._name_ = node;
+    }
+
+    public PTemplateParameterList getTemplateParameterList()
+    {
+        return this._templateParameterList_;
+    }
+
+    public void setTemplateParameterList(PTemplateParameterList node)
+    {
+        if(this._templateParameterList_ != null)
+        {
+            this._templateParameterList_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._templateParameterList_ = node;
     }
 
     public TEquals getEquals()
@@ -184,8 +214,9 @@ public final class ATypealiasDefinition extends PTypealiasDefinition
     public String toString()
     {
         return ""
-            + toString(this._typealias_)
+            + toString(this._alias_)
             + toString(this._name_)
+            + toString(this._templateParameterList_)
             + toString(this._equals_)
             + toString(this._type_)
             + toString(this._semicolon_);
@@ -195,15 +226,21 @@ public final class ATypealiasDefinition extends PTypealiasDefinition
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._typealias_ == child)
+        if(this._alias_ == child)
         {
-            this._typealias_ = null;
+            this._alias_ = null;
             return;
         }
 
         if(this._name_ == child)
         {
             this._name_ = null;
+            return;
+        }
+
+        if(this._templateParameterList_ == child)
+        {
+            this._templateParameterList_ = null;
             return;
         }
 
@@ -232,15 +269,21 @@ public final class ATypealiasDefinition extends PTypealiasDefinition
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._typealias_ == oldChild)
+        if(this._alias_ == oldChild)
         {
-            setTypealias((TTypealias) newChild);
+            setAlias((TAlias) newChild);
             return;
         }
 
         if(this._name_ == oldChild)
         {
             setName((TName) newChild);
+            return;
+        }
+
+        if(this._templateParameterList_ == oldChild)
+        {
+            setTemplateParameterList((PTemplateParameterList) newChild);
             return;
         }
 

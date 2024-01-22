@@ -2,11 +2,10 @@ package drlc.intermediate.component.type;
 
 import java.util.*;
 
-import org.eclipse.jdt.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.scope.Scope;
 
 public abstract class FunctionTypeInfo extends TypeInfo {
 	
@@ -28,22 +27,12 @@ public abstract class FunctionTypeInfo extends TypeInfo {
 	}
 	
 	@Override
-	public boolean exists(Scope scope) {
-		return returnTypeInfo.exists(scope) && paramTypeInfos.stream().allMatch(x -> x.exists(scope));
-	}
-	
-	@Override
 	public int getSize() {
 		return isAddress() ? Main.generator.getAddressSize() : Main.generator.getFunctionSize();
 	}
 	
 	@Override
-	public @Nullable FunctionTypeInfo getFunction() {
-		return isAddress() ? null : this;
-	}
-	
-	@Override
-	public void collectTypedefs(Set<TypeDefinition> typedefs) {}
+	public void collectTypeDefs(Set<TypeDef> typeDefs) {}
 	
 	@Override
 	public boolean equalsOther(Object obj, boolean ignoreReferenceMutability) {
@@ -63,7 +52,7 @@ public abstract class FunctionTypeInfo extends TypeInfo {
 	}
 	
 	@Override
-	public String routineString() {
-		return getRoutineReferenceString() + Global.FN + Helpers.listString(Helpers.map(paramTypeInfos, TypeInfo::routineString)) + " " + Global.ARROW + " " + returnTypeInfo.routineString();
+	public String rawRoutineString() {
+		return Global.FN + Helpers.listString(Helpers.map(paramTypeInfos, TypeInfo::routineString)) + " " + Global.ARROW + " " + returnTypeInfo.routineString();
 	}
 }

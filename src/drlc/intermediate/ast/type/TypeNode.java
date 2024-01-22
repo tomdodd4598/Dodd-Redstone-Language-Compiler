@@ -4,20 +4,25 @@ import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public abstract class TypeNode extends ASTNode<Scope> {
 	
 	public boolean setTypeInfo = false;
 	
 	@SuppressWarnings("null")
-	public @NonNull TypeInfo typeInfo = null;
+	protected @NonNull TypeInfo typeInfo = null;
 	
-	protected TypeNode(Node[] parseNodes) {
-		super(parseNodes);
+	protected TypeNode(Source source) {
+		super(source);
+	}
+	
+	public @NonNull TypeInfo getTypeInfo() {
+		setTypeInfo();
+		return typeInfo;
 	}
 	
 	public void setTypeInfo() {
@@ -29,5 +34,5 @@ public abstract class TypeNode extends ASTNode<Scope> {
 	
 	protected abstract void setTypeInfoInternal();
 	
-	public abstract void collectTypedefs(Set<TypeDefinition> typedefs);
+	public abstract void collectTypeDefs(Set<TypeDef> typeDefs);
 }

@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class APrioritizedTernaryExpression extends PTernaryExpression
 {
-    private PLogicalExpression _logicalExpression_;
+    private PCastExpression _castExpression_;
 
     public APrioritizedTernaryExpression()
     {
@@ -15,10 +15,10 @@ public final class APrioritizedTernaryExpression extends PTernaryExpression
     }
 
     public APrioritizedTernaryExpression(
-        @SuppressWarnings("hiding") PLogicalExpression _logicalExpression_)
+        @SuppressWarnings("hiding") PCastExpression _castExpression_)
     {
         // Constructor
-        setLogicalExpression(_logicalExpression_);
+        setCastExpression(_castExpression_);
 
     }
 
@@ -26,7 +26,7 @@ public final class APrioritizedTernaryExpression extends PTernaryExpression
     public Object clone()
     {
         return new APrioritizedTernaryExpression(
-            cloneNode(this._logicalExpression_));
+            cloneNode(this._castExpression_));
     }
 
     @Override
@@ -35,16 +35,16 @@ public final class APrioritizedTernaryExpression extends PTernaryExpression
         ((Analysis) sw).caseAPrioritizedTernaryExpression(this);
     }
 
-    public PLogicalExpression getLogicalExpression()
+    public PCastExpression getCastExpression()
     {
-        return this._logicalExpression_;
+        return this._castExpression_;
     }
 
-    public void setLogicalExpression(PLogicalExpression node)
+    public void setCastExpression(PCastExpression node)
     {
-        if(this._logicalExpression_ != null)
+        if(this._castExpression_ != null)
         {
-            this._logicalExpression_.parent(null);
+            this._castExpression_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class APrioritizedTernaryExpression extends PTernaryExpression
             node.parent(this);
         }
 
-        this._logicalExpression_ = node;
+        this._castExpression_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._logicalExpression_);
+            + toString(this._castExpression_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._logicalExpression_ == child)
+        if(this._castExpression_ == child)
         {
-            this._logicalExpression_ = null;
+            this._castExpression_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class APrioritizedTernaryExpression extends PTernaryExpression
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._logicalExpression_ == oldChild)
+        if(this._castExpression_ == oldChild)
         {
-            setLogicalExpression((PLogicalExpression) newChild);
+            setCastExpression((PCastExpression) newChild);
             return;
         }
 

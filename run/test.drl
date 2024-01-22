@@ -48,8 +48,6 @@ fn main() {
 // ITERATIVE FIBONACCI
 
 /*
-%! setargc 2;
-
 fn main() {
 	let mut f = argv[0];
 	let mut a = argv[1];
@@ -71,8 +69,6 @@ fn main() {
 // RECURSIVE FIBONACCI
 
 /*
-%! setargc 2;
-
 fn fib(n: Int) -> Int {
 	if n <= 1 {
 		return argv[n];
@@ -433,11 +429,11 @@ fn main() {
 	
 	fn sum(ptr: &PosPtr) -> Int {
 		let p = *ptr;
-		return (*p).0 + (*p).1 + (*p).2;
+		return p.0 + p.1 + p.2;
 	}
 }
 
-typealias PosPtr = &(Int, Int, Int);
+alias PosPtr = &(Int, Int, Int);
 */
 
 // TESTING STRUCTS
@@ -448,32 +444,39 @@ struct Item {
 	next: &mut Item,
 }
 
-typealias Node = &mut Item;
-typealias Tracer = &Node;
-typealias TracerMut = &mut Node;
+alias Node = &mut Item;
+alias Tracer = &Node;
+alias TracerMut = &mut Node;
+
+let mut arr = [Item { 0, null }; 8];
+let mut i = 0N;
 
 fn insertItem(mut tracer: TracerMut, val: Int) {
-	while *tracer != null && val >= (**tracer).val {
-		tracer = &mut (**tracer).next;
+	while *tracer != null && val >= tracer.val {
+		tracer = &mut tracer.next;
 	}
 	
-	*tracer = Node { val, *tracer };
+	arr[i] = Item { val, *tracer };
+	i += 1;
+	
+	*tracer = &mut arr[i];
 }
 
 fn removeItem(mut tracer: TracerMut, val: Int) {
-	while *tracer != null && val != (**tracer).val {
-		tracer = &mut (**tracer).next;
+	while *tracer != null && val != tracer.val {
+		tracer = &mut tracer.next;
 	}
 	
 	if *tracer != null {
-		*tracer = (**tracer).next;
+		*tracer = tracer.next;
 	}
 }
 
 fn print(mut tracer: Tracer) {
 	while *tracer != null {
-		outint((**tracer).val);
-		tracer = &(**tracer).next;
+		outint(tracer.val);
+		outchar(' ');
+		tracer = &tracer.next;
 	}
 }
 
@@ -499,12 +502,9 @@ fn main() {
 }
 */
 
+mod math;
+
 fn main() {
-	fn main() {
-		fn main() {
-			main();
-		}
-		main();
-	}
-	main();
+	let x = math::fact(3);
+	let y = math::fib(5);
 }

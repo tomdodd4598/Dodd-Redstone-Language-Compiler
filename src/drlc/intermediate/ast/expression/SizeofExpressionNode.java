@@ -2,12 +2,11 @@ package drlc.intermediate.ast.expression;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.type.TypeNode;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
-import drlc.node.Node;
 
 public class SizeofExpressionNode extends ExpressionNode {
 	
@@ -18,8 +17,8 @@ public class SizeofExpressionNode extends ExpressionNode {
 	
 	public @Nullable Value<?> constantValue = null;
 	
-	public SizeofExpressionNode(Node[] parseNodes, @NonNull TypeNode typeNode) {
-		super(parseNodes);
+	public SizeofExpressionNode(Source source, @NonNull TypeNode typeNode) {
+		super(source);
 		this.typeNode = typeNode;
 	}
 	
@@ -97,7 +96,7 @@ public class SizeofExpressionNode extends ExpressionNode {
 	protected void setConstantValueInternal() {
 		typeNode.setTypeInfo();
 		
-		int size = typeNode.typeInfo.getSize();
+		int size = typeNode.getTypeInfo().getSize();
 		if (Main.generator.intTypeInfo.equals(typeInfo)) {
 			constantValue = Main.generator.intValue(size);
 		}

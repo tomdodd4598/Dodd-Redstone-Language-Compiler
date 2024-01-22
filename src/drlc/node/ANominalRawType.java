@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class ANominalRawType extends PRawType
 {
-    private TName _name_;
+    private PPath _path_;
 
     public ANominalRawType()
     {
@@ -15,10 +15,10 @@ public final class ANominalRawType extends PRawType
     }
 
     public ANominalRawType(
-        @SuppressWarnings("hiding") TName _name_)
+        @SuppressWarnings("hiding") PPath _path_)
     {
         // Constructor
-        setName(_name_);
+        setPath(_path_);
 
     }
 
@@ -26,7 +26,7 @@ public final class ANominalRawType extends PRawType
     public Object clone()
     {
         return new ANominalRawType(
-            cloneNode(this._name_));
+            cloneNode(this._path_));
     }
 
     @Override
@@ -35,16 +35,16 @@ public final class ANominalRawType extends PRawType
         ((Analysis) sw).caseANominalRawType(this);
     }
 
-    public TName getName()
+    public PPath getPath()
     {
-        return this._name_;
+        return this._path_;
     }
 
-    public void setName(TName node)
+    public void setPath(PPath node)
     {
-        if(this._name_ != null)
+        if(this._path_ != null)
         {
-            this._name_.parent(null);
+            this._path_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class ANominalRawType extends PRawType
             node.parent(this);
         }
 
-        this._name_ = node;
+        this._path_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._name_);
+            + toString(this._path_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._name_ == child)
+        if(this._path_ == child)
         {
-            this._name_ = null;
+            this._path_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class ANominalRawType extends PRawType
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._name_ == oldChild)
+        if(this._path_ == oldChild)
         {
-            setName((TName) newChild);
+            setPath((PPath) newChild);
             return;
         }
 

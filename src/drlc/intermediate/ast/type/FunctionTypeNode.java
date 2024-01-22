@@ -7,15 +7,14 @@ import org.eclipse.jdt.annotation.*;
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.*;
-import drlc.node.Node;
 
 public class FunctionTypeNode extends TypeNode {
 	
 	public final @NonNull List<TypeNode> paramTypeNodes;
 	public final @Nullable TypeNode returnTypeNode;
 	
-	public FunctionTypeNode(Node[] parseNodes, @NonNull List<TypeNode> paramTypeNodes, @Nullable TypeNode returnTypeNode) {
-		super(parseNodes);
+	public FunctionTypeNode(Source source, @NonNull List<TypeNode> paramTypeNodes, @Nullable TypeNode returnTypeNode) {
+		super(source);
 		this.paramTypeNodes = paramTypeNodes;
 		this.returnTypeNode = returnTypeNode;
 	}
@@ -95,7 +94,7 @@ public class FunctionTypeNode extends TypeNode {
 	}
 	
 	@Override
-	public void collectTypedefs(Set<TypeDefinition> typedefs) {
+	public void collectTypeDefs(Set<TypeDef> typeDefs) {
 		
 	}
 }

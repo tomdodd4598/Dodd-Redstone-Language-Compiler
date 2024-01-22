@@ -9,6 +9,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
 {
     private TFn _fn_;
     private TName _name_;
+    private PTemplateParameterList _templateParameterList_;
     private TLPar _lPar_;
     private PDeclaratorList _declaratorList_;
     private TRPar _rPar_;
@@ -25,6 +26,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
     public AFunctionDefinition(
         @SuppressWarnings("hiding") TFn _fn_,
         @SuppressWarnings("hiding") TName _name_,
+        @SuppressWarnings("hiding") PTemplateParameterList _templateParameterList_,
         @SuppressWarnings("hiding") TLPar _lPar_,
         @SuppressWarnings("hiding") PDeclaratorList _declaratorList_,
         @SuppressWarnings("hiding") TRPar _rPar_,
@@ -37,6 +39,8 @@ public final class AFunctionDefinition extends PFunctionDefinition
         setFn(_fn_);
 
         setName(_name_);
+
+        setTemplateParameterList(_templateParameterList_);
 
         setLPar(_lPar_);
 
@@ -60,6 +64,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
         return new AFunctionDefinition(
             cloneNode(this._fn_),
             cloneNode(this._name_),
+            cloneNode(this._templateParameterList_),
             cloneNode(this._lPar_),
             cloneNode(this._declaratorList_),
             cloneNode(this._rPar_),
@@ -123,6 +128,31 @@ public final class AFunctionDefinition extends PFunctionDefinition
         }
 
         this._name_ = node;
+    }
+
+    public PTemplateParameterList getTemplateParameterList()
+    {
+        return this._templateParameterList_;
+    }
+
+    public void setTemplateParameterList(PTemplateParameterList node)
+    {
+        if(this._templateParameterList_ != null)
+        {
+            this._templateParameterList_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._templateParameterList_ = node;
     }
 
     public TLPar getLPar()
@@ -306,6 +336,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
         return ""
             + toString(this._fn_)
             + toString(this._name_)
+            + toString(this._templateParameterList_)
             + toString(this._lPar_)
             + toString(this._declaratorList_)
             + toString(this._rPar_)
@@ -328,6 +359,12 @@ public final class AFunctionDefinition extends PFunctionDefinition
         if(this._name_ == child)
         {
             this._name_ = null;
+            return;
+        }
+
+        if(this._templateParameterList_ == child)
+        {
+            this._templateParameterList_ = null;
             return;
         }
 
@@ -389,6 +426,12 @@ public final class AFunctionDefinition extends PFunctionDefinition
         if(this._name_ == oldChild)
         {
             setName((TName) newChild);
+            return;
+        }
+
+        if(this._templateParameterList_ == oldChild)
+        {
+            setTemplateParameterList((PTemplateParameterList) newChild);
             return;
         }
 

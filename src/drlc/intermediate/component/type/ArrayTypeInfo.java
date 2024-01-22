@@ -2,11 +2,10 @@ package drlc.intermediate.component.type;
 
 import java.util.*;
 
-import org.eclipse.jdt.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.scope.Scope;
 
 public class ArrayTypeInfo extends TypeInfo {
 	
@@ -33,8 +32,8 @@ public class ArrayTypeInfo extends TypeInfo {
 	}
 	
 	@Override
-	public boolean exists(Scope scope) {
-		return elementTypeInfo.exists(scope);
+	public boolean isArray() {
+		return !isAddress();
 	}
 	
 	@Override
@@ -46,7 +45,7 @@ public class ArrayTypeInfo extends TypeInfo {
 	public boolean canImplicitCastTo(TypeInfo otherInfo) {
 		if (otherInfo instanceof ArrayTypeInfo) {
 			@NonNull ArrayTypeInfo otherArrayInfo = (ArrayTypeInfo) otherInfo;
-			if (length == otherArrayInfo.length && canImplicitCastToReferenceMutability(otherInfo) && elementTypeInfo.canImplicitCastTo(otherArrayInfo.elementTypeInfo)) {
+			if (length == otherArrayInfo.length && elementTypeInfo.canImplicitCastTo(otherArrayInfo.elementTypeInfo) && canImplicitCastToReferenceMutability(otherInfo)) {
 				return true;
 			}
 		}
@@ -54,19 +53,9 @@ public class ArrayTypeInfo extends TypeInfo {
 	}
 	
 	@Override
-	public @Nullable TypeInfo getSuperType() {
-		return isAddress() ? decayTypeInfo : null;
-	}
-	
-	@Override
-	public boolean isArray() {
-		return !isAddress();
-	}
-	
-	@Override
-	public void collectTypedefs(Set<TypeDefinition> typedefs) {
+	public void collectTypeDefs(Set<TypeDef> typeDefs) {
 		if (!isAddress()) {
-			elementTypeInfo.collectTypedefs(typedefs);
+			elementTypeInfo.collectTypeDefs(typeDefs);
 		}
 	}
 	
@@ -119,7 +108,7 @@ public class ArrayTypeInfo extends TypeInfo {
 	}
 	
 	@Override
-	public String routineString() {
-		return getRoutineReferenceString() + Global.ARRAY_START + elementTypeInfo.routineString() + Global.ARRAY_TYPE_DELIMITER + " " + length + Global.ARRAY_END;
+	public String rawRoutineString() {
+		return Global.ARRAY_START + elementTypeInfo.routineString() + Global.ARRAY_TYPE_DELIMITER + " " + length + Global.ARRAY_END;
 	}
 }

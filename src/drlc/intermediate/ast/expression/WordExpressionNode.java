@@ -2,11 +2,10 @@ package drlc.intermediate.ast.expression;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
-import drlc.node.Node;
 
 public class WordExpressionNode extends ExpressionNode {
 	
@@ -17,8 +16,8 @@ public class WordExpressionNode extends ExpressionNode {
 	
 	public @Nullable Value<?> constantValue = null;
 	
-	public WordExpressionNode(Node[] parseNodes, long value) {
-		super(parseNodes);
+	public WordExpressionNode(Source source, long value) {
+		super(source);
 		this.value = value;
 	}
 	

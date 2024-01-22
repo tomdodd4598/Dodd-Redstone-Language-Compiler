@@ -2,6 +2,8 @@ package drlc.intermediate.scope;
 
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Variable;
 
@@ -9,8 +11,8 @@ public class ConditionalScope extends Scope {
 	
 	protected final boolean hasElseBranch;
 	
-	public ConditionalScope(ASTNode<?> node, Scope parent, boolean hasElseBranch) {
-		super(node, parent);
+	public ConditionalScope(ASTNode<?> node, @Nullable String name, @Nullable Scope parent, boolean pseudo, boolean hasElseBranch) {
+		super(node, name, parent, pseudo);
 		this.hasElseBranch = hasElseBranch;
 	}
 	

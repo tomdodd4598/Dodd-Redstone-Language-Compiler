@@ -4,12 +4,11 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Helpers;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.scope.Scope;
-import drlc.node.Node;
 
 public class ArrayListExpressionNode extends ExpressionNode {
 	
@@ -22,15 +21,15 @@ public class ArrayListExpressionNode extends ExpressionNode {
 	
 	public @Nullable ArrayValue constantValue = null;
 	
-	public ArrayListExpressionNode(Node[] parseNodes, @NonNull List<ExpressionNode> expressionNodes) {
-		super(parseNodes);
+	public ArrayListExpressionNode(Source source, @NonNull List<ExpressionNode> expressionNodes) {
+		super(source);
 		this.expressionNodes = expressionNodes;
 		length = expressionNodes.size();
 	}
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, parent.scope);
+		scope = new Scope(this, null, parent.scope, true);
 		
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.setScopes(this);
@@ -133,7 +132,7 @@ public class ArrayListExpressionNode extends ExpressionNode {
 		List<TypeInfo> expressionTypes = Helpers.map(expressionNodes, ExpressionNode::getTypeInfo);
 		
 		if (elementTargetType == null) {
-			elementTargetType = Helpers.getCommonTypeInfo(expressionTypes);
+			elementTargetType = Helpers.getCommonTypeInfo(this, expressionTypes);
 		}
 		
 		if (elementTargetType != null) {

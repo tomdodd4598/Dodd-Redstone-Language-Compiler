@@ -2,12 +2,12 @@ package drlc.intermediate.component.type;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.scope.Scope;
 
 public abstract class CompoundTypeInfo extends TypeInfo {
 	
@@ -21,20 +21,26 @@ public abstract class CompoundTypeInfo extends TypeInfo {
 	}
 	
 	@Override
-	public boolean exists(Scope scope) {
-		return typeInfos.stream().allMatch(x -> equalsOther(x, true) || x.exists(scope));
-	}
-	
-	@Override
 	public int getSize() {
 		return isAddress() ? Main.generator.getAddressSize() : typeInfos.stream().mapToInt(TypeInfo::getSize).sum();
 	}
 	
 	@Override
-	public void collectTypedefs(Set<TypeDefinition> typedefs) {
+	public boolean canImplicitCastTo(TypeInfo otherInfo) {
+		if (otherInfo instanceof CompoundTypeInfo) {
+			CompoundTypeInfo otherCompoundInfo = (CompoundTypeInfo) otherInfo;
+			if (count == otherCompoundInfo.count && canImplicitCastToReferenceMutability(otherInfo)) {
+				return IntStream.range(0, count).allMatch(x -> typeInfos.get(x).canImplicitCastTo(otherCompoundInfo.typeInfos.get(x)));
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public void collectTypeDefs(Set<TypeDef> typeDefs) {
 		if (!isAddress()) {
 			for (TypeInfo typeInfo : typeInfos) {
-				typeInfo.collectTypedefs(typedefs);
+				typeInfo.collectTypeDefs(typeDefs);
 			}
 		}
 	}

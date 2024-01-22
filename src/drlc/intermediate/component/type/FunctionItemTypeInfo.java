@@ -2,12 +2,10 @@ package drlc.intermediate.component.type;
 
 import java.util.*;
 
-import org.eclipse.jdt.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import drlc.Global;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Function;
-import drlc.intermediate.scope.Scope;
 
 public class FunctionItemTypeInfo extends FunctionTypeInfo {
 	
@@ -22,12 +20,8 @@ public class FunctionItemTypeInfo extends FunctionTypeInfo {
 		setFunctionPointerTypeInfo();
 	}
 	
-	protected FunctionItemTypeInfo(ASTNode<?> node, @NonNull Function function) {
+	public FunctionItemTypeInfo(ASTNode<?> node, @NonNull Function function) {
 		this(node, new ArrayList<>(), function.returnTypeInfo, function.paramTypeInfos, function);
-	}
-	
-	public FunctionItemTypeInfo(ASTNode<?> node, Scope scope, String functionName) {
-		this(node, scope.getFunction(node, functionName));
 	}
 	
 	@Override
@@ -51,6 +45,11 @@ public class FunctionItemTypeInfo extends FunctionTypeInfo {
 	}
 	
 	@Override
+	public @NonNull TypeInfo getImmediateCastType() {
+		return functionPointerTypeInfo;
+	}
+	
+	@Override
 	public boolean canImplicitCastTo(TypeInfo otherInfo) {
 		if (super.canImplicitCastTo(otherInfo)) {
 			return !(otherInfo instanceof FunctionItemTypeInfo) || function.equals(((FunctionItemTypeInfo) otherInfo).function);
@@ -58,11 +57,6 @@ public class FunctionItemTypeInfo extends FunctionTypeInfo {
 		else {
 			return functionPointerTypeInfo.canImplicitCastTo(otherInfo);
 		}
-	}
-	
-	@Override
-	public @Nullable TypeInfo getSuperType() {
-		return functionPointerTypeInfo;
 	}
 	
 	@Override
@@ -83,11 +77,11 @@ public class FunctionItemTypeInfo extends FunctionTypeInfo {
 	
 	@Override
 	public String rawString() {
-		return super.rawString() + " " + Global.BRACE_START + function.name + Global.BRACE_END;
+		return function.toString();
 	}
 	
 	@Override
-	public String routineString() {
-		return super.routineString() + " " + Global.BRACE_START + function.name + Global.BRACE_END;
+	public String rawRoutineString() {
+		return function.routineString();
 	}
 }

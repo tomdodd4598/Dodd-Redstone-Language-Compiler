@@ -2,12 +2,12 @@ package drlc;
 
 public final class Global {
 	
-	public static final String SETARGC = "setargc";
-	
 	public static final String BOOL = "Bool";
 	public static final String INT = "Int";
 	public static final String NAT = "Nat";
 	public static final String CHAR = "Char";
+	
+	public static final String NULL = "Null";
 	
 	public static final String FN = "fn";
 	public static final String CONST = "const";
@@ -29,7 +29,9 @@ public final class Global {
 	public static final String OUTNAT = "outnat";
 	public static final String OUTCHAR = "outchar";
 	
-	public static final String ROOT = "\\root";
+	public static final String ROOT = "root";
+	public static final String SELF = "self";
+	public static final String SUPER = "super";
 	public static final String MAIN = "main";
 	
 	public static final String BRACE_START = "{";
@@ -67,6 +69,7 @@ public final class Global {
 	public static final String LIST_SEPARATOR = ", ";
 	public static final String LIST_START = "(";
 	public static final String LIST_END = ")";
+	public static final String TUPLE_SINGLE_END = ",)";
 	
 	public static final String ARRAY_TYPE_DELIMITER = ";";
 	public static final String ARRAY_START = "[";
@@ -74,10 +77,11 @@ public final class Global {
 	
 	public static final String TYPE_ANNOTATION_PREFIX = ":";
 	
-	public static final String UNKNOWN_TYPE = "_";
-	
 	public static final String FULL_STOP = ".";
 	public static final String ARROW = "->";
+	
+	public static final String PATH_SEPARATOR = "::";
+	public static final String WILDCARD_PATH = "*";
 	
 	public static final String LOGICAL_RIGHT_SHIFT = "\\logical_right_shift";
 	public static final String CIRCULAR_LEFT_SHIFT = "\\circular_left_shift";

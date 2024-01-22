@@ -2,12 +2,11 @@ package drlc.intermediate.ast.section;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Main;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.expression.*;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.scope.IterativeScope;
-import drlc.node.Node;
 
 public class ConditionalIterativeSectionNode extends IterativeSectionNode {
 	
@@ -15,8 +14,8 @@ public class ConditionalIterativeSectionNode extends IterativeSectionNode {
 	public @NonNull ExpressionNode expressionNode;
 	public final @NonNull ScopedBodyNode bodyNode;
 	
-	public ConditionalIterativeSectionNode(Node[] parseNodes, @Nullable String label, boolean _do, boolean until, @NonNull ExpressionNode expressionNode, @NonNull ScopedBodyNode bodyNode) {
-		super(parseNodes, label);
+	public ConditionalIterativeSectionNode(Source source, @Nullable String label, boolean _do, boolean until, @NonNull ExpressionNode expressionNode, @NonNull ScopedBodyNode bodyNode) {
+		super(source, label);
 		this._do = _do;
 		this.until = until;
 		this.expressionNode = expressionNode;
@@ -25,7 +24,7 @@ public class ConditionalIterativeSectionNode extends IterativeSectionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new IterativeScope(this, parent.scope, _do, label);
+		scope = new IterativeScope(this, null, parent.scope, false, _do, label);
 		
 		expressionNode.setScopes(this);
 		bodyNode.setScopes(this);
@@ -58,7 +57,7 @@ public class ConditionalIterativeSectionNode extends IterativeSectionNode {
 		
 		@NonNull TypeInfo expressionType = expressionNode.getTypeInfo();
 		if (!expressionType.canImplicitCastTo(Main.generator.boolTypeInfo)) {
-			throw castError("conditional value", expressionType, Main.generator.boolTypeInfo);
+			throw castError("condition value", expressionType, Main.generator.boolTypeInfo);
 		}
 	}
 	

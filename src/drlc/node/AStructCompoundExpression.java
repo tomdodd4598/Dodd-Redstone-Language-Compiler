@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AStructCompoundExpression extends PCompoundExpression
 {
-    private TName _name_;
+    private PPath _path_;
     private TLBrace _lBrace_;
     private PStructExpressionList _structExpressionList_;
     private TRBrace _rBrace_;
@@ -18,13 +18,13 @@ public final class AStructCompoundExpression extends PCompoundExpression
     }
 
     public AStructCompoundExpression(
-        @SuppressWarnings("hiding") TName _name_,
+        @SuppressWarnings("hiding") PPath _path_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
         @SuppressWarnings("hiding") PStructExpressionList _structExpressionList_,
         @SuppressWarnings("hiding") TRBrace _rBrace_)
     {
         // Constructor
-        setName(_name_);
+        setPath(_path_);
 
         setLBrace(_lBrace_);
 
@@ -38,7 +38,7 @@ public final class AStructCompoundExpression extends PCompoundExpression
     public Object clone()
     {
         return new AStructCompoundExpression(
-            cloneNode(this._name_),
+            cloneNode(this._path_),
             cloneNode(this._lBrace_),
             cloneNode(this._structExpressionList_),
             cloneNode(this._rBrace_));
@@ -50,16 +50,16 @@ public final class AStructCompoundExpression extends PCompoundExpression
         ((Analysis) sw).caseAStructCompoundExpression(this);
     }
 
-    public TName getName()
+    public PPath getPath()
     {
-        return this._name_;
+        return this._path_;
     }
 
-    public void setName(TName node)
+    public void setPath(PPath node)
     {
-        if(this._name_ != null)
+        if(this._path_ != null)
         {
-            this._name_.parent(null);
+            this._path_.parent(null);
         }
 
         if(node != null)
@@ -72,7 +72,7 @@ public final class AStructCompoundExpression extends PCompoundExpression
             node.parent(this);
         }
 
-        this._name_ = node;
+        this._path_ = node;
     }
 
     public TLBrace getLBrace()
@@ -154,7 +154,7 @@ public final class AStructCompoundExpression extends PCompoundExpression
     public String toString()
     {
         return ""
-            + toString(this._name_)
+            + toString(this._path_)
             + toString(this._lBrace_)
             + toString(this._structExpressionList_)
             + toString(this._rBrace_);
@@ -164,9 +164,9 @@ public final class AStructCompoundExpression extends PCompoundExpression
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._name_ == child)
+        if(this._path_ == child)
         {
-            this._name_ = null;
+            this._path_ = null;
             return;
         }
 
@@ -195,9 +195,9 @@ public final class AStructCompoundExpression extends PCompoundExpression
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._name_ == oldChild)
+        if(this._path_ == oldChild)
         {
-            setName((TName) newChild);
+            setPath((PPath) newChild);
             return;
         }
 
