@@ -1,18 +1,19 @@
 package drlc.intermediate.ast.type;
 
-import java.util.*;
+import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.Path;
 import drlc.intermediate.component.type.TypeDef;
 
 public class NominalTypeNode extends TypeNode {
 	
-	public final @NonNull List<String> path;
+	public final @NonNull Path path;
 	
-	public NominalTypeNode(Source source, @NonNull List<String> path) {
+	public NominalTypeNode(Source source, @NonNull Path path) {
 		super(source);
 		this.path = path;
 	}
@@ -66,6 +67,6 @@ public class NominalTypeNode extends TypeNode {
 	
 	@Override
 	public void collectTypeDefs(Set<TypeDef> typeDefs) {
-		scope.pathAction(this, path, (x, name) -> x.collectTypeDefs(this, typeDefs, name));
+		scope.pathAction(this, path, (x, name) -> x.collectTypeDefs(this, name, typeDefs));
 	}
 }

@@ -16,9 +16,14 @@ public class WildcardUseTreeNode extends UseTreeNode {
 	
 	public final @NonNull List<String> pathPrefix;
 	
+	@SuppressWarnings("null")
+	public @NonNull Path path = null;
+	
 	protected Set<Scope> moduleSet = new HashSet<>();
+	
 	protected Set<TypeDef> typeDefSet = new HashSet<>();
-	protected Set<TypeInfo> typealiasSet = new HashSet<>();
+	protected Set<TypeInfo> typeAliasSet = new HashSet<>();
+	
 	protected Set<Constant> constantSet = new HashSet<>();
 	protected Set<Variable> variableSet = new HashSet<>();
 	
@@ -73,23 +78,27 @@ public class WildcardUseTreeNode extends UseTreeNode {
 	
 	@Override
 	public void buildPath(@NonNull List<String> pathPrefix) {
-		path.addAll(pathPrefix);
-		path.addAll(this.pathPrefix);
+		pathSegments.addAll(pathPrefix);
+		pathSegments.addAll(this.pathPrefix);
 		
-		if (path.isEmpty()) {
+		if (pathSegments.isEmpty()) {
 			throw error("Wildcard import must be prefixed by path!");
 		}
-		path.add(Global.WILDCARD_PATH);
+		pathSegments.add(Global.WILDCARD_PATH);
+		
+		path = new Path(pathSegments);
 	}
 	
 	@SuppressWarnings("null")
 	protected void tryImport() {
 		scope.pathAction(this, path, (x, name) -> {
 			x.childMap.forEach((k, v) -> importAction(v, moduleSet, y -> scope.addChild(this, k, y)));
-			x.typeDefMap.forEach((k, v) -> importAction(v, typeDefSet, y -> scope.addTypeDef(this, k, y)), true);
-			x.typealiasMap.forEach((k, v) -> importAction(v, typealiasSet, y -> scope.addTypealias(this, k, y)), true);
-			x.constantMap.forEach((k, v) -> importAction(v, constantSet, y -> scope.addConstant(this, k, y)), true);
-			x.variableMap.forEach((k, v) -> importAction(v, variableSet, y -> scope.addVariable(this, k, y)), true);
+			
+			x.typeDefHierarchy.forEach((k, v) -> importAction(v, typeDefSet, y -> scope.addTypeDef(this, k, y)), true);
+			x.typeAliasHierarchy.forEach((k, v) -> importAction(v, typeAliasSet, y -> scope.addTypeAlias(this, k, y)), true);
+			
+			x.constantHierarchy.forEach((k, v) -> importAction(v, constantSet, y -> scope.addConstant(this, k, y)), true);
+			x.variableHierarchy.forEach((k, v) -> importAction(v, variableSet, y -> scope.addVariable(this, k, y)), true);
 		});
 	}
 	

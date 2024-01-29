@@ -10,7 +10,6 @@ public final class APath extends PPath
 {
     private PPathSegment _pathSegment_;
     private final LinkedList<PPathTail> _pathTail_ = new LinkedList<PPathTail>();
-    private PTemplateArgumentPathList _templateArgumentPathList_;
 
     public APath()
     {
@@ -19,15 +18,12 @@ public final class APath extends PPath
 
     public APath(
         @SuppressWarnings("hiding") PPathSegment _pathSegment_,
-        @SuppressWarnings("hiding") List<?> _pathTail_,
-        @SuppressWarnings("hiding") PTemplateArgumentPathList _templateArgumentPathList_)
+        @SuppressWarnings("hiding") List<?> _pathTail_)
     {
         // Constructor
         setPathSegment(_pathSegment_);
 
         setPathTail(_pathTail_);
-
-        setTemplateArgumentPathList(_templateArgumentPathList_);
 
     }
 
@@ -36,8 +32,7 @@ public final class APath extends PPath
     {
         return new APath(
             cloneNode(this._pathSegment_),
-            cloneList(this._pathTail_),
-            cloneNode(this._templateArgumentPathList_));
+            cloneList(this._pathTail_));
     }
 
     @Override
@@ -97,38 +92,12 @@ public final class APath extends PPath
         }
     }
 
-    public PTemplateArgumentPathList getTemplateArgumentPathList()
-    {
-        return this._templateArgumentPathList_;
-    }
-
-    public void setTemplateArgumentPathList(PTemplateArgumentPathList node)
-    {
-        if(this._templateArgumentPathList_ != null)
-        {
-            this._templateArgumentPathList_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._templateArgumentPathList_ = node;
-    }
-
     @Override
     public String toString()
     {
         return ""
             + toString(this._pathSegment_)
-            + toString(this._pathTail_)
-            + toString(this._templateArgumentPathList_);
+            + toString(this._pathTail_);
     }
 
     @Override
@@ -143,12 +112,6 @@ public final class APath extends PPath
 
         if(this._pathTail_.remove(child))
         {
-            return;
-        }
-
-        if(this._templateArgumentPathList_ == child)
-        {
-            this._templateArgumentPathList_ = null;
             return;
         }
 
@@ -181,12 +144,6 @@ public final class APath extends PPath
                 oldChild.parent(null);
                 return;
             }
-        }
-
-        if(this._templateArgumentPathList_ == oldChild)
-        {
-            setTemplateArgumentPathList((PTemplateArgumentPathList) newChild);
-            return;
         }
 
         throw new RuntimeException("Not a child.");

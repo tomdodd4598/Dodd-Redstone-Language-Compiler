@@ -10,7 +10,7 @@ public final class AArrayRawType extends PRawType
     private TLBracket _lBracket_;
     private PType _type_;
     private TSemicolon _semicolon_;
-    private PConstantExpression _constantExpression_;
+    private PExpression _expression_;
     private TRBracket _rBracket_;
 
     public AArrayRawType()
@@ -22,7 +22,7 @@ public final class AArrayRawType extends PRawType
         @SuppressWarnings("hiding") TLBracket _lBracket_,
         @SuppressWarnings("hiding") PType _type_,
         @SuppressWarnings("hiding") TSemicolon _semicolon_,
-        @SuppressWarnings("hiding") PConstantExpression _constantExpression_,
+        @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") TRBracket _rBracket_)
     {
         // Constructor
@@ -32,7 +32,7 @@ public final class AArrayRawType extends PRawType
 
         setSemicolon(_semicolon_);
 
-        setConstantExpression(_constantExpression_);
+        setExpression(_expression_);
 
         setRBracket(_rBracket_);
 
@@ -45,7 +45,7 @@ public final class AArrayRawType extends PRawType
             cloneNode(this._lBracket_),
             cloneNode(this._type_),
             cloneNode(this._semicolon_),
-            cloneNode(this._constantExpression_),
+            cloneNode(this._expression_),
             cloneNode(this._rBracket_));
     }
 
@@ -130,16 +130,16 @@ public final class AArrayRawType extends PRawType
         this._semicolon_ = node;
     }
 
-    public PConstantExpression getConstantExpression()
+    public PExpression getExpression()
     {
-        return this._constantExpression_;
+        return this._expression_;
     }
 
-    public void setConstantExpression(PConstantExpression node)
+    public void setExpression(PExpression node)
     {
-        if(this._constantExpression_ != null)
+        if(this._expression_ != null)
         {
-            this._constantExpression_.parent(null);
+            this._expression_.parent(null);
         }
 
         if(node != null)
@@ -152,7 +152,7 @@ public final class AArrayRawType extends PRawType
             node.parent(this);
         }
 
-        this._constantExpression_ = node;
+        this._expression_ = node;
     }
 
     public TRBracket getRBracket()
@@ -187,7 +187,7 @@ public final class AArrayRawType extends PRawType
             + toString(this._lBracket_)
             + toString(this._type_)
             + toString(this._semicolon_)
-            + toString(this._constantExpression_)
+            + toString(this._expression_)
             + toString(this._rBracket_);
     }
 
@@ -213,9 +213,9 @@ public final class AArrayRawType extends PRawType
             return;
         }
 
-        if(this._constantExpression_ == child)
+        if(this._expression_ == child)
         {
-            this._constantExpression_ = null;
+            this._expression_ = null;
             return;
         }
 
@@ -250,9 +250,9 @@ public final class AArrayRawType extends PRawType
             return;
         }
 
-        if(this._constantExpression_ == oldChild)
+        if(this._expression_ == oldChild)
         {
-            setConstantExpression((PConstantExpression) newChild);
+            setExpression((PExpression) newChild);
             return;
         }
 

@@ -7,14 +7,14 @@ import org.eclipse.jdt.annotation.*;
 import drlc.*;
 import drlc.Helpers.Pair;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.component.MemberInfo;
+import drlc.intermediate.component.*;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.scope.Scope;
 
 public class StructExpressionNode extends ExpressionNode {
 	
-	public final @NonNull List<String> path;
+	public final @NonNull Path path;
 	public final @Nullable List<String> labels;
 	public final @NonNull List<ExpressionNode> expressionNodes;
 	
@@ -26,7 +26,7 @@ public class StructExpressionNode extends ExpressionNode {
 	
 	public @Nullable StructValue constantValue = null;
 	
-	public StructExpressionNode(Source source, @NonNull List<String> path, @NonNull Pair<List<String>, @NonNull List<ExpressionNode>> expressionNodesPair) {
+	public StructExpressionNode(Source source, @NonNull Path path, @NonNull Pair<List<String>, @NonNull List<ExpressionNode>> expressionNodesPair) {
 		super(source);
 		this.path = path;
 		labels = expressionNodesPair.left;

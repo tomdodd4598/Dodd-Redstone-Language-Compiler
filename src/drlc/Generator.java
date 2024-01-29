@@ -64,13 +64,18 @@ public abstract class Generator {
 	}
 	
 	public void addBuiltInTypes() {
-		Main.rootScope.addTypealias(null, Global.BOOL, boolTypeInfo = boolTypeInfo());
-		Main.rootScope.addTypealias(null, Global.INT, intTypeInfo = intTypeInfo());
-		Main.rootScope.addTypealias(null, Global.NAT, natTypeInfo = natTypeInfo());
-		Main.rootScope.addTypealias(null, Global.CHAR, charTypeInfo = charTypeInfo());
+		Main.rootScope.addTypeAlias(null, Global.BOOL, boolTypeInfo = boolTypeInfo());
+		Main.rootScope.addTypeAlias(null, Global.INT, intTypeInfo = intTypeInfo());
+		Main.rootScope.addTypeAlias(null, Global.NAT, natTypeInfo = natTypeInfo());
+		Main.rootScope.addTypeAlias(null, Global.CHAR, charTypeInfo = charTypeInfo());
 		
 		unitTypeInfo = new TupleTypeInfo(null, new ArrayList<>(), new ArrayList<>());
 		nullTypeInfo = unitTypeInfo.addressOf(null, true);
+		
+		Main.rootScope.addStructTypeDef(null, Global.BOOLS, Helpers.arrayList(boolTypeInfo(false), natTypeInfo), Helpers.arrayList(Global.PTR, Global.LEN));
+		Main.rootScope.addStructTypeDef(null, Global.INTS, Helpers.arrayList(intTypeInfo(false), natTypeInfo), Helpers.arrayList(Global.PTR, Global.LEN));
+		Main.rootScope.addStructTypeDef(null, Global.NATS, Helpers.arrayList(natTypeInfo(false), natTypeInfo), Helpers.arrayList(Global.PTR, Global.LEN));
+		Main.rootScope.addStructTypeDef(null, Global.CHARS, Helpers.arrayList(charTypeInfo(false), natTypeInfo), Helpers.arrayList(Global.PTR, Global.LEN));
 		
 		rootReturnTypeInfo = intTypeInfo;
 		mainFunctionTypeInfo = new FunctionPointerTypeInfo(null, new ArrayList<>(), unitTypeInfo, new ArrayList<>());

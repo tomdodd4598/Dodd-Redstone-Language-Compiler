@@ -11,7 +11,7 @@ public final class AConstantDefinition extends PConstantDefinition
     private TName _name_;
     private PTypeAnnotation _typeAnnotation_;
     private TEquals _equals_;
-    private PConstantExpression _constantExpression_;
+    private PExpression _expression_;
     private TSemicolon _semicolon_;
 
     public AConstantDefinition()
@@ -24,7 +24,7 @@ public final class AConstantDefinition extends PConstantDefinition
         @SuppressWarnings("hiding") TName _name_,
         @SuppressWarnings("hiding") PTypeAnnotation _typeAnnotation_,
         @SuppressWarnings("hiding") TEquals _equals_,
-        @SuppressWarnings("hiding") PConstantExpression _constantExpression_,
+        @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") TSemicolon _semicolon_)
     {
         // Constructor
@@ -36,7 +36,7 @@ public final class AConstantDefinition extends PConstantDefinition
 
         setEquals(_equals_);
 
-        setConstantExpression(_constantExpression_);
+        setExpression(_expression_);
 
         setSemicolon(_semicolon_);
 
@@ -50,7 +50,7 @@ public final class AConstantDefinition extends PConstantDefinition
             cloneNode(this._name_),
             cloneNode(this._typeAnnotation_),
             cloneNode(this._equals_),
-            cloneNode(this._constantExpression_),
+            cloneNode(this._expression_),
             cloneNode(this._semicolon_));
     }
 
@@ -160,16 +160,16 @@ public final class AConstantDefinition extends PConstantDefinition
         this._equals_ = node;
     }
 
-    public PConstantExpression getConstantExpression()
+    public PExpression getExpression()
     {
-        return this._constantExpression_;
+        return this._expression_;
     }
 
-    public void setConstantExpression(PConstantExpression node)
+    public void setExpression(PExpression node)
     {
-        if(this._constantExpression_ != null)
+        if(this._expression_ != null)
         {
-            this._constantExpression_.parent(null);
+            this._expression_.parent(null);
         }
 
         if(node != null)
@@ -182,7 +182,7 @@ public final class AConstantDefinition extends PConstantDefinition
             node.parent(this);
         }
 
-        this._constantExpression_ = node;
+        this._expression_ = node;
     }
 
     public TSemicolon getSemicolon()
@@ -218,7 +218,7 @@ public final class AConstantDefinition extends PConstantDefinition
             + toString(this._name_)
             + toString(this._typeAnnotation_)
             + toString(this._equals_)
-            + toString(this._constantExpression_)
+            + toString(this._expression_)
             + toString(this._semicolon_);
     }
 
@@ -250,9 +250,9 @@ public final class AConstantDefinition extends PConstantDefinition
             return;
         }
 
-        if(this._constantExpression_ == child)
+        if(this._expression_ == child)
         {
-            this._constantExpression_ = null;
+            this._expression_ = null;
             return;
         }
 
@@ -293,9 +293,9 @@ public final class AConstantDefinition extends PConstantDefinition
             return;
         }
 
-        if(this._constantExpression_ == oldChild)
+        if(this._expression_ == oldChild)
         {
-            setConstantExpression((PConstantExpression) newChild);
+            setExpression((PExpression) newChild);
             return;
         }
 

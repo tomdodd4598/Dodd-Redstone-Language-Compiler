@@ -49,49 +49,49 @@ public class Visitor extends AnalysisAdapter {
 		this.contents = contents;
 	}
 	
-	private Source source(Node... parseNodes) {
+	protected Source source(Node... parseNodes) {
 		return new Source(fileName, contents, parseNodes);
 	}
 	
 	@SuppressWarnings("null")
-	private <T> @NonNull T traverse(Node node, Deque<T> stack) {
+	protected <T> @NonNull T traverse(Node node, Deque<T> stack) {
 		node.apply(this);
 		return stack.pop();
 	}
 	
-	private <T> @Nullable T traverseNullable(Node node, Deque<T> stack) {
+	protected <T> @Nullable T traverseNullable(Node node, Deque<T> stack) {
 		return node == null ? null : traverse(node, stack);
 	}
 	
-	private @NonNull ScopedBodyNode scope(Node node) {
+	protected @NonNull ScopedBodyNode scope(Node node) {
 		return traverse(node, scopedBodyNodeStack);
 	}
 	
-	private @NonNull TypeNode type(PType node) {
+	protected @NonNull TypeNode type(PType node) {
 		return traverse(node, typeStack);
 	}
 	
-	private @Nullable TypeNode typeAnnotation(PTypeAnnotation node) {
+	protected @Nullable TypeNode typeAnnotation(PTypeAnnotation node) {
 		return traverseNullable(node, typeStack);
 	}
 	
-	private @Nullable TypeNode returnType(PReturnType node) {
+	protected @Nullable TypeNode returnType(PReturnType node) {
 		return traverseNullable(node, typeStack);
 	}
 	
-	private @NonNull DeclaratorNode declarator(Node node) {
+	protected @NonNull DeclaratorNode declarator(Node node) {
 		return traverse(node, declaratorStack);
 	}
 	
-	private @NonNull ExpressionNode expression(Node node) {
+	protected @NonNull ExpressionNode expression(Node node) {
 		return traverse(node, expressionStack);
 	}
 	
-	private @NonNull ExpressionNode binaryExpression(Node node, Node left, Node op, Node right) {
+	protected @NonNull ExpressionNode binaryExpression(Node node, Node left, Node op, Node right) {
 		return new BinaryExpressionNode(source(node), expression(left), BinaryOpType.get(trim(op)), expression(right));
 	}
 	
-	private <T extends Node, V> @NonNull List<V> traverseList(List<T> node, Deque<V> stack) {
+	protected <T extends Node, V> @NonNull List<V> traverseList(List<T> node, Deque<V> stack) {
 		List<V> out = new ArrayList<>();
 		for (T e : node) {
 			out.add(traverse(e, stack));
@@ -99,7 +99,7 @@ public class Visitor extends AnalysisAdapter {
 		return out;
 	}
 	
-	private <T extends Node, U extends Node, V> @NonNull List<V> traverseList(T head, List<U> tail, Deque<V> stack) {
+	protected <T extends Node, U extends Node, V> @NonNull List<V> traverseList(T head, List<U> tail, Deque<V> stack) {
 		List<V> out = new ArrayList<>();
 		out.add(traverse(head, stack));
 		for (U e : tail) {
@@ -108,7 +108,7 @@ public class Visitor extends AnalysisAdapter {
 		return out;
 	}
 	
-	private @NonNull List<TypeNode> tupleTypeList(PTupleTypeList node) {
+	protected @NonNull List<TypeNode> tupleTypeList(PTupleTypeList node) {
 		if (node == null) {
 			return new ArrayList<>();
 		}
@@ -123,7 +123,7 @@ public class Visitor extends AnalysisAdapter {
 		}
 	}
 	
-	private @NonNull List<TypeNode> typeList(PTypeList node) {
+	protected @NonNull List<TypeNode> typeList(PTypeList node) {
 		if (node == null) {
 			return new ArrayList<>();
 		}
@@ -133,11 +133,11 @@ public class Visitor extends AnalysisAdapter {
 		}
 	}
 	
-	private @Nullable TypeNode closureReturnType(PClosureBody node) {
+	protected @Nullable TypeNode closureReturnType(PClosureBody node) {
 		return node instanceof AExpressionClosureBody ? null : returnType(((ABlockClosureBody) node).getReturnType());
 	}
 	
-	private @NonNull Pair<@NonNull ScopedBodyNode, @Nullable ReturnNode> closureBodyPair(PClosureBody node) {
+	protected @NonNull Pair<@NonNull ScopedBodyNode, @Nullable ReturnNode> closureBodyPair(PClosureBody node) {
 		if (node instanceof AExpressionClosureBody) {
 			return expressionClosureBodyPair(((AExpressionClosureBody) node).getExpression());
 		}
@@ -146,12 +146,12 @@ public class Visitor extends AnalysisAdapter {
 		}
 	}
 	
-	private @NonNull Pair<@NonNull ScopedBodyNode, @Nullable ReturnNode> expressionClosureBodyPair(Node node) {
+	protected @NonNull Pair<@NonNull ScopedBodyNode, @Nullable ReturnNode> expressionClosureBodyPair(Node node) {
 		ReturnNode returnNode = new ReturnNode(source(node), expression(node));
 		return new Pair<>(new ScopedBodyNode(source(node), new ArrayList<>(), returnNode), returnNode);
 	}
 	
-	private @NonNull List<DeclaratorNode> closureDeclaratorList(PClosureDeclaratorList node) {
+	protected @NonNull List<DeclaratorNode> closureDeclaratorList(PClosureDeclaratorList node) {
 		if (node instanceof AStandardClosureDeclaratorList) {
 			return declaratorList(((AStandardClosureDeclaratorList) node).getDeclaratorList());
 		}
@@ -160,7 +160,7 @@ public class Visitor extends AnalysisAdapter {
 		}
 	}
 	
-	private @NonNull List<DeclaratorNode> declaratorList(PDeclaratorList node) {
+	protected @NonNull List<DeclaratorNode> declaratorList(PDeclaratorList node) {
 		if (node == null) {
 			return new ArrayList<>();
 		}
@@ -170,7 +170,7 @@ public class Visitor extends AnalysisAdapter {
 		}
 	}
 	
-	private @NonNull List<ExpressionNode> expressionList(PExpressionList node) {
+	protected @NonNull List<ExpressionNode> expressionList(PExpressionList node) {
 		if (node == null) {
 			return new ArrayList<>();
 		}
@@ -180,7 +180,7 @@ public class Visitor extends AnalysisAdapter {
 		}
 	}
 	
-	private @NonNull List<ExpressionNode> tupleExpressionList(PTupleExpressionList node) {
+	protected @NonNull List<ExpressionNode> tupleExpressionList(PTupleExpressionList node) {
 		if (node == null) {
 			return new ArrayList<>();
 		}
@@ -195,7 +195,7 @@ public class Visitor extends AnalysisAdapter {
 		}
 	}
 	
-	private @NonNull List<UseTreeNode> useTreeList(PUseTreeList node) {
+	protected @NonNull List<UseTreeNode> useTreeList(PUseTreeList node) {
 		if (node == null) {
 			return new ArrayList<>();
 		}
@@ -205,7 +205,7 @@ public class Visitor extends AnalysisAdapter {
 		}
 	}
 	
-	private @NonNull Pair<List<String>, @NonNull List<ExpressionNode>> structExpressionListPair(PStructExpressionList node) {
+	protected @NonNull Pair<List<String>, @NonNull List<ExpressionNode>> structExpressionListPair(PStructExpressionList node) {
 		if (node == null) {
 			return new Pair<>(new ArrayList<>(), new ArrayList<>());
 		}
@@ -217,7 +217,7 @@ public class Visitor extends AnalysisAdapter {
 		}
 	}
 	
-	private @NonNull Pair<List<String>, @NonNull List<ExpressionNode>> labelledExpressionListPair(PLabelledExpressionList node) {
+	protected @NonNull Pair<List<String>, @NonNull List<ExpressionNode>> labelledExpressionListPair(PLabelledExpressionList node) {
 		Pair<@NonNull List<String>, @NonNull List<ExpressionNode>> listPair = new Pair<>(new ArrayList<>(), new ArrayList<>());
 		if (node != null) {
 			ALabelledExpressionList labelledExpressionList = (ALabelledExpressionList) node;
@@ -230,7 +230,7 @@ public class Visitor extends AnalysisAdapter {
 		return listPair;
 	}
 	
-	private @NonNull VariableModifier variableModifier(Node node, List<PVariableModifier> variableModifiers) {
+	protected @NonNull VariableModifier variableModifier(Node node, List<PVariableModifier> variableModifiers) {
 		boolean _static = false, mut = false;
 		for (PVariableModifier variableModifier : variableModifiers) {
 			String str = trim(variableModifier);
@@ -251,52 +251,52 @@ public class Visitor extends AnalysisAdapter {
 	}
 	
 	@SuppressWarnings("null")
-	private @NonNull String text(Token token) {
+	protected @NonNull String text(Token token) {
 		return token.getText();
 	}
 	
-	private @Nullable String textNullable(Token token) {
-		return token == null ? null : token.getText();
+	protected @Nullable String textNullable(Token token) {
+		return token == null ? null : text(token);
 	}
 	
 	@SuppressWarnings("null")
-	private @NonNull List<String> pathPrefix(List<PPathPrefix> pathPrefix) {
+	protected @NonNull List<String> pathPrefix(List<PPathPrefix> pathPrefix) {
 		return Helpers.map(pathPrefix, x -> trim(((APathPrefix) x).getPathSegment()));
 	}
 	
-	private @Nullable String useAlias(PUseAlias useAlias) {
+	protected @Nullable String useAlias(PUseAlias useAlias) {
 		return useAlias == null ? null : text(((AUseAlias) useAlias).getName());
 	}
 	
-	private @NonNull String label(PLabel label) {
+	protected @NonNull String label(PLabel label) {
 		return text(((ALabel) label).getName());
 	}
 	
-	private @Nullable String labelNullable(PLabel label) {
+	protected @Nullable String labelNullable(PLabel label) {
 		return label == null ? null : text(((ALabel) label).getName());
 	}
 	
-	private @NonNull List<String> path(PPath node) {
-		@NonNull List<String> out = new ArrayList<>();
+	protected @NonNull Path path(PPath node) {
+		@NonNull List<String> pathSegments = new ArrayList<>();
 		APath path = (APath) node;
-		out.add(trim(path.getPathSegment()));
+		pathSegments.add(trim(path.getPathSegment()));
 		List<PPathTail> tailList = path.getPathTail();
 		for (PPathTail tail : tailList) {
-			out.add(trim(((APathTail) tail).getPathSegment()));
+			pathSegments.add(trim(((APathTail) tail).getPathSegment()));
 		}
-		return out;
+		return new Path(pathSegments);
 	}
 	
-	private boolean unless(Token token) {
+	protected boolean unless(Token token) {
 		return text(token).equals(Global.UNLESS);
 	}
 	
-	private boolean until(Token token) {
+	protected boolean until(Token token) {
 		return text(token).equals(Global.UNTIL);
 	}
 	
 	@SuppressWarnings("null")
-	private <T> @NonNull String trim(T node) {
+	protected <T> @NonNull String trim(T node) {
 		return node.toString().trim();
 	}
 	
@@ -336,8 +336,8 @@ public class Visitor extends AnalysisAdapter {
 	}
 	
 	@Override
-	public void caseATypealiasDefinitionStaticSection(ATypealiasDefinitionStaticSection node) {
-		node.getTypealiasDefinition().apply(this);
+	public void caseATypeAliasDefinitionStaticSection(ATypeAliasDefinitionStaticSection node) {
+		node.getTypeAliasDefinition().apply(this);
 	}
 	
 	@Override
@@ -435,8 +435,8 @@ public class Visitor extends AnalysisAdapter {
 	}
 	
 	@Override
-	public void caseATypealiasDefinition(ATypealiasDefinition node) {
-		staticSectionStack.push(new TypealiasDefinitionNode(source(node), text(node.getName()), type(node.getType())));
+	public void caseATypeAliasDefinition(ATypeAliasDefinition node) {
+		staticSectionStack.push(new TypeAliasDefinitionNode(source(node), text(node.getName()), type(node.getType())));
 	}
 	
 	@Override
@@ -446,7 +446,7 @@ public class Visitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAConstantDefinition(AConstantDefinition node) {
-		staticSectionStack.push(new ConstantDefinitionNode(source(node), text(node.getName()), typeAnnotation(node.getTypeAnnotation()), expression(node.getConstantExpression())));
+		staticSectionStack.push(new ConstantDefinitionNode(source(node), text(node.getName()), typeAnnotation(node.getTypeAnnotation()), expression(node.getExpression())));
 	}
 	
 	@Override
@@ -578,7 +578,7 @@ public class Visitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAArrayRawType(AArrayRawType node) {
-		typeStack.push(new ArrayTypeNode(source(node), type(node.getType()), expression(node.getConstantExpression())));
+		typeStack.push(new ArrayTypeNode(source(node), type(node.getType()), expression(node.getExpression())));
 	}
 	
 	@Override
@@ -814,7 +814,7 @@ public class Visitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAArrayRepeatCompoundExpression(AArrayRepeatCompoundExpression node) {
-		expressionStack.push(new ArrayRepeatExpressionNode(source(node), expression(node.getExpression()), expression(node.getConstantExpression())));
+		expressionStack.push(new ArrayRepeatExpressionNode(source(node), expression(node.getExpression()), expression(node.getConstant())));
 	}
 	
 	@Override
@@ -904,17 +904,17 @@ public class Visitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseACharScalar(ACharScalar node) {
-		expressionStack.push(new CharExpressionNode(source(node), Helpers.unescapeChar(node.getCharValue().getText())));
+		expressionStack.push(new CharExpressionNode(source(node), Helpers.unescapeChar(text(node.getCharValue()))));
+	}
+	
+	@Override
+	public void caseAStringScalar(AStringScalar node) {
+		expressionStack.push(new StringExpressionNode(source(node), Helpers.unescapeString(text(node.getStringLiteral()))));
 	}
 	
 	@Override
 	public void caseASizeofScalar(ASizeofScalar node) {
 		expressionStack.push(new SizeofExpressionNode(source(node), type(node.getType())));
-	}
-	
-	@Override
-	public void caseAConstantExpression(AConstantExpression node) {
-		node.getExpression().apply(this);
 	}
 	
 	@Override
@@ -1095,7 +1095,7 @@ public class Visitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAArrayRepeatBraceCompoundExpression(AArrayRepeatBraceCompoundExpression node) {
-		expressionStack.push(new ArrayRepeatExpressionNode(source(node), expression(node.getExpression()), expression(node.getConstantExpression())));
+		expressionStack.push(new ArrayRepeatExpressionNode(source(node), expression(node.getExpression()), expression(node.getConstant())));
 	}
 	
 	@Override

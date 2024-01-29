@@ -17,7 +17,7 @@ public interface Analysis extends Switch
     void caseAModuleDefinitionStaticSection(AModuleDefinitionStaticSection node);
     void caseAUseDeclarationStaticSection(AUseDeclarationStaticSection node);
     void caseAFunctionDefinitionStaticSection(AFunctionDefinitionStaticSection node);
-    void caseATypealiasDefinitionStaticSection(ATypealiasDefinitionStaticSection node);
+    void caseATypeAliasDefinitionStaticSection(ATypeAliasDefinitionStaticSection node);
     void caseAStructDefinitionStaticSection(AStructDefinitionStaticSection node);
     void caseAConstantDefinitionStaticSection(AConstantDefinitionStaticSection node);
     void caseAVariableDeclarationStaticSection(AVariableDeclarationStaticSection node);
@@ -38,7 +38,7 @@ public interface Analysis extends Switch
     void caseAUseTreeListTail(AUseTreeListTail node);
     void caseAUseAlias(AUseAlias node);
     void caseAFunctionDefinition(AFunctionDefinition node);
-    void caseATypealiasDefinition(ATypealiasDefinition node);
+    void caseATypeAliasDefinition(ATypeAliasDefinition node);
     void caseAStructDefinition(AStructDefinition node);
     void caseAConstantDefinition(AConstantDefinition node);
     void caseAExcludingInitializationVariableDeclaration(AExcludingInitializationVariableDeclaration node);
@@ -75,15 +75,12 @@ public interface Analysis extends Switch
     void caseATypeListTail(ATypeListTail node);
     void caseAReturnType(AReturnType node);
     void caseATypeAnnotation(ATypeAnnotation node);
-    void caseATemplateParameterList(ATemplateParameterList node);
-    void caseATemplateParameterListHead(ATemplateParameterListHead node);
     void caseAPath(APath node);
     void caseAPathTail(APathTail node);
     void caseARootPathSegment(ARootPathSegment node);
     void caseASuperPathSegment(ASuperPathSegment node);
     void caseASelfPathSegment(ASelfPathSegment node);
     void caseANamePathSegment(ANamePathSegment node);
-    void caseATemplateArgumentPathList(ATemplateArgumentPathList node);
     void caseADeclarator(ADeclarator node);
     void caseAStaticVariableModifier(AStaticVariableModifier node);
     void caseAMutVariableModifier(AMutVariableModifier node);
@@ -94,8 +91,6 @@ public interface Analysis extends Switch
     void caseAClosureExpression(AClosureExpression node);
     void caseAStandardClosureDeclaratorList(AStandardClosureDeclaratorList node);
     void caseALogicalOrClosureDeclaratorList(ALogicalOrClosureDeclaratorList node);
-    void caseALClosureList(ALClosureList node);
-    void caseARClosureList(ARClosureList node);
     void caseAExpressionClosureBody(AExpressionClosureBody node);
     void caseABlockClosureBody(ABlockClosureBody node);
     void caseAPrioritizedAssignmentExpression(APrioritizedAssignmentExpression node);
@@ -153,8 +148,8 @@ public interface Analysis extends Switch
     void caseANatScalar(ANatScalar node);
     void caseAWordScalar(AWordScalar node);
     void caseACharScalar(ACharScalar node);
+    void caseAStringScalar(AStringScalar node);
     void caseASizeofScalar(ASizeofScalar node);
-    void caseAConstantExpression(AConstantExpression node);
     void caseAPrioritizedBraceExpression(APrioritizedBraceExpression node);
     void caseAClosureBraceExpression(AClosureBraceExpression node);
     void caseAPrioritizedBraceAssignmentExpression(APrioritizedBraceAssignmentExpression node);
@@ -304,6 +299,7 @@ public interface Analysis extends Switch
     void caseTNatValue(TNatValue node);
     void caseTWordValue(TWordValue node);
     void caseTCharValue(TCharValue node);
+    void caseTStringLiteral(TStringLiteral node);
     void caseTBlank(TBlank node);
     void caseTComment(TComment node);
     void caseEOF(EOF node);

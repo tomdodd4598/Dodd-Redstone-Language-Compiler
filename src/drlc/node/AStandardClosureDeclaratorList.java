@@ -7,9 +7,9 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AStandardClosureDeclaratorList extends PClosureDeclaratorList
 {
-    private PLClosureList _lClosureList_;
+    private TOr _lOr_;
     private PDeclaratorList _declaratorList_;
-    private PRClosureList _rClosureList_;
+    private TOr _rOr_;
 
     public AStandardClosureDeclaratorList()
     {
@@ -17,16 +17,16 @@ public final class AStandardClosureDeclaratorList extends PClosureDeclaratorList
     }
 
     public AStandardClosureDeclaratorList(
-        @SuppressWarnings("hiding") PLClosureList _lClosureList_,
+        @SuppressWarnings("hiding") TOr _lOr_,
         @SuppressWarnings("hiding") PDeclaratorList _declaratorList_,
-        @SuppressWarnings("hiding") PRClosureList _rClosureList_)
+        @SuppressWarnings("hiding") TOr _rOr_)
     {
         // Constructor
-        setLClosureList(_lClosureList_);
+        setLOr(_lOr_);
 
         setDeclaratorList(_declaratorList_);
 
-        setRClosureList(_rClosureList_);
+        setROr(_rOr_);
 
     }
 
@@ -34,9 +34,9 @@ public final class AStandardClosureDeclaratorList extends PClosureDeclaratorList
     public Object clone()
     {
         return new AStandardClosureDeclaratorList(
-            cloneNode(this._lClosureList_),
+            cloneNode(this._lOr_),
             cloneNode(this._declaratorList_),
-            cloneNode(this._rClosureList_));
+            cloneNode(this._rOr_));
     }
 
     @Override
@@ -45,16 +45,16 @@ public final class AStandardClosureDeclaratorList extends PClosureDeclaratorList
         ((Analysis) sw).caseAStandardClosureDeclaratorList(this);
     }
 
-    public PLClosureList getLClosureList()
+    public TOr getLOr()
     {
-        return this._lClosureList_;
+        return this._lOr_;
     }
 
-    public void setLClosureList(PLClosureList node)
+    public void setLOr(TOr node)
     {
-        if(this._lClosureList_ != null)
+        if(this._lOr_ != null)
         {
-            this._lClosureList_.parent(null);
+            this._lOr_.parent(null);
         }
 
         if(node != null)
@@ -67,7 +67,7 @@ public final class AStandardClosureDeclaratorList extends PClosureDeclaratorList
             node.parent(this);
         }
 
-        this._lClosureList_ = node;
+        this._lOr_ = node;
     }
 
     public PDeclaratorList getDeclaratorList()
@@ -95,16 +95,16 @@ public final class AStandardClosureDeclaratorList extends PClosureDeclaratorList
         this._declaratorList_ = node;
     }
 
-    public PRClosureList getRClosureList()
+    public TOr getROr()
     {
-        return this._rClosureList_;
+        return this._rOr_;
     }
 
-    public void setRClosureList(PRClosureList node)
+    public void setROr(TOr node)
     {
-        if(this._rClosureList_ != null)
+        if(this._rOr_ != null)
         {
-            this._rClosureList_.parent(null);
+            this._rOr_.parent(null);
         }
 
         if(node != null)
@@ -117,25 +117,25 @@ public final class AStandardClosureDeclaratorList extends PClosureDeclaratorList
             node.parent(this);
         }
 
-        this._rClosureList_ = node;
+        this._rOr_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._lClosureList_)
+            + toString(this._lOr_)
             + toString(this._declaratorList_)
-            + toString(this._rClosureList_);
+            + toString(this._rOr_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._lClosureList_ == child)
+        if(this._lOr_ == child)
         {
-            this._lClosureList_ = null;
+            this._lOr_ = null;
             return;
         }
 
@@ -145,9 +145,9 @@ public final class AStandardClosureDeclaratorList extends PClosureDeclaratorList
             return;
         }
 
-        if(this._rClosureList_ == child)
+        if(this._rOr_ == child)
         {
-            this._rClosureList_ = null;
+            this._rOr_ = null;
             return;
         }
 
@@ -158,9 +158,9 @@ public final class AStandardClosureDeclaratorList extends PClosureDeclaratorList
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._lClosureList_ == oldChild)
+        if(this._lOr_ == oldChild)
         {
-            setLClosureList((PLClosureList) newChild);
+            setLOr((TOr) newChild);
             return;
         }
 
@@ -170,9 +170,9 @@ public final class AStandardClosureDeclaratorList extends PClosureDeclaratorList
             return;
         }
 
-        if(this._rClosureList_ == oldChild)
+        if(this._rOr_ == oldChild)
         {
-            setRClosureList((PRClosureList) newChild);
+            setROr((TOr) newChild);
             return;
         }
 

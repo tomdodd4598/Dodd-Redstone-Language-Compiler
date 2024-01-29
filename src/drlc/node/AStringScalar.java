@@ -5,46 +5,46 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class ARClosureList extends PRClosureList
+public final class AStringScalar extends PScalar
 {
-    private TOr _or_;
+    private TStringLiteral _stringLiteral_;
 
-    public ARClosureList()
+    public AStringScalar()
     {
         // Constructor
     }
 
-    public ARClosureList(
-        @SuppressWarnings("hiding") TOr _or_)
+    public AStringScalar(
+        @SuppressWarnings("hiding") TStringLiteral _stringLiteral_)
     {
         // Constructor
-        setOr(_or_);
+        setStringLiteral(_stringLiteral_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new ARClosureList(
-            cloneNode(this._or_));
+        return new AStringScalar(
+            cloneNode(this._stringLiteral_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseARClosureList(this);
+        ((Analysis) sw).caseAStringScalar(this);
     }
 
-    public TOr getOr()
+    public TStringLiteral getStringLiteral()
     {
-        return this._or_;
+        return this._stringLiteral_;
     }
 
-    public void setOr(TOr node)
+    public void setStringLiteral(TStringLiteral node)
     {
-        if(this._or_ != null)
+        if(this._stringLiteral_ != null)
         {
-            this._or_.parent(null);
+            this._stringLiteral_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class ARClosureList extends PRClosureList
             node.parent(this);
         }
 
-        this._or_ = node;
+        this._stringLiteral_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._or_);
+            + toString(this._stringLiteral_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._or_ == child)
+        if(this._stringLiteral_ == child)
         {
-            this._or_ = null;
+            this._stringLiteral_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class ARClosureList extends PRClosureList
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._or_ == oldChild)
+        if(this._stringLiteral_ == oldChild)
         {
-            setOr((TOr) newChild);
+            setStringLiteral((TStringLiteral) newChild);
             return;
         }
 

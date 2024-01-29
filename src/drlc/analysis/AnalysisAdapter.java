@@ -105,7 +105,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseATypealiasDefinitionStaticSection(ATypealiasDefinitionStaticSection node)
+    public void caseATypeAliasDefinitionStaticSection(ATypeAliasDefinitionStaticSection node)
     {
         defaultCase(node);
     }
@@ -231,7 +231,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseATypealiasDefinition(ATypealiasDefinition node)
+    public void caseATypeAliasDefinition(ATypeAliasDefinition node)
     {
         defaultCase(node);
     }
@@ -453,18 +453,6 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseATemplateParameterList(ATemplateParameterList node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseATemplateParameterListHead(ATemplateParameterListHead node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
     public void caseAPath(APath node)
     {
         defaultCase(node);
@@ -496,12 +484,6 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseANamePathSegment(ANamePathSegment node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseATemplateArgumentPathList(ATemplateArgumentPathList node)
     {
         defaultCase(node);
     }
@@ -562,18 +544,6 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseALogicalOrClosureDeclaratorList(ALogicalOrClosureDeclaratorList node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseALClosureList(ALClosureList node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseARClosureList(ARClosureList node)
     {
         defaultCase(node);
     }
@@ -921,13 +891,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseASizeofScalar(ASizeofScalar node)
+    public void caseAStringScalar(AStringScalar node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAConstantExpression(AConstantExpression node)
+    public void caseASizeofScalar(ASizeofScalar node)
     {
         defaultCase(node);
     }
@@ -1816,6 +1786,12 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTCharValue(TCharValue node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTStringLiteral(TStringLiteral node)
     {
         defaultCase(node);
     }

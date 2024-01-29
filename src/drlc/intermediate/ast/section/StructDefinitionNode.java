@@ -43,9 +43,9 @@ public class StructDefinitionNode extends StaticSectionNode<Scope> {
 	@SuppressWarnings("null")
 	@Override
 	public void defineTypes(ASTNode<?> parent) {
-		Map<String, MemberInfo> memberMap = new HashMap<>();
+		Map<String, MemberInfo> memberMap = new LinkedHashMap<>();
 		List<TypeInfo> typeInfos = new ArrayList<>();
-		typeDef = new TypeDef(name, 0, memberMap, (node, referenceLevel, scope) -> new StructTypeInfo(node, referenceLevel, typeInfos, scope, name));
+		typeDef = new TypeDef(name, 0, memberMap, (n, r, s) -> new StructTypeInfo(n, r, typeInfos, s, name));
 		
 		scope.addTypeDef(this, typeDef);
 		
@@ -54,11 +54,9 @@ public class StructDefinitionNode extends StaticSectionNode<Scope> {
 		}
 		
 		Set<TypeDef> typeDefs = new HashSet<>();
-		
 		for (DeclaratorNode componentNode : componentNodes) {
 			componentNode.typeNode.collectTypeDefs(typeDefs);
 		}
-		
 		if (typeDefs.contains(typeDef)) {
 			throw error("Struct \"%s\" can not directly contain itself!", name);
 		}

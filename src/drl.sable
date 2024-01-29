@@ -142,6 +142,8 @@ Tokens
 	
 	char_value = apostrophe c_char apostrophe;
 	
+	string_literal = quote s_char_sequence quote;
+	
 	blank = (' ' | 9 | 11 | eol)+;
 	comment = line_comment | block_comment;
 
@@ -158,7 +160,7 @@ Productions
 		{module_definition} module_definition |
 		{use_declaration} use_declaration |
 		{function_definition} function_definition |
-		{typealias_definition} typealias_definition |
+		{type_alias_definition} type_alias_definition |
 		{struct_definition} struct_definition |
 		{constant_definition} constant_definition |
 		{variable_declaration} variable_declaration |
@@ -202,16 +204,16 @@ Productions
 		as name;
 	
 	function_definition =
-		fn name template_parameter_list? l_par declarator_list? r_par return_type? l_brace scoped_body r_brace;
+		fn name l_par declarator_list? r_par return_type? l_brace scoped_body r_brace;
 	
-	typealias_definition =
-		alias name template_parameter_list? equals type semicolon;
+	type_alias_definition =
+		alias name equals type semicolon;
 	
 	struct_definition =
-		struct name template_parameter_list? l_brace declarator_list? r_brace;
+		struct name l_brace declarator_list? r_brace;
 	
 	constant_definition =
-		const name type_annotation? equals constant_expression semicolon;
+		const name type_annotation? equals expression semicolon;
 	
 	variable_declaration =
 		{excluding_initialization} let declarator semicolon |
@@ -265,7 +267,7 @@ Productions
 	
 	raw_type =
 		{nominal} path |
-		{array} l_bracket type semicolon constant_expression r_bracket |
+		{array} l_bracket type semicolon expression r_bracket |
 		{tuple} l_par tuple_type_list? r_par |
 		{function} fn l_par type_list? r_par return_type?;
 	
@@ -287,14 +289,8 @@ Productions
 	type_annotation =
 		colon type;
 	
-	template_parameter_list =
-		less_than template_parameter_list_head* name comma? more_than;
-	
-	template_parameter_list_head =
-		name comma;
-	
 	path =
-		path_segment path_tail* template_argument_path_list?;
+		path_segment path_tail*;
 	
 	path_tail =
 		path_separator path_segment;
@@ -304,9 +300,6 @@ Productions
 		{super} super |
 		{self} self |
 		{name} name;
-	
-	template_argument_path_list =
-		path_separator less_than tuple_type_list_head* type comma? more_than;
 	
 	declarator =
 		variable_modifier* name type_annotation?;
@@ -329,14 +322,8 @@ Productions
 		{closure} closure_declarator_list closure_body;
 	
 	closure_declarator_list =
-		{standard} l_closure_list declarator_list? r_closure_list |
+		{standard} [l_or]:or declarator_list? [r_or]:or |
 		{logical_or} logical_or;
-	
-	l_closure_list =
-		or;
-	
-	r_closure_list =
-		or;
 	
 	closure_body =
 		{expression} expression |
@@ -399,7 +386,7 @@ Productions
 		{parentheses} parentheses_expression |
 		{primary} primary_expression |
 		{array_list} l_bracket expression_list? r_bracket |
-		{array_repeat} l_bracket expression semicolon constant_expression r_bracket |
+		{array_repeat} l_bracket expression semicolon [constant]:expression r_bracket |
 		{tuple} l_par tuple_expression_list? r_par |
 		{struct} path l_brace struct_expression_list? r_brace;
 	
@@ -446,10 +433,8 @@ Productions
 		{nat} nat_value |
 		{word} word_value |
 		{char} char_value |
+		{string} string_literal |
 		{sizeof} sizeof type;
-	
-	constant_expression =
-		expression;
 	
 	brace_expression =
 		{prioritized} brace_assignment_expression |
@@ -512,7 +497,7 @@ Productions
 		{parentheses} parentheses_expression |
 		{primary} primary_expression |
 		{array_list} l_bracket expression_list? r_bracket |
-		{array_repeat} l_bracket expression semicolon constant_expression r_bracket |
+		{array_repeat} l_bracket expression semicolon [constant]:expression r_bracket |
 		{tuple} l_par tuple_expression_list? r_par;
 	
 	

@@ -16,9 +16,14 @@ public class LeafUseTreeNode extends UseTreeNode {
 	public final @NonNull List<String> pathSuffix;
 	public final @Nullable String alias;
 	
+	@SuppressWarnings("null")
+	public @NonNull Path path = null;
+	
 	protected Set<Scope> moduleSet = new HashSet<>();
+	
 	protected Set<TypeDef> typeDefSet = new HashSet<>();
-	protected Set<TypeInfo> typealiasSet = new HashSet<>();
+	protected Set<TypeInfo> typeAliasSet = new HashSet<>();
+	
 	protected Set<Constant> constantSet = new HashSet<>();
 	protected Set<Variable> variableSet = new HashSet<>();
 	
@@ -31,7 +36,7 @@ public class LeafUseTreeNode extends UseTreeNode {
 	@Override
 	public void setScopes(ASTNode<?> parent) {
 		scope = parent.scope.getConcreteScope();
-		if (!scope.childExists(path.get(0))) {
+		if (!scope.childExists(path.segments.get(0))) {
 			scope = scope.getCurrentModule();
 		}
 		
@@ -62,8 +67,8 @@ public class LeafUseTreeNode extends UseTreeNode {
 	
 	@Override
 	public void foldConstants(ASTNode<?> parent) {
-		if (moduleSet.isEmpty() && typeDefSet.isEmpty() && typealiasSet.isEmpty() && constantSet.isEmpty() && variableSet.isEmpty()) {
-			throw error("Failed to import \"%s\"!", Helpers.pathString(path));
+		if (moduleSet.isEmpty() && typeDefSet.isEmpty() && typeAliasSet.isEmpty() && constantSet.isEmpty() && variableSet.isEmpty()) {
+			throw error("Failed to import \"%s\"!", path);
 		}
 	}
 	
@@ -79,8 +84,10 @@ public class LeafUseTreeNode extends UseTreeNode {
 	
 	@Override
 	public void buildPath(@NonNull List<String> pathPrefix) {
-		path.addAll(pathPrefix);
-		path.addAll(pathSuffix);
+		pathSegments.addAll(pathPrefix);
+		pathSegments.addAll(pathSuffix);
+		
+		path = new Path(pathSegments);
 	}
 	
 	@SuppressWarnings("null")
@@ -99,8 +106,10 @@ public class LeafUseTreeNode extends UseTreeNode {
 			}
 			else {
 				importAction(name, moduleSet, () -> x.childExists(name), () -> x.getChild(this, name), (y, z) -> scope.addChild(this, y, z));
+				
 				importAction(name, typeDefSet, () -> x.typeDefExists(name, true), () -> x.getTypeDef(this, name, true), (y, z) -> scope.addTypeDef(this, y, z));
-				importAction(name, typealiasSet, () -> x.typealiasExists(name, true), () -> x.getTypealias(this, name, true), (y, z) -> scope.addTypealias(this, y, z));
+				importAction(name, typeAliasSet, () -> x.typeAliasExists(name, true), () -> x.getTypeAlias(this, name, true), (y, z) -> scope.addTypeAlias(this, y, z));
+				
 				importAction(name, constantSet, () -> x.constantExists(name, true), () -> x.getConstant(this, name, true), (y, z) -> scope.addConstant(this, y, z));
 				importAction(name, variableSet, () -> x.variableExists(name, true), () -> x.getVariable(this, name, true), (y, z) -> scope.addVariable(this, y, z));
 			}

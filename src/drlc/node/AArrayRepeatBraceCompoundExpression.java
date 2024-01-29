@@ -10,7 +10,7 @@ public final class AArrayRepeatBraceCompoundExpression extends PBraceCompoundExp
     private TLBracket _lBracket_;
     private PExpression _expression_;
     private TSemicolon _semicolon_;
-    private PConstantExpression _constantExpression_;
+    private PExpression _constant_;
     private TRBracket _rBracket_;
 
     public AArrayRepeatBraceCompoundExpression()
@@ -22,7 +22,7 @@ public final class AArrayRepeatBraceCompoundExpression extends PBraceCompoundExp
         @SuppressWarnings("hiding") TLBracket _lBracket_,
         @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") TSemicolon _semicolon_,
-        @SuppressWarnings("hiding") PConstantExpression _constantExpression_,
+        @SuppressWarnings("hiding") PExpression _constant_,
         @SuppressWarnings("hiding") TRBracket _rBracket_)
     {
         // Constructor
@@ -32,7 +32,7 @@ public final class AArrayRepeatBraceCompoundExpression extends PBraceCompoundExp
 
         setSemicolon(_semicolon_);
 
-        setConstantExpression(_constantExpression_);
+        setConstant(_constant_);
 
         setRBracket(_rBracket_);
 
@@ -45,7 +45,7 @@ public final class AArrayRepeatBraceCompoundExpression extends PBraceCompoundExp
             cloneNode(this._lBracket_),
             cloneNode(this._expression_),
             cloneNode(this._semicolon_),
-            cloneNode(this._constantExpression_),
+            cloneNode(this._constant_),
             cloneNode(this._rBracket_));
     }
 
@@ -130,16 +130,16 @@ public final class AArrayRepeatBraceCompoundExpression extends PBraceCompoundExp
         this._semicolon_ = node;
     }
 
-    public PConstantExpression getConstantExpression()
+    public PExpression getConstant()
     {
-        return this._constantExpression_;
+        return this._constant_;
     }
 
-    public void setConstantExpression(PConstantExpression node)
+    public void setConstant(PExpression node)
     {
-        if(this._constantExpression_ != null)
+        if(this._constant_ != null)
         {
-            this._constantExpression_.parent(null);
+            this._constant_.parent(null);
         }
 
         if(node != null)
@@ -152,7 +152,7 @@ public final class AArrayRepeatBraceCompoundExpression extends PBraceCompoundExp
             node.parent(this);
         }
 
-        this._constantExpression_ = node;
+        this._constant_ = node;
     }
 
     public TRBracket getRBracket()
@@ -187,7 +187,7 @@ public final class AArrayRepeatBraceCompoundExpression extends PBraceCompoundExp
             + toString(this._lBracket_)
             + toString(this._expression_)
             + toString(this._semicolon_)
-            + toString(this._constantExpression_)
+            + toString(this._constant_)
             + toString(this._rBracket_);
     }
 
@@ -213,9 +213,9 @@ public final class AArrayRepeatBraceCompoundExpression extends PBraceCompoundExp
             return;
         }
 
-        if(this._constantExpression_ == child)
+        if(this._constant_ == child)
         {
-            this._constantExpression_ = null;
+            this._constant_ = null;
             return;
         }
 
@@ -250,9 +250,9 @@ public final class AArrayRepeatBraceCompoundExpression extends PBraceCompoundExp
             return;
         }
 
-        if(this._constantExpression_ == oldChild)
+        if(this._constant_ == oldChild)
         {
-            setConstantExpression((PConstantExpression) newChild);
+            setConstant((PExpression) newChild);
             return;
         }
 

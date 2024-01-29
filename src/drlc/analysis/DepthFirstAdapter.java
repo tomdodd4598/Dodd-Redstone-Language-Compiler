@@ -144,25 +144,25 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outAFunctionDefinitionStaticSection(node);
     }
 
-    public void inATypealiasDefinitionStaticSection(ATypealiasDefinitionStaticSection node)
+    public void inATypeAliasDefinitionStaticSection(ATypeAliasDefinitionStaticSection node)
     {
         defaultIn(node);
     }
 
-    public void outATypealiasDefinitionStaticSection(ATypealiasDefinitionStaticSection node)
+    public void outATypeAliasDefinitionStaticSection(ATypeAliasDefinitionStaticSection node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseATypealiasDefinitionStaticSection(ATypealiasDefinitionStaticSection node)
+    public void caseATypeAliasDefinitionStaticSection(ATypeAliasDefinitionStaticSection node)
     {
-        inATypealiasDefinitionStaticSection(node);
-        if(node.getTypealiasDefinition() != null)
+        inATypeAliasDefinitionStaticSection(node);
+        if(node.getTypeAliasDefinition() != null)
         {
-            node.getTypealiasDefinition().apply(this);
+            node.getTypeAliasDefinition().apply(this);
         }
-        outATypealiasDefinitionStaticSection(node);
+        outATypeAliasDefinitionStaticSection(node);
     }
 
     public void inAStructDefinitionStaticSection(AStructDefinitionStaticSection node)
@@ -674,10 +674,6 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getName().apply(this);
         }
-        if(node.getTemplateParameterList() != null)
-        {
-            node.getTemplateParameterList().apply(this);
-        }
         if(node.getLPar() != null)
         {
             node.getLPar().apply(this);
@@ -709,20 +705,20 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outAFunctionDefinition(node);
     }
 
-    public void inATypealiasDefinition(ATypealiasDefinition node)
+    public void inATypeAliasDefinition(ATypeAliasDefinition node)
     {
         defaultIn(node);
     }
 
-    public void outATypealiasDefinition(ATypealiasDefinition node)
+    public void outATypeAliasDefinition(ATypeAliasDefinition node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseATypealiasDefinition(ATypealiasDefinition node)
+    public void caseATypeAliasDefinition(ATypeAliasDefinition node)
     {
-        inATypealiasDefinition(node);
+        inATypeAliasDefinition(node);
         if(node.getAlias() != null)
         {
             node.getAlias().apply(this);
@@ -730,10 +726,6 @@ public class DepthFirstAdapter extends AnalysisAdapter
         if(node.getName() != null)
         {
             node.getName().apply(this);
-        }
-        if(node.getTemplateParameterList() != null)
-        {
-            node.getTemplateParameterList().apply(this);
         }
         if(node.getEquals() != null)
         {
@@ -747,7 +739,7 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getSemicolon().apply(this);
         }
-        outATypealiasDefinition(node);
+        outATypeAliasDefinition(node);
     }
 
     public void inAStructDefinition(AStructDefinition node)
@@ -771,10 +763,6 @@ public class DepthFirstAdapter extends AnalysisAdapter
         if(node.getName() != null)
         {
             node.getName().apply(this);
-        }
-        if(node.getTemplateParameterList() != null)
-        {
-            node.getTemplateParameterList().apply(this);
         }
         if(node.getLBrace() != null)
         {
@@ -821,9 +809,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getEquals().apply(this);
         }
-        if(node.getConstantExpression() != null)
+        if(node.getExpression() != null)
         {
-            node.getConstantExpression().apply(this);
+            node.getExpression().apply(this);
         }
         if(node.getSemicolon() != null)
         {
@@ -1634,9 +1622,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getSemicolon().apply(this);
         }
-        if(node.getConstantExpression() != null)
+        if(node.getExpression() != null)
         {
-            node.getConstantExpression().apply(this);
+            node.getExpression().apply(this);
         }
         if(node.getRBracket() != null)
         {
@@ -1871,71 +1859,6 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outATypeAnnotation(node);
     }
 
-    public void inATemplateParameterList(ATemplateParameterList node)
-    {
-        defaultIn(node);
-    }
-
-    public void outATemplateParameterList(ATemplateParameterList node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseATemplateParameterList(ATemplateParameterList node)
-    {
-        inATemplateParameterList(node);
-        if(node.getLessThan() != null)
-        {
-            node.getLessThan().apply(this);
-        }
-        {
-            List<PTemplateParameterListHead> copy = new ArrayList<PTemplateParameterListHead>(node.getTemplateParameterListHead());
-            for(PTemplateParameterListHead e : copy)
-            {
-                e.apply(this);
-            }
-        }
-        if(node.getName() != null)
-        {
-            node.getName().apply(this);
-        }
-        if(node.getComma() != null)
-        {
-            node.getComma().apply(this);
-        }
-        if(node.getMoreThan() != null)
-        {
-            node.getMoreThan().apply(this);
-        }
-        outATemplateParameterList(node);
-    }
-
-    public void inATemplateParameterListHead(ATemplateParameterListHead node)
-    {
-        defaultIn(node);
-    }
-
-    public void outATemplateParameterListHead(ATemplateParameterListHead node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseATemplateParameterListHead(ATemplateParameterListHead node)
-    {
-        inATemplateParameterListHead(node);
-        if(node.getName() != null)
-        {
-            node.getName().apply(this);
-        }
-        if(node.getComma() != null)
-        {
-            node.getComma().apply(this);
-        }
-        outATemplateParameterListHead(node);
-    }
-
     public void inAPath(APath node)
     {
         defaultIn(node);
@@ -1960,10 +1883,6 @@ public class DepthFirstAdapter extends AnalysisAdapter
             {
                 e.apply(this);
             }
-        }
-        if(node.getTemplateArgumentPathList() != null)
-        {
-            node.getTemplateArgumentPathList().apply(this);
         }
         outAPath(node);
     }
@@ -2075,50 +1994,6 @@ public class DepthFirstAdapter extends AnalysisAdapter
             node.getName().apply(this);
         }
         outANamePathSegment(node);
-    }
-
-    public void inATemplateArgumentPathList(ATemplateArgumentPathList node)
-    {
-        defaultIn(node);
-    }
-
-    public void outATemplateArgumentPathList(ATemplateArgumentPathList node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseATemplateArgumentPathList(ATemplateArgumentPathList node)
-    {
-        inATemplateArgumentPathList(node);
-        if(node.getPathSeparator() != null)
-        {
-            node.getPathSeparator().apply(this);
-        }
-        if(node.getLessThan() != null)
-        {
-            node.getLessThan().apply(this);
-        }
-        {
-            List<PTupleTypeListHead> copy = new ArrayList<PTupleTypeListHead>(node.getTupleTypeListHead());
-            for(PTupleTypeListHead e : copy)
-            {
-                e.apply(this);
-            }
-        }
-        if(node.getType() != null)
-        {
-            node.getType().apply(this);
-        }
-        if(node.getComma() != null)
-        {
-            node.getComma().apply(this);
-        }
-        if(node.getMoreThan() != null)
-        {
-            node.getMoreThan().apply(this);
-        }
-        outATemplateArgumentPathList(node);
     }
 
     public void inADeclarator(ADeclarator node)
@@ -2337,17 +2212,17 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAStandardClosureDeclaratorList(AStandardClosureDeclaratorList node)
     {
         inAStandardClosureDeclaratorList(node);
-        if(node.getLClosureList() != null)
+        if(node.getLOr() != null)
         {
-            node.getLClosureList().apply(this);
+            node.getLOr().apply(this);
         }
         if(node.getDeclaratorList() != null)
         {
             node.getDeclaratorList().apply(this);
         }
-        if(node.getRClosureList() != null)
+        if(node.getROr() != null)
         {
-            node.getRClosureList().apply(this);
+            node.getROr().apply(this);
         }
         outAStandardClosureDeclaratorList(node);
     }
@@ -2371,48 +2246,6 @@ public class DepthFirstAdapter extends AnalysisAdapter
             node.getLogicalOr().apply(this);
         }
         outALogicalOrClosureDeclaratorList(node);
-    }
-
-    public void inALClosureList(ALClosureList node)
-    {
-        defaultIn(node);
-    }
-
-    public void outALClosureList(ALClosureList node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseALClosureList(ALClosureList node)
-    {
-        inALClosureList(node);
-        if(node.getOr() != null)
-        {
-            node.getOr().apply(this);
-        }
-        outALClosureList(node);
-    }
-
-    public void inARClosureList(ARClosureList node)
-    {
-        defaultIn(node);
-    }
-
-    public void outARClosureList(ARClosureList node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseARClosureList(ARClosureList node)
-    {
-        inARClosureList(node);
-        if(node.getOr() != null)
-        {
-            node.getOr().apply(this);
-        }
-        outARClosureList(node);
     }
 
     public void inAExpressionClosureBody(AExpressionClosureBody node)
@@ -3331,9 +3164,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getSemicolon().apply(this);
         }
-        if(node.getConstantExpression() != null)
+        if(node.getConstant() != null)
         {
-            node.getConstantExpression().apply(this);
+            node.getConstant().apply(this);
         }
         if(node.getRBracket() != null)
         {
@@ -3877,6 +3710,27 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outACharScalar(node);
     }
 
+    public void inAStringScalar(AStringScalar node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAStringScalar(AStringScalar node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAStringScalar(AStringScalar node)
+    {
+        inAStringScalar(node);
+        if(node.getStringLiteral() != null)
+        {
+            node.getStringLiteral().apply(this);
+        }
+        outAStringScalar(node);
+    }
+
     public void inASizeofScalar(ASizeofScalar node)
     {
         defaultIn(node);
@@ -3900,27 +3754,6 @@ public class DepthFirstAdapter extends AnalysisAdapter
             node.getType().apply(this);
         }
         outASizeofScalar(node);
-    }
-
-    public void inAConstantExpression(AConstantExpression node)
-    {
-        defaultIn(node);
-    }
-
-    public void outAConstantExpression(AConstantExpression node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseAConstantExpression(AConstantExpression node)
-    {
-        inAConstantExpression(node);
-        if(node.getExpression() != null)
-        {
-            node.getExpression().apply(this);
-        }
-        outAConstantExpression(node);
     }
 
     public void inAPrioritizedBraceExpression(APrioritizedBraceExpression node)
@@ -4831,9 +4664,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getSemicolon().apply(this);
         }
-        if(node.getConstantExpression() != null)
+        if(node.getConstant() != null)
         {
-            node.getConstantExpression().apply(this);
+            node.getConstant().apply(this);
         }
         if(node.getRBracket() != null)
         {

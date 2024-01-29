@@ -1,7 +1,5 @@
 package drlc.intermediate.ast.expression;
 
-import java.util.List;
-
 import org.eclipse.jdt.annotation.*;
 
 import drlc.*;
@@ -12,7 +10,7 @@ import drlc.intermediate.component.value.*;
 
 public class PathExpressionNode extends ExpressionNode {
 	
-	public final @NonNull List<String> path;
+	public final @NonNull Path path;
 	
 	public boolean setInternal = false;
 	
@@ -29,7 +27,7 @@ public class PathExpressionNode extends ExpressionNode {
 	
 	public @Nullable Function directFunction = null;
 	
-	public PathExpressionNode(Source source, @NonNull List<String> path) {
+	public PathExpressionNode(Source source, @NonNull Path path) {
 		super(source);
 		this.path = path;
 	}
@@ -118,7 +116,7 @@ public class PathExpressionNode extends ExpressionNode {
 		
 		if (typeInfo instanceof FunctionItemTypeInfo) {
 			if (!((FunctionItemTypeInfo) typeInfo).function.defined) {
-				throw error("Nested function \"%s\" not yet defined in this scope!", Helpers.pathString(path));
+				throw error("Nested function \"%s\" not yet defined in this scope!", path);
 			}
 		}
 	}

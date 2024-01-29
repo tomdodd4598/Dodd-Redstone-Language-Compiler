@@ -81,7 +81,7 @@ public class NestedUseTreeNode extends UseTreeNode {
 	@Override
 	public void buildPath(@NonNull List<String> pathPrefix) {
 		pathPrefix.addAll(this.pathPrefix);
-		path.addAll(pathPrefix);
+		pathSegments.addAll(pathPrefix);
 		
 		for (UseTreeNode useTreeNode : useTreeNodes) {
 			useTreeNode.buildPath(pathPrefix);

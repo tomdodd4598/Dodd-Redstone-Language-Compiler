@@ -5,46 +5,46 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class ATypealiasDefinitionStaticSection extends PStaticSection
+public final class ATypeAliasDefinitionStaticSection extends PStaticSection
 {
-    private PTypealiasDefinition _typealiasDefinition_;
+    private PTypeAliasDefinition _typeAliasDefinition_;
 
-    public ATypealiasDefinitionStaticSection()
+    public ATypeAliasDefinitionStaticSection()
     {
         // Constructor
     }
 
-    public ATypealiasDefinitionStaticSection(
-        @SuppressWarnings("hiding") PTypealiasDefinition _typealiasDefinition_)
+    public ATypeAliasDefinitionStaticSection(
+        @SuppressWarnings("hiding") PTypeAliasDefinition _typeAliasDefinition_)
     {
         // Constructor
-        setTypealiasDefinition(_typealiasDefinition_);
+        setTypeAliasDefinition(_typeAliasDefinition_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new ATypealiasDefinitionStaticSection(
-            cloneNode(this._typealiasDefinition_));
+        return new ATypeAliasDefinitionStaticSection(
+            cloneNode(this._typeAliasDefinition_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseATypealiasDefinitionStaticSection(this);
+        ((Analysis) sw).caseATypeAliasDefinitionStaticSection(this);
     }
 
-    public PTypealiasDefinition getTypealiasDefinition()
+    public PTypeAliasDefinition getTypeAliasDefinition()
     {
-        return this._typealiasDefinition_;
+        return this._typeAliasDefinition_;
     }
 
-    public void setTypealiasDefinition(PTypealiasDefinition node)
+    public void setTypeAliasDefinition(PTypeAliasDefinition node)
     {
-        if(this._typealiasDefinition_ != null)
+        if(this._typeAliasDefinition_ != null)
         {
-            this._typealiasDefinition_.parent(null);
+            this._typeAliasDefinition_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class ATypealiasDefinitionStaticSection extends PStaticSection
             node.parent(this);
         }
 
-        this._typealiasDefinition_ = node;
+        this._typeAliasDefinition_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._typealiasDefinition_);
+            + toString(this._typeAliasDefinition_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._typealiasDefinition_ == child)
+        if(this._typeAliasDefinition_ == child)
         {
-            this._typealiasDefinition_ = null;
+            this._typeAliasDefinition_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class ATypealiasDefinitionStaticSection extends PStaticSection
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._typealiasDefinition_ == oldChild)
+        if(this._typeAliasDefinition_ == oldChild)
         {
-            setTypealiasDefinition((PTypealiasDefinition) newChild);
+            setTypeAliasDefinition((PTypeAliasDefinition) newChild);
             return;
         }
 

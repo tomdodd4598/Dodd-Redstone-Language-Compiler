@@ -123,7 +123,7 @@ public abstract class TypeInfo {
 		return null;
 	}
 	
-	public abstract void collectTypeDefs(Set<TypeDef> typeDef);
+	public abstract void collectTypeDefs(Set<TypeDef> typeDefs);
 	
 	public int indexToOffsetShallow(ASTNode<?> node, int index) {
 		throw Helpers.nodeError(node, "Type \"%s\" can not be indexed!", this);

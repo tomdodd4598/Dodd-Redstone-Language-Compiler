@@ -10,7 +10,7 @@ import drlc.intermediate.scope.Scope;
 
 public abstract class UseTreeNode extends ASTNode<Scope> {
 	
-	public final @NonNull List<String> path = new ArrayList<>();
+	protected final @NonNull List<String> pathSegments = new ArrayList<>();
 	
 	public UseTreeNode(Source source) {
 		super(source);

@@ -2,7 +2,7 @@
 
 package drlc.node;
 
-public abstract class PTypealiasDefinition extends Node
+public abstract class PTypeAliasDefinition extends Node
 {
     // Empty body
 }

@@ -356,12 +356,16 @@ public class Helpers {
 		return typeDef + " " + collectionString(collection, Global.LIST_SEPARATOR, Global.BRACE_START, Global.BRACE_END);
 	}
 	
-	public static <T> String pathString(Collection<T> collection) {
-		return collectionString(collection, Global.PATH_SEPARATOR, "", "");
-	}
-	
 	public static <T> T[] array(T... objects) {
 		return objects;
+	}
+	
+	public static <T> List<T> arrayList(T... objects) {
+		List<T> out = new ArrayList<>();
+		for (T object : objects) {
+			out.add(object);
+		}
+		return out;
 	}
 	
 	public static <T, U> List<U> map(List<T> list, Function<? super T, ? extends U> function) {

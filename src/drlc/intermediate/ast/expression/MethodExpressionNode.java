@@ -6,7 +6,7 @@ import org.eclipse.jdt.annotation.*;
 
 import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.component.Function;
+import drlc.intermediate.component.*;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
@@ -15,7 +15,7 @@ import drlc.intermediate.scope.Scope;
 public class MethodExpressionNode extends ExpressionNode {
 	
 	public @NonNull ExpressionNode receiverExpressionNode;
-	public final @NonNull List<String> path;
+	public final @NonNull Path path;
 	public final @NonNull List<ExpressionNode> argExpressionNodes;
 	
 	public boolean setInternal = false;
@@ -25,7 +25,7 @@ public class MethodExpressionNode extends ExpressionNode {
 	
 	public int referenceLevelDiff;
 	
-	public MethodExpressionNode(Source source, @NonNull ExpressionNode receiverExpressionNode, @NonNull List<String> path, @NonNull List<ExpressionNode> argExpressionNodes) {
+	public MethodExpressionNode(Source source, @NonNull ExpressionNode receiverExpressionNode, @NonNull Path path, @NonNull List<ExpressionNode> argExpressionNodes) {
 		super(source);
 		this.receiverExpressionNode = receiverExpressionNode;
 		this.path = path;

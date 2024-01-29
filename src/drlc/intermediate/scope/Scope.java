@@ -28,13 +28,14 @@ public class Scope {
 	
 	public final Map<String, Scope> childMap = new LinkedHashMap<>();
 	
-	protected final Hierarchy<String, Scope> constantShadowMap;
+	protected final Hierarchy<String, Scope> constantShadowHierarchy;
 	
-	public final Hierarchy<String, TypeDef> typeDefMap;
-	public final Hierarchy<String, TypeInfo> typealiasMap;
-	public final Hierarchy<String, Constant> constantMap;
-	public final Hierarchy<String, Variable> variableMap;
-	public final Hierarchy<String, Function> functionMap;
+	public final Hierarchy<String, TypeDef> typeDefHierarchy;
+	public final Hierarchy<String, TypeInfo> typeAliasHierarchy;
+	
+	public final Hierarchy<String, Constant> constantHierarchy;
+	public final Hierarchy<String, Variable> variableHierarchy;
+	public final Hierarchy<String, Function> functionHierarchy;
 	
 	public boolean definiteLocalReturn = false;
 	public boolean definiteExecution = true, potentialOuterMultipleExecution = false;
@@ -48,24 +49,26 @@ public class Scope {
 		isModule = name != null;
 		
 		if (parent == null) {
-			constantShadowMap = new Hierarchy<>(null);
+			constantShadowHierarchy = new Hierarchy<>(null);
 			
-			typeDefMap = new Hierarchy<>(null);
-			typealiasMap = new Hierarchy<>(null);
-			constantMap = new Hierarchy<>(null);
-			variableMap = new Hierarchy<>(null);
-			functionMap = new Hierarchy<>(null);
+			typeDefHierarchy = new Hierarchy<>(null);
+			typeAliasHierarchy = new Hierarchy<>(null);
+			
+			constantHierarchy = new Hierarchy<>(null);
+			variableHierarchy = new Hierarchy<>(null);
+			functionHierarchy = new Hierarchy<>(null);
 		}
 		else {
 			parent.addChild(node, this.name, this);
 			
-			constantShadowMap = new Hierarchy<>(parent.constantShadowMap);
+			constantShadowHierarchy = new Hierarchy<>(parent.constantShadowHierarchy);
 			
-			typeDefMap = new Hierarchy<>(parent.typeDefMap);
-			typealiasMap = new Hierarchy<>(parent.typealiasMap);
-			constantMap = new Hierarchy<>(parent.constantMap);
-			variableMap = new Hierarchy<>(parent.variableMap);
-			functionMap = new Hierarchy<>(parent.functionMap);
+			typeDefHierarchy = new Hierarchy<>(parent.typeDefHierarchy);
+			typeAliasHierarchy = new Hierarchy<>(parent.typeAliasHierarchy);
+			
+			constantHierarchy = new Hierarchy<>(parent.constantHierarchy);
+			variableHierarchy = new Hierarchy<>(parent.variableHierarchy);
+			functionHierarchy = new Hierarchy<>(parent.functionHierarchy);
 		}
 	}
 	
@@ -95,12 +98,12 @@ public class Scope {
 		return equals(other) || other.childMap.values().stream().anyMatch(x -> isSubScopeOf(x));
 	}
 	
-	public void pathAction(ASTNode<?> node, List<String> path, java.util.function.BiConsumer<Scope, String> consumer) {
-		consumer.accept(getPathScope(node, path), path.get(path.size() - 1));
+	public void pathAction(ASTNode<?> node, @NonNull Path path, java.util.function.BiConsumer<Scope, String> consumer) {
+		consumer.accept(getPathScope(node, path), path.name);
 	}
 	
-	public <T> T pathGet(ASTNode<?> node, List<String> path, java.util.function.BiFunction<Scope, String, T> function) {
-		return function.apply(getPathScope(node, path), path.get(path.size() - 1));
+	public <T> T pathGet(ASTNode<?> node, @NonNull Path path, java.util.function.BiFunction<Scope, String, T> function) {
+		return function.apply(getPathScope(node, path), path.name);
 	}
 	
 	public @Nullable FunctionScope getContextFunctionScope() {
@@ -125,29 +128,29 @@ public class Scope {
 	// Contains
 	
 	public boolean typeDefExists(String name, boolean shallow) {
-		return typeDefMap.containsKey(name, shallow);
+		return typeDefHierarchy.containsKey(name, shallow);
 	}
 	
-	public boolean typealiasExists(String name, boolean shallow) {
-		return typealiasMap.containsKey(name, shallow);
+	public boolean typeAliasExists(String name, boolean shallow) {
+		return typeAliasHierarchy.containsKey(name, shallow);
 	}
 	
 	public boolean constantExists(String name, boolean shallow) {
-		Constant constant = constantMap.get(name, shallow);
+		Constant constant = constantHierarchy.get(name, shallow);
 		Scope shadowScope;
-		return constant != null && ((shadowScope = constantShadowMap.get(name, shallow)) == null || !shadowScope.isSubScopeOf(constant.scope));
+		return constant != null && ((shadowScope = constantShadowHierarchy.get(name, shallow)) == null || !shadowScope.isSubScopeOf(constant.scope));
 	}
 	
 	public boolean variableExists(String name, boolean shallow) {
-		return variableMap.containsKey(name, shallow);
+		return variableHierarchy.containsKey(name, shallow);
 	}
 	
 	public boolean functionExists(String name, boolean shallow) {
-		return functionMap.containsKey(name, shallow);
+		return functionHierarchy.containsKey(name, shallow);
 	}
 	
 	public boolean typeNameCollision(String name) {
-		return typeDefExists(name, true) || typealiasExists(name, true);
+		return typeDefExists(name, true) || typeAliasExists(name, true);
 	}
 	
 	public boolean valueNameCollision(String name) {
@@ -173,24 +176,18 @@ public class Scope {
 	}
 	
 	@SuppressWarnings("null")
-	public @NonNull Scope getPathScope(ASTNode<?> node, List<String> path) {
-		if (path.isEmpty()) {
-			throw Helpers.nodeError(node, "Unexpectedly encountered empty path!");
-		}
-		
-		int count = path.size();
-		if (count == 1) {
+	public @NonNull Scope getPathScope(ASTNode<?> node, @NonNull Path path) {
+		if (path.prefix.isEmpty()) {
 			return this;
 		}
 		
-		String first = path.get(0);
+		String first = path.segments.get(0);
 		@NonNull Scope pathScope = getConcreteScope();
-		if (!pathScope.childExists(first.equals(Global.SELF) ? path.get(1) : first)) {
+		if (!pathScope.childExists(first.equals(Global.SELF) ? path.segments.get(1) : first)) {
 			pathScope = getCurrentModule();
 		}
 		
-		for (int i = 0; i < count - 1; ++i) {
-			String segment = path.get(i);
+		for (String segment : path.prefix) {
 			if (segment.equals(Global.ROOT)) {
 				pathScope = Main.rootScope;
 			}
@@ -212,42 +209,42 @@ public class Scope {
 	}
 	
 	public @NonNull TypeDef getTypeDef(ASTNode<?> node, String name, boolean shallow) {
-		TypeDef typeDef = typeDefMap.get(name, shallow);
+		TypeDef typeDef = typeDefHierarchy.get(name, shallow);
 		if (typeDef == null) {
 			throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", name);
 		}
 		return typeDef;
 	}
 	
-	public @NonNull TypeInfo getTypealias(ASTNode<?> node, String name, boolean shallow) {
-		TypeInfo typealias = typealiasMap.get(name, shallow);
-		if (typealias == null) {
+	public @NonNull TypeInfo getTypeAlias(ASTNode<?> node, String name, boolean shallow) {
+		TypeInfo typeInfo = typeAliasHierarchy.get(name, shallow);
+		if (typeInfo == null) {
 			throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", name);
 		}
-		return typealias;
+		return typeInfo;
 	}
 	
 	public @NonNull TypeInfo getTypeInfo(ASTNode<?> node, String name, boolean shallow) {
-		TypeDef typeDef = typeDefMap.get(name, shallow);
+		TypeDef typeDef = typeDefHierarchy.get(name, shallow);
 		if (typeDef == null) {
-			TypeInfo aliasType = typealiasMap.get(name, shallow);
-			if (aliasType == null) {
+			TypeInfo typeInfo = typeAliasHierarchy.get(name, shallow);
+			if (typeInfo == null) {
 				throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", name);
 			}
-			return aliasType;
+			return typeInfo;
 		}
 		return typeDef.getTypeInfo(node, new ArrayList<>(), this);
 	}
 	
-	public void collectTypeDefs(ASTNode<?> node, Set<TypeDef> typeDefs, String name) {
-		TypeDef typeDef = typeDefMap.get(name, false);
+	public void collectTypeDefs(ASTNode<?> node, String name, Set<TypeDef> typeDefs) {
+		TypeDef typeDef = typeDefHierarchy.get(name, false);
 		if (typeDef == null) {
-			TypeInfo aliasType = typealiasMap.get(name, false);
-			if (aliasType == null) {
+			TypeInfo typeInfo = typeAliasHierarchy.get(name, false);
+			if (typeInfo == null) {
 				throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", name);
 			}
 			else {
-				aliasType.collectTypeDefs(typeDefs);
+				typeInfo.collectTypeDefs(typeDefs);
 			}
 		}
 		else {
@@ -260,11 +257,11 @@ public class Scope {
 		if (!constantExists(name, shallow)) {
 			throw Helpers.nodeError(node, "Constant \"%s\" not defined in this scope!", name);
 		}
-		return constantMap.get(name, shallow);
+		return constantHierarchy.get(name, shallow);
 	}
 	
 	public @NonNull Variable getVariable(ASTNode<?> node, String name, boolean shallow) {
-		Variable variable = variableMap.get(name, shallow);
+		Variable variable = variableHierarchy.get(name, shallow);
 		if (variable == null) {
 			throw Helpers.nodeError(node, "Variable \"%s\" not defined in this scope!", name);
 		}
@@ -272,7 +269,7 @@ public class Scope {
 	}
 	
 	public @NonNull Function getFunction(ASTNode<?> node, String name, boolean shallow) {
-		Function function = functionMap.get(name, shallow);
+		Function function = functionHierarchy.get(name, shallow);
 		if (function == null) {
 			throw Helpers.nodeError(node, "Function \"%s\" not defined in this scope!", name);
 		}
@@ -282,7 +279,7 @@ public class Scope {
 	// Adders
 	
 	public void addConstantShadow(String name) {
-		constantShadowMap.put(name, this, true);
+		constantShadowHierarchy.put(name, this, true);
 	}
 	
 	public void addTypeDef(ASTNode<?> node, @NonNull TypeDef typeDef) {
@@ -297,14 +294,49 @@ public class Scope {
 		if (typeDef.scope == null) {
 			typeDef.scope = this;
 		}
-		typeDefMap.put(name, typeDef, true);
+		typeDefHierarchy.put(name, typeDef, true);
 	}
 	
-	public void addTypealias(ASTNode<?> node, @NonNull String name, @NonNull TypeInfo aliasType) {
+	@SuppressWarnings("null")
+	public void addStructTypeDef(ASTNode<?> node, @NonNull String name, List<TypeInfo> typeInfos, List<String> memberNames) {
+		int typeInfoCount = typeInfos.size(), memberNameCount = memberNames.size();
+		if (typeInfoCount != memberNames.size()) {
+			throw Helpers.nodeError(node, "Struct \"%s\" requires %d member names but received %d!", typeInfoCount, memberNameCount);
+		}
+		
+		Map<String, MemberInfo> memberMap = new LinkedHashMap<>();
+		@NonNull TypeDef typeDef = new TypeDef(name, 0, memberMap, (n, r, s) -> new StructTypeInfo(n, r, typeInfos, s, name));
+		Main.rootScope.addTypeDef(node, typeDef);
+		
+		Set<TypeDef> typeDefs = new HashSet<>();
+		for (TypeInfo typeInfo : typeInfos) {
+			typeInfo.collectTypeDefs(typeDefs);
+		}
+		if (typeDefs.contains(typeDef)) {
+			throw Helpers.nodeError(node, "Struct \"%s\" can not directly contain itself!", name);
+		}
+		
+		typeDef.size = typeInfos.stream().mapToInt(TypeInfo::getSize).sum();
+		
+		int offset = 0;
+		for (int i = 0; i < typeInfoCount; ++i) {
+			@NonNull String memberName = memberNames.get(i);
+			if (memberMap.containsKey(memberName)) {
+				throw Helpers.nodeError(node, "Struct \"%s\" already has member \"%s\"!", name, memberName);
+			}
+			else {
+				@NonNull TypeInfo typeInfo = typeInfos.get(i);
+				memberMap.put(memberName, new MemberInfo(memberName, typeInfo, i, offset));
+				offset += typeInfo.getSize();
+			}
+		}
+	}
+	
+	public void addTypeAlias(ASTNode<?> node, @NonNull String name, @NonNull TypeInfo typeInfo) {
 		if (typeNameCollision(name)) {
 			throw Helpers.nodeError(node, "Type name \"%s\" already used in this scope!", name);
 		}
-		typealiasMap.put(name, aliasType, true);
+		typeAliasHierarchy.put(name, typeInfo, true);
 	}
 	
 	public void addConstant(ASTNode<?> node, @NonNull Constant constant) {
@@ -319,7 +351,7 @@ public class Scope {
 		if (constant.scope == null) {
 			constant.scope = this;
 		}
-		constantMap.put(name, constant, true);
+		constantHierarchy.put(name, constant, true);
 	}
 	
 	public void addVariable(ASTNode<?> node, @NonNull Variable variable) {
@@ -334,7 +366,7 @@ public class Scope {
 		if (variable.scope == null) {
 			variable.scope = this;
 		}
-		variableMap.put(name, variable, true);
+		variableHierarchy.put(name, variable, true);
 		addConstantShadow(name);
 	}
 	
@@ -347,7 +379,7 @@ public class Scope {
 		if (function.scope == null) {
 			function.scope = this;
 		}
-		functionMap.put(name, function, true);
+		functionHierarchy.put(name, function, true);
 		
 		FunctionItemValue value = new FunctionItemValue(node, new FunctionItemTypeInfo(node, function), name, this);
 		function.value = value;
@@ -356,7 +388,7 @@ public class Scope {
 		if (constant.scope == null) {
 			constant.scope = this;
 		}
-		constantMap.put(name, constant, true);
+		constantHierarchy.put(name, constant, true);
 	}
 	
 	// Control flow

@@ -7,12 +7,12 @@ import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.type.TypeNode;
 import drlc.intermediate.scope.Scope;
 
-public class TypealiasDefinitionNode extends StaticSectionNode<Scope> {
+public class TypeAliasDefinitionNode extends StaticSectionNode<Scope> {
 	
 	public final @NonNull String name;
 	public final @NonNull TypeNode typeNode;
 	
-	public TypealiasDefinitionNode(Source source, @NonNull String name, @NonNull TypeNode typeNode) {
+	public TypeAliasDefinitionNode(Source source, @NonNull String name, @NonNull TypeNode typeNode) {
 		super(source);
 		this.name = name;
 		this.typeNode = typeNode;
@@ -31,7 +31,7 @@ public class TypealiasDefinitionNode extends StaticSectionNode<Scope> {
 		
 		typeNode.setTypeInfo();
 		
-		scope.addTypealias(this, name, typeNode.getTypeInfo());
+		scope.addTypeAlias(this, name, typeNode.getTypeInfo());
 	}
 	
 	@Override
