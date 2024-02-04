@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import drlc.Source;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.element.DeclaratorNode;
 import drlc.intermediate.component.MemberInfo;
@@ -69,7 +69,7 @@ public class StructDefinitionNode extends StaticSectionNode<Scope> {
 			typeInfos.add(componentNode.typeNode.getTypeInfo());
 		}
 		
-		typeDef.size = typeInfos.stream().mapToInt(TypeInfo::getSize).sum();
+		typeDef.size = Helpers.sumToInt(typeInfos, TypeInfo::getSize);
 		
 		int count = componentNodes.size(), offset = 0;
 		for (int i = 0; i < count; ++i) {

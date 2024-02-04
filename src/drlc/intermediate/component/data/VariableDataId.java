@@ -33,6 +33,11 @@ public class VariableDataId extends DataId {
 	}
 	
 	@Override
+	public int getOffset() {
+		return offset;
+	}
+	
+	@Override
 	public @NonNull VariableDataId addDereference(ASTNode<?> node) {
 		return new VariableDataId(dereferenceLevel + 1, variable, offset, offsetFrom);
 	}

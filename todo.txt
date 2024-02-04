@@ -1,13 +1,15 @@
-String literals
-
 Add 'macro! name(...) { ... }' syntax
 
-Implement program arguments
+Generics/templates
+
+Generic slices/ranges
 
 For loops
 
 Pattern matching
 
 Enums (nominal typing)
+
+Implement program arguments
 
 Small standard library

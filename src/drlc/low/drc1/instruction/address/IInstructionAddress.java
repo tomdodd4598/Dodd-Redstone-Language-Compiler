@@ -1,11 +1,12 @@
 package drlc.low.drc1.instruction.address;
 
-import drlc.low.drc1.*;
+import drlc.low.LowDataInfo;
+import drlc.low.drc1.RedstoneCode;
 import drlc.low.drc1.instruction.Instruction;
 
 public interface IInstructionAddress {
 	
-	public RedstoneDataInfo getDataInfo();
+	public LowDataInfo getDataInfo();
 	
 	public boolean isDataFromMemory();
 	
@@ -13,8 +14,8 @@ public interface IInstructionAddress {
 	
 	public Instruction getDataReplacement(RedstoneCode code);
 	
-	public default RedstoneDataInfo getDataInfoReplacement(RedstoneCode code) {
-		RedstoneDataInfo info = getDataInfo();
-		return code.getRoutine(info.routineName).dataInfo(info.argId);
+	public default LowDataInfo getDataInfoReplacement(RedstoneCode code) {
+		LowDataInfo info = getDataInfo();
+		return code.getRoutine(info.function).dataInfo(info.argId, info.extraOffset);
 	}
 }

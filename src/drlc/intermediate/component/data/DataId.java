@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.*;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.Function;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.scope.Scope;
 
@@ -33,6 +34,12 @@ public abstract class DataId {
 	
 	public boolean isDereferenced() {
 		return dereferenceLevel > 0;
+	}
+	
+	public abstract int getOffset();
+	
+	public @Nullable Function getFunction() {
+		return null;
 	}
 	
 	protected Long scopeId() {
@@ -81,5 +88,28 @@ public abstract class DataId {
 	@Override
 	public String toString() {
 		return (dereferenceLevel >= 0 ? Helpers.dereferenceString(dereferenceLevel) : Global.ADDRESS_OF) + Helpers.scopeStringPrefix(scope) + rawString() /*+ Global.TYPE_ANNOTATION_PREFIX + " " + typeInfo.routineString()*/;
+	}
+	
+	public RawDataId raw() {
+		return new RawDataId(this);
+	}
+	
+	public static class RawDataId {
+		
+		public final DataId internal;
+		
+		private RawDataId(DataId internal) {
+			this.internal = internal;
+		}
+		
+		@Override
+		public int hashCode() {
+			return internal.hashCode(true);
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			return obj instanceof RawDataId && internal.equalsOther(((RawDataId) obj).internal, true);
+		}
 	}
 }

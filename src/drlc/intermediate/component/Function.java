@@ -105,4 +105,8 @@ public class Function {
 	public String routineString() {
 		return Helpers.scopeStringPrefix(scope) + Global.FN + " " + name + Helpers.listString(Helpers.map(params, DeclaratorInfo::routineString)) + " " + Global.ARROW + " " + returnTypeInfo.routineString();
 	}
+	
+	public String asmString() {
+		return Helpers.scopeStringPrefix(scope) + " " + name;
+	}
 }

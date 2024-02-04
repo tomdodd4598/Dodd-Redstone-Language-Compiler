@@ -1,37 +1,34 @@
 package drlc.intermediate.scope;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
 import drlc.intermediate.action.*;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.component.Function;
+import drlc.intermediate.component.*;
 import drlc.intermediate.component.data.ValueDataId;
+import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.routine.Routine;
 
 public class RootScope extends ModuleScope {
 	
-	protected final Map<Function, Routine> routineMap = new LinkedHashMap<>();
+	public final Map<Function, Routine> routineMap = new LinkedHashMap<>();
 	
 	public RootScope(ASTNode<?> node) {
 		super(node, Global.ROOT, null);
 	}
 	
 	@Override
+	public @NonNull DeclaratorInfo nextLocalDeclarator(Routine routine, @NonNull TypeInfo typeInfo) {
+		return Helpers.rootDeclarator("\\r" + nextLocalId(), typeInfo);
+	}
+	
+	@Override
 	public boolean hasDefiniteReturn() {
 		return true;
-	}
-	
-	public Collection<Routine> getRoutines() {
-		return routineMap.values();
-	}
-	
-	public Set<Entry<Function, Routine>> getRoutineEntrySet() {
-		return routineMap.entrySet();
 	}
 	
 	public boolean routineExists(Function function) {
@@ -100,7 +97,7 @@ public class RootScope extends ModuleScope {
 									routine.onRequiresNesting();
 									
 									Routine callRoutine = getRoutine(null, callFunction);
-									if (!callRoutine.isBuiltInFunctionRoutine()) {
+									if (!callRoutine.isBuiltIn()) {
 										callList.add(routineFunction);
 										callMap.put(routineFunction, depth);
 										updateRoutineTypes(callRoutine, callList, callMap, depth + 1);

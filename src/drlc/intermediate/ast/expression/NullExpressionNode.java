@@ -50,12 +50,12 @@ public class NullExpressionNode extends ConstantExpressionNode {
 	
 	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
-		routine.addValueAssignmentAction(this, dataId = routine.nextRegId(Main.generator.nullTypeInfo), Main.generator.nullValue);
+		routine.addValueAssignmentAction(this, dataId = routine.nextRegId(Main.generator.voidTypeInfo), Main.generator.nullValue);
 	}
 	
 	@Override
 	protected @NonNull TypeInfo getTypeInfoInternal() {
-		return Main.generator.nullTypeInfo;
+		return Main.generator.voidTypeInfo;
 	}
 	
 	@Override

@@ -6,7 +6,6 @@ import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.function.Function;
 import java.util.stream.*;
 
 import org.apache.commons.text.translate.*;
@@ -324,12 +323,16 @@ public class Helpers {
 		return String.join("", Collections.nCopies(count, Global.DEREFERENCE));
 	}
 	
-	public static @NonNull Variable rootVariable(@NonNull String name, @NonNull TypeInfo typeInfo) {
-		return new Variable(name, VariableModifier.ROOT, typeInfo);
+	public static @NonNull DeclaratorInfo rootDeclarator(@NonNull String name, @NonNull TypeInfo typeInfo) {
+		return new DeclaratorInfo(new Variable(name, VariableModifier.ROOT, typeInfo));
 	}
 	
 	public static @NonNull DeclaratorInfo builtInDeclarator(@NonNull String name, @NonNull TypeInfo typeInfo) {
 		return new DeclaratorInfo(new Variable(name, VariableModifier.BUILT_IN, typeInfo));
+	}
+	
+	public static @NonNull Function builtInFunction(@NonNull String name, @NonNull TypeInfo returnTypeInfo, DeclaratorInfo... params) {
+		return new Function(null, name, true, returnTypeInfo, Arrays.asList(params), false, true);
 	}
 	
 	public static <T> String collectionString(Collection<T> collection, String delimiter, String prefix, String suffix) {
@@ -368,11 +371,15 @@ public class Helpers {
 		return out;
 	}
 	
-	public static <T, U> List<U> map(List<T> list, Function<? super T, ? extends U> function) {
+	public static <T> int sumToInt(Collection<T> collection, java.util.function.ToIntFunction<? super T> function) {
+		return collection.stream().mapToInt(function).sum();
+	}
+	
+	public static <T, U> List<U> map(List<T> list, java.util.function.Function<? super T, ? extends U> function) {
 		return list.stream().map(function).collect(Collectors.toList());
 	}
 	
-	public static <T, U> Set<U> map(Set<T> set, Function<? super T, ? extends U> function) {
+	public static <T, U> Set<U> map(Set<T> set, java.util.function.Function<? super T, ? extends U> function) {
 		return set.stream().map(function).collect(Collectors.toSet());
 	}
 	

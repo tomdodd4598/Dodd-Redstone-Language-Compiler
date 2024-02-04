@@ -1,17 +1,18 @@
 package drlc.low.drc1.instruction.subroutine;
 
 import drlc.Helpers;
+import drlc.intermediate.component.Function;
 import drlc.low.drc1.*;
 import drlc.low.drc1.instruction.Instruction;
 
 public class InstructionLoadCallAddressImmediate extends Instruction {
 	
-	public final String subroutine;
+	public final Function function;
 	public Short value;
 	
-	public InstructionLoadCallAddressImmediate(String subroutine) {
+	public InstructionLoadCallAddressImmediate(Function function) {
 		super();
-		this.subroutine = subroutine;
+		this.function = function;
 	}
 	
 	public void setValue(short value) {
@@ -48,6 +49,6 @@ public class InstructionLoadCallAddressImmediate extends Instruction {
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.LDAI + '\t' + subroutine;
+		return RedstoneMnemonics.LDAI + '\t' + function.asmString();
 	}
 }

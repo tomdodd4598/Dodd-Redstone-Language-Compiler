@@ -1,12 +1,13 @@
 package drlc.low.drc1.instruction.address;
 
 import drlc.Helpers;
+import drlc.low.LowDataInfo;
 import drlc.low.drc1.*;
 import drlc.low.drc1.instruction.Instruction;
 
 public class InstructionOr extends InstructionALU {
 	
-	public InstructionOr(RedstoneDataInfo info) {
+	public InstructionOr(LowDataInfo info) {
 		super(info);
 	}
 	

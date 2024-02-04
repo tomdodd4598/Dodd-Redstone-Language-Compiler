@@ -10,7 +10,8 @@ public enum UnaryActionType {
 	
 	MINUS_INT(UnaryOpType.MINUS),
 	NOT_BOOL(UnaryOpType.NOT),
-	NOT_INT(UnaryOpType.NOT);
+	NOT_INT(UnaryOpType.NOT),
+	NOT_CHAR(UnaryOpType.NOT);
 	
 	public final @NonNull UnaryOpType opType;
 	

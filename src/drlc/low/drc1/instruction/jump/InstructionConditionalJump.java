@@ -4,7 +4,7 @@ import drlc.low.drc1.instruction.Instruction;
 
 public abstract class InstructionConditionalJump extends InstructionJump {
 	
-	public InstructionConditionalJump(short section) {
+	public InstructionConditionalJump(int section) {
 		super(section);
 	}
 	

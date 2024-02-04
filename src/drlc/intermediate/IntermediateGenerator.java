@@ -78,8 +78,8 @@ public class IntermediateGenerator extends Generator {
 	public void generate() {
 		StringBuilder sb = new StringBuilder();
 		boolean begin = true;
-		for (Routine routine : Main.rootScope.getRoutines()) {
-			if (!routine.isBuiltInFunctionRoutine()) {
+		for (Routine routine : Main.rootScope.routineMap.values()) {
+			if (!routine.isBuiltIn()) {
 				if (begin) {
 					begin = false;
 				}

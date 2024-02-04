@@ -20,6 +20,11 @@ public class TransientDataId extends DataId {
 	}
 	
 	@Override
+	public int getOffset() {
+		return 0;
+	}
+	
+	@Override
 	public @NonNull TransientDataId addDereference(ASTNode<?> node) {
 		throw Helpers.nodeError(node, "Attempted to add dereference to data ID \"%s\"!", this);
 	}

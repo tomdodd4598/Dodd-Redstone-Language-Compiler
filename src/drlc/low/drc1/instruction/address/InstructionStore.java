@@ -1,12 +1,13 @@
 package drlc.low.drc1.instruction.address;
 
 import drlc.Helpers;
+import drlc.low.LowDataInfo;
 import drlc.low.drc1.*;
 import drlc.low.drc1.instruction.Instruction;
 
 public class InstructionStore extends InstructionAddress implements IInstructionStoreAddress {
 	
-	public InstructionStore(RedstoneDataInfo info) {
+	public InstructionStore(LowDataInfo info) {
 		super(info);
 	}
 	
@@ -21,7 +22,7 @@ public class InstructionStore extends InstructionAddress implements IInstruction
 	}
 	
 	@Override
-	public RedstoneDataInfo getStoredData() {
+	public LowDataInfo getStoredData() {
 		return info;
 	}
 	

@@ -2,53 +2,46 @@ package drlc.low.drc1;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import drlc.*;
+import drlc.Helpers.Pair;
+import drlc.intermediate.component.Function;
 import drlc.intermediate.component.data.DataId;
+import drlc.intermediate.component.data.DataId.RawDataId;
+import drlc.intermediate.component.value.*;
 import drlc.intermediate.routine.*;
+import drlc.low.*;
 import drlc.low.drc1.builtin.*;
 import drlc.low.drc1.instruction.Instruction;
 import drlc.low.drc1.instruction.immediate.InstructionLoadLongImmediate;
 
 public class RedstoneCode {
 	
-	public final RedstoneGenerator generator;
-	
 	public boolean requiresStack = false;
 	
-	private final Map<String, RedstoneRoutine> routineMap = new LinkedHashMap<>();
+	public final Map<Function, RedstoneRoutine> routineMap = new LinkedHashMap<>();
 	
-	public final Set<String> unusedBuiltInRoutineSet;
-	
-	public final Map<DataId, Long> rootIdMap = new LinkedHashMap<>();
+	public final Map<RawDataId, Pair<DataId, LowDataSpan>> rootSpanMap = new LinkedHashMap<>();
 	
 	public short addressOffset = 0;
-	public final Map<RedstoneAddressKey, Short> rootAddressMap = new HashMap<>();
+	public final Map<LowDataSpan, LowAddressSlice> rootAddressMap = new LinkedHashMap<>();
 	
-	public final Map<String, Short> textAddressMap = new HashMap<>();
+	public final Map<Function, Short> textAddressMap = new LinkedHashMap<>();
 	
-	public RedstoneCode(RedstoneGenerator generator) {
-		this.generator = generator;
-		unusedBuiltInRoutineSet = new HashSet<>(Main.program.builtInRoutineMap.keySet());
+	public RedstoneRoutine getRoutine(Function function) {
+		return routineMap.get(function);
 	}
 	
-	public Map<String, RedstoneRoutine> getRoutineMap() {
-		return routineMap;
-	}
-	
-	public RedstoneRoutine getRoutine(String name) {
-		return routineMap.get(name);
-	}
-	
-	public boolean routineExists(String name) {
-		return routineMap.containsKey(name);
+	public boolean routineExists(Function function) {
+		return routineMap.containsKey(function);
 	}
 	
 	public void generate() {
-		for (Entry<String, Routine> entry : Main.program.routineMap.entrySet()) {
+		for (Entry<Function, Routine> entry : Main.rootScope.routineMap.entrySet()) {
 			Routine intermediateRoutine = entry.getValue();
 			RedstoneRoutine routine = new RedstoneRoutine(this, intermediateRoutine);
-			if (!intermediateRoutine.isBuiltInFunctionRoutine()) {
+			if (!intermediateRoutine.isBuiltIn()) {
 				routineMap.put(entry.getKey(), routine);
 			}
 			if (routine.isStackRoutine()) {
@@ -57,6 +50,12 @@ public class RedstoneCode {
 		}
 		
 		addBuiltInRoutines();
+		
+		for (Function function : Main.rootScope.routineMap.keySet()) {
+			if (!routineMap.containsKey(function)) {
+				throw new IllegalArgumentException(String.format("Unexpectedly encountered unimplemented routine \"%s\"!", function));
+			}
+		}
 		
 		for (RedstoneRoutine routine : routineMap.values()) {
 			routine.generateInstructions();
@@ -88,24 +87,13 @@ public class RedstoneCode {
 	private void addBuiltInRoutines() {
 		routineMap.put(Global.OUTCHAR, new OutCharRedstoneRoutine(this, Global.OUTCHAR));
 		routineMap.put(Global.OUTINT, new OutIntRedstoneRoutine(this, Global.OUTINT));
-		routineMap.put(Global.ARGV_FUNCTION, new ArgvRedstoneRoutine(this, Global.ARGV_FUNCTION));
 		
 		routineMap.put(Global.LOGICAL_RIGHT_SHIFT, new LogicalRightShiftRedstoneRoutine(this, Global.LOGICAL_RIGHT_SHIFT));
 		routineMap.put(Global.CIRCULAR_LEFT_SHIFT, new CircularLeftShiftRedstoneRoutine(this, Global.CIRCULAR_LEFT_SHIFT, RoutineCallType.NESTING));
 		routineMap.put(Global.CIRCULAR_RIGHT_SHIFT, new CircularRightShiftRedstoneRoutine(this, Global.CIRCULAR_RIGHT_SHIFT, RoutineCallType.NESTING));
-		
-		for (String name : Main.program.builtInRoutineMap.keySet()) {
-			if (!routineMap.containsKey(name)) {
-				throw new IllegalArgumentException(String.format("Unexpectedly encountered unimplemented built-in function \"%s\"!", name));
-			}
-		}
 	}
 	
 	private void optimize() {
-		for (String builtInRoutine : unusedBuiltInRoutineSet) {
-			routineMap.remove(builtInRoutine);
-		}
-		
 		for (RedstoneRoutine routine : routineMap.values()) {
 			boolean flag = true;
 			while (flag) {
@@ -129,6 +117,21 @@ public class RedstoneCode {
 	
 	public static final Instruction LOAD_MIN_VALUE = new InstructionLoadLongImmediate(Short.MIN_VALUE);
 	public static final Instruction LOAD_MIN_VALUE_SUCCEEDING = LOAD_MIN_VALUE.succeedingData();
+	
+	public static List<Short> raw(Value<?> value) {
+		if (value instanceof BoolValue) {
+			return Arrays.asList((short) (((BoolValue) value).value ? 1 : 0));
+		}
+		else if (value instanceof ArrayValue) {
+			return ((ArrayValue) value).values.stream().flatMap(x -> raw(x).stream()).collect(Collectors.toList());
+		}
+		else if (value instanceof CompoundValue) {
+			return ((CompoundValue<?>) value).values.stream().flatMap(x -> raw(x).stream()).collect(Collectors.toList());
+		}
+		else {
+			return Arrays.asList(value.shortValue(null));
+		}
+	}
 	
 	public static boolean isLongImmediate(short value) {
 		return value < 0 || value > 0xFF;

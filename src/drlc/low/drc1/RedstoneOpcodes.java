@@ -22,6 +22,9 @@ public class RedstoneOpcodes {
 		put(RedstoneMnemonics.LSHI, 0x08);
 		put(RedstoneMnemonics.RSHI, 0x09);
 		
+		put(RedstoneMnemonics.ADDBI, 0x0A);
+		put(RedstoneMnemonics.SUBBI, 0x0B);
+		
 		put(RedstoneMnemonics.OUT, 0x10);
 		put(RedstoneMnemonics.LDALI, 0x11);
 		put(RedstoneMnemonics.NOTLI, 0x12);

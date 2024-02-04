@@ -15,6 +15,9 @@ public class RedstoneMnemonics {
 	public static final String LSHI = format("LSHI");
 	public static final String RSHI = format("RSHI");
 	
+	public static final String ADDBI = format("ADDBI");
+	public static final String SUBBI = format("SUBBI");
+	
 	public static final String OUT = format("OUT");
 	public static final String LDALI = format("LDALI");
 	public static final String NOTLI = format("NOTLI");

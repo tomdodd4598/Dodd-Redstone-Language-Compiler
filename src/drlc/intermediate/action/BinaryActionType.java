@@ -50,7 +50,12 @@ public enum BinaryActionType {
 	CHAR_LESS_THAN_CHAR(BinaryOpType.LESS_THAN),
 	CHAR_LESS_OR_EQUAL_CHAR(BinaryOpType.LESS_OR_EQUAL),
 	CHAR_MORE_THAN_CHAR(BinaryOpType.MORE_THAN),
-	CHAR_MORE_OR_EQUAL_CHAR(BinaryOpType.MORE_OR_EQUAL);
+	CHAR_MORE_OR_EQUAL_CHAR(BinaryOpType.MORE_OR_EQUAL),
+	CHAR_PLUS_CHAR(BinaryOpType.PLUS),
+	CHAR_AND_CHAR(BinaryOpType.AND),
+	CHAR_OR_CHAR(BinaryOpType.OR),
+	CHAR_XOR_CHAR(BinaryOpType.XOR),
+	CHAR_MINUS_CHAR(BinaryOpType.MINUS);
 	
 	public final @NonNull BinaryOpType opType;
 	
@@ -132,6 +137,13 @@ public enum BinaryActionType {
 				return CHAR_LESS_THAN_CHAR;
 			case CHAR_MORE_OR_EQUAL_CHAR:
 				return CHAR_LESS_OR_EQUAL_CHAR;
+			case CHAR_PLUS_CHAR:
+			case CHAR_AND_CHAR:
+			case CHAR_OR_CHAR:
+			case CHAR_XOR_CHAR:
+				return this;
+			case CHAR_MINUS_CHAR:
+				return null;
 		}
 		return null;
 	}

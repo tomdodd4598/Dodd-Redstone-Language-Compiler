@@ -37,7 +37,7 @@ public class TupleTypeInfo extends CompoundTypeInfo {
 	
 	@Override
 	public boolean canImplicitCastTo(TypeInfo otherInfo) {
-		if (otherInfo.isAddress() && equals(Main.generator.nullTypeInfo)) {
+		if (otherInfo.isAddress() && equals(Main.generator.voidTypeInfo)) {
 			return true;
 		}
 		else if (otherInfo instanceof TupleTypeInfo) {

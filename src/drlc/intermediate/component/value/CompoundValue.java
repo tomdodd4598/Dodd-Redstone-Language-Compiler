@@ -10,7 +10,7 @@ import drlc.intermediate.component.type.*;
 
 public abstract class CompoundValue<T extends CompoundTypeInfo> extends Value<T> {
 	
-	protected final List<Value<?>> values;
+	public final List<Value<?>> values;
 	public final int count;
 	
 	public CompoundValue(ASTNode<?> node, @NonNull T typeInfo, List<Value<?>> values) {

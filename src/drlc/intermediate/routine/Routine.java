@@ -61,7 +61,7 @@ public class Routine {
 		return type.equals(RoutineCallType.STACK);
 	}
 	
-	public boolean isBuiltInFunctionRoutine() {
+	public boolean isBuiltIn() {
 		return function.builtIn;
 	}
 	
@@ -231,7 +231,7 @@ public class Routine {
 		}
 		
 		if (directFunction != null && directFunction.builtIn) {
-			addAction(new BuiltInCallAction(node, scope, target, caller, args));
+			addAction(new BuiltInCallAction(node, scope, target, caller, args, directFunction));
 		}
 		else {
 			addAction(new CallAction(node, scope, target, caller, args));

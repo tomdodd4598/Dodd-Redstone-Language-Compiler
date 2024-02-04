@@ -1,12 +1,13 @@
 package drlc.low.drc1.instruction.address;
 
 import drlc.*;
+import drlc.low.LowDataInfo;
 import drlc.low.drc1.*;
 import drlc.low.drc1.instruction.Instruction;
 
 public class InstructionLoadAddressImmediate extends InstructionAddress {
 	
-	public InstructionLoadAddressImmediate(RedstoneDataInfo info) {
+	public InstructionLoadAddressImmediate(LowDataInfo info) {
 		super(info);
 	}
 	

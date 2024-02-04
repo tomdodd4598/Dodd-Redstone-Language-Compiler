@@ -5,10 +5,11 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import drlc.*;
 import drlc.Helpers.Pair;
+import drlc.Main;
 import drlc.intermediate.action.*;
 import drlc.intermediate.component.data.*;
+import drlc.intermediate.component.data.DataId.RawDataId;
 import drlc.intermediate.component.value.Value;
 import drlc.intermediate.routine.Routine;
 
@@ -341,28 +342,9 @@ public class IntermediateOptimization {
 		return flag;
 	}
 	
-	private static class RawDataId {
-		
-		final DataId internal;
-		
-		RawDataId(DataId internal) {
-			this.internal = internal;
-		}
-		
-		@Override
-		public int hashCode() {
-			return internal.hashCode(true);
-		}
-		
-		@Override
-		public boolean equals(Object obj) {
-			return obj instanceof RawDataId && internal.equalsOther(((RawDataId) obj).internal, true);
-		}
-	}
-	
 	private static void fillReplaceMap(IValueAction iva, int index, boolean lvalues, Map<RawDataId, Pair<RawDataId, Integer>> replacerInfoMap, Map<Integer, Pair<RawDataId, boolean[]>> targetMatchMap) {
 		for (DataId dataId : iva.dataIds(lvalues)) {
-			RawDataId rawDataId = new RawDataId(dataId);
+			RawDataId rawDataId = dataId.raw();
 			if (replacerInfoMap.containsKey(rawDataId)) {
 				if (dataId.dereferenceLevel > 0) {
 					if (iva.canReplaceDataId(lvalues)) {
@@ -395,12 +377,12 @@ public class IntermediateOptimization {
 					if (iva instanceof AssignmentAction) {
 						DataId lvalue = iva.lvalues()[0], rvalue = iva.rvalues()[0];
 						if (lvalue.typeInfo.isAddress() && !lvalue.isRepeatable(true) && rvalue.dereferenceLevel <= 0 && !rvalue.isIndexed()) {
-							RawDataId rawDeref = new RawDataId(lvalue.addDereference(null));
+							RawDataId rawDeref = lvalue.addDereference(null).raw();
 							if (replacerInfoMap.containsKey(rawDeref)) {
 								throw new IllegalArgumentException(String.format("Found unexpected repeated use of register %s! %s", lvalue, iva));
 							}
 							else {
-								replacerInfoMap.put(rawDeref, new Pair<>(new RawDataId(rvalue.addDereference(null)), j));
+								replacerInfoMap.put(rawDeref, new Pair<>(rvalue.addDereference(null).raw(), j));
 							}
 						}
 					}
@@ -509,7 +491,7 @@ public class IntermediateOptimization {
 				Action action = list.get(j);
 				if (action instanceof IValueAction) {
 					IValueAction iva = (IValueAction) action;
-					for (DataId[] arr : Helpers.array(iva.lvalues(), iva.rvalues())) {
+					for (DataId[] arr : Arrays.asList(iva.lvalues(), iva.rvalues())) {
 						for (DataId id : arr) {
 							if (id instanceof RegDataId) {
 								long regId = ((RegDataId) id).regId;

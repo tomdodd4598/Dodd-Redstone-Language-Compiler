@@ -17,7 +17,7 @@ public class RedstoneOCGenerator extends RedstoneGenerator {
 		
 		StringBuilder sb = new StringBuilder();
 		boolean begin = true;
-		for (RedstoneRoutine routine : code.getRoutineMap().values()) {
+		for (RedstoneRoutine routine : code.routineMap.values()) {
 			for (List<Instruction> section : routine.textSectionMap.values()) {
 				for (Instruction instruction : section) {
 					if (begin) {

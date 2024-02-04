@@ -1,20 +1,20 @@
 package drlc.low.drc1.instruction.address;
 
-import drlc.low.drc1.RedstoneDataInfo;
+import drlc.low.LowDataInfo;
 import drlc.low.drc1.instruction.Instruction;
 
 public abstract class InstructionAddress extends Instruction implements IInstructionAddress {
 	
-	public final RedstoneDataInfo info;
+	public final LowDataInfo info;
 	public Short address;
 	
-	public InstructionAddress(RedstoneDataInfo info) {
+	public InstructionAddress(LowDataInfo info) {
 		super();
 		this.info = info;
 	}
 	
 	@Override
-	public RedstoneDataInfo getDataInfo() {
+	public LowDataInfo getDataInfo() {
 		return info;
 	}
 	

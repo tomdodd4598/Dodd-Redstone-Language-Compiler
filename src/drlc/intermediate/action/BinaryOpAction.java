@@ -217,6 +217,14 @@ public class BinaryOpAction extends Action implements IValueAction {
 					return new AssignmentAction(null, target, Main.generator.falseValue.dataId());
 				case CHAR_MORE_OR_EQUAL_CHAR:
 					return new AssignmentAction(null, target, Main.generator.trueValue.dataId());
+				case CHAR_PLUS_CHAR:
+					return null;
+				case CHAR_AND_CHAR:
+				case CHAR_OR_CHAR:
+					return new AssignmentAction(null, target, arg1);
+				case CHAR_XOR_CHAR:
+				case CHAR_MINUS_CHAR:
+					return new AssignmentAction(null, target, Main.generator.charValue((byte) 0).dataId());
 			}
 		}
 		
@@ -349,6 +357,46 @@ public class BinaryOpAction extends Action implements IValueAction {
 					return left.byteValue(null) == 0 ? new AssignmentAction(null, target, Main.generator.falseValue.dataId()) : null;
 				case CHAR_MORE_OR_EQUAL_CHAR:
 					return left.byteValue(null) == -1 ? new AssignmentAction(null, target, Main.generator.trueValue.dataId()) : null;
+				case CHAR_PLUS_CHAR:
+					return left.byteValue(null) == 0 ? new AssignmentAction(null, target, arg2) : null;
+				case CHAR_AND_CHAR: {
+					byte byteValue = left.byteValue(null);
+					if (byteValue == 0) {
+						return new AssignmentAction(null, target, left.dataId());
+					}
+					else if (byteValue == -1) {
+						return new AssignmentAction(null, target, arg2);
+					}
+					else {
+						return null;
+					}
+				}
+				case CHAR_OR_CHAR: {
+					byte byteValue = left.byteValue(null);
+					if (byteValue == 0) {
+						return new AssignmentAction(null, target, arg2);
+					}
+					else if (byteValue == -1) {
+						return new AssignmentAction(null, target, left.dataId());
+					}
+					else {
+						return null;
+					}
+				}
+				case CHAR_XOR_CHAR: {
+					byte byteValue = left.byteValue(null);
+					if (byteValue == 0) {
+						return new AssignmentAction(null, target, arg2);
+					}
+					else if (byteValue == -1) {
+						return UnaryActionType.NOT_CHAR.action(null, target, arg2);
+					}
+					else {
+						return null;
+					}
+				}
+				case CHAR_MINUS_CHAR:
+					return null;
 			}
 		}
 		else if (left == null && right != null) {
@@ -424,7 +472,13 @@ public class BinaryOpAction extends Action implements IValueAction {
 				case CHAR_LESS_OR_EQUAL_CHAR:
 				case CHAR_MORE_THAN_CHAR:
 				case CHAR_MORE_OR_EQUAL_CHAR:
+				case CHAR_PLUS_CHAR:
+				case CHAR_AND_CHAR:
+				case CHAR_OR_CHAR:
+				case CHAR_XOR_CHAR:
 					return commutated(target, arg2, arg1).simplify();
+				case CHAR_MINUS_CHAR:
+					return right.byteValue(null) == 0 ? new AssignmentAction(null, target, arg1) : null;
 			}
 		}
 		

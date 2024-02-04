@@ -2,12 +2,17 @@ package drlc.low.drc1;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.IntUnaryOperator;
 
 import drlc.*;
+import drlc.Helpers.Pair;
 import drlc.intermediate.action.*;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.data.*;
-import drlc.intermediate.routine.*;
+import drlc.intermediate.component.data.DataId.RawDataId;
+import drlc.intermediate.component.type.TypeInfo;
+import drlc.intermediate.routine.Routine;
+import drlc.low.*;
 import drlc.low.drc1.instruction.*;
 import drlc.low.drc1.instruction.address.*;
 import drlc.low.drc1.instruction.address.offset.*;
@@ -20,50 +25,40 @@ import drlc.low.drc1.instruction.subroutine.*;
 public class RedstoneRoutine {
 	
 	public final RedstoneCode code;
-	public final Routine intermediateRoutine;
-	public final String name;
+	public final Routine intermediate;
+	public final Function function;
 	public final List<DeclaratorInfo> params;
 	
-	public final Map<Short, List<Instruction>> textSectionMap = new TreeMap<>();
+	public final Map<Integer, List<Instruction>> textSectionMap = new TreeMap<>();
 	
-	public final Map<DataId, Long> dataIdMap;
-	public int tempSize = 0;
-	public final Map<DataId, Long> tempIdMap = new LinkedHashMap<>();
-	public long extraTempRegId = -1;
-	private boolean dataIdRegeneration = false;
+	private final Map<RawDataId, Pair<DataId, LowDataSpan>> dataSpanMap;
+	private final Map<RawDataId, Pair<DataId, LowDataSpan>> tempSpanMap = new LinkedHashMap<>();
 	
-	public final Map<Short, Short> sectionAddressMap = new HashMap<>();
-	public final Map<RedstoneAddressKey, Short> dataAddressMap;
-	public final Map<RedstoneAddressKey, Short> tempAddressMap = new HashMap<>();
+	public final Map<Integer, Short> sectionAddressMap = new LinkedHashMap<>();
 	
-	public RedstoneRoutine(RedstoneCode code, String name, RoutineCallType type, List<DeclaratorInfo> params) {
+	public final Map<LowDataSpan, LowAddressSlice> dataAddressMap;
+	public final Map<LowDataSpan, LowAddressSlice> tempAddressMap = new LinkedHashMap<>();
+	
+	public RedstoneRoutine(RedstoneCode code, Routine intermediate) {
 		this.code = code;
-		intermediateRoutine = null;
-		this.name = name;
-		this.params = params;
-		dataIdMap = new LinkedHashMap<>();
-		dataAddressMap = new HashMap<>();
-	}
-	
-	public RedstoneRoutine(RedstoneCode code, Routine intermediateRoutine) {
-		this.code = code;
-		this.intermediateRoutine = intermediateRoutine;
-		name = intermediateRoutine.name;
-		params = intermediateRoutine.getParams();
+		this.intermediate = intermediate;
+		function = intermediate.function;
+		params = intermediate.getParams();
 		if (isRootRoutine()) {
-			dataIdMap = code.rootIdMap;
+			dataSpanMap = code.rootSpanMap;
 			dataAddressMap = code.rootAddressMap;
 		}
 		else {
-			dataIdMap = new LinkedHashMap<>();
-			dataAddressMap = new HashMap<>();
+			dataSpanMap = new LinkedHashMap<>();
+			dataAddressMap = new LinkedHashMap<>();
 		}
 		mapParams();
 	}
 	
 	public void mapParams() {
 		for (DeclaratorInfo param : params) {
-			dataIdMap.put(param.dataId(), nextParamId());
+			DataId dataId = param.dataId();
+			dataSpanMap.put(dataId.raw(), new Pair<>(dataId, nextParamSpan(param.getTypeInfo())));
 		}
 	}
 	
@@ -71,14 +66,14 @@ public class RedstoneRoutine {
 		if (isRootRoutine()) {
 			if (code.requiresStack) {
 				List<Instruction> text = new ArrayList<>();
-				textSectionMap.put((short) -1, text);
-				text.add(new InstructionLoadBasePointer((short) (RedstoneCode.MAX_ADDRESS - params.length)));
-				text.add(new InstructionLoadStackPointer((short) (RedstoneCode.MAX_ADDRESS - params.length)));
+				textSectionMap.put(-1, text);
+				text.add(new InstructionLoadBasePointer(RedstoneCode.MAX_ADDRESS));
+				text.add(new InstructionLoadStackPointer(RedstoneCode.MAX_ADDRESS));
 			}
 		}
 		else if (isStackRoutine()) {
 			List<Instruction> text = new ArrayList<>();
-			textSectionMap.put((short) -1, text);
+			textSectionMap.put(-1, text);
 			text.add(new InstructionPushBasePointer());
 			text.add(new InstructionMoveStackPointerToBasePointer());
 			text.add(new InstructionSubtractFromStackPointer());
@@ -95,20 +90,11 @@ public class RedstoneRoutine {
 		}
 	}
 	
-	protected void generateInstructionsInternal() {
-		List<List<Action>> body = intermediateRoutine.getBodyActionLists();
+	private void generateInstructionsInternal() {
+		List<List<Action>> body = intermediate.getBodyActionLists();
 		for (int i = 0; i < body.size(); ++i) {
 			List<Instruction> text = new ArrayList<>();
-			textSectionMap.put((short) i, text);
-			
-			if (i == 0 && !isRootRoutine()) {
-				for (DeclaratorInfo param : params) {
-					DataId paramId = param.dataId();
-					if (paramId.dereferenceLevel > 0) {
-						declare(text, paramId, false);
-					}
-				}
-			}
+			textSectionMap.put(i, text);
 			
 			List<Action> actions = body.get(i);
 			for (int j = 0; j < actions.size(); ++j) {
@@ -116,35 +102,67 @@ public class RedstoneRoutine {
 				
 				if (action instanceof AssignmentAction) {
 					AssignmentAction aa = (AssignmentAction) action;
+					// TODO load & store
 					load(text, aa.arg);
-					store(text, aa.target, true);
-				}
-				
-				else if (action instanceof BasicAction) {
-					if (action instanceof ExitAction) {
-						load(text, Helpers.immediateDataId(0L));
-						text.add(new InstructionHalt());
-					}
-					else {
-						throw new IllegalArgumentException(String.format("Encountered unknown basic action \"%s\"!", action));
-					}
+					store(text, aa.target);
 				}
 				
 				else if (action instanceof BinaryOpAction) {
 					BinaryOpAction boa = (BinaryOpAction) action;
 					load(text, boa.arg1);
-					binaryOp(text, boa.opType, boa.arg2);
-					store(text, boa.target, true);
+					binaryOp(text, boa.type, boa.arg2);
+					store(text, boa.target);
+				}
+				
+				else if (action instanceof CallAction) {
+					CallAction fca = (CallAction) action;
+					DataId caller = fca.caller;
+					List<DataId> args = fca.args;
+					
+					Function callerFunction = caller.getFunction();
+					RedstoneRoutine subroutine = callerFunction == null ? null : code.getRoutine(callerFunction);
+					boolean indirectCall = subroutine == null;
+					boolean isStackRoutine = indirectCall || subroutine.isStackRoutine();
+					
+					int argCount = args.size();
+					if (isStackRoutine) {
+						for (int k = argCount - 1; k >= 0; --k) {
+							// TODO load & push
+							load(text, args.get(k));
+							text.add(new InstructionPush());
+						}
+					}
+					else {
+						for (int k = 0; k < argCount; ++k) {
+							// TODO load & subroutine store
+							load(text, args.get(k));
+							subroutine.store(text, subroutine.params.get(k).dataId());
+						}
+					}
+					
+					if (indirectCall) {
+						load(text, caller);
+					}
+					else {
+						text.add(new InstructionLoadCallAddressImmediate(callerFunction));
+					}
+					text.add(new InstructionCallSubroutine(indirectCall));
+					
+					if (isStackRoutine) {
+						text.add(new InstructionAddToStackPointer((short) argCount));
+					}
+					
+					// TODO store return value, RVO for size > 1 returns
+					store(text, fca.target);
+				}
+				
+				else if (action instanceof CompoundAssignmentAction) {
+					// TODO compound load & store
 				}
 				
 				else if (action instanceof ConditionalJumpAction) {
 					ConditionalJumpAction cja = (ConditionalJumpAction) action;
-					conditionalJump(text, cja.target, cja.jumpCondition);
-				}
-				
-				else if (action instanceof DeclarationAction) {
-					DeclarationAction da = (DeclarationAction) action;
-					declare(text, da.target, false);
+					conditionalJump(text, cja.getTarget(), cja.jumpCondition);
 				}
 				
 				else if (action instanceof ExitAction) {
@@ -153,31 +171,20 @@ public class RedstoneRoutine {
 					text.add(new InstructionHalt());
 				}
 				
-				else if (action instanceof InitializationAction) {
-					InitializationAction ia = (InitializationAction) action;
-					load(text, ia.arg);
-					declare(text, ia.target, true);
-				}
-				
 				else if (action instanceof JumpAction) {
 					JumpAction ja = (JumpAction) action;
-					jump(text, ja.target);
+					jump(text, ja.getTarget());
 				}
 				
 				else if (action instanceof NoOpAction) {
 					text.add(new InstructionNoOp());
 				}
 				
-				else if (action instanceof PlaceholderAction) {
-					PlaceholderAction pa = (PlaceholderAction) action;
-					throw new IllegalArgumentException(String.format("Placeholder action \"%s\" not correctly substituted!", pa.type));
-				}
-				
 				else if (action instanceof ReturnAction) {
-					if (isRootRoutine()) {
-						throw new IllegalArgumentException(String.format("Root routine can not return! Use an exit statement!"));
-					}
-					else if (isStackRoutine()) {
+					// TODO load return value, RVO for size > 1 returns
+					ReturnAction rva = (ReturnAction) action;
+					load(text, rva.arg);
+					if (isStackRoutine()) {
 						text.add(new InstructionJump(body.size()));
 					}
 					else {
@@ -185,75 +192,10 @@ public class RedstoneRoutine {
 					}
 				}
 				
-				else if (action instanceof ReturnAction) {
-					if (isRootRoutine()) {
-						throw new IllegalArgumentException(String.format("Root routine can not return a value! Use an exit value statement!"));
-					}
-					else {
-						ReturnAction rva = (ReturnAction) action;
-						load(text, rva.arg);
-						if (isStackRoutine()) {
-							text.add(new InstructionJump(body.size()));
-						}
-						else {
-							text.add(new InstructionReturnFromSubroutine());
-						}
-					}
-				}
-				
-				else if (action instanceof CallAction) {
-					if (action instanceof BuiltInCallAction) {
-						builtInFunctionCall(text, (BuiltInCallAction) action);
-					}
-					else {
-						CallAction fca = (CallAction) action;
-						DataId function = fca.function;
-						List<DataId> args = fca.args;
-						
-						RedstoneRoutine subroutine = code.getRoutine(function.name);
-						boolean indirectCall = subroutine == null;
-						boolean isStackRoutine = indirectCall || subroutine.isStackRoutine();
-						
-						int argCount = args.size();
-						if (isStackRoutine) {
-							for (int k = argCount - 1; k >= 0; --k) {
-								load(text, args.get(k));
-								text.add(new InstructionPush());
-							}
-						}
-						else {
-							for (int k = 0; k < argCount; ++k) {
-								load(text, args.get(k));
-								subroutine.store(text, subroutine.params[k].dataId(), false);
-							}
-						}
-						
-						if (indirectCall) {
-							load(text, function);
-						}
-						else {
-							text.add(new InstructionLoadCallAddressImmediate(function.name));
-						}
-						text.add(new InstructionCallSubroutine(indirectCall));
-						
-						if (isStackRoutine) {
-							text.add(new InstructionAddToStackPointer((short) argCount));
-						}
-						
-						store(text, fca.target, true);
-					}
-				}
-				
-				else if (action instanceof DereferenceAction) {
-					DereferenceAction da = (DereferenceAction) action;
-					dereference(text, 1, da.arg);
-					store(text, da.target, true);
-				}
-				
 				else if (action instanceof UnaryOpAction) {
 					UnaryOpAction uoa = (UnaryOpAction) action;
-					unaryOp(text, uoa.opType, uoa.arg);
-					store(text, uoa.target, true);
+					unaryOp(text, uoa.type, uoa.arg);
+					store(text, uoa.target);
 				}
 				
 				else {
@@ -263,16 +205,13 @@ public class RedstoneRoutine {
 		}
 	}
 	
-	public short getFinalTextSectionKey() {
-		return (short) intermediateRoutine.getBodyActionLists().size();
+	public int getFinalTextSectionKey() {
+		return intermediate.getBodyActionLists().size();
 	}
 	
 	public void prepareDataIdRegeneration() {
-		dataIdMap.clear();
-		tempSize = 0;
-		tempIdMap.clear();
-		extraTempRegId = 0;
-		dataIdRegeneration = true;
+		dataSpanMap.clear();
+		tempSpanMap.clear();
 		mapParams();
 	}
 	
@@ -288,9 +227,9 @@ public class RedstoneRoutine {
 		}
 		
 		if (isStackRoutine()) {
-			short stackSize = (short) (dataIdMap.size() + tempSize - params.length);
+			short stackSize = (short) (spanMapSize(dataSpanMap) + spanMapSize(tempSpanMap) - Helpers.sumToInt(params, x -> x.getTypeInfo().getSize()));
 			if (stackSize < 0) {
-				throw new IllegalArgumentException(String.format("Stack-based subroutine \"%s\" has unexpected stack size %s!", name, stackSize));
+				throw new IllegalArgumentException(String.format("Stack-based subroutine \"%s\" has unexpected stack size %s!", function, stackSize));
 			}
 			
 			// Post-optimization!
@@ -298,7 +237,7 @@ public class RedstoneRoutine {
 			boolean flag = true;
 			while (flag) {
 				flag = false;
-				for (Entry<Short, List<Instruction>> entry : textSectionMap.entrySet()) {
+				for (Entry<Integer, List<Instruction>> entry : textSectionMap.entrySet()) {
 					List<Instruction> section = entry.getValue();
 					for (int i = 0; i < section.size(); ++i) {
 						Instruction instruction = section.get(i);
@@ -338,11 +277,11 @@ public class RedstoneRoutine {
 	
 	public void generateTextAddresses() {
 		short sectionAddressOffset = 0;
-		for (Entry<Short, List<Instruction>> entry : textSectionMap.entrySet()) {
+		for (Entry<Integer, List<Instruction>> entry : textSectionMap.entrySet()) {
 			sectionAddressMap.put(entry.getKey(), sectionAddressOffset);
 			sectionAddressOffset += entry.getValue().size();
 		}
-		code.textAddressMap.put(name, code.addressOffset);
+		code.textAddressMap.put(function, code.addressOffset);
 		code.addressOffset += sectionAddressOffset;
 	}
 	
@@ -350,41 +289,38 @@ public class RedstoneRoutine {
 		int dataAddressOffset = 0;
 		if (isStackRoutine()) {
 			int paramAddressOffset = 0;
-			for (long id : dataIdMap.values()) {
-				if (id < 0) {
-					dataAddressMap.put(addressKey(id), (short) (paramAddressOffset + 2));
-					++paramAddressOffset;
+			for (Pair<DataId, LowDataSpan> pair : dataSpanMap.values()) {
+				if (pair.right.id < 0) {
+					paramAddressOffset += addAddressEntry(dataAddressMap, pair.right, paramAddressOffset, x -> x + 2);
 				}
 				else {
-					dataAddressMap.put(addressKey(id), (short) (-dataAddressOffset - 1));
-					++dataAddressOffset;
+					dataAddressOffset += addAddressEntry(dataAddressMap, pair.right, dataAddressOffset, x -> -x - 1);
 				}
 			}
-			for (long i = 0; i < tempSize; ++i) {
-				tempAddressMap.put(addressKey(i), (short) (-dataAddressOffset - 1));
-				++dataAddressOffset;
+			for (Pair<DataId, LowDataSpan> pair : tempSpanMap.values()) {
+				dataAddressOffset += addAddressEntry(tempAddressMap, pair.right, dataAddressOffset, x -> -x - 1);
 			}
 		}
 		else {
-			for (Entry<DataId, Long> entry : dataIdMap.entrySet()) {
-				if (isRootRoutine() && RedstoneGenerator.isRootParam(entry.getKey().name)) {
-					dataAddressMap.put(addressKey(entry.getValue()), (short) (RedstoneCode.MAX_ADDRESS - RedstoneGenerator.parseRootParam(entry.getKey().name)));
-				}
-				else {
-					dataAddressMap.put(addressKey(entry.getValue()), (short) (code.addressOffset + dataAddressOffset));
-					++dataAddressOffset;
-				}
+			for (Pair<DataId, LowDataSpan> pair : dataSpanMap.values()) {
+				dataAddressOffset += addAddressEntry(dataAddressMap, pair.right, dataAddressOffset, x -> x + code.addressOffset);
 			}
-			for (long i = 0; i < tempSize; ++i) {
-				tempAddressMap.put(addressKey(i), (short) (code.addressOffset + dataAddressOffset));
-				++dataAddressOffset;
+			for (Pair<DataId, LowDataSpan> pair : tempSpanMap.values()) {
+				dataAddressOffset += addAddressEntry(tempAddressMap, pair.right, dataAddressOffset, x -> x + code.addressOffset);
 			}
 			code.addressOffset += dataAddressOffset;
 		}
 	}
 	
+	private static int addAddressEntry(Map<LowDataSpan, LowAddressSlice> addressMap, LowDataSpan span, int addressOffset, IntUnaryOperator function) {
+		int size = span.size;
+		int start = Math.min(function.applyAsInt(addressOffset), function.applyAsInt(addressOffset + size));
+		addressMap.put(span, new LowAddressSlice(start, size));
+		return size;
+	}
+	
 	public void finalizeInstructions() {
-		for (Entry<Short, List<Instruction>> entry : textSectionMap.entrySet()) {
+		for (Entry<Integer, List<Instruction>> entry : textSectionMap.entrySet()) {
 			short instructionAddress = sectionAddressMap.get(entry.getKey());
 			List<Instruction> section = entry.getValue();
 			for (int i = 0; i < section.size(); ++i) {
@@ -401,7 +337,7 @@ public class RedstoneRoutine {
 				
 				else if (instruction instanceof InstructionCallSubroutine) {
 					InstructionCallSubroutine ics = (InstructionCallSubroutine) instruction;
-					ics.returnAddress = (short) (code.textAddressMap.get(name) + instructionAddress + 1);
+					ics.returnAddress = (short) (code.textAddressMap.get(function) + instructionAddress + 1);
 					
 					if (!ics.indirectCall && !(section.get(i - 1) instanceof InstructionLoadCallAddressImmediate)) {
 						throw new IllegalArgumentException(String.format("Found unexpected direct subroutine call instruction \"%s\" not following call address load instruction as required!", instruction));
@@ -410,12 +346,12 @@ public class RedstoneRoutine {
 				
 				else if (instruction instanceof InstructionLoadCallAddressImmediate) {
 					InstructionLoadCallAddressImmediate ilcai = (InstructionLoadCallAddressImmediate) instruction;
-					ilcai.setValue(code.textAddressMap.get(ilcai.subroutine));
+					ilcai.setValue(code.textAddressMap.get(ilcai.function));
 				}
 				
 				else if (instruction instanceof InstructionJump) {
 					InstructionJump ij = (InstructionJump) instruction;
-					ij.address = (short) (code.textAddressMap.get(name) + sectionAddressMap.get(ij.section));
+					ij.address = (short) (code.textAddressMap.get(function) + sectionAddressMap.get(ij.section));
 				}
 				
 				++instructionAddress;
@@ -424,384 +360,317 @@ public class RedstoneRoutine {
 	}
 	
 	public void onRequiresNesting() {
-		intermediateRoutine.onRequiresNesting();
+		intermediate.onRequiresNesting();
 	}
 	
 	public void onRequiresStack() {
-		intermediateRoutine.onRequiresStack();
+		intermediate.onRequiresStack();
 	}
 	
 	public boolean isStackRoutine() {
-		return intermediateRoutine.isStackRoutine();
+		return intermediate.isStackRoutine();
 	}
 	
 	public boolean isRootRoutine() {
-		return intermediateRoutine.isRootRoutine();
+		return intermediate.equals(Main.rootRoutine);
 	}
 	
-	protected long dataId(DataId key) {
-		if (dataIdMap.containsKey(key)) {
-			return dataIdMap.get(key);
+	private Pair<DataId, LowDataSpan> dataSpanPair(DataId dataId) {
+		return getSpanPair(dataSpanMap, dataId);
+	}
+	
+	private Pair<DataId, LowDataSpan> tempSpanPair(DataId dataId) {
+		return getSpanPair(tempSpanMap, dataId);
+	}
+	
+	private Pair<DataId, LowDataSpan> getSpanPair(Map<RawDataId, Pair<DataId, LowDataSpan>> spanMap, DataId dataId) {
+		RawDataId raw = dataId.raw();
+		if (spanMap.containsKey(raw)) {
+			return spanMap.get(raw);
 		}
 		else {
-			long id = nextDataId();
-			dataIdMap.put(key, id);
-			return id;
+			Pair<DataId, LowDataSpan> pair = new Pair<>(dataId, nextSpan(spanMap, dataId.typeInfo));
+			spanMap.put(raw, pair);
+			return pair;
 		}
 	}
 	
-	protected long nextDataId() {
-		return nextId(dataIdMap.values());
-	}
-	
-	protected long tempId(DataId key) {
-		if (tempIdMap.containsKey(key)) {
-			return dataIdRegeneration ? tempIdMap.get(key) : tempIdMap.remove(key);
-		}
-		else {
-			long id = nextTempId();
-			tempIdMap.put(key, id);
-			tempSize = Math.max(tempSize, tempIdMap.size());
-			return id;
-		}
-	}
-	
-	protected long nextTempId() {
-		return nextId(tempIdMap.values());
-	}
-	
-	protected static long nextId(Collection<Long> keys) {
-		long i = 0;
-		while (true) {
-			if (!keys.contains(i)) {
-				return i;
-			}
-			++i;
-		}
-	}
-	
-	protected long nextParamId() {
-		if (isStackRoutine()) {
-			long i = -1;
-			while (true) {
-				if (!dataIdMap.values().contains(i)) {
-					return i;
+	private LowDataSpan nextSpan(Map<RawDataId, Pair<DataId, LowDataSpan>> spanMap, TypeInfo typeInfo) {
+		int id = 0, size = typeInfo.getSize();
+		outer: while (true) {
+			LowDataSpan span = new LowDataSpan(function, id, size);
+			for (Pair<DataId, LowDataSpan> pair : spanMap.values()) {
+				if (pair.right.equals(span)) {
+					++id;
+					continue outer;
 				}
-				--i;
+			}
+			return span;
+		}
+	}
+	
+	private LowDataSpan nextParamSpan(TypeInfo typeInfo) {
+		if (isStackRoutine()) {
+			int id = -1, size = typeInfo.getSize();
+			outer: while (true) {
+				LowDataSpan span = new LowDataSpan(function, id, size);
+				for (Pair<DataId, LowDataSpan> pair : dataSpanMap.values()) {
+					if (pair.right.equals(span)) {
+						--id;
+						continue outer;
+					}
+				}
+				return span;
 			}
 		}
 		else {
-			return nextId(dataIdMap.values());
+			return nextSpan(dataSpanMap, typeInfo);
 		}
 	}
 	
-	protected DataId nextExtraTempRegArg() {
-		return new RegDataId(extraTempRegId--);
+	private static int spanMapSize(Map<RawDataId, Pair<DataId, LowDataSpan>> spanMap) {
+		return Helpers.sumToInt(spanMap.keySet(), x -> x.internal.typeInfo.getSize());
 	}
 	
-	protected boolean isStackData(RedstoneDataInfo info) {
-		return info.type != RedstoneDataType.STATIC && isStackRoutine();
+	private boolean isStackData(LowDataInfo info) {
+		return !info.isStaticData() && isStackRoutine();
 	}
 	
 	// Data Info
 	
-	public RedstoneDataInfo dataInfo(DataId arg) {
-		if (Helpers.isRegId(arg.name)) {
-			return new RedstoneDataInfo(name, arg, RedstoneDataType.TEMP, tempId(arg));
-		}
-		else if (code.rootIdMap.containsKey(arg)) {
-			return new RedstoneDataInfo(Global.ROOT, arg, RedstoneDataType.STATIC, code.rootIdMap.get(arg));
+	public LowDataInfo dataInfo(DataId arg, int extraOffset) {
+		if (arg instanceof RegDataId) {
+			Pair<DataId, LowDataSpan> pair = tempSpanPair(arg);
+			return new LowDataInfo(function, arg.dereferenceLevel == 0 ? arg : pair.left, LowDataType.TEMP, pair.right, extraOffset);
 		}
 		else {
-			return new RedstoneDataInfo(name, arg, isStackRoutine() ? RedstoneDataType.STACK : RedstoneDataType.STATIC, dataId(arg));
+			RawDataId raw = arg.raw();
+			if (code.rootSpanMap.containsKey(raw)) {
+				Pair<DataId, LowDataSpan> pair = code.rootSpanMap.get(raw);
+				return new LowDataInfo(Main.rootRoutine.function, arg.dereferenceLevel == 0 ? arg : pair.left, LowDataType.STATIC, pair.right, extraOffset);
+			}
+			else {
+				Pair<DataId, LowDataSpan> pair = dataSpanPair(arg);
+				return new LowDataInfo(function, arg.dereferenceLevel == 0 ? arg : pair.left, isStackRoutine() ? LowDataType.STACK : LowDataType.STATIC, pair.right, extraOffset);
+			}
 		}
 	}
 	
-	public RedstoneAddressKey addressKey(long id) {
-		return new RedstoneAddressKey(name, id);
-	}
-	
-	protected short getAddress(RedstoneDataInfo info) {
-		RedstoneRoutine routine = code.getRoutine(info.routineName);
+	private short getAddress(LowDataInfo info) {
+		RedstoneRoutine routine = code.getRoutine(info.function);
 		switch (info.type) {
 			case TEMP:
-				return routine.tempAddressMap.get(info.key);
+				return dataAddress(routine.tempAddressMap, info);
 			case STATIC:
-				if (code.rootAddressMap.containsKey(info.key)) {
-					return code.rootAddressMap.get(info.key);
-				}
+				return dataAddress(code.rootAddressMap, info);
 			case STACK:
-				return routine.dataAddressMap.get(info.key);
+				return dataAddress(routine.dataAddressMap, info);
 			default:
-				throw new IllegalArgumentException(String.format("Encountered unknown address data type \"%s\"!", info.type));
+				throw new IllegalArgumentException(String.format("Encountered unknown type for data info \"%s\"!", info));
 		}
+	}
+	
+	private static short dataAddress(Map<LowDataSpan, LowAddressSlice> addressMap, LowDataInfo info) {
+		return (short) (addressMap.get(info.span).start + info.argId.getOffset() + info.extraOffset);
 	}
 	
 	// Instructions
 	
-	protected void store(List<Instruction> text, DataId arg, boolean autoDereference) {
-		if (arg instanceof TransientDataId) {
+	private void store(List<Instruction> text, DataId target) {
+		if (target instanceof TransientDataId) {
 			return;
 		}
-		else if (Helpers.isImmediateValue(arg.name)) {
-			throw new IllegalArgumentException(String.format("Attempted to add an immediate store instruction! %s", arg));
+		else if (target instanceof ValueDataId) {
+			throw new IllegalArgumentException(String.format("Attempted to add an immediate store instruction! %s", target));
 		}
 		else {
-			int dereferenceLevel = autoDereference ? arg.dereferenceLevel : 0;
-			if (dereferenceLevel == 0) {
-				RedstoneDataInfo argInfo = dataInfo(arg);
-				if (isStackData(argInfo)) {
-					text.add(new InstructionStoreOffset(argInfo));
-				}
-				else {
-					text.add(new InstructionStore(argInfo));
-				}
+			if (target.isAddress()) {
+				throw new IllegalArgumentException(String.format("Attempted to add an address store instruction! %s", target));
 			}
 			else {
-				arg = arg.removeAllDereferences();
-				final RedstoneDataInfo argInfo = dataInfo(arg);
-				if (isStackData(argInfo)) {
-					text.add(new InstructionLoadBOffset(argInfo));
+				int size = target.typeInfo.getSize();
+				LowDataInfo targetInfo = dataInfo(target, 0);
+				boolean isStackData = isStackData(targetInfo);
+				if (target.dereferenceLevel == 0) {
+					for (int i = 0; i < size; ++i) {
+						LowDataInfo offsetInfo = targetInfo.offset(i);
+						text.add(isStackData ? new InstructionStoreOffset(offsetInfo) : new InstructionStore(offsetInfo));
+					}
 				}
 				else {
-					text.add(new InstructionLoadB(argInfo));
-				}
-				
-				for (int i = 0; i < dereferenceLevel - 1; ++i) {
-					text.add(new InstructionDereferenceB());
-				}
-				
-				text.add(new InstructionStoreAToBAddress());
-			}
-		}
-	}
-	
-	protected void declare(List<Instruction> text, DataId arg, boolean initialize) {
-		if (arg instanceof TransientDataId) {
-			return;
-		}
-		else if (Helpers.isImmediateValue(arg.name)) {
-			throw new IllegalArgumentException(String.format("Attempted to add an immediate declaration instruction! %s", arg));
-		}
-		else {
-			RedstoneDataInfo argInfo = dataInfo(arg);
-			if (initialize) {
-				if (isStackData(argInfo)) {
-					text.add(new InstructionStoreOffset(argInfo));
-				}
-				else {
-					text.add(new InstructionStore(argInfo));
-				}
-			}
-			
-			for (int i = 0; i < arg.dereferenceLevel; ++i) {
-				if (isStackData(argInfo)) {
-					text.add(new InstructionLoadImmediateAddressOffset(argInfo));
-				}
-				else {
-					text.add(new InstructionLoadAddressImmediate(argInfo));
-				}
-				
-				arg = arg.removeDereference();
-				argInfo = dataInfo(arg);
-				
-				if (isStackData(argInfo)) {
-					text.add(new InstructionStoreOffset(argInfo));
-				}
-				else {
-					text.add(new InstructionStore(argInfo));
+					for (int i = 0; i < size; ++i) {
+						text.add(isStackData ? new InstructionLoadBOffset(targetInfo) : new InstructionLoadB(targetInfo));
+						for (int j = 0; j < target.dereferenceLevel - 1; ++j) {
+							text.add(new InstructionDereferenceB());
+						}
+						text.add(new InstructionAddBImmediate((short) i));
+						text.add(new InstructionStoreAToBAddress());
+					}
 				}
 			}
 		}
 	}
 	
-	protected void load(List<Instruction> text, DataId arg) {
-		if (Helpers.isImmediateValue(arg.name)) {
-			final short value = Helpers.parseImmediateValue(arg.name).shortValue();
-			if (RedstoneCode.isLongImmediate(value)) {
-				Instruction illi = new InstructionLoadLongImmediate(value);
-				text.add(illi);
-				text.add(illi.succeedingData());
-			}
-			else {
-				text.add(new InstructionLoadImmediate(value));
-			}
+	private void load(List<Instruction> text, DataId arg) {
+		Function function = arg.getFunction();
+		if (function != null) {
+			text.add(new InstructionLoadCallAddressImmediate(function));
+			// TODO: action
 		}
-		else if (code.routineExists(arg.name)) {
-			text.add(new InstructionLoadCallAddressImmediate(arg.name));
-			code.unusedBuiltInRoutineSet.remove(arg.name);
+		else if (arg instanceof TransientDataId) {
+			throw new IllegalArgumentException(String.format("Attempted to add a transient load instruction! %s", arg));
+		}
+		else if (arg instanceof ValueDataId) {
+			List<Short> valueList = RedstoneCode.raw(((ValueDataId) arg).value);
+			for (short value : valueList) {
+				if (RedstoneCode.isLongImmediate(value)) {
+					Instruction illi = new InstructionLoadLongImmediate(value);
+					text.add(illi);
+					text.add(illi.succeedingData());
+				}
+				else {
+					text.add(new InstructionLoadImmediate(value));
+				}
+				// TODO: action
+			}
 		}
 		else {
-			final boolean hasAddressPrefix = Helpers.hasAddressPrefix(arg.name);
-			if (hasAddressPrefix) {
-				final RedstoneDataInfo argInfo = dataInfo(arg.removeAddressPrefix());
-				if (isStackData(argInfo)) {
-					text.add(new InstructionLoadImmediateAddressOffset(argInfo));
-				}
-				else {
-					text.add(new InstructionLoadAddressImmediate(argInfo));
-				}
+			if (arg.isAddress()) {
+				LowDataInfo argInfo = dataInfo(arg.addDereference(null), 0);
+				text.add(isStackData(argInfo) ? new InstructionLoadAddressImmediateOffset(argInfo) : new InstructionLoadAddressImmediate(argInfo));
+				// TODO: action
 			}
 			else {
-				final RedstoneDataInfo argInfo = dataInfo(arg);
-				if (isStackData(argInfo)) {
-					text.add(new InstructionLoadAOffset(argInfo));
+				int size = arg.typeInfo.getSize();
+				LowDataInfo argInfo = dataInfo(arg, 0);
+				boolean isStackData = isStackData(argInfo);
+				if (arg.dereferenceLevel == 0) {
+					for (int i = 0; i < size; ++i) {
+						LowDataInfo offsetInfo = argInfo.offset(i);
+						text.add(isStackData ? new InstructionLoadAOffset(offsetInfo) : new InstructionLoadA(offsetInfo));
+						// TODO: action
+					}
 				}
 				else {
-					text.add(new InstructionLoadA(argInfo));
+					for (int i = 0; i < size; ++i) {
+						text.add(isStackData ? new InstructionLoadAOffset(argInfo) : new InstructionLoadA(argInfo));
+						for (int j = 0; j < arg.dereferenceLevel - 1; ++j) {
+							text.add(new InstructionDereferenceA());
+						}
+						text.add(new InstructionAddImmediate((short) i));
+						text.add(new InstructionDereferenceA());
+						// TODO: action
+					}
 				}
 			}
 		}
 	}
 	
-	protected void binaryOp(List<Instruction> text, BinaryOpType type, DataId arg) {
-		DataId t0, t1;
-		if (Helpers.isImmediateValue(arg.name)) {
-			final short value = Helpers.parseImmediateValue(arg.name).shortValue();
+	private void binaryOp(List<Instruction> text, BinaryActionType type, DataId arg) {
+		if (arg instanceof ValueDataId) {
+			short value = RedstoneCode.raw(((ValueDataId) arg).value).get(0);
 			if (RedstoneCode.isLongImmediate(value)) {
 				Instruction li;
 				switch (type) {
-					case LOGICAL_AND:
-						text.add(new InstructionSetIsNotZero());
-						store(text, t0 = nextExtraTempRegArg(), true);
-						text.add(li = new InstructionLoadLongImmediate(value));
-						text.add(li.succeedingData());
-						text.add(new InstructionSetIsNotZero());
-						binaryOp(text, BinaryOpType.AND, t0);
-						break;
-					case LOGICAL_OR:
-						text.add(new InstructionSetIsNotZero());
-						store(text, t0 = nextExtraTempRegArg(), true);
-						text.add(li = new InstructionLoadLongImmediate(value));
-						text.add(li.succeedingData());
-						text.add(new InstructionSetIsNotZero());
-						binaryOp(text, BinaryOpType.OR, t0);
-						break;
-					case LOGICAL_XOR:
-						text.add(new InstructionSetIsNotZero());
-						store(text, t0 = nextExtraTempRegArg(), true);
-						text.add(li = new InstructionLoadLongImmediate(value));
-						text.add(li.succeedingData());
-						text.add(new InstructionSetIsNotZero());
-						binaryOp(text, BinaryOpType.XOR, t0);
-						break;
-					case EQUAL_TO:
+					case BOOL_EQUAL_TO_BOOL:
+					case INT_EQUAL_TO_INT:
+					case CHAR_EQUAL_TO_CHAR:
 						text.add(li = new InstructionXorLongImmediate(value));
 						text.add(li.succeedingData());
 						text.add(new InstructionSetIsZero());
 						break;
-					case NOT_EQUAL_TO:
+					case BOOL_NOT_EQUAL_TO_BOOL:
+					case INT_NOT_EQUAL_TO_INT:
+					case CHAR_NOT_EQUAL_TO_CHAR:
 						text.add(li = new InstructionXorLongImmediate(value));
 						text.add(li.succeedingData());
 						text.add(new InstructionSetIsNotZero());
 						break;
-					case LESS_THAN:
+					case BOOL_LESS_THAN_BOOL:
+					case INT_LESS_THAN_INT:
+					case CHAR_LESS_THAN_CHAR:
 						text.add(li = new InstructionSubtractLongImmediate(value));
 						text.add(li.succeedingData());
 						text.add(new InstructionSetIsLessThanZero());
 						break;
-					case LESS_OR_EQUAL:
+					case BOOL_LESS_OR_EQUAL_BOOL:
+					case INT_LESS_OR_EQUAL_INT:
+					case CHAR_LESS_OR_EQUAL_CHAR:
 						text.add(li = new InstructionSubtractLongImmediate(value));
 						text.add(li.succeedingData());
 						text.add(new InstructionSetIsLessThanOrEqualToZero());
 						break;
-					case MORE_THAN:
+					case BOOL_MORE_THAN_BOOL:
+					case INT_MORE_THAN_INT:
+					case CHAR_MORE_THAN_CHAR:
 						text.add(li = new InstructionSubtractLongImmediate(value));
 						text.add(li.succeedingData());
 						text.add(new InstructionSetIsMoreThanZero());
 						break;
-					case MORE_OR_EQUAL:
+					case BOOL_MORE_OR_EQUAL_BOOL:
+					case INT_MORE_OR_EQUAL_INT:
+					case CHAR_MORE_OR_EQUAL_CHAR:
 						text.add(li = new InstructionSubtractLongImmediate(value));
 						text.add(li.succeedingData());
 						text.add(new InstructionSetIsMoreThanOrEqualToZero());
 						break;
-					case PLUS:
+					case INT_PLUS_INT:
+					case CHAR_PLUS_CHAR:
 						text.add(li = new InstructionAddLongImmediate(value));
 						text.add(li.succeedingData());
 						break;
-					case AND:
+					case BOOL_AND_BOOL:
+					case INT_AND_INT:
+					case CHAR_AND_CHAR:
 						text.add(li = new InstructionAndLongImmediate(value));
 						text.add(li.succeedingData());
 						break;
-					case OR:
+					case BOOL_OR_BOOL:
+					case INT_OR_INT:
+					case CHAR_OR_CHAR:
 						text.add(li = new InstructionOrLongImmediate(value));
 						text.add(li.succeedingData());
 						break;
-					case XOR:
+					case BOOL_XOR_BOOL:
+					case INT_XOR_INT:
+					case CHAR_XOR_CHAR:
 						text.add(li = new InstructionXorLongImmediate(value));
 						text.add(li.succeedingData());
 						break;
-					case MINUS:
+					case INT_MINUS_INT:
+					case CHAR_MINUS_CHAR:
 						text.add(li = new InstructionSubtractLongImmediate(value));
 						text.add(li.succeedingData());
 						break;
-					case ARITHMETIC_LEFT_SHIFT:
-						text.add(new InstructionLeftShiftImmediate(RedstoneCode.lowBits(value)));
-						break;
-					case ARITHMETIC_RIGHT_SHIFT:
-						text.add(new InstructionRightShiftImmediate(RedstoneCode.lowBits(value)));
-						break;
-					case LOGICAL_RIGHT_SHIFT:
-						// (x >> y) & ~((Short.MIN_VALUE >> y) << 1)
-						if (code.routineExists(Global.LOGICAL_RIGHT_SHIFT)) {
-							binaryOpBuiltInSubroutine(text, Global.LOGICAL_RIGHT_SHIFT, new InstructionLoadImmediate(RedstoneCode.lowBits(value)));
-						}
-						else {
-							text.add(new InstructionRightShiftImmediate(RedstoneCode.lowBits(value)));
-							store(text, t0 = nextExtraTempRegArg(), true);
-							text.add(RedstoneCode.LOAD_MIN_VALUE);
-							text.add(RedstoneCode.LOAD_MIN_VALUE_SUCCEEDING);
-							text.add(new InstructionRightShiftImmediate(RedstoneCode.lowBits(value)));
-							text.add(new InstructionLeftShiftImmediate((short) 1));
-							text.add(new InstructionSetNot());
-							binaryOp(text, BinaryOpType.AND, t0);
-						}
-						break;
-					case CIRCULAR_LEFT_SHIFT:
-						// (x << y) | (x >>> (-y))
-						if (code.routineExists(Global.CIRCULAR_LEFT_SHIFT)) {
-							binaryOpBuiltInSubroutine(text, Global.CIRCULAR_LEFT_SHIFT, new InstructionLoadImmediate(RedstoneCode.lowBits(value)));
-						}
-						else {
-							store(text, t0 = nextExtraTempRegArg(), true);
-							text.add(new InstructionLoadImmediate(RedstoneCode.lowBits((short) -value)));
-							store(text, t1 = nextExtraTempRegArg(), true);
-							load(text, t0);
-							binaryOp(text, BinaryOpType.LOGICAL_RIGHT_SHIFT, t1);
-							store(text, t1, true);
-							load(text, t0);
-							text.add(new InstructionLeftShiftImmediate(RedstoneCode.lowBits(value)));
-							binaryOp(text, BinaryOpType.OR, t1);
-						}
-						break;
-					case CIRCULAR_RIGHT_SHIFT:
-						// (x >>> y) | (x << (-y))
-						if (code.routineExists(Global.CIRCULAR_RIGHT_SHIFT)) {
-							binaryOpBuiltInSubroutine(text, Global.CIRCULAR_RIGHT_SHIFT, new InstructionLoadImmediate(RedstoneCode.lowBits(value)));
-						}
-						else {
-							store(text, t0 = nextExtraTempRegArg(), true);
-							text.add(new InstructionLoadImmediate(RedstoneCode.lowBits((short) -value)));
-							store(text, t1 = nextExtraTempRegArg(), true);
-							load(text, t0);
-							binaryOp(text, BinaryOpType.ARITHMETIC_LEFT_SHIFT, t1);
-							store(text, t1, true);
-							load(text, t0);
-							binaryOp(text, BinaryOpType.LOGICAL_RIGHT_SHIFT, Helpers.immediateDataId(RedstoneCode.lowBits(value)));
-							binaryOp(text, BinaryOpType.OR, t1);
-						}
-						break;
-					case MULTIPLY:
+					case INT_MULTIPLY_INT:
 						text.add(li = new InstructionMultiplyLongImmediate(value));
 						text.add(li.succeedingData());
 						break;
-					case DIVIDE:
+					case INT_DIVIDE_INT:
 						text.add(li = new InstructionDivideLongImmediate(value));
 						text.add(li.succeedingData());
 						break;
-					case REMAINDER:
+					case INT_REMAINDER_INT:
 						text.add(li = new InstructionRemainderLongImmediate(value));
 						text.add(li.succeedingData());
+						break;
+					case INT_LEFT_SHIFT_INT:
+						text.add(new InstructionLeftShiftImmediate(RedstoneCode.lowBits(value)));
+						break;
+					case INT_RIGHT_SHIFT_INT:
+						text.add(new InstructionRightShiftImmediate(RedstoneCode.lowBits(value)));
+						break;
+					case NAT_RIGHT_SHIFT_INT:
+						// (x >> y) & ~((Short.MIN_VALUE >> y) << 1)
+						binaryOpBuiltInSubroutine(text, Global.LOGICAL_RIGHT_SHIFT, new InstructionLoadImmediate(RedstoneCode.lowBits(value)));
+						break;
+					case INT_LEFT_ROTATE_INT:
+						// (x << y) | (x >>> (-y))
+						binaryOpBuiltInSubroutine(text, Global.CIRCULAR_LEFT_SHIFT, new InstructionLoadImmediate(RedstoneCode.lowBits(value)));
+						break;
+					case INT_RIGHT_ROTATE_INT:
+						// (x >>> y) | (x << (-y))
+						binaryOpBuiltInSubroutine(text, Global.CIRCULAR_RIGHT_SHIFT, new InstructionLoadImmediate(RedstoneCode.lowBits(value)));
 						break;
 					default:
 						throw new IllegalArgumentException(String.format("Attempted to add long immediate binary op instruction of unknown type! %s %s", type, arg));
@@ -809,130 +678,91 @@ public class RedstoneRoutine {
 			}
 			else {
 				switch (type) {
-					case LOGICAL_AND:
-						text.add(new InstructionSetIsNotZero());
-						store(text, t0 = nextExtraTempRegArg(), true);
-						text.add(new InstructionLoadImmediate(value));
-						text.add(new InstructionSetIsNotZero());
-						binaryOp(text, BinaryOpType.AND, t0);
-						break;
-					case LOGICAL_OR:
-						text.add(new InstructionSetIsNotZero());
-						store(text, t0 = nextExtraTempRegArg(), true);
-						text.add(new InstructionLoadImmediate(value));
-						text.add(new InstructionSetIsNotZero());
-						binaryOp(text, BinaryOpType.OR, t0);
-						break;
-					case LOGICAL_XOR:
-						text.add(new InstructionSetIsNotZero());
-						store(text, t0 = nextExtraTempRegArg(), true);
-						text.add(new InstructionLoadImmediate(value));
-						text.add(new InstructionSetIsNotZero());
-						binaryOp(text, BinaryOpType.XOR, t0);
-						break;
-					case EQUAL_TO:
+					case BOOL_EQUAL_TO_BOOL:
+					case INT_EQUAL_TO_INT:
+					case CHAR_EQUAL_TO_CHAR:
 						text.add(new InstructionXorImmediate(value));
 						text.add(new InstructionSetIsZero());
 						break;
-					case NOT_EQUAL_TO:
+					case BOOL_NOT_EQUAL_TO_BOOL:
+					case INT_NOT_EQUAL_TO_INT:
+					case CHAR_NOT_EQUAL_TO_CHAR:
 						text.add(new InstructionXorImmediate(value));
 						text.add(new InstructionSetIsNotZero());
 						break;
-					case LESS_THAN:
+					case BOOL_LESS_THAN_BOOL:
+					case INT_LESS_THAN_INT:
+					case CHAR_LESS_THAN_CHAR:
 						text.add(new InstructionSubtractImmediate(value));
 						text.add(new InstructionSetIsLessThanZero());
 						break;
-					case LESS_OR_EQUAL:
+					case BOOL_LESS_OR_EQUAL_BOOL:
+					case INT_LESS_OR_EQUAL_INT:
+					case CHAR_LESS_OR_EQUAL_CHAR:
 						text.add(new InstructionSubtractImmediate(value));
 						text.add(new InstructionSetIsLessThanOrEqualToZero());
 						break;
-					case MORE_THAN:
+					case BOOL_MORE_THAN_BOOL:
+					case INT_MORE_THAN_INT:
+					case CHAR_MORE_THAN_CHAR:
 						text.add(new InstructionSubtractImmediate(value));
 						text.add(new InstructionSetIsMoreThanZero());
 						break;
-					case MORE_OR_EQUAL:
+					case BOOL_MORE_OR_EQUAL_BOOL:
+					case INT_MORE_OR_EQUAL_INT:
+					case CHAR_MORE_OR_EQUAL_CHAR:
 						text.add(new InstructionSubtractImmediate(value));
 						text.add(new InstructionSetIsMoreThanOrEqualToZero());
 						break;
-					case PLUS:
+					case INT_PLUS_INT:
+					case CHAR_PLUS_CHAR:
 						text.add(new InstructionAddImmediate(value));
 						break;
-					case AND:
+					case BOOL_AND_BOOL:
+					case INT_AND_INT:
+					case CHAR_AND_CHAR:
 						text.add(new InstructionAndImmediate(value));
 						break;
-					case OR:
+					case BOOL_OR_BOOL:
+					case INT_OR_INT:
+					case CHAR_OR_CHAR:
 						text.add(new InstructionOrImmediate(value));
 						break;
-					case XOR:
+					case BOOL_XOR_BOOL:
+					case INT_XOR_INT:
+					case CHAR_XOR_CHAR:
 						text.add(new InstructionXorImmediate(value));
 						break;
-					case MINUS:
+					case INT_MINUS_INT:
+					case CHAR_MINUS_CHAR:
 						text.add(new InstructionSubtractImmediate(value));
 						break;
-					case ARITHMETIC_LEFT_SHIFT:
-						text.add(new InstructionLeftShiftImmediate(value));
-						break;
-					case ARITHMETIC_RIGHT_SHIFT:
-						text.add(new InstructionRightShiftImmediate(value));
-						break;
-					case LOGICAL_RIGHT_SHIFT:
-						// (x >> y) & ~((Short.MIN_VALUE >> y) << 1)
-						if (code.routineExists(Global.LOGICAL_RIGHT_SHIFT)) {
-							binaryOpBuiltInSubroutine(text, Global.LOGICAL_RIGHT_SHIFT, new InstructionLoadImmediate(value));
-						}
-						else {
-							text.add(new InstructionRightShiftImmediate(value));
-							store(text, t0 = nextExtraTempRegArg(), true);
-							text.add(RedstoneCode.LOAD_MIN_VALUE);
-							text.add(RedstoneCode.LOAD_MIN_VALUE_SUCCEEDING);
-							text.add(new InstructionRightShiftImmediate(value));
-							text.add(new InstructionLeftShiftImmediate((short) 1));
-							text.add(new InstructionSetNot());
-							binaryOp(text, BinaryOpType.AND, t0);
-						}
-						break;
-					case CIRCULAR_LEFT_SHIFT:
-						// (x << y) | (x >>> (-y))
-						if (code.routineExists(Global.CIRCULAR_LEFT_SHIFT)) {
-							binaryOpBuiltInSubroutine(text, Global.CIRCULAR_LEFT_SHIFT, new InstructionLoadImmediate(value));
-						}
-						else {
-							store(text, t0 = nextExtraTempRegArg(), true);
-							text.add(new InstructionLoadImmediate((short) -value));
-							store(text, t1 = nextExtraTempRegArg(), true);
-							load(text, t0);
-							binaryOp(text, BinaryOpType.LOGICAL_RIGHT_SHIFT, t1);
-							store(text, t1, true);
-							load(text, t0);
-							text.add(new InstructionLeftShiftImmediate(value));
-							binaryOp(text, BinaryOpType.OR, t1);
-						}
-						break;
-					case CIRCULAR_RIGHT_SHIFT:
-						// (x >>> y) | (x << (-y))
-						if (code.routineExists(Global.CIRCULAR_RIGHT_SHIFT)) {
-							binaryOpBuiltInSubroutine(text, Global.CIRCULAR_RIGHT_SHIFT, new InstructionLoadImmediate(value));
-						}
-						else {
-							store(text, t0 = nextExtraTempRegArg(), true);
-							text.add(new InstructionLoadImmediate((short) -value));
-							store(text, t1 = nextExtraTempRegArg(), true);
-							load(text, t0);
-							binaryOp(text, BinaryOpType.ARITHMETIC_LEFT_SHIFT, t1);
-							store(text, t1, true);
-							load(text, t0);
-							binaryOp(text, BinaryOpType.LOGICAL_RIGHT_SHIFT, Helpers.immediateDataId(value));
-							binaryOp(text, BinaryOpType.OR, t1);
-						}
-						break;
-					case MULTIPLY:
+					case INT_MULTIPLY_INT:
 						text.add(new InstructionMultiplyImmediate(value));
 						break;
-					case DIVIDE:
+					case INT_DIVIDE_INT:
 						text.add(new InstructionDivideImmediate(value));
 						break;
-					case REMAINDER:
+					case INT_REMAINDER_INT:
 						text.add(new InstructionRemainderImmediate(value));
+						break;
+					case INT_LEFT_SHIFT_INT:
+						text.add(new InstructionLeftShiftImmediate(value));
+						break;
+					case INT_RIGHT_SHIFT_INT:
+						text.add(new InstructionRightShiftImmediate(value));
+						break;
+					case NAT_RIGHT_SHIFT_INT:
+						// (x >> y) & ~((Short.MIN_VALUE >> y) << 1)
+						binaryOpBuiltInSubroutine(text, Global.LOGICAL_RIGHT_SHIFT, new InstructionLoadImmediate(value));
+						break;
+					case INT_LEFT_ROTATE_INT:
+						// (x << y) | (x >>> (-y))
+						binaryOpBuiltInSubroutine(text, Global.CIRCULAR_LEFT_SHIFT, new InstructionLoadImmediate(value));
+						break;
+					case INT_RIGHT_ROTATE_INT:
+						// (x >>> y) | (x << (-y))
+						binaryOpBuiltInSubroutine(text, Global.CIRCULAR_RIGHT_SHIFT, new InstructionLoadImmediate(value));
 						break;
 					default:
 						throw new IllegalArgumentException(String.format("Attempted to add immediate binary op instruction of unknown type! %s %s", type, arg));
@@ -940,133 +770,94 @@ public class RedstoneRoutine {
 			}
 		}
 		else {
-			final RedstoneDataInfo argInfo = dataInfo(arg);
+			LowDataInfo argInfo = dataInfo(arg, 0);
 			if (isStackData(argInfo)) {
 				switch (type) {
-					case LOGICAL_AND:
-						text.add(new InstructionSetIsNotZero());
-						store(text, t0 = nextExtraTempRegArg(), true);
-						text.add(new InstructionLoadAOffset(argInfo));
-						text.add(new InstructionSetIsNotZero());
-						binaryOp(text, BinaryOpType.AND, t0);
-						break;
-					case LOGICAL_OR:
-						text.add(new InstructionSetIsNotZero());
-						store(text, t0 = nextExtraTempRegArg(), true);
-						text.add(new InstructionLoadAOffset(argInfo));
-						text.add(new InstructionSetIsNotZero());
-						binaryOp(text, BinaryOpType.OR, t0);
-						break;
-					case LOGICAL_XOR:
-						text.add(new InstructionSetIsNotZero());
-						store(text, t0 = nextExtraTempRegArg(), true);
-						text.add(new InstructionLoadAOffset(argInfo));
-						text.add(new InstructionSetIsNotZero());
-						binaryOp(text, BinaryOpType.XOR, t0);
-						break;
-					case EQUAL_TO:
+					case BOOL_EQUAL_TO_BOOL:
+					case INT_EQUAL_TO_INT:
+					case CHAR_EQUAL_TO_CHAR:
 						text.add(new InstructionXorOffset(argInfo));
 						text.add(new InstructionSetIsZero());
 						break;
-					case NOT_EQUAL_TO:
+					case BOOL_NOT_EQUAL_TO_BOOL:
+					case INT_NOT_EQUAL_TO_INT:
+					case CHAR_NOT_EQUAL_TO_CHAR:
 						text.add(new InstructionXorOffset(argInfo));
 						text.add(new InstructionSetIsNotZero());
 						break;
-					case LESS_THAN:
+					case BOOL_LESS_THAN_BOOL:
+					case INT_LESS_THAN_INT:
+					case CHAR_LESS_THAN_CHAR:
 						text.add(new InstructionSubtractOffset(argInfo));
 						text.add(new InstructionSetIsLessThanZero());
 						break;
-					case LESS_OR_EQUAL:
+					case BOOL_LESS_OR_EQUAL_BOOL:
+					case INT_LESS_OR_EQUAL_INT:
+					case CHAR_LESS_OR_EQUAL_CHAR:
 						text.add(new InstructionSubtractOffset(argInfo));
 						text.add(new InstructionSetIsLessThanOrEqualToZero());
 						break;
-					case MORE_THAN:
+					case BOOL_MORE_THAN_BOOL:
+					case INT_MORE_THAN_INT:
+					case CHAR_MORE_THAN_CHAR:
 						text.add(new InstructionSubtractOffset(argInfo));
 						text.add(new InstructionSetIsMoreThanZero());
 						break;
-					case MORE_OR_EQUAL:
+					case BOOL_MORE_OR_EQUAL_BOOL:
+					case INT_MORE_OR_EQUAL_INT:
+					case CHAR_MORE_OR_EQUAL_CHAR:
 						text.add(new InstructionSubtractOffset(argInfo));
 						text.add(new InstructionSetIsMoreThanOrEqualToZero());
 						break;
-					case PLUS:
+					case INT_PLUS_INT:
+					case CHAR_PLUS_CHAR:
 						text.add(new InstructionAddOffset(argInfo));
 						break;
-					case AND:
+					case BOOL_AND_BOOL:
+					case INT_AND_INT:
+					case CHAR_AND_CHAR:
 						text.add(new InstructionAndOffset(argInfo));
 						break;
-					case OR:
+					case BOOL_OR_BOOL:
+					case INT_OR_INT:
+					case CHAR_OR_CHAR:
 						text.add(new InstructionOrOffset(argInfo));
 						break;
-					case XOR:
+					case BOOL_XOR_BOOL:
+					case INT_XOR_INT:
+					case CHAR_XOR_CHAR:
 						text.add(new InstructionXorOffset(argInfo));
 						break;
-					case MINUS:
+					case INT_MINUS_INT:
+					case CHAR_MINUS_CHAR:
 						text.add(new InstructionSubtractOffset(argInfo));
 						break;
-					case ARITHMETIC_LEFT_SHIFT:
-						text.add(new InstructionLeftShiftOffset(argInfo));
-						break;
-					case ARITHMETIC_RIGHT_SHIFT:
-						text.add(new InstructionRightShiftOffset(argInfo));
-						break;
-					case LOGICAL_RIGHT_SHIFT:
-						// (x >> y) & ~((Short.MIN_VALUE >> y) << 1)
-						if (code.routineExists(Global.LOGICAL_RIGHT_SHIFT)) {
-							binaryOpBuiltInSubroutine(text, Global.LOGICAL_RIGHT_SHIFT, new InstructionLoadAOffset(argInfo));
-						}
-						else {
-							text.add(new InstructionRightShiftOffset(argInfo));
-							store(text, t0 = nextExtraTempRegArg(), true);
-							text.add(RedstoneCode.LOAD_MIN_VALUE);
-							text.add(RedstoneCode.LOAD_MIN_VALUE_SUCCEEDING);
-							text.add(new InstructionRightShiftOffset(argInfo));
-							text.add(new InstructionLeftShiftImmediate((short) 1));
-							text.add(new InstructionSetNot());
-							binaryOp(text, BinaryOpType.AND, t0);
-						}
-						break;
-					case CIRCULAR_LEFT_SHIFT:
-						// (x << y) | (x >>> (-y))
-						if (code.routineExists(Global.CIRCULAR_LEFT_SHIFT)) {
-							binaryOpBuiltInSubroutine(text, Global.CIRCULAR_LEFT_SHIFT, new InstructionLoadAOffset(argInfo));
-						}
-						else {
-							store(text, t0 = nextExtraTempRegArg(), true);
-							unaryOp(text, UnaryOpType.MINUS, argInfo.argId);
-							store(text, t1 = nextExtraTempRegArg(), true);
-							load(text, t0);
-							binaryOp(text, BinaryOpType.LOGICAL_RIGHT_SHIFT, t1);
-							store(text, t1, true);
-							load(text, t0);
-							text.add(new InstructionLeftShiftOffset(argInfo));
-							binaryOp(text, BinaryOpType.OR, t1);
-						}
-						break;
-					case CIRCULAR_RIGHT_SHIFT:
-						// (x >>> y) | (x << (-y))
-						if (code.routineExists(Global.CIRCULAR_RIGHT_SHIFT)) {
-							binaryOpBuiltInSubroutine(text, Global.CIRCULAR_RIGHT_SHIFT, new InstructionLoadAOffset(argInfo));
-						}
-						else {
-							store(text, t0 = nextExtraTempRegArg(), true);
-							unaryOp(text, UnaryOpType.MINUS, argInfo.argId);
-							store(text, t1 = nextExtraTempRegArg(), true);
-							load(text, t0);
-							binaryOp(text, BinaryOpType.ARITHMETIC_LEFT_SHIFT, t1);
-							store(text, t1, true);
-							load(text, t0);
-							binaryOp(text, BinaryOpType.LOGICAL_RIGHT_SHIFT, argInfo.argId);
-							binaryOp(text, BinaryOpType.OR, t1);
-						}
-						break;
-					case MULTIPLY:
+					case INT_MULTIPLY_INT:
 						text.add(new InstructionMultiplyOffset(argInfo));
 						break;
-					case DIVIDE:
+					case INT_DIVIDE_INT:
 						text.add(new InstructionDivideOffset(argInfo));
 						break;
-					case REMAINDER:
+					case INT_REMAINDER_INT:
 						text.add(new InstructionRemainderOffset(argInfo));
+						break;
+					case INT_LEFT_SHIFT_INT:
+						text.add(new InstructionLeftShiftOffset(argInfo));
+						break;
+					case INT_RIGHT_SHIFT_INT:
+						text.add(new InstructionRightShiftOffset(argInfo));
+						break;
+					case NAT_RIGHT_SHIFT_INT:
+						// (x >> y) & ~((Short.MIN_VALUE >> y) << 1)
+						binaryOpBuiltInSubroutine(text, Global.LOGICAL_RIGHT_SHIFT, new InstructionLoadAOffset(argInfo));
+						break;
+					case INT_LEFT_ROTATE_INT:
+						// (x << y) | (x >>> (-y))
+						binaryOpBuiltInSubroutine(text, Global.CIRCULAR_LEFT_SHIFT, new InstructionLoadAOffset(argInfo));
+						break;
+					case INT_RIGHT_ROTATE_INT:
+						// (x >>> y) | (x << (-y))
+						binaryOpBuiltInSubroutine(text, Global.CIRCULAR_RIGHT_SHIFT, new InstructionLoadAOffset(argInfo));
 						break;
 					default:
 						throw new IllegalArgumentException(String.format("Attempted to add address offset binary op instruction of unknown type! %s %s", type, arg));
@@ -1074,130 +865,91 @@ public class RedstoneRoutine {
 			}
 			else {
 				switch (type) {
-					case LOGICAL_AND:
-						text.add(new InstructionSetIsNotZero());
-						store(text, t0 = nextExtraTempRegArg(), true);
-						text.add(new InstructionLoadA(argInfo));
-						text.add(new InstructionSetIsNotZero());
-						binaryOp(text, BinaryOpType.AND, t0);
-						break;
-					case LOGICAL_OR:
-						text.add(new InstructionSetIsNotZero());
-						store(text, t0 = nextExtraTempRegArg(), true);
-						text.add(new InstructionLoadA(argInfo));
-						text.add(new InstructionSetIsNotZero());
-						binaryOp(text, BinaryOpType.OR, t0);
-						break;
-					case LOGICAL_XOR:
-						text.add(new InstructionSetIsNotZero());
-						store(text, t0 = nextExtraTempRegArg(), true);
-						text.add(new InstructionLoadA(argInfo));
-						text.add(new InstructionSetIsNotZero());
-						binaryOp(text, BinaryOpType.XOR, t0);
-						break;
-					case EQUAL_TO:
+					case BOOL_EQUAL_TO_BOOL:
+					case INT_EQUAL_TO_INT:
+					case CHAR_EQUAL_TO_CHAR:
 						text.add(new InstructionXor(argInfo));
 						text.add(new InstructionSetIsZero());
 						break;
-					case NOT_EQUAL_TO:
+					case BOOL_NOT_EQUAL_TO_BOOL:
+					case INT_NOT_EQUAL_TO_INT:
+					case CHAR_NOT_EQUAL_TO_CHAR:
 						text.add(new InstructionXor(argInfo));
 						text.add(new InstructionSetIsNotZero());
 						break;
-					case LESS_THAN:
+					case BOOL_LESS_THAN_BOOL:
+					case INT_LESS_THAN_INT:
+					case CHAR_LESS_THAN_CHAR:
 						text.add(new InstructionSubtract(argInfo));
 						text.add(new InstructionSetIsLessThanZero());
 						break;
-					case LESS_OR_EQUAL:
+					case BOOL_LESS_OR_EQUAL_BOOL:
+					case INT_LESS_OR_EQUAL_INT:
+					case CHAR_LESS_OR_EQUAL_CHAR:
 						text.add(new InstructionSubtract(argInfo));
 						text.add(new InstructionSetIsLessThanOrEqualToZero());
 						break;
-					case MORE_THAN:
+					case BOOL_MORE_THAN_BOOL:
+					case INT_MORE_THAN_INT:
+					case CHAR_MORE_THAN_CHAR:
 						text.add(new InstructionSubtract(argInfo));
 						text.add(new InstructionSetIsMoreThanZero());
 						break;
-					case MORE_OR_EQUAL:
+					case BOOL_MORE_OR_EQUAL_BOOL:
+					case INT_MORE_OR_EQUAL_INT:
+					case CHAR_MORE_OR_EQUAL_CHAR:
 						text.add(new InstructionSubtract(argInfo));
 						text.add(new InstructionSetIsMoreThanOrEqualToZero());
 						break;
-					case PLUS:
+					case INT_PLUS_INT:
+					case CHAR_PLUS_CHAR:
 						text.add(new InstructionAdd(argInfo));
 						break;
-					case AND:
+					case BOOL_AND_BOOL:
+					case INT_AND_INT:
+					case CHAR_AND_CHAR:
 						text.add(new InstructionAnd(argInfo));
 						break;
-					case OR:
+					case BOOL_OR_BOOL:
+					case INT_OR_INT:
+					case CHAR_OR_CHAR:
 						text.add(new InstructionOr(argInfo));
 						break;
-					case XOR:
+					case BOOL_XOR_BOOL:
+					case INT_XOR_INT:
+					case CHAR_XOR_CHAR:
 						text.add(new InstructionXor(argInfo));
 						break;
-					case MINUS:
+					case INT_MINUS_INT:
+					case CHAR_MINUS_CHAR:
 						text.add(new InstructionSubtract(argInfo));
 						break;
-					case ARITHMETIC_LEFT_SHIFT:
-						text.add(new InstructionLeftShift(argInfo));
-						break;
-					case ARITHMETIC_RIGHT_SHIFT:
-						text.add(new InstructionRightShift(argInfo));
-						break;
-					case LOGICAL_RIGHT_SHIFT:
-						// (x >> y) & ~((Short.MIN_VALUE >> y) << 1)
-						if (code.routineExists(Global.LOGICAL_RIGHT_SHIFT)) {
-							binaryOpBuiltInSubroutine(text, Global.LOGICAL_RIGHT_SHIFT, new InstructionLoadA(argInfo));
-						}
-						else {
-							text.add(new InstructionRightShift(argInfo));
-							store(text, t0 = nextExtraTempRegArg(), true);
-							text.add(RedstoneCode.LOAD_MIN_VALUE);
-							text.add(RedstoneCode.LOAD_MIN_VALUE_SUCCEEDING);
-							text.add(new InstructionRightShift(argInfo));
-							text.add(new InstructionLeftShiftImmediate((short) 1));
-							text.add(new InstructionSetNot());
-							binaryOp(text, BinaryOpType.AND, t0);
-						}
-						break;
-					case CIRCULAR_LEFT_SHIFT:
-						// (x << y) | (x >>> (-y))
-						if (code.routineExists(Global.CIRCULAR_LEFT_SHIFT)) {
-							binaryOpBuiltInSubroutine(text, Global.CIRCULAR_LEFT_SHIFT, new InstructionLoadA(argInfo));
-						}
-						else {
-							store(text, t0 = nextExtraTempRegArg(), true);
-							unaryOp(text, UnaryOpType.MINUS, argInfo.argId);
-							store(text, t1 = nextExtraTempRegArg(), true);
-							load(text, t0);
-							binaryOp(text, BinaryOpType.LOGICAL_RIGHT_SHIFT, t1);
-							store(text, t1, true);
-							load(text, t0);
-							text.add(new InstructionLeftShift(argInfo));
-							binaryOp(text, BinaryOpType.OR, t1);
-						}
-						break;
-					case CIRCULAR_RIGHT_SHIFT:
-						// (x >>> y) | (x << (-y))
-						if (code.routineExists(Global.CIRCULAR_RIGHT_SHIFT)) {
-							binaryOpBuiltInSubroutine(text, Global.CIRCULAR_RIGHT_SHIFT, new InstructionLoadA(argInfo));
-						}
-						else {
-							store(text, t0 = nextExtraTempRegArg(), true);
-							unaryOp(text, UnaryOpType.MINUS, argInfo.argId);
-							store(text, t1 = nextExtraTempRegArg(), true);
-							load(text, t0);
-							binaryOp(text, BinaryOpType.ARITHMETIC_LEFT_SHIFT, t1);
-							store(text, t1, true);
-							load(text, t0);
-							binaryOp(text, BinaryOpType.LOGICAL_RIGHT_SHIFT, argInfo.argId);
-							binaryOp(text, BinaryOpType.OR, t1);
-						}
-						break;
-					case MULTIPLY:
+					case INT_MULTIPLY_INT:
 						text.add(new InstructionMultiply(argInfo));
 						break;
-					case DIVIDE:
+					case INT_DIVIDE_INT:
 						text.add(new InstructionDivide(argInfo));
 						break;
-					case REMAINDER:
+					case INT_REMAINDER_INT:
 						text.add(new InstructionRemainder(argInfo));
+						break;
+					case INT_LEFT_SHIFT_INT:
+						text.add(new InstructionLeftShift(argInfo));
+						break;
+					case INT_RIGHT_SHIFT_INT:
+						text.add(new InstructionRightShift(argInfo));
+						break;
+					case NAT_RIGHT_SHIFT_INT:
+						// (x >> y) & ~((Short.MIN_VALUE >> y) << 1)
+						binaryOpBuiltInSubroutine(text, Global.LOGICAL_RIGHT_SHIFT, new InstructionLoadA(argInfo));
+						break;
+					case INT_LEFT_ROTATE_INT:
+						// (x << y) | (x >>> (-y))
+						binaryOpBuiltInSubroutine(text, Global.CIRCULAR_LEFT_SHIFT, new InstructionLoadA(argInfo));
+						break;
+					case INT_RIGHT_ROTATE_INT:
+						// (x >>> y) | (x << (-y))
+						binaryOpBuiltInSubroutine(text, Global.CIRCULAR_RIGHT_SHIFT, new InstructionLoadA(argInfo));
 						break;
 					default:
 						throw new IllegalArgumentException(String.format("Attempted to add address binary op instruction of unknown type! %s %s", type, arg));
@@ -1206,19 +958,18 @@ public class RedstoneRoutine {
 		}
 	}
 	
-	protected void binaryOpBuiltInSubroutine(List<Instruction> text, String name, Instruction... load) {
-		RedstoneRoutine subroutine = code.getRoutine(name);
-		subroutine.store(text, subroutine.params[0].dataId(), false);
-		for (Instruction li : load) {
-			text.add(li);
-		}
-		subroutine.store(text, subroutine.params[1].dataId(), false);
-		text.add(new InstructionLoadCallAddressImmediate(name));
+	private void binaryOpBuiltInSubroutine(List<Instruction> text, String name, Instruction loadArg) {
+		Function builtInFunction = Main.rootScope.getFunction(null, name, false);
+		RedstoneRoutine subroutine = code.getRoutine(builtInFunction);
+		subroutine.store(text, subroutine.params.get(0).dataId());
+		text.add(loadArg);
+		subroutine.store(text, subroutine.params.get(1).dataId());
+		text.add(new InstructionLoadCallAddressImmediate(builtInFunction));
 		text.add(new InstructionCallSubroutine(false));
 		onRequiresNesting();
 	}
 	
-	protected void conditionalJump(List<Instruction> text, int section, boolean jumpCondition) {
+	private void conditionalJump(List<Instruction> text, int section, boolean jumpCondition) {
 		if (jumpCondition) {
 			text.add(new InstructionConditionalJumpIfNotZero(section));
 		}
@@ -1227,67 +978,43 @@ public class RedstoneRoutine {
 		}
 	}
 	
-	protected void jump(List<Instruction> text, int section) {
+	private void jump(List<Instruction> text, int section) {
 		text.add(new InstructionJump(section));
 	}
 	
-	protected void dereference(List<Instruction> text, int dereferenceLevel, DataId arg) {
-		if (Helpers.isImmediateValue(arg.name)) {
-			final short value = Helpers.parseImmediateValue(arg.name).shortValue();
-			if (RedstoneCode.isLongImmediate(value)) {
-				text.add(new InstructionLoadImmediate(RedstoneCode.lowBits(value)));
-			}
-			else {
-				text.add(new InstructionLoadImmediate(value));
-			}
-		}
-		else {
-			final RedstoneDataInfo argInfo = dataInfo(arg);
-			if (isStackData(argInfo)) {
-				text.add(new InstructionLoadAOffset(argInfo));
-			}
-			else {
-				text.add(new InstructionLoadA(argInfo));
-			}
-		}
-		
-		for (int i = 0; i < dereferenceLevel; ++i) {
-			text.add(new InstructionDereferenceA());
-		}
-	}
-	
-	protected void unaryOp(List<Instruction> text, UnaryOpType type, DataId arg) {
-		if (Helpers.isImmediateValue(arg.name)) {
-			final short value = Helpers.parseImmediateValue(arg.name).shortValue();
+	private void unaryOp(List<Instruction> text, UnaryActionType type, DataId arg) {
+		if (arg instanceof ValueDataId) {
+			short value = RedstoneCode.raw(((ValueDataId) arg).value).get(0);
 			Instruction li;
 			if (RedstoneCode.isLongImmediate(value)) {
 				switch (type) {
-					case PLUS:
-						text.add(li = new InstructionLoadLongImmediate(value));
-						text.add(li.succeedingData());
-						break;
-					case MINUS:
-						if (RedstoneCode.isLongImmediate((short) (-value))) {
-							text.add(li = new InstructionLoadLongImmediate((short) (-value)));
+					case MINUS_INT:
+						short minus = (short) -value;
+						if (RedstoneCode.isLongImmediate(minus)) {
+							text.add(li = new InstructionLoadLongImmediate(minus));
 							text.add(li.succeedingData());
 						}
 						else {
-							text.add(new InstructionLoadImmediate((short) (-value)));
+							text.add(new InstructionLoadImmediate(minus));
 						}
 						break;
-					case COMPLEMENT:
-						text.add(li = new InstructionNotLongImmediate(value));
-						text.add(li.succeedingData());
-						break;
-					case TO_BOOL:
-						text.add(li = new InstructionLoadLongImmediate(value));
-						text.add(li.succeedingData());
-						text.add(new InstructionSetIsNotZero());
-						break;
-					case NOT:
+					case NOT_BOOL:
 						text.add(li = new InstructionLoadLongImmediate(value));
 						text.add(li.succeedingData());
 						text.add(new InstructionSetIsZero());
+						break;
+					case NOT_INT:
+						short not = (short) ~value;
+						if (RedstoneCode.isLongImmediate(not)) {
+							text.add(li = new InstructionLoadLongImmediate(not));
+							text.add(li.succeedingData());
+						}
+						else {
+							text.add(new InstructionLoadImmediate(not));
+						}
+						break;
+					case NOT_CHAR:
+						text.add(new InstructionLoadImmediate(RedstoneCode.lowBits((short) ~value)));
 						break;
 					default:
 						throw new IllegalArgumentException(String.format("Attempted to add long immediate unary op instruction of unknown type! %s %s", type, arg));
@@ -1295,28 +1022,25 @@ public class RedstoneRoutine {
 			}
 			else {
 				switch (type) {
-					case PLUS:
-						text.add(new InstructionLoadImmediate(value));
-						break;
-					case MINUS:
-						if (RedstoneCode.isLongImmediate((short) (-value))) {
-							text.add(li = new InstructionLoadLongImmediate((short) (-value)));
+					case MINUS_INT:
+						short minus = (short) -value;
+						if (RedstoneCode.isLongImmediate(minus)) {
+							text.add(li = new InstructionLoadLongImmediate(minus));
 							text.add(li.succeedingData());
 						}
 						else {
-							text.add(new InstructionLoadImmediate((short) (-value)));
+							text.add(new InstructionLoadImmediate(minus));
 						}
 						break;
-					case COMPLEMENT:
-						text.add(new InstructionNotImmediate(value));
-						break;
-					case TO_BOOL:
-						text.add(new InstructionLoadImmediate(value));
-						text.add(new InstructionSetIsNotZero());
-						break;
-					case NOT:
+					case NOT_BOOL:
 						text.add(new InstructionLoadImmediate(value));
 						text.add(new InstructionSetIsZero());
+						break;
+					case NOT_INT:
+						text.add(new InstructionNotImmediate(value));
+						break;
+					case NOT_CHAR:
+						text.add(new InstructionLoadImmediate(RedstoneCode.lowBits((short) ~value)));
 						break;
 					default:
 						throw new IllegalArgumentException(String.format("Attempted to add immediate unary op instruction of unknown type! %s %s", type, arg));
@@ -1324,27 +1048,25 @@ public class RedstoneRoutine {
 			}
 		}
 		else {
-			final RedstoneDataInfo argInfo = dataInfo(arg);
+			LowDataInfo argInfo = dataInfo(arg, 0);
 			if (isStackData(argInfo)) {
 				switch (type) {
-					case PLUS:
-						text.add(new InstructionLoadAOffset(argInfo));
-						break;
-					case MINUS:
+					case MINUS_INT:
 						text.add(new InstructionLoadAOffset(argInfo));
 						text.add(new InstructionSetNegative());
 						break;
-					case COMPLEMENT:
+					case NOT_BOOL:
+						text.add(new InstructionLoadAOffset(argInfo));
+						text.add(new InstructionSetIsZero());
+						break;
+					case NOT_INT:
 						text.add(new InstructionLoadAOffset(argInfo));
 						text.add(new InstructionSetNot());
 						break;
-					case TO_BOOL:
+					case NOT_CHAR:
 						text.add(new InstructionLoadAOffset(argInfo));
-						text.add(new InstructionSetIsNotZero());
-						break;
-					case NOT:
-						text.add(new InstructionLoadAOffset(argInfo));
-						text.add(new InstructionSetIsZero());
+						text.add(new InstructionSetNot());
+						text.add(new InstructionAndImmediate((short) 0x7F));
 						break;
 					default:
 						throw new IllegalArgumentException(String.format("Attempted to add address offset unary op instruction of unknown type! %s %s", type, arg));
@@ -1352,57 +1074,27 @@ public class RedstoneRoutine {
 			}
 			else {
 				switch (type) {
-					case PLUS:
-						text.add(new InstructionLoadA(argInfo));
-						break;
-					case MINUS:
+					case MINUS_INT:
 						text.add(new InstructionLoadA(argInfo));
 						text.add(new InstructionSetNegative());
 						break;
-					case COMPLEMENT:
+					case NOT_BOOL:
+						text.add(new InstructionLoadA(argInfo));
+						text.add(new InstructionSetIsZero());
+						break;
+					case NOT_INT:
 						text.add(new InstructionLoadA(argInfo));
 						text.add(new InstructionSetNot());
 						break;
-					case TO_BOOL:
+					case NOT_CHAR:
 						text.add(new InstructionLoadA(argInfo));
-						text.add(new InstructionSetIsNotZero());
-						break;
-					case NOT:
-						text.add(new InstructionLoadA(argInfo));
-						text.add(new InstructionSetIsZero());
+						text.add(new InstructionSetNot());
+						text.add(new InstructionAndImmediate((short) 0x7F));
 						break;
 					default:
 						throw new IllegalArgumentException(String.format("Attempted to add address unary op instruction of unknown type! %s %s", type, arg));
 				}
 			}
-		}
-	}
-	
-	protected void builtInFunctionCall(List<Instruction> text, BuiltInCallAction action) {
-		String functionName = action.function.name;
-		if (functionName.equals(Global.OUTCHAR)) {
-			load(text, action.args.get(0));
-			text.add(new InstructionAndImmediate((short) 0x7F));
-			text.add(new InstructionOutput());
-		}
-		else if (functionName.equals(Global.OUTINT)) {
-			load(text, action.args.get(0));
-			text.add(new InstructionOutput());
-		}
-		else if (functionName.equals(Global.ARGV_FUNCTION)) {
-			DataId arg = action.args.get(0);
-			if (Helpers.isImmediateValue(arg.name)) {
-				load(text, code.generator.rootParamDataId(Main.program.rootRoutine, Helpers.parseImmediateValue(arg.name).intValue()));
-			}
-			else {
-				load(text, arg);
-				text.add(new InstructionSetNot());
-				text.add(new InstructionDereferenceA());
-			}
-			store(text, action.target, true);
-		}
-		else {
-			throw new IllegalArgumentException(String.format("Encountered unsupported built-in function call action \"%s\"!", action));
 		}
 	}
 }

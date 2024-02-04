@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import drlc.Helpers.Pair;
+import drlc.low.LowDataInfo;
 import drlc.low.drc1.instruction.*;
 import drlc.low.drc1.instruction.address.*;
 import drlc.low.drc1.instruction.immediate.*;
@@ -47,9 +48,9 @@ public class RedstoneOptimization {
 	
 	public static boolean removeDeadInstructions(RedstoneRoutine routine) {
 		boolean flag = false;
-		final Set<Short> possibleDeadSections = new HashSet<>(), requiredSections = new HashSet<>();
-		for (Entry<Short, List<Instruction>> entry : routine.textSectionMap.entrySet()) {
-			List<Instruction> section = entry.getValue(), previous = routine.textSectionMap.get((short) (entry.getKey() - 1));
+		Set<Integer> possibleDeadSections = new HashSet<>(), requiredSections = new HashSet<>();
+		for (Entry<Integer, List<Instruction>> entry : routine.textSectionMap.entrySet()) {
+			List<Instruction> section = entry.getValue(), previous = routine.textSectionMap.get(entry.getKey() - 1);
 			if (previous != null && !previous.isEmpty() && !section.isEmpty()) {
 				Instruction previousInstruction = previous.get(previous.size() - 1);
 				if (previousInstruction instanceof InstructionJump) {
@@ -71,7 +72,7 @@ public class RedstoneOptimization {
 			}
 		}
 		
-		for (short s : possibleDeadSections) {
+		for (int s : possibleDeadSections) {
 			if (!requiredSections.contains(s)) {
 				flag = true;
 				List<Instruction> section = routine.textSectionMap.get(s);
@@ -123,7 +124,7 @@ public class RedstoneOptimization {
 		for (List<Instruction> section : routine.textSectionMap.values()) {
 			Instruction removableLoad = null;
 			Short loadedImmediate = null;
-			final Set<RedstoneDataInfo> loadedData = new HashSet<>();
+			Set<LowDataInfo> loadedData = new HashSet<>();
 			for (int i = 0; i < section.size(); ++i) {
 				Instruction instruction = section.get(i);
 				if (instruction.isCurrentRegisterValueModified()) {
@@ -178,24 +179,24 @@ public class RedstoneOptimization {
 		return flag;
 	}
 	
-	private static class InstructionSectionPair extends Pair<Instruction, Short> {
+	private static class InstructionSectionPair extends Pair<Instruction, Integer> {
 		
-		public InstructionSectionPair(Instruction instruction, short section) {
+		public InstructionSectionPair(Instruction instruction, int section) {
 			super(instruction, section);
 		}
 	}
 	
 	public static boolean removeUnnecessaryStores(RedstoneRoutine routine) {
 		boolean flag = false;
-		Map<RedstoneDataInfo, InstructionSectionPair> removableStoreMap = new HashMap<>();
-		Set<RedstoneDataInfo> requiredStoreData = new HashSet<>();
-		for (Entry<Short, List<Instruction>> entry : routine.textSectionMap.entrySet()) {
+		Map<LowDataInfo, InstructionSectionPair> removableStoreMap = new HashMap<>();
+		Set<LowDataInfo> requiredStoreData = new HashSet<>();
+		for (Entry<Integer, List<Instruction>> entry : routine.textSectionMap.entrySet()) {
 			List<Instruction> section = entry.getValue();
 			for (int i = 0; i < section.size(); ++i) {
 				Instruction instruction = section.get(i);
 				if (instruction instanceof IInstructionStoreAddress) {
 					IInstructionStoreAddress store = (IInstructionStoreAddress) instruction;
-					RedstoneDataInfo data = store.getStoredData();
+					LowDataInfo data = store.getStoredData();
 					if (data.isStackData() && !requiredStoreData.contains(data)) {
 						removableStoreMap.put(data, new InstructionSectionPair(instruction, entry.getKey()));
 					}
@@ -215,11 +216,11 @@ public class RedstoneOptimization {
 			replaceWithNoOp(routine.textSectionMap.get(removableStore.right), removableStore.left);
 		}
 		
-		for (Entry<Short, List<Instruction>> entry : routine.textSectionMap.entrySet()) {
+		for (Entry<Integer, List<Instruction>> entry : routine.textSectionMap.entrySet()) {
 			List<Instruction> section = entry.getValue();
 			IInstructionStoreAddress removableStore = null;
 			int removableStoreIndex = 0;
-			final Set<RedstoneDataInfo> loadedData = new HashSet<>();
+			Set<LowDataInfo> loadedData = new HashSet<>();
 			for (int i = 0; i < section.size(); ++i) {
 				Instruction instruction = section.get(i);
 				if (instruction.isCurrentRegisterValueModified()) {
@@ -266,7 +267,7 @@ public class RedstoneOptimization {
 			
 			if (!flag && removableStore != null && routine.isStackRoutine() && removableStore.getStoredData().isStackData()) {
 				Boolean necessaryRoutineEndStore = null;
-				short endSection = routine.getFinalTextSectionKey();
+				int endSection = routine.getFinalTextSectionKey();
 				for (int i = 0; i < section.size(); ++i) {
 					Instruction instruction = section.get(i);
 					if (necessaryRoutineEndStore == null) {
@@ -303,25 +304,25 @@ public class RedstoneOptimization {
 		public boolean used = false, stored = false;
 	}
 	
-	private static class SectionIndexPair extends Pair<Short, Integer> {
+	private static class SectionIndexPair extends Pair<Integer, Integer> {
 		
-		public SectionIndexPair(short section, int index) {
+		public SectionIndexPair(int section, int index) {
 			super(section, index);
 		}
 	}
 	
 	public static boolean removeUnusedTemporaryData(RedstoneRoutine routine) {
 		boolean flag = false;
-		final Map<RedstoneDataInfo, LoadStoreInfo> loadStoreMap = new HashMap<>();
-		final Map<RedstoneDataInfo, Set<SectionIndexPair>> sectionIndexMap = new HashMap<>();
-		for (Entry<Short, List<Instruction>> entry : routine.textSectionMap.entrySet()) {
+		Map<LowDataInfo, LoadStoreInfo> loadStoreMap = new HashMap<>();
+		Map<LowDataInfo, Set<SectionIndexPair>> sectionIndexMap = new HashMap<>();
+		for (Entry<Integer, List<Instruction>> entry : routine.textSectionMap.entrySet()) {
 			List<Instruction> section = entry.getValue();
 			for (int i = 0; i < section.size(); ++i) {
 				Instruction instruction = section.get(i);
 				if (instruction instanceof IInstructionAddress) {
 					IInstructionAddress isa = (IInstructionAddress) instruction;
-					RedstoneDataInfo info = isa.getDataInfo();
-					if (info.type == RedstoneDataType.TEMP) {
+					LowDataInfo info = isa.getDataInfo();
+					if (info.isTempData()) {
 						if (!loadStoreMap.containsKey(info)) {
 							loadStoreMap.put(info, new LoadStoreInfo());
 						}
@@ -337,8 +338,8 @@ public class RedstoneOptimization {
 			}
 		}
 		
-		Set<Short> sectionSet = new HashSet<>();
-		for (Entry<RedstoneDataInfo, LoadStoreInfo> entry : loadStoreMap.entrySet()) {
+		Set<Integer> sectionSet = new HashSet<>();
+		for (Entry<LowDataInfo, LoadStoreInfo> entry : loadStoreMap.entrySet()) {
 			if (!entry.getValue().used) {
 				Set<SectionIndexPair> set = sectionIndexMap.get(entry.getKey());
 				for (SectionIndexPair pair : set) {
@@ -357,7 +358,7 @@ public class RedstoneOptimization {
 	
 	public static boolean removeUnnecessaryJumps(RedstoneRoutine routine) {
 		boolean flag = false;
-		for (Entry<Short, List<Instruction>> entry : routine.textSectionMap.entrySet()) {
+		for (Entry<Integer, List<Instruction>> entry : routine.textSectionMap.entrySet()) {
 			List<Instruction> section = entry.getValue();
 			for (int i = 0; i < section.size(); ++i) {
 				Instruction instruction = section.get(i);
@@ -395,7 +396,7 @@ public class RedstoneOptimization {
 	/** Ignores code sectioning! */
 	public static boolean compressSuccessiveInstructions(RedstoneRoutine routine) {
 		boolean flag = false;
-		for (Entry<Short, List<Instruction>> entry : routine.textSectionMap.entrySet()) {
+		for (Entry<Integer, List<Instruction>> entry : routine.textSectionMap.entrySet()) {
 			for (int i = 0; i < entry.getValue().size(); ++i) {
 				flag |= compressWithNextInstruction(routine.textSectionMap, entry.getKey(), i, false);
 			}
@@ -404,8 +405,8 @@ public class RedstoneOptimization {
 	}
 	
 	/** Ignores code sectioning! */
-	public static boolean compressWithNextInstruction(Map<Short, List<Instruction>> sectionMap, short s, int i, boolean ignoreSections) {
-		if (ignoreSections && i == sectionMap.get(s).size() - 1 && s < sectionMap.size() - 1 && !sectionMap.get((short) (s + 1)).isEmpty()) {
+	public static boolean compressWithNextInstruction(Map<Integer, List<Instruction>> sectionMap, int s, int i, boolean ignoreSections) {
+		if (ignoreSections && i == sectionMap.get(s).size() - 1 && s < sectionMap.size() - 1 && !sectionMap.get(s + 1).isEmpty()) {
 			if (compressWithNextInstructionInternal(sectionMap, s, i, (short) (s + 1), 0)) {
 				return true;
 			}
@@ -419,7 +420,7 @@ public class RedstoneOptimization {
 	}
 	
 	/** Ignores code sectioning! */
-	private static boolean compressWithNextInstructionInternal(Map<Short, List<Instruction>> sectionMap, short s, int i, short t, int j) {
+	private static boolean compressWithNextInstructionInternal(Map<Integer, List<Instruction>> sectionMap, int s, int i, int t, int j) {
 		Instruction replacement = sectionMap.get(s).get(i).getCompressedWithNextInstruction(sectionMap.get(t).get(j), s == t);
 		if (replacement != null) {
 			sectionMap.get(s).set(i, replacement);

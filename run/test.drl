@@ -13,7 +13,7 @@ fn main() {
 	}
 	
 	while f > 0 {
-		outint(f);
+		printInt(f);
 		update();
 	}
 }
@@ -39,7 +39,7 @@ fn main() {
 	}
 	
 	while f > 0 {
-		outint(f);
+		printInt(f);
 		update();
 	}
 }
@@ -60,7 +60,7 @@ fn main() {
 	}
 	
 	while f > 0 {
-		outint(f);
+		printInt(f);
 		update();
 	}
 }
@@ -86,7 +86,7 @@ fn main() {
 	}
 	
 	while f > 0 {
-		outint(f);
+		printInt(f);
 		update();
 	}
 }
@@ -128,7 +128,7 @@ fn main() {
 		}
 		
 		if i != FAIL {
-			outint(n);
+			printInt(n);
 		}
 	}
 }
@@ -142,7 +142,7 @@ fn main () {
 	let y = 12 + 8 + 2 * x;
 	let z = x * y - 6 + 10 / 5;
 	
-	outint(z);
+	printInt(z);
 }
 */
 
@@ -154,7 +154,7 @@ let str = ['H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd', '!', '\n'];
 fn main() {
 	let mut i = 0;
 	while i < 13 {
-		outchar(str[i]);
+		printChar(str[i]);
 		i += 1;
 	}
 }
@@ -169,36 +169,36 @@ fn main() {
 	let c = 2;
 	
 	if a == 0 {
-		outint(1);
+		printInt(1);
 	}
 	else unless b == 0 {
-		outint(2);
+		printInt(2);
 	}
 	
 	if c == 0 {
-		outint(3);
+		printInt(3);
 	}
 	else {
-		outint(4);
+		printInt(4);
 	}
 	
 	unless a == 1 {
-		outint(5);
+		printInt(5);
 	}
 	else if b == 1 {
-		outint(6);
+		printInt(6);
 	}
 	else {
-		outint(7);
+		printInt(7);
 	}
 	
 	outer: loop {
 		if c == 1 {
-			outint(8);
+			printInt(8);
 		}
 		else {
 			inner: do {
-				outint(9);
+				printInt(9);
 				break outer;
 			}
 			until c == 2;
@@ -241,21 +241,21 @@ fn update2(x: &mut &mut Int, y: &mut &mut &mut &mut Int, z: &mut &mut &mut &mut 
 fn main() {
 	update(&mut a, &mut b, &mut c);
 	
-	//outint(&a);
-	outint(a);
-	//outint(&b); outint(b);
-	outint(*b);
-	//outint(&c); outint(c); outint(*c);
-	outint(**c);
+	//printInt(&a);
+	printInt(a);
+	//printInt(&b); printInt(b);
+	printInt(*b);
+	//printInt(&c); printInt(c); printInt(*c);
+	printInt(**c);
 	
 	update2(&mut d, &mut e, &mut f);
 	
-	//outint(&d); outint(d);
-	outint(*d);
-	//outint(&e); outint(e); outint(*e); outint(**e);
-	outint(***e);
-	//outint(&f); outint(f); outint(*f); outint(**f); outint(***f); outint(****f);
-	outint(*****f);
+	//printInt(&d); printInt(d);
+	printInt(*d);
+	//printInt(&e); printInt(e); printInt(*e); printInt(**e);
+	printInt(***e);
+	//printInt(&f); printInt(f); printInt(*f); printInt(**f); printInt(***f); printInt(****f);
+	printInt(*****f);
 }
 */
 
@@ -286,14 +286,14 @@ fn ptr3(modify: Bool) -> &mut &mut &mut Int {
 }
 
 fn main() {
-	*ptr1(true) = ***a + 50; outint(*ptr1(false));
-	*ptr1(true) <<= 1; outint(*ptr1(false));
+	*ptr1(true) = ***a + 50; printInt(*ptr1(false));
+	*ptr1(true) <<= 1; printInt(*ptr1(false));
 	
-	**ptr2(true) = ***a + 100; outint(**ptr2(false));
-	**ptr2(true) >>= 2; outint(**ptr2(false));
+	**ptr2(true) = ***a + 100; printInt(**ptr2(false));
+	**ptr2(true) >>= 2; printInt(**ptr2(false));
 	
-	***ptr3(true) = ***a + 150; outint(***ptr3(false));
-	***ptr3(true) /= 3; outint(***ptr3(false));
+	***ptr3(true) = ***a + 150; printInt(***ptr3(false));
+	***ptr3(true) /= 3; printInt(***ptr3(false));
 }
 */
 
@@ -322,12 +322,12 @@ fn main() {
 	let a_rotr = l >>> 4;
 	let b_rotr = r >>> 4;
 	
-	outint(a); outint(b);
-	outint(a_sal); outint(b_sal);
-	outint(a_sar); outint(b_sar);
-	outint(a_shr); outint(b_shr);
-	outint(a_rotl); outint(b_rotl);
-	outint(a_rotr); outint(b_rotr);
+	printInt(a); printInt(b);
+	printInt(a_sal); printInt(b_sal);
+	printInt(a_sar); printInt(b_sar);
+	printInt(a_shr); printInt(b_shr);
+	printInt(a_rotl); printInt(b_rotl);
+	printInt(a_rotr); printInt(b_rotr);
 }
 */
 
@@ -348,7 +348,7 @@ fn main() {
 	
 	let mut s = false;
 	
-	print = outbool;
+	print = printBool;
 	do_binary_op(&mut s, *choose_ptr(false, &i1, &i2), *choose_ptr(true, &i1, &i2), binary_op);
 	print(s);
 	
@@ -425,7 +425,7 @@ fn main () {
 
 /*
 fn main() {
-	outint((1, 2, 3).sum());
+	printInt((1, 2, 3).sum());
 	
 	fn sum(ptr: &PosPtr) -> Int {
 		let p = *ptr;
@@ -438,6 +438,7 @@ alias PosPtr = &(Int, Int, Int);
 
 // TESTING STRUCTS
 
+/*
 struct Thing {
 	item: Chars,
 	next: &mut Thing,
@@ -446,21 +447,14 @@ struct Thing {
 alias Node = &mut Thing;
 alias Tracer = &mut Node;
 
-let mut arr = [Thing { "", null }; 8];
-let mut i = 0N;
-
-fn compare(x: Chars, y: Chars) -> Int {
-	let px = x.ptr;
-	let py = y.ptr;
-	
-	let lim = x.len < y.len ? x.len : y.len;
-	
+fn compareChars(x: Chars, y: Chars) -> Int {
 	let mut i = 0N;
+	let lim = x.len < y.len ? x.len : y.len;
 	while i < lim {
-		let cx = px[i];
-		let cy = py[i];
+		let cx = x.ptr[i];
+		let cy = y.ptr[i];
 		if cx != cy {
-			return (cx as Int) - (cy as Int);
+			return (cx - cy) as Int;
 		}
 		i += 1;
 	}
@@ -468,17 +462,18 @@ fn compare(x: Chars, y: Chars) -> Int {
 	return (x.len - y.len) as Int;
 }
 
-fn outchars(chars: Chars) {
-	let p = chars.ptr;
-	
+fn printChars(chars: Chars) {
 	let mut i = 0N;
 	while i < chars.len {
-		outchar(p[i]);
+		printChar(chars.ptr[i]);
 		i += 1;
 	}
 }
 
 fn newElement(item: Chars) -> Node {
+	let static mut arr = [Thing { "", null }; 8];
+	let static mut i = 0N;
+	
 	let node = &mut arr[i];
 	*node = Thing { item, null };
 	i += 1;
@@ -490,7 +485,7 @@ fn deleteElement(node: Node) {
 }
 
 fn insertThing(mut tracer: Tracer, mut elem: Node) {
-	while *tracer != null && compare(tracer.item, elem.item) < 1 {
+	while *tracer != null && compareChars(tracer.item, elem.item) < 1 {
 		tracer = &mut tracer.next;
 	}
 	
@@ -499,7 +494,7 @@ fn insertThing(mut tracer: Tracer, mut elem: Node) {
 }
 
 fn removeThing(mut tracer: Tracer, item: Chars) {
-	while *tracer != null && compare(tracer.item, item) != 0 {
+	while *tracer != null && compareChars(tracer.item, item) != 0 {
 		tracer = &mut tracer.next;
 	}
 	
@@ -512,8 +507,8 @@ fn removeThing(mut tracer: Tracer, item: Chars) {
 
 fn printList(mut node: Node) {
 	while node != null {
-		outchars(node.item);
-		outchar('\n');
+		printChars(node.item);
+		printChar('\n');
 		node = node.next;
 	}
 }
@@ -530,13 +525,22 @@ fn main() {
 	start.insertThing(newElement("burgers"));
 	start.insertThing(newElement("slaw"));
 
-	outchars("\nInitial List:\n");
+	printChars("\nInitial List:\n");
 	start.printList();
 
 	start.removeThing("pizza");
 	start.removeThing("zucchini");
 	start.removeThing("burgers");
 
-	outchars("\nAltered List:\n");
+	printChars("\nAltered List:\n");
 	start.printList();
+}
+*/
+
+fn main() {
+	//struct Pos { x: Char, y: Char, z: Char };
+	//let pos = &mut Pos { '1', '2', '3' };
+	//(*pos).y = (*pos).z;
+	let arr = &mut ['1', '2', '3'];
+	(*arr)[1] = (*arr)[2];
 }

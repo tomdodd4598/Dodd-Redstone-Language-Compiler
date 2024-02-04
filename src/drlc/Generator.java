@@ -41,7 +41,7 @@ public abstract class Generator {
 	public @SuppressWarnings("null") @NonNull CharTypeInfo charTypeInfo = null;
 	
 	public @SuppressWarnings("null") @NonNull TupleTypeInfo unitTypeInfo = null;
-	public @SuppressWarnings("null") @NonNull TypeInfo nullTypeInfo = null;
+	public @SuppressWarnings("null") @NonNull TypeInfo voidTypeInfo = null;
 	
 	public @SuppressWarnings("null") @NonNull IntTypeInfo rootReturnTypeInfo = null;
 	public @SuppressWarnings("null") @NonNull FunctionPointerTypeInfo mainFunctionTypeInfo = null;
@@ -70,18 +70,18 @@ public abstract class Generator {
 		Main.rootScope.addTypeAlias(null, Global.CHAR, charTypeInfo = charTypeInfo());
 		
 		unitTypeInfo = new TupleTypeInfo(null, new ArrayList<>(), new ArrayList<>());
-		nullTypeInfo = unitTypeInfo.addressOf(null, true);
+		Main.rootScope.addTypeAlias(null, Global.VOID, voidTypeInfo = unitTypeInfo.addressOf(null, true));
 		
-		Main.rootScope.addStructTypeDef(null, Global.BOOLS, Helpers.arrayList(boolTypeInfo(false), natTypeInfo), Helpers.arrayList(Global.PTR, Global.LEN));
-		Main.rootScope.addStructTypeDef(null, Global.INTS, Helpers.arrayList(intTypeInfo(false), natTypeInfo), Helpers.arrayList(Global.PTR, Global.LEN));
-		Main.rootScope.addStructTypeDef(null, Global.NATS, Helpers.arrayList(natTypeInfo(false), natTypeInfo), Helpers.arrayList(Global.PTR, Global.LEN));
-		Main.rootScope.addStructTypeDef(null, Global.CHARS, Helpers.arrayList(charTypeInfo(false), natTypeInfo), Helpers.arrayList(Global.PTR, Global.LEN));
+		Main.rootScope.addStructTypeDef(null, Global.BOOLS, Helpers.arrayList(boolTypeInfo(true), natTypeInfo), Helpers.arrayList(Global.PTR, Global.LEN));
+		Main.rootScope.addStructTypeDef(null, Global.INTS, Helpers.arrayList(intTypeInfo(true), natTypeInfo), Helpers.arrayList(Global.PTR, Global.LEN));
+		Main.rootScope.addStructTypeDef(null, Global.NATS, Helpers.arrayList(natTypeInfo(true), natTypeInfo), Helpers.arrayList(Global.PTR, Global.LEN));
+		Main.rootScope.addStructTypeDef(null, Global.CHARS, Helpers.arrayList(charTypeInfo(true), natTypeInfo), Helpers.arrayList(Global.PTR, Global.LEN));
 		
 		rootReturnTypeInfo = intTypeInfo;
 		mainFunctionTypeInfo = new FunctionPointerTypeInfo(null, new ArrayList<>(), unitTypeInfo, new ArrayList<>());
 		
 		unitValue = new TupleValue(null, unitTypeInfo, new ArrayList<>());
-		nullValue = addressValue(nullTypeInfo, 0);
+		nullValue = addressValue(voidTypeInfo, 0);
 		
 		falseValue = boolValue(false);
 		trueValue = boolValue(true);
@@ -92,21 +92,21 @@ public abstract class Generator {
 	public void addBuiltInVariables() {}
 	
 	protected void addBuiltInFunction(@NonNull String name, @NonNull TypeInfo returnTypeInfo, DeclaratorInfo... params) {
-		Function function = new Function(null, name, true, returnTypeInfo, Arrays.asList(params), false, true);
+		Function function = Helpers.builtInFunction(name, returnTypeInfo, params);
 		Main.rootScope.addFunction(null, function);
 		Main.rootScope.addRoutine(null, new Routine(function));
 	}
 	
 	public void addBuiltInFunctions() {
-		addBuiltInFunction(Global.INBOOL, boolTypeInfo);
-		addBuiltInFunction(Global.ININT, intTypeInfo);
-		addBuiltInFunction(Global.INNAT, natTypeInfo);
-		addBuiltInFunction(Global.INCHAR, charTypeInfo);
+		addBuiltInFunction(Global.READ_BOOL, boolTypeInfo);
+		addBuiltInFunction(Global.READ_INT, intTypeInfo);
+		addBuiltInFunction(Global.READ_NAT, natTypeInfo);
+		addBuiltInFunction(Global.READ_CHAR, charTypeInfo);
 		
-		addBuiltInFunction(Global.OUTBOOL, unitTypeInfo, Helpers.builtInDeclarator("b", boolTypeInfo));
-		addBuiltInFunction(Global.OUTINT, unitTypeInfo, Helpers.builtInDeclarator("i", intTypeInfo));
-		addBuiltInFunction(Global.OUTNAT, unitTypeInfo, Helpers.builtInDeclarator("n", natTypeInfo));
-		addBuiltInFunction(Global.OUTCHAR, unitTypeInfo, Helpers.builtInDeclarator("c", charTypeInfo));
+		addBuiltInFunction(Global.PRINT_BOOL, unitTypeInfo, Helpers.builtInDeclarator("b", boolTypeInfo));
+		addBuiltInFunction(Global.PRINT_INT, unitTypeInfo, Helpers.builtInDeclarator("i", intTypeInfo));
+		addBuiltInFunction(Global.PRINT_NAT, unitTypeInfo, Helpers.builtInDeclarator("n", natTypeInfo));
+		addBuiltInFunction(Global.PRINT_CHAR, unitTypeInfo, Helpers.builtInDeclarator("c", charTypeInfo));
 	}
 	
 	public @NonNull BoolValue boolValue(boolean value) {
@@ -226,6 +226,9 @@ public abstract class Generator {
 			
 			CharValue charLeft = (CharValue) left, charRight = (CharValue) right;
 			switch (opType) {
+				case LOGICAL_AND:
+				case LOGICAL_OR:
+					throw undefinedBinaryOp(node, leftType, opType, rightType);
 				case EQUAL_TO:
 					return boolValue(charLeft.value == charRight.value);
 				case NOT_EQUAL_TO:
@@ -238,6 +241,24 @@ public abstract class Generator {
 					return boolValue(charLeft.value > charRight.value);
 				case MORE_OR_EQUAL:
 					return boolValue(charLeft.value >= charRight.value);
+				case PLUS:
+					return charValue((byte) (charLeft.value + charRight.value));
+				case AND:
+					return charValue((byte) (charLeft.value & charRight.value));
+				case OR:
+					return charValue((byte) (charLeft.value | charRight.value));
+				case XOR:
+					return charValue((byte) (charLeft.value ^ charRight.value));
+				case MINUS:
+					return charValue((byte) (charLeft.value - charRight.value));
+				case MULTIPLY:
+				case DIVIDE:
+				case REMAINDER:
+				case LEFT_SHIFT:
+				case RIGHT_SHIFT:
+				case LEFT_ROTATE:
+				case RIGHT_ROTATE:
+					throw undefinedBinaryOp(node, leftType, opType, rightType);
 				default:
 					throw unknownBinaryOpType(node, leftType, opType, rightType);
 			}
@@ -325,6 +346,9 @@ public abstract class Generator {
 	
 	public @NonNull Value<?> intIntBinaryOp(ASTNode<?> node, IntValue left, @NonNull BinaryOpType opType, IntValue right) {
 		switch (opType) {
+			case LOGICAL_AND:
+			case LOGICAL_OR:
+				throw undefinedBinaryOp(node, left.typeInfo, opType, right.typeInfo);
 			case EQUAL_TO:
 				return boolValue(left.value == right.value);
 			case NOT_EQUAL_TO:
@@ -374,6 +398,9 @@ public abstract class Generator {
 	
 	public @NonNull Value<?> natNatBinaryOp(ASTNode<?> node, NatValue left, @NonNull BinaryOpType opType, NatValue right) {
 		switch (opType) {
+			case LOGICAL_AND:
+			case LOGICAL_OR:
+				throw undefinedBinaryOp(node, left.typeInfo, opType, right.typeInfo);
 			case EQUAL_TO:
 				return boolValue(left.value == right.value);
 			case NOT_EQUAL_TO:
@@ -513,6 +540,7 @@ public abstract class Generator {
 				case OR:
 				case XOR:
 				case MINUS:
+					return charTypeInfo;
 				case MULTIPLY:
 				case DIVIDE:
 				case REMAINDER:
@@ -797,10 +825,20 @@ public abstract class Generator {
 					routine.addAction(BinaryActionType.CHAR_MORE_OR_EQUAL_CHAR.action(node, target, arg1, arg2));
 					return;
 				case PLUS:
+					routine.addAction(BinaryActionType.CHAR_PLUS_CHAR.action(node, target, arg1, arg2));
+					return;
 				case AND:
+					routine.addAction(BinaryActionType.CHAR_AND_CHAR.action(node, target, arg1, arg2));
+					return;
 				case OR:
+					routine.addAction(BinaryActionType.CHAR_OR_CHAR.action(node, target, arg1, arg2));
+					return;
 				case XOR:
+					routine.addAction(BinaryActionType.CHAR_XOR_CHAR.action(node, target, arg1, arg2));
+					return;
 				case MINUS:
+					routine.addAction(BinaryActionType.CHAR_MINUS_CHAR.action(node, target, arg1, arg2));
+					return;
 				case MULTIPLY:
 				case DIVIDE:
 				case REMAINDER:
@@ -930,6 +968,17 @@ public abstract class Generator {
 		else if (typeInfo.equals(natTypeInfo)) {
 			return natUnaryOp(node, opType, (NatValue) value);
 		}
+		else if (typeInfo.equals(charTypeInfo)) {
+			byte byteValue = value.byteValue(node);
+			switch (opType) {
+				case MINUS:
+					throw undefinedUnaryOp(node, opType, typeInfo);
+				case NOT:
+					return charValue((byte) ~byteValue);
+				default:
+					throw unknownUnaryOpType(node, opType, typeInfo);
+			}
+		}
 		throw undefinedUnaryOp(node, opType, typeInfo);
 	}
 	
@@ -988,6 +1037,16 @@ public abstract class Generator {
 					throw unknownUnaryOpType(node, opType, typeInfo);
 			}
 		}
+		else if (typeInfo.equals(charTypeInfo)) {
+			switch (opType) {
+				case MINUS:
+					throw undefinedUnaryOp(node, opType, typeInfo);
+				case NOT:
+					return charTypeInfo;
+				default:
+					throw unknownUnaryOpType(node, opType, typeInfo);
+			}
+		}
 		throw undefinedUnaryOp(node, opType, typeInfo);
 	}
 	
@@ -1024,6 +1083,17 @@ public abstract class Generator {
 					throw undefinedUnaryOp(node, opType, typeInfo);
 				case NOT:
 					routine.addAction(UnaryActionType.NOT_INT.action(node, target, arg));
+					return;
+				default:
+					throw unknownUnaryOpType(node, opType, typeInfo);
+			}
+		}
+		else if (typeInfo.equals(charTypeInfo)) {
+			switch (opType) {
+				case MINUS:
+					throw undefinedUnaryOp(node, opType, typeInfo);
+				case NOT:
+					routine.addAction(UnaryActionType.NOT_CHAR.action(node, target, arg));
 					return;
 				default:
 					throw unknownUnaryOpType(node, opType, typeInfo);
@@ -1229,6 +1299,18 @@ public abstract class Generator {
 					return null;
 			}
 		}
+		else if (targetTypeInfo.equals(charTypeInfo)) {
+			switch (opType) {
+				case PLUS:
+				case AND:
+				case OR:
+				case XOR:
+				case MINUS:
+					return targetTypeInfo;
+				default:
+					return null;
+			}
+		}
 		else {
 			return null;
 		}
@@ -1253,7 +1335,7 @@ public abstract class Generator {
 	}
 	
 	public @Nullable TypeInfo unaryOpInverseTypeInfo(ASTNode<?> node, @NonNull TypeInfo targetTypeInfo, @NonNull UnaryOpType opType) {
-		if (targetTypeInfo.equals(boolTypeInfo) || targetTypeInfo.isWord()) {
+		if (targetTypeInfo.equals(boolTypeInfo) || targetTypeInfo.isWord() || targetTypeInfo.equals(charTypeInfo)) {
 			return targetTypeInfo;
 		}
 		else {
@@ -1267,7 +1349,7 @@ public abstract class Generator {
 	
 	public void generateRootRoutine() {
 		Function mainFunction = null;
-		for (Routine routine : Main.rootScope.getRoutines()) {
+		for (Routine routine : Main.rootScope.routineMap.values()) {
 			if (routine.function.name.equals(Global.MAIN)) {
 				mainFunction = routine.function;
 				break;
@@ -1290,7 +1372,7 @@ public abstract class Generator {
 		boolean flag = true;
 		while (flag) {
 			flag = false;
-			for (Entry<Function, Routine> entry : new LinkedHashSet<>(Main.rootScope.getRoutineEntrySet())) {
+			for (Entry<Function, Routine> entry : new LinkedHashSet<>(Main.rootScope.routineMap.entrySet())) {
 				Routine routine = entry.getValue();
 				if (!routine.function.isRequired()) {
 					flag = true;
@@ -1300,7 +1382,7 @@ public abstract class Generator {
 			}
 		}
 		
-		for (Routine routine : Main.rootScope.getRoutines()) {
+		for (Routine routine : Main.rootScope.routineMap.values()) {
 			flag = true;
 			while (flag) {
 				flag = IntermediateOptimization.removeNoOps(routine);

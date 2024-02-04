@@ -10,8 +10,8 @@ import drlc.intermediate.component.type.*;
 
 public class ArrayValue extends Value<ArrayTypeInfo> {
 	
-	protected final List<Value<?>> values;
-	protected final int length;
+	public final List<Value<?>> values;
+	public final int length;
 	
 	public ArrayValue(ASTNode<?> node, @NonNull ArrayTypeInfo typeInfo, List<Value<?>> values) {
 		super(node, typeInfo);

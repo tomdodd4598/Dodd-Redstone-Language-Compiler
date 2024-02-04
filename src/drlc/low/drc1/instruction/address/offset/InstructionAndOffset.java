@@ -1,12 +1,13 @@
 package drlc.low.drc1.instruction.address.offset;
 
 import drlc.Helpers;
+import drlc.low.LowDataInfo;
 import drlc.low.drc1.*;
 import drlc.low.drc1.instruction.Instruction;
 
 public class InstructionAndOffset extends InstructionALUOffset {
 	
-	public InstructionAndOffset(RedstoneDataInfo info) {
+	public InstructionAndOffset(LowDataInfo info) {
 		super(info);
 	}
 	

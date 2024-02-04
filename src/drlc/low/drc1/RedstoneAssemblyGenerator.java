@@ -18,14 +18,14 @@ public class RedstoneAssemblyGenerator extends RedstoneGenerator {
 		StringBuilder sb = new StringBuilder();
 		boolean begin = true;
 		int i = 0;
-		for (RedstoneRoutine routine : code.getRoutineMap().values()) {
+		for (RedstoneRoutine routine : code.routineMap.values()) {
 			if (begin) {
 				begin = false;
 			}
 			else {
 				sb.append('\n');
 			}
-			sb.append(routine.name).append(":\n");
+			sb.append(routine.function).append(":\n");
 			for (List<Instruction> section : routine.textSectionMap.values()) {
 				for (Instruction instruction : section) {
 					appendInstruction(sb, instruction, i++);

@@ -22,7 +22,7 @@ public abstract class CompoundTypeInfo extends TypeInfo {
 	
 	@Override
 	public int getSize() {
-		return isAddress() ? Main.generator.getAddressSize() : typeInfos.stream().mapToInt(TypeInfo::getSize).sum();
+		return isAddress() ? Main.generator.getAddressSize() : Helpers.sumToInt(typeInfos, TypeInfo::getSize);
 	}
 	
 	@Override

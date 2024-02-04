@@ -6,8 +6,9 @@ import org.eclipse.jdt.annotation.*;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.Function;
 import drlc.intermediate.component.type.TypeInfo;
-import drlc.intermediate.component.value.Value;
+import drlc.intermediate.component.value.*;
 
 public class ValueDataId extends DataId {
 	
@@ -21,6 +22,16 @@ public class ValueDataId extends DataId {
 	@Override
 	protected int minimumDereferenceLevel() {
 		return 0;
+	}
+	
+	@Override
+	public int getOffset() {
+		return 0;
+	}
+	
+	@Override
+	public @Nullable Function getFunction() {
+		return value instanceof FunctionItemValue ? ((FunctionItemValue) value).typeInfo.function : null;
 	}
 	
 	@Override

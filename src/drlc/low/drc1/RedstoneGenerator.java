@@ -59,6 +59,9 @@ public abstract class RedstoneGenerator extends Generator {
 	public @NonNull Value<?> intIntBinaryOp(ASTNode<?> node, IntValue left, @NonNull BinaryOpType opType, IntValue right) {
 		short leftShort = left.shortValue(node), rightShort = right.shortValue(node);
 		switch (opType) {
+			case LOGICAL_AND:
+			case LOGICAL_OR:
+				throw undefinedBinaryOp(node, left.typeInfo, opType, right.typeInfo);
 			case EQUAL_TO:
 				return boolValue(leftShort == rightShort);
 			case NOT_EQUAL_TO:
@@ -110,6 +113,9 @@ public abstract class RedstoneGenerator extends Generator {
 	public @NonNull Value<?> natNatBinaryOp(ASTNode<?> node, NatValue left, @NonNull BinaryOpType opType, NatValue right) {
 		short leftShort = left.shortValue(node), rightShort = right.shortValue(node);
 		switch (opType) {
+			case LOGICAL_AND:
+			case LOGICAL_OR:
+				throw undefinedBinaryOp(node, left.typeInfo, opType, right.typeInfo);
 			case EQUAL_TO:
 				return boolValue(leftShort == rightShort);
 			case NOT_EQUAL_TO:
@@ -214,7 +220,7 @@ public abstract class RedstoneGenerator extends Generator {
 	}
 	
 	public RedstoneCode generateCode() {
-		RedstoneCode code = new RedstoneCode(this);
+		RedstoneCode code = new RedstoneCode();
 		code.generate();
 		return code;
 	}

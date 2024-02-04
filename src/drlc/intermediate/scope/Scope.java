@@ -118,8 +118,12 @@ public class Scope {
 		return localCounter++;
 	}
 	
+	public @NonNull DeclaratorInfo nextLocalDeclarator(Routine routine, @NonNull TypeInfo typeInfo) {
+		return Helpers.builtInDeclarator("\\r" + nextLocalId(), typeInfo);
+	}
+	
 	public @NonNull DataId nextLocalDataId(Routine routine, @NonNull TypeInfo typeInfo) {
-		DeclaratorInfo declarator = Helpers.builtInDeclarator("\\r" + nextLocalId(), typeInfo);
+		DeclaratorInfo declarator = nextLocalDeclarator(routine, typeInfo);
 		addVariable(null, declarator.variable);
 		routine.declaratorList.add(declarator);
 		return declarator.dataId();
@@ -316,7 +320,7 @@ public class Scope {
 			throw Helpers.nodeError(node, "Struct \"%s\" can not directly contain itself!", name);
 		}
 		
-		typeDef.size = typeInfos.stream().mapToInt(TypeInfo::getSize).sum();
+		typeDef.size = Helpers.sumToInt(typeInfos, TypeInfo::getSize);
 		
 		int offset = 0;
 		for (int i = 0; i < typeInfoCount; ++i) {

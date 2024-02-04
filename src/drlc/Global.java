@@ -9,7 +9,7 @@ public final class Global {
 	public static final @NonNull String NAT = "Nat";
 	public static final @NonNull String CHAR = "Char";
 	
-	public static final @NonNull String NULL = "Null";
+	public static final @NonNull String VOID = "Void";
 	
 	public static final @NonNull String BOOLS = "Bools";
 	public static final @NonNull String INTS = "Ints";
@@ -29,15 +29,15 @@ public final class Global {
 	public static final @NonNull String PTR = "ptr";
 	public static final @NonNull String LEN = "len";
 	
-	public static final @NonNull String INBOOL = "inbool";
-	public static final @NonNull String ININT = "inint";
-	public static final @NonNull String INNAT = "innat";
-	public static final @NonNull String INCHAR = "inchar";
+	public static final @NonNull String READ_BOOL = "readBool";
+	public static final @NonNull String READ_INT = "readInt";
+	public static final @NonNull String READ_NAT = "readNat";
+	public static final @NonNull String READ_CHAR = "readChar";
 	
-	public static final @NonNull String OUTBOOL = "outbool";
-	public static final @NonNull String OUTINT = "outint";
-	public static final @NonNull String OUTNAT = "outnat";
-	public static final @NonNull String OUTCHAR = "outchar";
+	public static final @NonNull String PRINT_BOOL = "printBool";
+	public static final @NonNull String PRINT_INT = "printInt";
+	public static final @NonNull String PRINT_NAT = "printNat";
+	public static final @NonNull String PRINT_CHAR = "printChar";
 	
 	public static final @NonNull String ROOT = "root";
 	public static final @NonNull String SELF = "self";

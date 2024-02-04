@@ -1,6 +1,6 @@
-package drlc.low.drc1;
+package drlc.low;
 
-public enum RedstoneDataType {
+public enum LowDataType {
 	
 	TEMP("TEMP"),
 	STATIC("STATIC"),
@@ -8,7 +8,7 @@ public enum RedstoneDataType {
 	
 	private final String str;
 	
-	private RedstoneDataType(String str) {
+	private LowDataType(String str) {
 		this.str = str;
 	}
 	

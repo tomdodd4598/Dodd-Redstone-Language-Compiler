@@ -45,8 +45,8 @@ public class CallAction extends Action implements IValueAction {
 		}
 	}
 	
-	protected CallAction copy(ASTNode<?> node, Scope scope, DataId target, DataId function, List<DataId> args) {
-		return new CallAction(node, scope, target, function, args);
+	protected CallAction copy(ASTNode<?> node, Scope scope, DataId target, DataId caller, List<DataId> args) {
+		return new CallAction(node, scope, target, caller, args);
 	}
 	
 	@Override

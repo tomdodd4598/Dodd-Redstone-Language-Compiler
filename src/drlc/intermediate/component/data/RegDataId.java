@@ -31,6 +31,11 @@ public class RegDataId extends DataId {
 		return -1;
 	}
 	
+	@Override
+	public int getOffset() {
+		return offset;
+	}
+	
 	public RegDataId replaceId(long regId) {
 		return new RegDataId(dereferenceLevel, typeInfo, regId, offset, offsetFrom);
 	}
