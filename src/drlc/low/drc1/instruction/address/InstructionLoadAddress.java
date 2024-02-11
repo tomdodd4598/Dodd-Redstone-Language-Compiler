@@ -5,9 +5,9 @@ import drlc.low.LowDataInfo;
 import drlc.low.drc1.*;
 import drlc.low.drc1.instruction.Instruction;
 
-public class InstructionLoadAddressImmediate extends InstructionAddress {
+public class InstructionLoadAddress extends InstructionAddress {
 	
-	public InstructionLoadAddressImmediate(LowDataInfo info) {
+	public InstructionLoadAddress(LowDataInfo info) {
 		super(info);
 	}
 	
@@ -33,7 +33,7 @@ public class InstructionLoadAddressImmediate extends InstructionAddress {
 	
 	@Override
 	public Instruction getDataReplacement(RedstoneCode code) {
-		return new InstructionLoadAddressImmediate(getDataInfoReplacement(code));
+		return new InstructionLoadAddress(getDataInfoReplacement(code));
 	}
 	
 	@Override

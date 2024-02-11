@@ -93,9 +93,14 @@ public final class Global {
 	public static final @NonNull String PATH_SEPARATOR = "::";
 	public static final @NonNull String WILDCARD_PATH = "*";
 	
-	public static final @NonNull String LOGICAL_RIGHT_SHIFT = "\\logical_right_shift";
-	public static final @NonNull String CIRCULAR_LEFT_SHIFT = "\\circular_left_shift";
-	public static final @NonNull String CIRCULAR_RIGHT_SHIFT = "\\circular_right_shift";
+	public static final @NonNull String NAT_RIGHT_SHIFT_INT = "\\natRightShiftInt";
+	public static final @NonNull String INT_LEFT_ROTATE_INT = "\\intLeftRotateInt";
+	public static final @NonNull String INT_RIGHT_ROTATE_INT = "\\intRightRotateInt";
+	
+	public static final @NonNull String INT_COMPARE_INT = "\\intCompareInt";
+	public static final @NonNull String NAT_COMPARE_NAT = "\\natCompareNat";
+	
+	public static final @NonNull String PRINT_DIGITS = "\\printDigits";
 	
 	public static final @NonNull String ZERO_8 = "00000000";
 }

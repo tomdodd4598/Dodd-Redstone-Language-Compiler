@@ -1,20 +1,17 @@
 package drlc.low.drc1;
 
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import drlc.*;
 import drlc.Helpers.Pair;
 import drlc.intermediate.component.Function;
 import drlc.intermediate.component.data.DataId;
-import drlc.intermediate.component.data.DataId.RawDataId;
+import drlc.intermediate.component.data.DataId.LowDataId;
 import drlc.intermediate.component.value.*;
-import drlc.intermediate.routine.*;
+import drlc.intermediate.routine.Routine;
 import drlc.low.*;
 import drlc.low.drc1.builtin.*;
-import drlc.low.drc1.instruction.Instruction;
-import drlc.low.drc1.instruction.immediate.InstructionLoadLongImmediate;
 
 public class RedstoneCode {
 	
@@ -22,34 +19,41 @@ public class RedstoneCode {
 	
 	public final Map<Function, RedstoneRoutine> routineMap = new LinkedHashMap<>();
 	
-	public final Map<RawDataId, Pair<DataId, LowDataSpan>> rootSpanMap = new LinkedHashMap<>();
+	public final Map<LowDataId, Pair<DataId, LowDataSpan>> rootSpanMap = new LinkedHashMap<>();
 	
 	public short addressOffset = 0;
 	public final Map<LowDataSpan, LowAddressSlice> rootAddressMap = new LinkedHashMap<>();
 	
 	public final Map<Function, Short> textAddressMap = new LinkedHashMap<>();
 	
-	public RedstoneRoutine getRoutine(Function function) {
-		return routineMap.get(function);
-	}
-	
 	public boolean routineExists(Function function) {
 		return routineMap.containsKey(function);
 	}
 	
-	public void generate() {
-		for (Entry<Function, Routine> entry : Main.rootScope.routineMap.entrySet()) {
-			Routine intermediateRoutine = entry.getValue();
-			RedstoneRoutine routine = new RedstoneRoutine(this, intermediateRoutine);
-			if (!intermediateRoutine.isBuiltIn()) {
-				routineMap.put(entry.getKey(), routine);
-			}
-			if (routine.isStackRoutine()) {
-				requiresStack = true;
-			}
+	public RedstoneRoutine getRoutine(Function function) {
+		return routineMap.get(function);
+	}
+	
+	public void addRoutine(Function function, Routine intermediateRoutine) {
+		RedstoneRoutine routine = new RedstoneRoutine(this, intermediateRoutine);
+		routineMap.put(function, function.builtIn ? getBuiltInRoutine(function.name, intermediateRoutine) : routine);
+		if (routine.isStackRoutine()) {
+			requiresStack = true;
 		}
+	}
+	
+	public void generate() {
+		Main.rootScope.routineMap.forEach((k, v) -> {
+			if (!k.builtIn) {
+				addRoutine(k, v);
+			}
+		});
 		
-		addBuiltInRoutines();
+		Main.rootScope.routineMap.forEach((k, v) -> {
+			if (k.builtIn) {
+				addRoutine(k, v);
+			}
+		});
 		
 		for (Function function : Main.rootScope.routineMap.keySet()) {
 			if (!routineMap.containsKey(function)) {
@@ -57,8 +61,12 @@ public class RedstoneCode {
 			}
 		}
 		
-		for (RedstoneRoutine routine : routineMap.values()) {
-			routine.generateInstructions();
+		boolean flag = true;
+		while (flag) {
+			flag = false;
+			for (RedstoneRoutine routine : new ArrayList<>(routineMap.values())) {
+				flag |= routine.generateInstructions();
+			}
 		}
 		
 		optimize();
@@ -84,13 +92,30 @@ public class RedstoneCode {
 		}
 	}
 	
-	private void addBuiltInRoutines() {
-		routineMap.put(Global.OUTCHAR, new OutCharRedstoneRoutine(this, Global.OUTCHAR));
-		routineMap.put(Global.OUTINT, new OutIntRedstoneRoutine(this, Global.OUTINT));
-		
-		routineMap.put(Global.LOGICAL_RIGHT_SHIFT, new LogicalRightShiftRedstoneRoutine(this, Global.LOGICAL_RIGHT_SHIFT));
-		routineMap.put(Global.CIRCULAR_LEFT_SHIFT, new CircularLeftShiftRedstoneRoutine(this, Global.CIRCULAR_LEFT_SHIFT, RoutineCallType.NESTING));
-		routineMap.put(Global.CIRCULAR_RIGHT_SHIFT, new CircularRightShiftRedstoneRoutine(this, Global.CIRCULAR_RIGHT_SHIFT, RoutineCallType.NESTING));
+	private RedstoneRoutine getBuiltInRoutine(String name, Routine intermediateRoutine) {
+		switch (name) {
+			case Global.PRINT_BOOL:
+				return new PrintBoolRedstoneRoutine(this, intermediateRoutine);
+			case Global.PRINT_INT:
+				return new PrintIntRedstoneRoutine(this, intermediateRoutine);
+			case Global.PRINT_NAT:
+				return new PrintNatRedstoneRoutine(this, intermediateRoutine);
+			case Global.PRINT_CHAR:
+				return new PrintCharRedstoneRoutine(this, intermediateRoutine);
+			case Global.NAT_RIGHT_SHIFT_INT:
+				return new NatRightShiftIntRedstoneRoutine(this, intermediateRoutine);
+			case Global.INT_LEFT_ROTATE_INT:
+				return new IntLeftRotateIntRedstoneRoutine(this, intermediateRoutine);
+			case Global.INT_RIGHT_ROTATE_INT:
+				return new IntRightRotateIntRedstoneRoutine(this, intermediateRoutine);
+			case Global.INT_COMPARE_INT:
+				return new IntCompareIntRedstoneRoutine(this, intermediateRoutine);
+			case Global.NAT_COMPARE_NAT:
+				return new NatCompareNatRedstoneRoutine(this, intermediateRoutine);
+			case Global.PRINT_DIGITS:
+				return new PrintDigitsRedstoneRoutine(this, intermediateRoutine);
+		}
+		throw new IllegalArgumentException(String.format("Encountered unsupported built-in subroutine \"%s\"!", name));
 	}
 	
 	private void optimize() {
@@ -114,9 +139,7 @@ public class RedstoneCode {
 	// Static helpers
 	
 	public static final short MAX_ADDRESS = 0xFF;
-	
-	public static final Instruction LOAD_MIN_VALUE = new InstructionLoadLongImmediate(Short.MIN_VALUE);
-	public static final Instruction LOAD_MIN_VALUE_SUCCEEDING = LOAD_MIN_VALUE.succeedingData();
+	public static final short CHAR_MASK = 0x7F;
 	
 	public static List<Short> raw(Value<?> value) {
 		if (value instanceof BoolValue) {

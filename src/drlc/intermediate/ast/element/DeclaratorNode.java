@@ -2,7 +2,7 @@ package drlc.intermediate.ast.element;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.*;
+import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.type.TypeNode;
 import drlc.intermediate.component.*;
@@ -56,7 +56,7 @@ public class DeclaratorNode extends ASTNode<Scope> {
 			typeNode.declareExpressions(this);
 		}
 		
-		if (!functionParameter && routine.equals(Main.rootRoutine)) {
+		if (!functionParameter && routine.isRootRoutine()) {
 			variableModifier = new VariableModifier(true, variableModifier.mutable);
 		}
 		

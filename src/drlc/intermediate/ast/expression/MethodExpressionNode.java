@@ -65,15 +65,13 @@ public class MethodExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void defineExpressions(ASTNode<?> parent) {
-		setInternal();
+		setTypeInfo(null);
 		
 		receiverExpressionNode.defineExpressions(this);
 		
 		for (ExpressionNode argExpressionNode : argExpressionNodes) {
 			argExpressionNode.defineExpressions(this);
 		}
-		
-		setTypeInfo(null);
 		
 		if (receiverExpressionNode.isValidLvalue()) {
 			receiverExpressionNode.setIsLvalue();

@@ -8,7 +8,7 @@ import drlc.*;
 import drlc.intermediate.action.JumpAction;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
-import drlc.intermediate.component.data.DataId;
+import drlc.intermediate.component.data.VariableDataId;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.FunctionItemValue;
 import drlc.intermediate.routine.Routine;
@@ -119,14 +119,14 @@ public class Scope {
 	}
 	
 	public @NonNull DeclaratorInfo nextLocalDeclarator(Routine routine, @NonNull TypeInfo typeInfo) {
-		return Helpers.builtInDeclarator("\\r" + nextLocalId(), typeInfo);
-	}
-	
-	public @NonNull DataId nextLocalDataId(Routine routine, @NonNull TypeInfo typeInfo) {
-		DeclaratorInfo declarator = nextLocalDeclarator(routine, typeInfo);
+		DeclaratorInfo declarator = new DeclaratorInfo(new Variable("\\r" + nextLocalId(), new VariableModifier(routine.isRootRoutine(), true), typeInfo));
 		addVariable(null, declarator.variable);
 		routine.declaratorList.add(declarator);
-		return declarator.dataId();
+		return declarator;
+	}
+	
+	public @NonNull VariableDataId nextLocalDataId(Routine routine, @NonNull TypeInfo typeInfo) {
+		return nextLocalDeclarator(routine, typeInfo).dataId();
 	}
 	
 	// Contains

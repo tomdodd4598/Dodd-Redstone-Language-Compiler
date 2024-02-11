@@ -63,10 +63,10 @@ public class IndexExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void defineExpressions(ASTNode<?> parent) {
+		setTypeInfo(null);
+		
 		baseExpressionNode.defineExpressions(this);
 		indexExpressionNode.defineExpressions(this);
-		
-		setTypeInfo(null);
 		
 		if (baseIsArray && baseExpressionNode.isValidLvalue()) {
 			baseExpressionNode.setIsLvalue();
@@ -77,6 +77,11 @@ public class IndexExpressionNode extends ExpressionNode {
 	public void checkTypes(ASTNode<?> parent) {
 		baseExpressionNode.checkTypes(this);
 		indexExpressionNode.checkTypes(this);
+		
+		@NonNull TypeInfo indexType = indexExpressionNode.getTypeInfo();
+		if (!indexType.canImplicitCastTo(Main.generator.natTypeInfo)) {
+			throw castError("index value", indexType, Main.generator.natTypeInfo);
+		}
 	}
 	
 	@Override

@@ -43,7 +43,7 @@ public class ArrayTypeNode extends TypeNode {
 			}
 		}
 		else {
-			throw error("Length of array type is not a compile-time non-negative \"%s\" constant!", Main.generator.natTypeInfo);
+			throw error("Length of array type is not a compile-time \"%s\" constant!", Main.generator.natTypeInfo);
 		}
 	}
 	

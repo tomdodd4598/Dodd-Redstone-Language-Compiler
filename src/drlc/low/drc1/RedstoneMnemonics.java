@@ -92,6 +92,8 @@ public class RedstoneMnemonics {
 	public static final String STBPB = format("STBPB");
 	public static final String LDBPB = format("LDBPB");
 	public static final String LDIPB = format("LDIPB");
+	public static final String ADDIPB = format("ADDIPB");
+	public static final String SUBIPB = format("SUBIPB");
 	
 	public static final String STANB = format("STANB");
 	public static final String LDANB = format("LDANB");
@@ -107,6 +109,8 @@ public class RedstoneMnemonics {
 	public static final String STBNB = format("STBNB");
 	public static final String LDBNB = format("LDBNB");
 	public static final String LDINB = format("LDINB");
+	public static final String ADDINB = format("ADDINB");
+	public static final String SUBINB = format("SUBINB");
 	
 	public static final String MULI = format("MULI");
 	public static final String MULLI = format("MULLI");

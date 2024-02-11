@@ -132,8 +132,8 @@ public class Helpers {
 		if (ESCAPE_MAP.containsKey(str)) {
 			str = ESCAPE_MAP.get(str);
 		}
-		else if (Character.isISOControl(c)) {
-			str = "\\" + Integer.toHexString(c);
+		else if (c > 127 || Character.isISOControl(c)) {
+			str = "\\x" + upperCase(String.format("%2s", Integer.toHexString(c)).replace(' ', '0'));
 		}
 		return "\'" + str + "\'";
 	}
@@ -239,68 +239,12 @@ public class Helpers {
 		return new IllegalArgumentException(String.format(s, args));
 	}
 	
-	public static boolean isEndOfLine(char c) {
-		return c == 10 || c == 13;
-	}
-	
-	public static boolean isWhitespace(char c) {
-		return c == ' ' || c == 9 || isEndOfLine(c);
-	}
-	
-	public static boolean isDigit(char c) {
-		return c >= '0' && c <= '9';
-	}
-	
-	public static boolean isLetter(char c) {
-		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
-	}
-	
-	public static boolean isValidChar(char c) {
-		return isDigit(c) || isLetter(c) || c == '_';
-	}
-	
-	public static boolean isEndOfLine(Integer c) {
-		return isEndOfLine((char) c.intValue());
-	}
-	
-	public static boolean isWhitespace(Integer c) {
-		return isWhitespace((char) c.intValue());
-	}
-	
-	public static boolean isHexDigit(char c) {
-		return isDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
-	}
-	
-	public static boolean isDigit(Integer c) {
-		return isDigit((char) c.intValue());
-	}
-	
-	public static boolean isLetter(Integer c) {
-		return isLetter((char) c.intValue());
-	}
-	
-	public static boolean isValidChar(Integer c) {
-		return isValidChar((char) c.intValue());
-	}
-	
-	public static boolean isHexDigit(Integer c) {
-		return isHexDigit((char) c.intValue());
-	}
-	
 	public static String lowerCase(String s) {
 		return s.toLowerCase(Locale.ROOT);
 	}
 	
-	public static String removeWhitespace(String s) {
-		return s.replaceAll("\\s+", "");
-	}
-	
-	public static boolean isConstantName(String s) {
-		return Character.isLetter(s.charAt(0));
-	}
-	
-	public static boolean isVariableName(String s) {
-		return Character.isLetter(s.charAt(0));
+	public static String upperCase(String s) {
+		return s.toUpperCase(Locale.ROOT);
 	}
 	
 	public static int shortCompareUnsigned(short x, short y) {
@@ -321,10 +265,6 @@ public class Helpers {
 	
 	public static String dereferenceString(int count) {
 		return String.join("", Collections.nCopies(count, Global.DEREFERENCE));
-	}
-	
-	public static @NonNull DeclaratorInfo rootDeclarator(@NonNull String name, @NonNull TypeInfo typeInfo) {
-		return new DeclaratorInfo(new Variable(name, VariableModifier.ROOT, typeInfo));
 	}
 	
 	public static @NonNull DeclaratorInfo builtInDeclarator(@NonNull String name, @NonNull TypeInfo typeInfo) {
@@ -391,11 +331,11 @@ public class Helpers {
 	}
 	
 	public static String toHex(long value) {
-		return (value < 0 ? "-0x" : "0x") + Long.toHexString(Math.abs(value)).toUpperCase(Locale.ROOT);
+		return (value < 0 ? "-0x" : "0x") + upperCase(Long.toHexString(Math.abs(value)));
 	}
 	
 	public static String toHex(long value, int length) {
-		return (value < 0 ? "-0x" : "0x") + String.format("%" + length + "s", Long.toHexString(Math.abs(value))).replace(' ', '0').toUpperCase(Locale.ROOT);
+		return (value < 0 ? "-0x" : "0x") + upperCase(String.format("%" + length + "s", Long.toHexString(Math.abs(value))).replace(' ', '0'));
 	}
 	
 	public static @Nullable TypeInfo getCommonTypeInfo(ASTNode<?> node, List<TypeInfo> typeInfos) {
@@ -421,6 +361,27 @@ public class Helpers {
 		public Pair(L left, R right) {
 			this.left = left;
 			this.right = right;
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(left, right);
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof Pair) {
+				Pair<?, ?> other = (Pair<?, ?>) obj;
+				return Objects.equals(left, other.left) && Objects.equals(right, other.right);
+			}
+			else {
+				return false;
+			}
+		}
+		
+		@Override
+		public String toString() {
+			return "(" + left + ", " + right + ")";
 		}
 	}
 	

@@ -83,7 +83,7 @@ public class DereferenceExpressionNode extends ExpressionNode {
 	
 	@Override
 	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
-		expressionNode.setTypeInfo(targetType == null ? null : targetType.addressOf(this, true));
+		expressionNode.setTypeInfo(targetType == null ? null : targetType.addressOf(this, false));
 		typeInfo = expressionNode.getTypeInfo().dereference(this, 1);
 	}
 	

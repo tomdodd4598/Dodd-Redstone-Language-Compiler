@@ -76,11 +76,11 @@ public abstract class DataId {
 		return hashCode(false);
 	}
 	
-	public abstract boolean equalsOther(Object obj, boolean raw);
+	public abstract boolean equalsOther(Object obj, boolean raw, boolean low);
 	
 	@Override
 	public boolean equals(Object obj) {
-		return equalsOther(obj, false);
+		return equalsOther(obj, false, false);
 	}
 	
 	protected abstract String rawString();
@@ -90,15 +90,23 @@ public abstract class DataId {
 		return (dereferenceLevel >= 0 ? Helpers.dereferenceString(dereferenceLevel) : Global.ADDRESS_OF) + Helpers.scopeStringPrefix(scope) + rawString() /*+ Global.TYPE_ANNOTATION_PREFIX + " " + typeInfo.routineString()*/;
 	}
 	
+	public String opErrorString() {
+		return (dereferenceLevel >= 0 ? Helpers.dereferenceString(dereferenceLevel) : Global.ADDRESS_OF) + rawString() + Global.TYPE_ANNOTATION_PREFIX + " " + typeInfo.routineString();
+	}
+	
 	public RawDataId raw() {
 		return new RawDataId(this);
 	}
 	
-	public static class RawDataId {
+	public LowDataId low() {
+		return new LowDataId(this);
+	}
+	
+	private static class ReducedDataId {
 		
 		public final DataId internal;
 		
-		private RawDataId(DataId internal) {
+		protected ReducedDataId(DataId internal) {
 			this.internal = internal;
 		}
 		
@@ -108,8 +116,32 @@ public abstract class DataId {
 		}
 		
 		@Override
+		public String toString() {
+			return internal.toString();
+		}
+	}
+	
+	public static class RawDataId extends ReducedDataId {
+		
+		private RawDataId(DataId internal) {
+			super(internal);
+		}
+		
+		@Override
 		public boolean equals(Object obj) {
-			return obj instanceof RawDataId && internal.equalsOther(((RawDataId) obj).internal, true);
+			return obj instanceof RawDataId && internal.equalsOther(((RawDataId) obj).internal, true, false);
+		}
+	}
+	
+	public static class LowDataId extends ReducedDataId {
+		
+		private LowDataId(DataId internal) {
+			super(internal);
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			return obj instanceof LowDataId && internal.equalsOther(((LowDataId) obj).internal, false, true);
 		}
 	}
 }

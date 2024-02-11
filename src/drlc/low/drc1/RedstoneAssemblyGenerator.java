@@ -13,7 +13,7 @@ public class RedstoneAssemblyGenerator extends RedstoneGenerator {
 	
 	@Override
 	public void generate() {
-		RedstoneCode code = generateCode();
+		code.generate();
 		
 		StringBuilder sb = new StringBuilder();
 		boolean begin = true;
@@ -25,7 +25,7 @@ public class RedstoneAssemblyGenerator extends RedstoneGenerator {
 			else {
 				sb.append('\n');
 			}
-			sb.append(routine.function).append(":\n");
+			sb.append(routine.function.asmString()).append(":\n");
 			for (List<Instruction> section : routine.textSectionMap.values()) {
 				for (Instruction instruction : section) {
 					appendInstruction(sb, instruction, i++);

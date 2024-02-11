@@ -54,4 +54,9 @@ public abstract class ASTNode<SCOPE extends Scope> {
 	protected RuntimeException castError(String descriptor, TypeInfo actualTypeInfo, TypeInfo expectedTypeInfo) {
 		return error("Attempted to use expression of type \"%s\" as %s of incompatible type \"%s\"!", actualTypeInfo, descriptor, expectedTypeInfo);
 	}
+	
+	@Override
+	public String toString() {
+		return Helpers.sourceInfo(source).right;
+	}
 }

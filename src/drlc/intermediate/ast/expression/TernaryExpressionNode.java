@@ -58,11 +58,14 @@ public class TernaryExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void defineExpressions(ASTNode<?> parent) {
+		conditionExpressionNode.setTypeInfo(Main.generator.boolTypeInfo);
+		
 		conditionExpressionNode.defineExpressions(this);
-		trueExpressionNode.defineExpressions(this);
-		falseExpressionNode.defineExpressions(this);
 		
 		setTypeInfo(null);
+		
+		trueExpressionNode.defineExpressions(this);
+		falseExpressionNode.defineExpressions(this);
 	}
 	
 	@Override

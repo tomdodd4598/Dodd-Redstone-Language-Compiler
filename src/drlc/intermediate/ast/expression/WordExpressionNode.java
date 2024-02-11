@@ -75,6 +75,9 @@ public class WordExpressionNode extends ExpressionNode {
 		else if (Main.generator.natTypeInfo.equals(targetType)) {
 			typeInfo = Main.generator.natTypeInfo;
 		}
+		else if (Main.generator.charTypeInfo.equals(targetType)) {
+			typeInfo = Main.generator.charTypeInfo;
+		}
 		else {
 			throw error("Could not infer type of constant value!");
 		}
@@ -92,6 +95,9 @@ public class WordExpressionNode extends ExpressionNode {
 		}
 		else if (Main.generator.natTypeInfo.equals(typeInfo)) {
 			constantValue = Main.generator.natValue(value);
+		}
+		else if (Main.generator.charTypeInfo.equals(typeInfo)) {
+			constantValue = Main.generator.charValue((byte) value);
 		}
 		else {
 			throw error("Could not infer type of constant value!");

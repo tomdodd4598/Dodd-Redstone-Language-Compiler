@@ -60,11 +60,11 @@ public class StructExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void defineExpressions(ASTNode<?> parent) {
+		setTypeInfo(null);
+		
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.defineExpressions(this);
 		}
-		
-		setTypeInfo(null);
 	}
 	
 	@Override

@@ -42,7 +42,7 @@ public class ReturnNode extends StopNode {
 	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
 		
-		if (routine.equals(Main.rootRoutine)) {
+		if (routine.isRootRoutine()) {
 			throw error("Root routine can not return - use an exit statement!");
 		}
 		

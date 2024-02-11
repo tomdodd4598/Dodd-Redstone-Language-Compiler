@@ -58,13 +58,13 @@ public class CallExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void defineExpressions(ASTNode<?> parent) {
+		setTypeInfo(null);
+		
 		callerExpressionNode.defineExpressions(this);
 		
 		for (ExpressionNode argExpressionNode : argExpressionNodes) {
 			argExpressionNode.defineExpressions(this);
 		}
-		
-		setTypeInfo(null);
 	}
 	
 	@Override

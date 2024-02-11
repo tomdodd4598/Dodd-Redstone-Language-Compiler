@@ -38,20 +38,30 @@ public class Variable {
 		return atIndex;
 	}
 	
-	@Override
-	public int hashCode() {
-		return Objects.hash(name, modifier, typeInfo, scope);
+	public int hashCode(boolean raw) {
+		return Objects.hash(name, raw ? null : modifier, raw ? null : typeInfo, scope);
 	}
 	
 	@Override
-	public boolean equals(Object obj) {
+	public int hashCode() {
+		return hashCode(false);
+	}
+	
+	public boolean equalsOther(Object obj, boolean raw) {
 		if (obj instanceof Variable) {
 			Variable other = (Variable) obj;
-			return name.equals(other.name) && modifier.equals(other.modifier) && typeInfo.equals(other.typeInfo) && scope.equals(other.scope);
+			boolean equalModifiers = raw || modifier.equals(other.modifier);
+			boolean equalTypeInfos = raw || typeInfo.equals(other.typeInfo);
+			return name.equals(other.name) && equalModifiers && equalTypeInfos && scope.equals(other.scope);
 		}
 		else {
 			return false;
 		}
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return equalsOther(obj, false);
 	}
 	
 	@Override

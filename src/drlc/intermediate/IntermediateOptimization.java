@@ -17,7 +17,7 @@ public class IntermediateOptimization {
 	
 	public static boolean removeNoOps(Routine routine) {
 		boolean flag = false;
-		List<List<Action>> body = routine.getBodyActionLists();
+		List<List<Action>> body = routine.body;
 		for (int i = 0; i < body.size(); ++i) {
 			Iterator<Action> iter = body.get(i).iterator();
 			while (iter.hasNext()) {
@@ -32,7 +32,7 @@ public class IntermediateOptimization {
 	
 	public static boolean removeDeadActions(Routine routine) {
 		boolean flag = false;
-		List<List<Action>> body = routine.getBodyActionLists();
+		List<List<Action>> body = routine.body;
 		for (int i = 0; i < body.size(); ++i) {
 			List<Action> list = body.get(i);
 			int j, size = list.size();
@@ -53,7 +53,7 @@ public class IntermediateOptimization {
 	
 	public static boolean removeEmptySections(Routine routine) {
 		boolean flag = false;
-		List<List<Action>> body = routine.getBodyActionLists();
+		List<List<Action>> body = routine.body;
 		Map<Integer, Integer> sectionMap = new TreeMap<>();
 		int count = 0;
 		for (int i = 0; i < body.size(); ++i) {
@@ -92,7 +92,7 @@ public class IntermediateOptimization {
 	
 	public static boolean concatenateSections(Routine routine) {
 		boolean flag = false;
-		List<List<Action>> body = routine.getBodyActionLists();
+		List<List<Action>> body = routine.body;
 		Set<Integer> targets = new HashSet<>();
 		for (int i = 0; i < body.size(); ++i) {
 			List<Action> list = body.get(i);
@@ -121,7 +121,7 @@ public class IntermediateOptimization {
 	
 	public static boolean simplifyJumps(Routine routine) {
 		boolean flag = false;
-		List<List<Action>> body = routine.getBodyActionLists();
+		List<List<Action>> body = routine.body;
 		for (int i = 0; i < body.size(); ++i) {
 			List<Action> list = body.get(i);
 			for (int j = 0; j < list.size(); ++j) {
@@ -206,7 +206,7 @@ public class IntermediateOptimization {
 	
 	public static boolean compressRegisters(Routine routine) {
 		boolean flag = false;
-		List<List<Action>> body = routine.getBodyActionLists();
+		List<List<Action>> body = routine.body;
 		for (int i = 0; i < body.size(); ++i) {
 			List<Action> list = body.get(i);
 			Map<DataId, Integer> lMap = new LinkedHashMap<>(), rMap = new LinkedHashMap<>();
@@ -266,7 +266,7 @@ public class IntermediateOptimization {
 	
 	public static boolean reorderRvalues(Routine routine) {
 		boolean flag = false;
-		List<List<Action>> body = routine.getBodyActionLists();
+		List<List<Action>> body = routine.body;
 		for (int i = 0; i < body.size(); ++i) {
 			List<Action> list = body.get(i);
 			for (int j = 1; j < list.size(); ++j) {
@@ -304,7 +304,7 @@ public class IntermediateOptimization {
 	
 	public static boolean foldRvalues(Routine routine) {
 		boolean flag = false;
-		List<List<Action>> body = routine.getBodyActionLists();
+		List<List<Action>> body = routine.body;
 		for (int i = 0; i < body.size(); ++i) {
 			List<Action> list = body.get(i);
 			for (int j = 0; j < list.size(); ++j) {
@@ -324,7 +324,7 @@ public class IntermediateOptimization {
 	
 	public static boolean simplifyBinaryOps(Routine routine) {
 		boolean flag = false;
-		List<List<Action>> body = routine.getBodyActionLists();
+		List<List<Action>> body = routine.body;
 		for (int i = 0; i < body.size(); ++i) {
 			List<Action> list = body.get(i);
 			for (int j = 0; j < list.size(); ++j) {
@@ -366,7 +366,7 @@ public class IntermediateOptimization {
 	
 	public static <T extends Action & IValueAction> boolean simplifyDereferences(Routine routine) {
 		boolean flag = false;
-		List<List<Action>> body = routine.getBodyActionLists();
+		List<List<Action>> body = routine.body;
 		for (int i = 0; i < body.size(); ++i) {
 			List<Action> list = body.get(i);
 			Map<RawDataId, Pair<RawDataId, Integer>> replacerInfoMap = new HashMap<>();
@@ -438,7 +438,7 @@ public class IntermediateOptimization {
 	
 	public static boolean removeUnusedAssignments(Routine routine) {
 		boolean flag = false;
-		List<List<Action>> body = routine.getBodyActionLists();
+		List<List<Action>> body = routine.body;
 		Map<Long, int[]> regIdMap = new TreeMap<>();
 		for (int i = 0; i < body.size(); ++i) {
 			List<Action> list = body.get(i);
@@ -464,6 +464,14 @@ public class IntermediateOptimization {
 				Action action = list.get(j);
 				if (action instanceof IValueAction) {
 					IValueAction iva = (IValueAction) action;
+					for (DataId id : iva.lvalues()) {
+						if (id instanceof RegDataId) {
+							RegDataId regDataId = (RegDataId) id;
+							if (regDataId.dereferenceLevel != 0) {
+								regIdMap.remove(regDataId.regId);
+							}
+						}
+					}
 					for (DataId id : iva.rvalues()) {
 						if (id instanceof RegDataId) {
 							regIdMap.remove(((RegDataId) id).regId);
@@ -482,7 +490,7 @@ public class IntermediateOptimization {
 	
 	public static boolean orderRegisters(Routine routine) {
 		boolean flag = false;
-		List<List<Action>> body = routine.getBodyActionLists();
+		List<List<Action>> body = routine.body;
 		Map<Long, Long> regIdMap = new TreeMap<>();
 		long count = 0;
 		for (int i = 0; i < body.size(); ++i) {

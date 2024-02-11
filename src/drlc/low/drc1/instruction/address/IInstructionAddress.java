@@ -16,6 +16,6 @@ public interface IInstructionAddress {
 	
 	public default LowDataInfo getDataInfoReplacement(RedstoneCode code) {
 		LowDataInfo info = getDataInfo();
-		return code.getRoutine(info.function).dataInfo(info.argId, info.extraOffset);
+		return code.getRoutine(info.function).dataInfo(info.dataId, info.extraOffset);
 	}
 }

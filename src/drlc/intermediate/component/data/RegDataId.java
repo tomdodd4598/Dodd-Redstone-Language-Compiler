@@ -47,7 +47,7 @@ public class RegDataId extends DataId {
 	
 	@Override
 	public @NonNull RegDataId removeDereference(ASTNode<?> node) {
-		return new RegDataId(-1, typeInfo.modifyMutable(node, 1), regId, offset, offsetFrom);
+		return new RegDataId(dereferenceLevel - 1, typeInfo.modifyMutable(node, 1), regId, offset, offsetFrom);
 	}
 	
 	protected List<RegDataId> nextIndexFrom() {
@@ -108,12 +108,12 @@ public class RegDataId extends DataId {
 	}
 	
 	@Override
-	public boolean equalsOther(Object obj, boolean raw) {
+	public boolean equalsOther(Object obj, boolean raw, boolean low) {
 		if (obj instanceof RegDataId) {
 			RegDataId other = (RegDataId) obj;
-			boolean equalDereferenceLevels = raw || dereferenceLevel == other.dereferenceLevel;
-			boolean equalTypeInfos = matchTypeInfos(other, raw);
-			boolean equalOffsets = raw || offset == other.offset;
+			boolean equalDereferenceLevels = raw || low || dereferenceLevel == other.dereferenceLevel;
+			boolean equalTypeInfos = low || matchTypeInfos(other, raw);
+			boolean equalOffsets = raw || low || offset == other.offset;
 			return Objects.equals(scope, other.scope) && equalDereferenceLevels && equalTypeInfos && regId == other.regId && equalOffsets;
 		}
 		else {

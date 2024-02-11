@@ -49,8 +49,6 @@ public class PathExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void defineExpressions(ASTNode<?> parent) {
-		setInternal();
-		
 		setTypeInfo(null);
 		
 		if (variable != null) {

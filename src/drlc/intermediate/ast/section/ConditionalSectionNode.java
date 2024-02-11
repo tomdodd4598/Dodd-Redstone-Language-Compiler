@@ -62,6 +62,8 @@ public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope>
 	
 	@Override
 	public void defineExpressions(ASTNode<?> parent) {
+		expressionNode.setTypeInfo(Main.generator.boolTypeInfo);
+		
 		expressionNode.defineExpressions(this);
 		thenNode.defineExpressions(this);
 		if (elseNode != null) {

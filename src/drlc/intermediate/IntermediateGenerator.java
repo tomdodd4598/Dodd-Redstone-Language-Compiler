@@ -102,7 +102,7 @@ public class IntermediateGenerator extends Generator {
 					}
 				}
 				
-				List<List<Action>> list = routine.getBodyActionLists();
+				List<List<Action>> list = routine.body;
 				for (int i = 0; i < list.size(); ++i) {
 					sb.append(Global.BRACE_START).append(i).append(Global.BRACE_END).append(":\n");
 					for (Action action : list.get(i)) {

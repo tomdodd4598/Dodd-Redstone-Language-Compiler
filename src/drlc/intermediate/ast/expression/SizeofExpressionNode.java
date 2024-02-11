@@ -82,6 +82,9 @@ public class SizeofExpressionNode extends ExpressionNode {
 		else if (Main.generator.natTypeInfo.equals(targetType)) {
 			typeInfo = Main.generator.natTypeInfo;
 		}
+		else if (Main.generator.charTypeInfo.equals(targetType)) {
+			typeInfo = Main.generator.charTypeInfo;
+		}
 		else {
 			throw error("Could not infer type of constant value!");
 		}
@@ -102,6 +105,9 @@ public class SizeofExpressionNode extends ExpressionNode {
 		}
 		else if (Main.generator.natTypeInfo.equals(typeInfo)) {
 			constantValue = Main.generator.natValue(size);
+		}
+		else if (Main.generator.charTypeInfo.equals(typeInfo)) {
+			constantValue = Main.generator.charValue((byte) size);
 		}
 		else {
 			throw error("Could not infer type of constant value!");

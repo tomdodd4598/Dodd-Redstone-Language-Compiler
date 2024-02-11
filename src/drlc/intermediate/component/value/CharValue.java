@@ -38,6 +38,6 @@ public class CharValue extends BasicValue<CharTypeInfo> {
 	
 	@Override
 	public String valueString() {
-		return Helpers.charToString((char) value);
+		return Helpers.charToString((char) Byte.toUnsignedInt(value));
 	}
 }

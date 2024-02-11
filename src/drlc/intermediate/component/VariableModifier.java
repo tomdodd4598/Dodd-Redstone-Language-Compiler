@@ -1,5 +1,7 @@
 package drlc.intermediate.component;
 
+import java.util.Objects;
+
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.Global;
@@ -14,6 +16,22 @@ public class VariableModifier {
 	public VariableModifier(boolean _static, boolean mutable) {
 		this._static = _static;
 		this.mutable = mutable;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(_static, mutable);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof VariableModifier) {
+			VariableModifier other = (VariableModifier) obj;
+			return _static == other._static && mutable == other.mutable;
+		}
+		else {
+			return false;
+		}
 	}
 	
 	@Override

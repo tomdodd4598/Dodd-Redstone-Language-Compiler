@@ -44,7 +44,7 @@ public class VariableDataId extends DataId {
 	
 	@Override
 	public @NonNull VariableDataId removeDereference(ASTNode<?> node) {
-		return new VariableDataId(-1, variable, offset, offsetFrom);
+		return new VariableDataId(dereferenceLevel - 1, variable, offset, offsetFrom);
 	}
 	
 	protected List<VariableDataId> nextIndexFrom() {
@@ -92,7 +92,7 @@ public class VariableDataId extends DataId {
 	
 	@Override
 	public int hashCode(boolean raw) {
-		return Objects.hash(scope, raw ? 0 : dereferenceLevel, raw ? null : typeInfo, variable, raw ? 0 : offset);
+		return Objects.hash(scope, raw ? 0 : dereferenceLevel, raw ? null : typeInfo, variable.hashCode(raw), raw ? 0 : offset);
 	}
 	
 	protected boolean matchTypeInfos(VariableDataId other, boolean raw) {
@@ -105,13 +105,13 @@ public class VariableDataId extends DataId {
 	}
 	
 	@Override
-	public boolean equalsOther(Object obj, boolean raw) {
+	public boolean equalsOther(Object obj, boolean raw, boolean low) {
 		if (obj instanceof VariableDataId) {
 			VariableDataId other = (VariableDataId) obj;
-			boolean equalDereferenceLevels = raw || dereferenceLevel == other.dereferenceLevel;
-			boolean equalTypeInfos = matchTypeInfos(other, raw);
-			boolean equalOffsets = raw || offset == other.offset;
-			return Objects.equals(scope, other.scope) && equalDereferenceLevels && equalTypeInfos && variable.equals(other.variable) && equalOffsets;
+			boolean equalDereferenceLevels = raw || low || dereferenceLevel == other.dereferenceLevel;
+			boolean equalTypeInfos = low || matchTypeInfos(other, raw);
+			boolean equalOffsets = raw || low || offset == other.offset;
+			return Objects.equals(scope, other.scope) && equalDereferenceLevels && equalTypeInfos && variable.equalsOther(other.variable, raw || low) && equalOffsets;
 		}
 		else {
 			return false;

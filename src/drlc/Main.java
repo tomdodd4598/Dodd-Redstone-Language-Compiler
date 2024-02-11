@@ -83,7 +83,7 @@ public class Main {
 		generator.init();
 		
 		Function rootFunction = new Function(null, Global.ROOT, false, generator.rootReturnTypeInfo, new ArrayList<>(), false, true);
-		rootFunction.setRequired(true);
+		rootFunction.setRequired();
 		rootScope.addFunction(null, rootFunction);
 		
 		rootRoutine = new Routine(rootFunction);
@@ -108,12 +108,12 @@ public class Main {
 		
 		Helpers.getAST(inputFile).traverse();
 		
-		printTime.accept("Frontend");
-		
 		generator.generateRootRoutine();
 		rootScope.flattenRoutines();
 		generator.optimizeIntermediate();
 		rootScope.finalizeRoutines();
+		
+		printTime.accept("Frontend");
 		
 		/* Generate code */
 		generator.generate();

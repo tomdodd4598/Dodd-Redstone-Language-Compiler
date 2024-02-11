@@ -27,8 +27,8 @@ public class Function {
 	
 	public boolean defined = false;
 	
-	protected boolean localRequired = false;
-	protected Boolean globalRequired = null;
+	protected Boolean required = null;
+	protected List<Function> callers = new ArrayList<>();
 	
 	public Scope scope = null;
 	
@@ -45,30 +45,20 @@ public class Function {
 		this.defined = defined;
 	}
 	
-	public void setUnused() {
-		globalRequired = false;
+	public void setRequired() {
+		required = true;
 	}
 	
-	public void setRequired(boolean global) {
-		if (global) {
-			globalRequired = true;
-		}
-		else {
-			localRequired = true;
-		}
+	public void setUnused() {
+		required = false;
+	}
+	
+	public void addCaller(Function function) {
+		callers.add(function);
 	}
 	
 	public boolean isRequired() {
-		if (globalRequired != null) {
-			return globalRequired;
-		}
-		else if (localRequired) {
-			Function outerFunction = scope.getContextFunction();
-			return outerFunction == null || outerFunction.isRequired();
-		}
-		else {
-			return false;
-		}
+		return required != null ? required : callers.stream().anyMatch(Main.rootScope::routineExists);
 	}
 	
 	public void addCapture(Variable variable, DeclaratorInfo copy) {
@@ -107,6 +97,6 @@ public class Function {
 	}
 	
 	public String asmString() {
-		return Helpers.scopeStringPrefix(scope) + " " + name;
+		return Helpers.scopeStringPrefix(scope) + name;
 	}
 }

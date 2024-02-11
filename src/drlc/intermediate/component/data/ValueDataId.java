@@ -75,10 +75,10 @@ public class ValueDataId extends DataId {
 	}
 	
 	@Override
-	public boolean equalsOther(Object obj, boolean raw) {
+	public boolean equalsOther(Object obj, boolean raw, boolean low) {
 		if (obj instanceof ValueDataId) {
 			ValueDataId other = (ValueDataId) obj;
-			boolean equalDereferenceLevels = raw || dereferenceLevel == other.dereferenceLevel;
+			boolean equalDereferenceLevels = raw || low || dereferenceLevel == other.dereferenceLevel;
 			return Objects.equals(scope, other.scope) && equalDereferenceLevels && value.equals(other.value);
 		}
 		else {

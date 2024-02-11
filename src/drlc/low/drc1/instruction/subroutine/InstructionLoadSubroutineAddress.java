@@ -1,16 +1,16 @@
 package drlc.low.drc1.instruction.subroutine;
 
-import drlc.Helpers;
+import drlc.*;
 import drlc.intermediate.component.Function;
 import drlc.low.drc1.*;
 import drlc.low.drc1.instruction.Instruction;
 
-public class InstructionLoadCallAddressImmediate extends Instruction {
+public class InstructionLoadSubroutineAddress extends Instruction {
 	
 	public final Function function;
 	public Short value;
 	
-	public InstructionLoadCallAddressImmediate(Function function) {
+	public InstructionLoadSubroutineAddress(Function function) {
 		super();
 		this.function = function;
 	}
@@ -36,7 +36,7 @@ public class InstructionLoadCallAddressImmediate extends Instruction {
 	
 	@Override
 	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
-		if (next instanceof InstructionLoadCallAddressImmediate) {
+		if (next instanceof InstructionLoadSubroutineAddress) {
 			return next;
 		}
 		return null;
@@ -49,6 +49,6 @@ public class InstructionLoadCallAddressImmediate extends Instruction {
 	
 	@Override
 	public String toString() {
-		return RedstoneMnemonics.LDAI + '\t' + function.asmString();
+		return RedstoneMnemonics.LDAI + '\t' + Global.IMMEDIATE + Helpers.toHex(value) + '\t' + function.asmString();
 	}
 }

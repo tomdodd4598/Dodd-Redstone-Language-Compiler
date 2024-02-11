@@ -7,9 +7,8 @@ import org.eclipse.jdt.annotation.NonNull;
 import drlc.*;
 import drlc.intermediate.action.*;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.component.*;
+import drlc.intermediate.component.Function;
 import drlc.intermediate.component.data.ValueDataId;
-import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.routine.Routine;
 
@@ -19,11 +18,6 @@ public class RootScope extends ModuleScope {
 	
 	public RootScope(ASTNode<?> node) {
 		super(node, Global.ROOT, null);
-	}
-	
-	@Override
-	public @NonNull DeclaratorInfo nextLocalDeclarator(Routine routine, @NonNull TypeInfo typeInfo) {
-		return Helpers.rootDeclarator("\\r" + nextLocalId(), typeInfo);
 	}
 	
 	@Override
@@ -73,8 +67,7 @@ public class RootScope extends ModuleScope {
 	}
 	
 	public void updateRoutineTypes(Routine routine, List<Function> callList, Map<Function, Integer> callMap, int depth) {
-		List<List<Action>> body = routine.getBodyActionLists();
-		for (List<Action> list : body) {
+		for (List<Action> list : routine.body) {
 			for (Action action : list) {
 				if (action instanceof CallAction) {
 					CallAction fca = (CallAction) action;

@@ -2,9 +2,9 @@
 
 /*
 fn main() {
-	let mut f = 1;
-	let mut a = 1;
-	let mut b = 1;
+	let static mut f = 1;
+	let static mut a = 1;
+	let static mut b = 1;
 	
 	fn update() {
 		f = a * b;
@@ -14,6 +14,7 @@ fn main() {
 	
 	while f > 0 {
 		printInt(f);
+		printChar('\n');
 		update();
 	}
 }
@@ -30,8 +31,8 @@ fn fact(n: Int) -> Int {
 }
 
 fn main() {
-	let mut f = 1;
-	let mut i = 1;
+	let static mut f = 1;
+	let static mut i = 0;
 	
 	fn update() {
 		i += 1;
@@ -40,6 +41,7 @@ fn main() {
 	
 	while f > 0 {
 		printInt(f);
+		printChar('\n');
 		update();
 	}
 }
@@ -48,10 +50,12 @@ fn main() {
 // ITERATIVE FIBONACCI
 
 /*
+let argv = [0, 1];
+
 fn main() {
-	let mut f = argv[0];
-	let mut a = argv[1];
-	let mut b = 0;
+	let static mut f = argv[0];
+	let static mut a = 0;
+	let static mut b = argv[1];
 	
 	fn update() {
 		f = a + b;
@@ -59,8 +63,9 @@ fn main() {
 		a = f;
 	}
 	
-	while f > 0 {
+	while f >= 0 {
 		printInt(f);
+		printChar('\n');
 		update();
 	}
 }
@@ -69,24 +74,27 @@ fn main() {
 // RECURSIVE FIBONACCI
 
 /*
+let argv = [0, 1];
+
 fn fib(n: Int) -> Int {
 	if n <= 1 {
-		return argv[n];
+		return argv[n as Nat];
 	}
 	return fib(n - 1) + fib(n - 2);
 }
 
 fn main() {
-	let mut f = argv[0];
-	let mut i = 0;
+	let static mut f = argv[0];
+	let static mut i = 0;
 	
 	fn update() {
 		i += 1;
 		f = fib(i);
 	}
 	
-	while f > 0 {
+	while f >= 0 {
 		printInt(f);
+		printChar('\n');
 		update();
 	}
 }
@@ -98,7 +106,7 @@ fn main() {
 const MAX = 100;
 const FAIL = MAX + 1;
 
-fn sqrt(m: Int) -> Int {
+fn isqrt(m: Int) -> Int {
 	let mut a = m;
 	let mut b = 1;
 	
@@ -116,7 +124,7 @@ fn main() {
 	while n < MAX {
 		n += 1;
 		let mut i = 2;
-		let s = sqrt(n);
+		let s = isqrt(n);
 		
 		while i <= s {
 			if n % i == 0 {
@@ -129,6 +137,7 @@ fn main() {
 		
 		if i != FAIL {
 			printInt(n);
+			printChar('\n');
 		}
 	}
 }
@@ -143,20 +152,7 @@ fn main () {
 	let z = x * y - 6 + 10 / 5;
 	
 	printInt(z);
-}
-*/
-
-// TESTING PRINTING
-
-/*
-let str = ['H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd', '!', '\n'];
-
-fn main() {
-	let mut i = 0;
-	while i < 13 {
-		printChar(str[i]);
-		i += 1;
-	}
+	printChar('\n');
 }
 */
 
@@ -170,35 +166,44 @@ fn main() {
 	
 	if a == 0 {
 		printInt(1);
+		printChar('\n');
 	}
 	else unless b == 0 {
 		printInt(2);
+		printChar('\n');
 	}
 	
 	if c == 0 {
 		printInt(3);
+		printChar('\n');
 	}
 	else {
 		printInt(4);
+		printChar('\n');
 	}
 	
 	unless a == 1 {
 		printInt(5);
+		printChar('\n');
 	}
 	else if b == 1 {
 		printInt(6);
+		printChar('\n');
 	}
 	else {
 		printInt(7);
+		printChar('\n');
 	}
 	
 	outer: loop {
 		if c == 1 {
 			printInt(8);
+			printChar('\n');
 		}
 		else {
 			inner: do {
 				printInt(9);
+				printChar('\n');
 				break outer;
 			}
 			until c == 2;
@@ -212,57 +217,47 @@ fn main() {
 /*
 let mut a = 1;
 let mut b = &mut 2;
-let mut c = &mut &mut 3;
 
-let mut d = &mut a;
-let mut e = &mut &mut b;
-let mut f = &mut &mut &mut c;
+let mut c = &mut a;
+let mut d = &mut &mut b;
 
-fn update(x: &mut Int, y: &mut &mut Int, z: &mut &mut &mut Int) {
+fn update(x: &mut Int, y: &mut &mut Int) {
 	*x = *x + 501;
 	**y = **y + 502;
-	***z = ***z + 503;
 	
 	*x -= 1;
 	**y -= 2;
-	***z -= 3;
 }
 
-fn update2(x: &mut &mut Int, y: &mut &mut &mut &mut Int, z: &mut &mut &mut &mut &mut &mut Int) {
+fn update2(x: &mut &mut Int, y: &mut &mut &mut &mut Int) {
 	**x = 1001;
 	****y = 1002;
-	******z = 1003;
 	
 	**x *= 1;
 	****y *= 2;
-	******z *= 3;
 }
 
 fn main() {
-	update(&mut a, &mut b, &mut c);
+	update(&mut a, &mut b);
 	
-	//printInt(&a);
-	printInt(a);
-	//printInt(&b); printInt(b);
-	printInt(*b);
-	//printInt(&c); printInt(c); printInt(*c);
-	printInt(**c);
+	//printInt(&a as Int);
+	printInt(a); printChar('\n');
+	//printInt(&b as Int); printInt(b as Int);
+	printInt(*b); printChar('\n');
 	
-	update2(&mut d, &mut e, &mut f);
+	update2(&mut c, &mut d);
 	
-	//printInt(&d); printInt(d);
-	printInt(*d);
-	//printInt(&e); printInt(e); printInt(*e); printInt(**e);
-	printInt(***e);
-	//printInt(&f); printInt(f); printInt(*f); printInt(**f); printInt(***f); printInt(****f);
-	printInt(*****f);
+	//printInt(&c as Int); printInt(c as Int);
+	printInt(*c); printChar('\n');
+	//printInt(&d as Int); printInt(d as Int); printInt(*d as Int); printInt(**d as Int);
+	printInt(***d); printChar('\n');
 }
 */
 
 // TESTING DEREFERENCE ASSIGNMENT
 
 /*
-let a: &mut &mut &mut Int;
+let a: &mut &mut &mut Int = &mut &mut &mut 0;
 
 fn ptr1(modify: Bool) -> &mut Int {
 	if modify {
@@ -278,22 +273,12 @@ fn ptr2(modify: Bool) -> &mut &mut Int {
 	return *a;
 }
 
-fn ptr3(modify: Bool) -> &mut &mut &mut Int {
-	if modify {
-		***a += 300;
-	}
-	return a;
-}
-
 fn main() {
-	*ptr1(true) = ***a + 50; printInt(*ptr1(false));
-	*ptr1(true) <<= 1; printInt(*ptr1(false));
+	*ptr1(true) = ***a + 50; printInt(*ptr1(false)); printChar('\n');
+	*ptr1(true) <<= 1; printInt(*ptr1(false)); printChar('\n');
 	
-	**ptr2(true) = ***a + 100; printInt(**ptr2(false));
-	**ptr2(true) >>= 2; printInt(**ptr2(false));
-	
-	***ptr3(true) = ***a + 150; printInt(***ptr3(false));
-	***ptr3(true) /= 3; printInt(***ptr3(false));
+	**ptr2(true) = ***a + 100; printInt(**ptr2(false)); printChar('\n');
+	**ptr2(true) >>= 2; printInt(**ptr2(false)); printChar('\n');
 }
 */
 
@@ -301,33 +286,26 @@ fn main() {
 
 /*
 fn main() {
-	let l = 0b11111111_00000000;
-	let r = 0b00000000_11111111;
+	let a = 0b11111111_00000000;
+	let b = 0b00000000_11111111;
 	
-	let a = l;
-	let b = r;
+	let a_sal = a << 4;
+	let b_sal = b << 4;
 	
-	let a_sal = l << 4;
-	let b_sal = r << 4;
+	let a_sar = a >> 4;
+	let b_sar = b >> 4;
 	
-	let a_sar = l >> 4;
-	let b_sar = r >> 4;
+	let a_rotl = a <<< 4;
+	let b_rotl = b <<< 4;
 	
-	let a_shr = l >>> 4;
-	let b_shr = r >>> 4;
+	let a_rotr = a >>> 4;
+	let b_rotr = b >>> 4;
 	
-	let a_rotl = l <<< 4;
-	let b_rotl = r <<< 4;
-	
-	let a_rotr = l >>> 4;
-	let b_rotr = r >>> 4;
-	
-	printInt(a); printInt(b);
-	printInt(a_sal); printInt(b_sal);
-	printInt(a_sar); printInt(b_sar);
-	printInt(a_shr); printInt(b_shr);
-	printInt(a_rotl); printInt(b_rotl);
-	printInt(a_rotr); printInt(b_rotr);
+	printInt(a); printChar('\n'); printInt(b); printChar('\n');
+	printInt(a_sal); printChar('\n'); printInt(b_sal); printChar('\n');
+	printInt(a_sar); printChar('\n'); printInt(b_sar); printChar('\n');
+	printInt(a_rotl); printChar('\n'); printInt(b_rotl); printChar('\n');
+	printInt(a_rotr); printChar('\n'); printInt(b_rotr); printChar('\n');
 }
 */
 
@@ -351,13 +329,15 @@ fn main() {
 	print = printBool;
 	do_binary_op(&mut s, *choose_ptr(false, &i1, &i2), *choose_ptr(true, &i1, &i2), binary_op);
 	print(s);
+	printChar('\n');
 	
 	if s {
 		**get_op_ptr() = divide;
 	}
 	
-	do_binary_op(&mut s, *choose_ptr(s, &i1, &i2), *choose_ptr(!s, &i1, &i2), binary_op);
+	do_binary_op(&mut s, *choose_ptr(!s, &i1, &i2), *choose_ptr(s, &i1, &i2), binary_op);
 	print(s);
+	printChar('\n');
 }
 
 fn add(a: Int, b: Int) -> Int {
@@ -377,25 +357,15 @@ fn divide(a: Int, b: Int) -> Int {
 }
 
 fn choose_ptr(cond: Bool, p1: &Int, p2: &Int) -> &Int {
-	if cond {
-		return p1;
-	}
-	else {
-		return p2;
-	}
+	return cond ? p1 : p2;
 }
 
 fn do_binary_op(loc: &mut Bool, a: Int, b: Int, bin_op: &fn(Int, Int) -> Int) {
-	*loc = int_to_bool((*bin_op)(a, b));
+	*loc = int_to_bool(bin_op(a, b));
 }
 
 fn int_to_bool(x: Int) -> Bool {
-	if x == 0 {
-		return false;
-	}
-	else {
-		return true;
-	}
+	return x != 0;
 }
 */
 
@@ -405,19 +375,24 @@ fn int_to_bool(x: Int) -> Bool {
 fn main () {
 	let a = 1;
 	let b = 2;
-	let mut c = 3;
+	let c = 3;
 	
 	let mut arr = [[&a, &b], [&b, &c], [&c, &a]];
-	
-	let ptr = &arr[a];
-	
-	let num = *ptr[1][1];
 	
 	arr[2][1] = &b;
 	
 	arr[1] = [&1, &2];
 	
-	c = 4;
+	let mut i = 0N;
+	while i < 3 {
+		let mut j = 0N;
+		while j < 2 {
+			printInt(*arr[i][j]);
+			printChar('\n');
+			j += 1;
+		}
+		i += 1;
+	}
 }
 */
 
@@ -426,17 +401,76 @@ fn main () {
 /*
 fn main() {
 	printInt((1, 2, 3).sum());
+	printChar('\n');
+	printInt((1, 2, 3).sumPtr());
+	printChar('\n');
 	
-	fn sum(ptr: &PosPtr) -> Int {
+	fn sum(p: Pos) -> Int {
+		return p.0 + p.1 + p.2;
+	}
+	
+	fn sumPtr(ptr: &PosPtr) -> Int {
 		let p = *ptr;
 		return p.0 + p.1 + p.2;
 	}
 }
 
-alias PosPtr = &(Int, Int, Int);
+alias Pos = (Int, Int, Int);
+alias PosPtr = &Pos;
 */
 
-// TESTING STRUCTS
+// TESTING COMPOUND RETURNS
+
+/*
+fn fact(n: Int) -> (Int, Int) {
+	return (n, n == 0 ? 1 : n * fact(n - 1).1);
+}
+
+fn main() {
+	let mut i = 0;
+	while i <= 5 {
+		let x = fact(i);
+		printInt(x.0);
+		printChar(' ');
+		printChar('-');
+		printChar('>');
+		printChar(' ');
+		printInt(x.1);
+		printChar('\n');
+		i += 1;
+	}
+}
+*/
+
+// TESTING PRINTING
+
+
+let str = "Hello World!\n";
+
+fn main() {
+	let mut i = 0N;
+	while i < str.len {
+		printChar(str.ptr[i]);
+		i += 1;
+	}
+	
+	let mut j = -32;
+	while j <= 31 {
+		printInt(j * j * j);
+		printChar('\n');
+		j += 1;
+	}
+	
+	let mut k = 0N;
+	while k <= 40 {
+		printNat(k * k * k);
+		printChar('\n');
+		k += 1;
+	}
+}
+
+
+// TRIPLE REF TECHNIQUE
 
 /*
 struct Thing {
@@ -536,11 +570,3 @@ fn main() {
 	start.printList();
 }
 */
-
-fn main() {
-	//struct Pos { x: Char, y: Char, z: Char };
-	//let pos = &mut Pos { '1', '2', '3' };
-	//(*pos).y = (*pos).z;
-	let arr = &mut ['1', '2', '3'];
-	(*arr)[1] = (*arr)[2];
-}

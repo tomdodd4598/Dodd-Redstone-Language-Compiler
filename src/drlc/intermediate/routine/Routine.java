@@ -22,8 +22,8 @@ public class Routine {
 	public final Map<String, TypeInfo> typeDefMap = new LinkedHashMap<>();
 	public final List<DeclaratorInfo> declaratorList = new ArrayList<>();
 	
-	private final List<List<Action>> body = new ArrayList<>();
-	private final List<Action> destruction = new ArrayList<>();
+	public final List<List<Action>> body = new ArrayList<>();
+	public final List<Action> destruction = new ArrayList<>();
 	
 	public int sectionId = 0;
 	
@@ -33,7 +33,7 @@ public class Routine {
 		this.function = function;
 		body.add(new ArrayList<>());
 		if (function.returnTypeInfo.equals(Main.generator.unitTypeInfo)) {
-			getDestructionActionList().add(new ReturnAction(null, Main.generator.unitValue.dataId()));
+			destruction.add(new ReturnAction(null, Main.generator.unitValue.dataId()));
 		}
 	}
 	
@@ -61,6 +61,10 @@ public class Routine {
 		return type.equals(RoutineCallType.STACK);
 	}
 	
+	public boolean isRootRoutine() {
+		return equals(Main.rootRoutine);
+	}
+	
 	public boolean isBuiltIn() {
 		return function.builtIn;
 	}
@@ -73,26 +77,17 @@ public class Routine {
 		return function.params;
 	}
 	
-	public List<List<Action>> getBodyActionLists() {
-		return body;
-	}
-	
-	public List<Action> getDestructionActionList() {
-		return destruction;
-	}
-	
 	// Preliminary optimization
 	
 	public void flattenSections() {
-		int destructorSectionId = body.size();
-		body.add(getDestructionActionList());
+		body.add(destruction);
 		for (List<Action> list : body) {
 			for (int j = 0; j < list.size(); ++j) {
 				Action action = list.get(j);
 				if (action instanceof IJumpAction) {
 					IJumpAction jump = (IJumpAction) action;
 					if (jump.getTarget() == Integer.MAX_VALUE) {
-						list.set(j, jump.copy(destructorSectionId));
+						list.set(j, jump.copy(body.size()));
 					}
 				}
 			}
@@ -227,7 +222,10 @@ public class Routine {
 	
 	public void addCallAction(ASTNode<?> node, Scope scope, Function directFunction, DataId target, DataId caller, List<DataId> args) {
 		if (directFunction != null) {
-			directFunction.setRequired(false);
+			Function contextFunction = scope.getContextFunction();
+			if (contextFunction != null) {
+				directFunction.addCaller(contextFunction);
+			}
 		}
 		
 		if (directFunction != null && directFunction.builtIn) {
@@ -239,8 +237,10 @@ public class Routine {
 	}
 	
 	public void onNonLocalFunctionItemExpression(ASTNode<?> node, Function function) {
-		onRequiresStack();
-		function.setRequired(true);
+		if (!isRootRoutine() && !function.builtIn) {
+			onRequiresStack();
+		}
+		function.setRequired();
 		if (Main.rootScope.routineExists(function)) {
 			Main.rootScope.getRoutine(node, function).onRequiresStack();
 		}

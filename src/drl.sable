@@ -21,7 +21,7 @@ Helpers
 	apostrophe = 39;
 	quote = 34;
 	
-	hex_escape = 'x' octal_digit hexadecimal_digit;
+	hex_escape = 'x' hexadecimal_digit hexadecimal_digit;
 	escape_char = '\' ('0' | 't' | 'b' | 'n' | 'r' | 'f' | apostrophe | quote | '\' | hex_escape);
 	
 	c_char = [all - [apostrophe + ['\' + [lf + cr]]]] | escape_char;

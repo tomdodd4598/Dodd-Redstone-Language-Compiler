@@ -111,7 +111,6 @@ public class ArrayListExpressionNode extends ExpressionNode {
 			if (targetType.isArray()) {
 				arrayTargetType = (ArrayTypeInfo) targetType;
 				if (arrayTargetType.length != length) {
-					arrayTargetType = null;
 					invalidTargetType = true;
 				}
 			}

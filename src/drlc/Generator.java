@@ -13,7 +13,7 @@ import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.routine.Routine;
-import drlc.intermediate.scope.Scope;
+import drlc.intermediate.scope.*;
 
 public abstract class Generator {
 	
@@ -95,6 +95,11 @@ public abstract class Generator {
 		Function function = Helpers.builtInFunction(name, returnTypeInfo, params);
 		Main.rootScope.addFunction(null, function);
 		Main.rootScope.addRoutine(null, new Routine(function));
+		
+		Scope functionScope = new FunctionScope(null, Main.rootScope);
+		for (DeclaratorInfo param : params) {
+			param.variable.scope = functionScope;
+		}
 	}
 	
 	public void addBuiltInFunctions() {
@@ -103,10 +108,10 @@ public abstract class Generator {
 		addBuiltInFunction(Global.READ_NAT, natTypeInfo);
 		addBuiltInFunction(Global.READ_CHAR, charTypeInfo);
 		
-		addBuiltInFunction(Global.PRINT_BOOL, unitTypeInfo, Helpers.builtInDeclarator("b", boolTypeInfo));
-		addBuiltInFunction(Global.PRINT_INT, unitTypeInfo, Helpers.builtInDeclarator("i", intTypeInfo));
-		addBuiltInFunction(Global.PRINT_NAT, unitTypeInfo, Helpers.builtInDeclarator("n", natTypeInfo));
-		addBuiltInFunction(Global.PRINT_CHAR, unitTypeInfo, Helpers.builtInDeclarator("c", charTypeInfo));
+		addBuiltInFunction(Global.PRINT_BOOL, unitTypeInfo, Helpers.builtInDeclarator("x", boolTypeInfo));
+		addBuiltInFunction(Global.PRINT_INT, unitTypeInfo, Helpers.builtInDeclarator("x", intTypeInfo));
+		addBuiltInFunction(Global.PRINT_NAT, unitTypeInfo, Helpers.builtInDeclarator("x", natTypeInfo));
+		addBuiltInFunction(Global.PRINT_CHAR, unitTypeInfo, Helpers.builtInDeclarator("x", charTypeInfo));
 	}
 	
 	public @NonNull BoolValue boolValue(boolean value) {
@@ -134,6 +139,10 @@ public abstract class Generator {
 	public abstract int getFunctionSize();
 	
 	public abstract int getAddressSize();
+	
+	public @NonNull Function getBuiltInFunction(ASTNode<?> node, String name) {
+		return Main.rootScope.getFunction(node, name, false);
+	}
 	
 	public @NonNull BoolTypeInfo boolTypeInfo(Boolean... referenceMutability) {
 		return new BoolTypeInfo(null, Arrays.asList(referenceMutability));
@@ -1355,9 +1364,11 @@ public abstract class Generator {
 				break;
 			}
 		}
+		
 		if (mainFunction == null) {
 			throw Helpers.error("Main function not found in root scope!");
 		}
+		mainFunction.setRequired();
 		
 		@NonNull Value<?> mainItem = mainFunction.value;
 		if (!mainItem.typeInfo.canImplicitCastTo(mainFunctionTypeInfo)) {
@@ -1365,7 +1376,7 @@ public abstract class Generator {
 		}
 		
 		Main.rootRoutine.addCallAction(null, Main.rootScope, mainFunction, Main.rootRoutine.nextRegId(unitTypeInfo), mainItem.dataId(), new ArrayList<>());
-		Main.rootRoutine.getDestructionActionList().add(new ExitAction(null, Main.generator.intValue(0).dataId()));
+		Main.rootRoutine.destruction.add(new ExitAction(null, Main.generator.intValue(0).dataId()));
 	}
 	
 	public void optimizeIntermediate() {

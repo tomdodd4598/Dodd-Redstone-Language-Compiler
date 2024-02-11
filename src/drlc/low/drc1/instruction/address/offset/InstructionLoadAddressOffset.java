@@ -5,9 +5,9 @@ import drlc.low.LowDataInfo;
 import drlc.low.drc1.*;
 import drlc.low.drc1.instruction.Instruction;
 
-public class InstructionLoadAddressImmediateOffset extends InstructionAddressOffset {
+public class InstructionLoadAddressOffset extends InstructionAddressOffset {
 	
-	public InstructionLoadAddressImmediateOffset(LowDataInfo info) {
+	public InstructionLoadAddressOffset(LowDataInfo info) {
 		super(info);
 	}
 	
@@ -33,7 +33,7 @@ public class InstructionLoadAddressImmediateOffset extends InstructionAddressOff
 	
 	@Override
 	public Instruction getDataReplacement(RedstoneCode code) {
-		return new InstructionLoadAddressImmediateOffset(getDataInfoReplacement(code));
+		return new InstructionLoadAddressOffset(getDataInfoReplacement(code));
 	}
 	
 	@Override

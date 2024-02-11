@@ -46,7 +46,7 @@ public class ArrayRepeatExpressionNode extends ExpressionNode {
 			}
 		}
 		else {
-			throw error("Length of array is not a compile-time non-negative \"%s\" constant!", Main.generator.natTypeInfo);
+			throw error("Length of array is not a compile-time \"%s\" constant!", Main.generator.natTypeInfo);
 		}
 		
 		repeatExpressionNode.defineTypes(this);
@@ -106,7 +106,6 @@ public class ArrayRepeatExpressionNode extends ExpressionNode {
 			if (targetType.isArray()) {
 				arrayTargetType = (ArrayTypeInfo) targetType;
 				if (arrayTargetType.length != length) {
-					arrayTargetType = null;
 					invalidTargetType = true;
 				}
 			}

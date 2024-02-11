@@ -1,15 +1,52 @@
 nesting fn root() -> Int:
+{dec}:
+	static \r0: [Char; 13]
+	static str: Chars {&mut Char, Nat}
 {0}:
+	\r0 = $['H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd', '!', '\n']
+	str = (&\r0, $13)
 	%0 = call $main()
 	exit $0
 
-leaf fn main() -> ():
+nesting fn main() -> ():
 {dec}:
-	<3> \r0: [Char; 3]
-	<2> arr: &[Char; 3]
+	<10> i: Nat
+	<10> j: Int
+	<10> k: Nat
 {0}:
-	<3> \r0 = ($'1', $'2', $'3')
-	<2> arr = &<3> \r0
-	%0 = *<2> arr.2
-	*<2> arr.1 = %0
+	<10> i = $0
+	jmp 2
+{1}:
+	%0 = <10> i + str
+	%1 = *%0
+	%2 = call builtin $printChar(%1)
+	<10> i = <10> i + $1
+	%3 = <10> i
+{2}:
+	%t = str.8 > <10> i
+	cj 1
+	<10> j = $-32
+	jmp 4
+{3}:
+	%5 = <10> j * <10> j
+	%6 = %5 * <10> j
+	%7 = call builtin $printInt(%6)
+	%8 = call builtin $printChar($'\n')
+	<10> j = <10> j + $1
+	%9 = <10> j
+{4}:
+	%t = <10> j <= $31
+	cj 3
+	<10> k = $0
+	jmp 6
+{5}:
+	%11 = <10> k * <10> k
+	%12 = %11 * <10> k
+	%13 = call builtin $printNat(%12)
+	%14 = call builtin $printChar($'\n')
+	<10> k = <10> k + $1
+	%15 = <10> k
+{6}:
+	%t = <10> k <= $40
+	cj 5
 	ret $()

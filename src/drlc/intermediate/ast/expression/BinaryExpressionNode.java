@@ -63,10 +63,10 @@ public class BinaryExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void defineExpressions(ASTNode<?> parent) {
+		setTypeInfo(null);
+		
 		leftExpressionNode.defineExpressions(this);
 		rightExpressionNode.defineExpressions(this);
-		
-		setTypeInfo(null);
 	}
 	
 	@Override

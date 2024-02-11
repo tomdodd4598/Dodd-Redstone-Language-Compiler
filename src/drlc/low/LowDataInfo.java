@@ -8,14 +8,14 @@ import drlc.intermediate.component.data.DataId;
 public class LowDataInfo {
 	
 	public final Function function;
-	public final DataId argId;
+	public final DataId dataId;
 	public final LowDataType type;
 	public final LowDataSpan span;
 	public final int extraOffset;
 	
-	public LowDataInfo(Function function, DataId argId, LowDataType type, LowDataSpan span, int extraOffset) {
+	public LowDataInfo(Function function, DataId dataId, LowDataType type, LowDataSpan span, int extraOffset) {
 		this.function = function;
-		this.argId = argId;
+		this.dataId = dataId;
 		this.type = type;
 		this.span = span;
 		this.extraOffset = extraOffset;
@@ -34,16 +34,16 @@ public class LowDataInfo {
 	}
 	
 	public LowDataInfo offset(int offset) {
-		return new LowDataInfo(function, argId, type, span, extraOffset + offset);
+		return new LowDataInfo(function, dataId, type, span, extraOffset + offset);
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(function, argId, type, span, extraOffset);
+		return Objects.hash(function, dataId, type, span, extraOffset);
 	}
 	
 	public boolean equalsOther(LowDataInfo other, boolean ignoreArgId) {
-		return function.equals(other.function) && (ignoreArgId || argId.equals(other.argId)) && type.equals(other.type) && span.equals(other.span) && extraOffset == other.extraOffset;
+		return function.equals(other.function) && (ignoreArgId || dataId.equals(other.dataId)) && type.equals(other.type) && span.equals(other.span) && extraOffset == other.extraOffset;
 	}
 	
 	@Override
@@ -58,6 +58,6 @@ public class LowDataInfo {
 	
 	@Override
 	public String toString() {
-		return function + ", " + argId + ", " + type + ", " + span + ", " + extraOffset;
+		return function + ", " + dataId + ", " + type + ", " + span + ", " + extraOffset;
 	}
 }

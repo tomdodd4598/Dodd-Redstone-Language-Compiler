@@ -11,6 +11,8 @@ import drlc.intermediate.routine.Routine;
 
 public abstract class RedstoneGenerator extends Generator {
 	
+	protected final RedstoneCode code = new RedstoneCode();
+	
 	public RedstoneGenerator(String outputFile) {
 		super(outputFile);
 	}
@@ -53,6 +55,34 @@ public abstract class RedstoneGenerator extends Generator {
 	@Override
 	public int getAddressSize() {
 		return getWordSize();
+	}
+	
+	@Override
+	public @NonNull Function getBuiltInFunction(ASTNode<?> node, String name) {
+		if (!Main.rootScope.functionExists(name, false)) {
+			switch (name) {
+				case Global.NAT_RIGHT_SHIFT_INT:
+					addBuiltInFunction(name, natTypeInfo, Helpers.builtInDeclarator("x", natTypeInfo), Helpers.builtInDeclarator("y", intTypeInfo));
+					break;
+				case Global.INT_LEFT_ROTATE_INT:
+				case Global.INT_RIGHT_ROTATE_INT:
+				case Global.INT_COMPARE_INT:
+					addBuiltInFunction(name, intTypeInfo, Helpers.builtInDeclarator("x", intTypeInfo), Helpers.builtInDeclarator("y", intTypeInfo));
+					break;
+				case Global.NAT_COMPARE_NAT:
+					addBuiltInFunction(name, intTypeInfo, Helpers.builtInDeclarator("x", natTypeInfo), Helpers.builtInDeclarator("y", natTypeInfo));
+					break;
+				case Global.PRINT_DIGITS:
+					addBuiltInFunction(name, unitTypeInfo, Helpers.builtInDeclarator("x", intTypeInfo), Helpers.builtInDeclarator("t", intTypeInfo), Helpers.builtInDeclarator("b", intTypeInfo));
+					break;
+			}
+		}
+		
+		@NonNull Function function = super.getBuiltInFunction(node, name);
+		if (!code.routineExists(function)) {
+			code.addRoutine(function, Main.rootScope.getRoutine(node, function));
+		}
+		return function;
 	}
 	
 	@Override
@@ -217,11 +247,5 @@ public abstract class RedstoneGenerator extends Generator {
 	@Override
 	public void charToWordCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg) {
 		routine.addAssignmentAction(node, target, arg);
-	}
-	
-	public RedstoneCode generateCode() {
-		RedstoneCode code = new RedstoneCode();
-		code.generate();
-		return code;
 	}
 }

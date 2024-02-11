@@ -111,7 +111,6 @@ public class TupleExpressionNode extends ExpressionNode {
 			if (targetType.isTuple()) {
 				tupleTargetType = (TupleTypeInfo) targetType;
 				if (tupleTargetType.count != count) {
-					tupleTargetType = null;
 					invalidTargetType = true;
 				}
 			}

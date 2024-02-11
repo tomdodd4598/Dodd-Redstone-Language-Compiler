@@ -30,6 +30,6 @@ public class LowAddressSlice {
 	
 	@Override
 	public String toString() {
-		return "[" + start + ", " + size + "]";
+		return start + "[" + size + "]";
 	}
 }

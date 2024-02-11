@@ -2,7 +2,7 @@ package drlc.low.drc1.instruction.subroutine;
 
 import drlc.*;
 import drlc.low.drc1.*;
-import drlc.low.drc1.instruction.Instruction;
+import drlc.low.drc1.instruction.*;
 
 public class InstructionAddToStackPointer extends Instruction {
 	
@@ -34,7 +34,10 @@ public class InstructionAddToStackPointer extends Instruction {
 				InstructionAddToStackPointer add = (InstructionAddToStackPointer) next;
 				if (add.value != null) {
 					int sum = value + add.value;
-					if (!RedstoneCode.isLongImmediate((short) sum)) {
+					if (sum == 0) {
+						return new InstructionNoOp();
+					}
+					else if (!RedstoneCode.isLongImmediate((short) sum)) {
 						return new InstructionAddToStackPointer((short) sum);
 					}
 					else if (!RedstoneCode.isLongImmediate((short) -sum)) {
@@ -46,7 +49,10 @@ public class InstructionAddToStackPointer extends Instruction {
 				InstructionSubtractFromStackPointer subtract = (InstructionSubtractFromStackPointer) next;
 				if (subtract.value != null) {
 					int sum = value - subtract.value;
-					if (!RedstoneCode.isLongImmediate((short) sum)) {
+					if (sum == 0) {
+						return new InstructionNoOp();
+					}
+					else if (!RedstoneCode.isLongImmediate((short) sum)) {
 						return new InstructionAddToStackPointer((short) sum);
 					}
 					else if (!RedstoneCode.isLongImmediate((short) -sum)) {

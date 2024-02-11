@@ -34,6 +34,6 @@ public class LowDataSpan {
 	
 	@Override
 	public String toString() {
-		return id + ": " + size;
+		return id + "[" + size + "]";
 	}
 }

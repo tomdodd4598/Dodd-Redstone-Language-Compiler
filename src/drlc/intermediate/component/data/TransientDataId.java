@@ -65,11 +65,11 @@ public class TransientDataId extends DataId {
 	}
 	
 	@Override
-	public boolean equalsOther(Object obj, boolean raw) {
+	public boolean equalsOther(Object obj, boolean raw, boolean low) {
 		if (obj instanceof TransientDataId) {
 			TransientDataId other = (TransientDataId) obj;
-			boolean equalDereferenceLevels = raw || dereferenceLevel == other.dereferenceLevel;
-			boolean equalTypeInfos = typeInfo.equalsOther(other.typeInfo, raw);
+			boolean equalDereferenceLevels = raw || low || dereferenceLevel == other.dereferenceLevel;
+			boolean equalTypeInfos = low || typeInfo.equalsOther(other.typeInfo, raw);
 			return Objects.equals(scope, other.scope) && equalDereferenceLevels && equalTypeInfos;
 		}
 		else {
