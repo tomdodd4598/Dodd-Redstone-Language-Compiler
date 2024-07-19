@@ -6,11 +6,8 @@ import drlc.intermediate.component.type.NatTypeInfo;
 
 public class NatValue extends WordValue<NatTypeInfo> {
 	
-	public final long value;
-	
 	public NatValue(ASTNode<?> node, long value) {
 		super(node, Main.generator.natTypeInfo, value);
-		this.value = value;
 	}
 	
 	@Override

@@ -6,11 +6,8 @@ import drlc.intermediate.component.type.IntTypeInfo;
 
 public class IntValue extends WordValue<IntTypeInfo> {
 	
-	public final long value;
-	
 	public IntValue(ASTNode<?> node, long value) {
 		super(node, Main.generator.intTypeInfo, value);
-		this.value = value;
 	}
 	
 	@Override
