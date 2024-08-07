@@ -14,6 +14,7 @@ import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.*;
+import drlc.low.drc1.*;
 
 public abstract class Generator {
 	
@@ -24,8 +25,8 @@ public abstract class Generator {
 	
 	static {
 		put("i", "Intermediate", IntermediateGenerator::new);
-		put("s1", "DRC1 Assembly", drlc.low.drc1.RedstoneAssemblyGenerator::new);
-		put("oc1", "DRC1 OC Input", drlc.low.drc1.RedstoneOCGenerator::new);
+		put("s1", "DRC1 Assembly", RedstoneAssemblyGenerator::new);
+		put("oc1", "DRC1 OC Input", RedstoneOCGenerator::new);
 	}
 	
 	private static void put(String id, String name, GeneratorConstructor constructor) {

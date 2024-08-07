@@ -83,8 +83,8 @@ public class RedstoneRoutine {
 			if (code.requiresStack) {
 				List<Instruction> text = new ArrayList<>();
 				textSectionMap.put(-1, text);
-				text.add(new InstructionLoadBasePointer(RedstoneCode.MAX_ADDRESS));
-				text.add(new InstructionLoadStackPointer(RedstoneCode.MAX_ADDRESS));
+				text.add(new InstructionInitializeStackPointer());
+				text.add(new InstructionInitializeBasePointer());
 			}
 		}
 		else if (isStackRoutine()) {
@@ -358,6 +358,7 @@ public class RedstoneRoutine {
 			List<Instruction> section = entry.getValue();
 			for (int i = 0; i < section.size(); ++i) {
 				Instruction instruction = section.get(i);
+				
 				if (instruction instanceof InstructionAddress) {
 					InstructionAddress ia = (InstructionAddress) instruction;
 					ia.address = getAddress(ia.info);

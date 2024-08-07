@@ -444,7 +444,7 @@ fn main() {
 
 // TESTING PRINTING
 
-
+/*
 let str = "Hello World!\n";
 
 fn main() {
@@ -468,11 +468,11 @@ fn main() {
 		k += 1;
 	}
 }
-
+*/
 
 // TRIPLE REF TECHNIQUE
 
-/*
+
 struct Thing {
 	item: Chars,
 	next: &mut Thing,
@@ -569,4 +569,4 @@ fn main() {
 	printChars("\nAltered List:\n");
 	start.printList();
 }
-*/
+

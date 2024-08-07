@@ -138,8 +138,9 @@ public class RedstoneCode {
 	
 	// Static helpers
 	
-	public static final short MAX_ADDRESS = 0xFF;
+	public static final short BYTE_MASK = 0xFF;
 	public static final short CHAR_MASK = 0x7F;
+	public static final short SHIFT_MASK = 0xF;
 	
 	public static List<Short> raw(Value<?> value) {
 		if (value instanceof BoolValue) {
@@ -157,15 +158,15 @@ public class RedstoneCode {
 	}
 	
 	public static boolean isLongImmediate(short value) {
-		return value < 0 || value > 0xFF;
+		return value < 0 || value > BYTE_MASK;
 	}
 	
 	public static short lowBits(short value) {
-		return (short) (value & 0xFF);
+		return (short) (value & BYTE_MASK);
 	}
 	
 	public static short shiftBits(short value) {
-		return (short) (value & 0xF);
+		return (short) (value & SHIFT_MASK);
 	}
 	
 	public static boolean isPowerOfTwo(short value) {
