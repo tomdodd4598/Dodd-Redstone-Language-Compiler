@@ -3,12 +3,12 @@ nesting fn root() -> Int:
 	Thing: Thing {Chars, &Thing}
 {dec}:
 	static \r0: [Char; 0]
-	static arr: [Thing {Chars, &Thing}; 8]
-	static i: Nat
+	<46> static arr: [Thing {Chars, &Thing}; 8]
+	<46> static i: Nat
 {0}:
 	\r0 = $[]
-	arr = (&\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0)
-	i = $0
+	<46> arr = (&\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0)
+	<46> i = $0
 	%0 = call $main()
 	exit $0
 
@@ -77,16 +77,16 @@ nesting fn printChars(<35> chars: Chars {&mut Char, Nat}) -> ():
 	cj 1
 	ret $()
 
-leaf fn newElement(<47> item: Chars {&mut Char, Nat}) -> &Thing {Chars, &Thing}:
+leaf fn newElement(<45> item: Chars {&mut Char, Nat}) -> &Thing {Chars, &Thing}:
 {dec}:
-	<48> node: &Thing {Chars, &Thing}
+	<46> node: &Thing {Chars, &Thing}
 {0}:
-	%0 = i * $24
-	<48> node = %0 + &arr
-	%1 = (<47> item, $0x0)
-	*<48> node = %1
-	i = i + $1
-	ret <48> node
+	%0 = <46> i * $24
+	<46> node = %0 + &<46> arr
+	%1 = (<45> item, $0x0)
+	*<46> node = %1
+	<46> i = <46> i + $1
+	ret <46> node
 
 leaf fn deleteElement(<55> node: &Thing {Chars, &Thing}) -> ():
 {dec}:

@@ -2,7 +2,7 @@ package drlc.intermediate.ast.section;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Source;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.element.DeclaratorNode;
 import drlc.intermediate.ast.expression.*;
@@ -49,7 +49,7 @@ public class VariableDeclarationNode extends StaticSectionNode<Scope> {
 	
 	@Override
 	public void declareExpressions(ASTNode<?> parent) {
-		routine = parent.routine;
+		routine = declaratorNode.variableModifier._static ? Main.rootRoutine : parent.routine;
 		
 		if (expressionNode != null) {
 			expressionNode.declareExpressions(this);

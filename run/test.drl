@@ -504,10 +504,10 @@ fn printChars(chars: Chars) {
 	}
 }
 
-let static mut arr = [Thing { "", null }; 8];
-let static mut i = 0N;
-
 fn newElement(item: Chars) -> Node {
+	let static mut arr = [Thing { "", null }; 8];
+	let static mut i = 0N;
+	
 	let node = &mut arr[i];
 	*node = Thing { item, null };
 	i += 1;
