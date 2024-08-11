@@ -137,19 +137,6 @@ public abstract class TypeInfo {
 		throw Helpers.nodeError(node, "Type \"%s\" can not be indexed!", this);
 	}
 	
-	public @NonNull TypeInfo atOffset(ASTNode<?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
-		System.out.println(this + " at offset " + offset + " for " + expectedTypeInfo);
-		if (offset == 0 && equalsOther(expectedTypeInfo, true) && getReferenceLevel() == expectedTypeInfo.getReferenceLevel()) {
-			System.out.println(this + " matches " + expectedTypeInfo + "\n");
-			return this;
-		}
-		else {
-			int index = offsetToIndexShallow(node, offset);
-			System.out.println(this + " at index " + index + " for " + expectedTypeInfo);
-			return atIndex(node, index).atOffset(node, offset - indexToOffsetShallow(node, index), expectedTypeInfo);
-		}
-	}
-	
 	@Override
 	public abstract int hashCode();
 	

@@ -7,7 +7,6 @@ import org.eclipse.jdt.annotation.*;
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Function;
-import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.*;
 
 public class ValueDataId extends DataId {
@@ -25,11 +24,6 @@ public class ValueDataId extends DataId {
 	}
 	
 	@Override
-	public int getOffset() {
-		return 0;
-	}
-	
-	@Override
 	public @Nullable Function getFunction() {
 		return value instanceof FunctionItemValue ? ((FunctionItemValue) value).typeInfo.function : null;
 	}
@@ -42,16 +36,6 @@ public class ValueDataId extends DataId {
 	@Override
 	public @NonNull ValueDataId removeDereference(ASTNode<?> node) {
 		throw Helpers.nodeError(node, "Attempted to remove dereference from data ID \"%s\"!", this);
-	}
-	
-	@Override
-	public boolean isIndexed() {
-		return false;
-	}
-	
-	@Override
-	public @NonNull ValueDataId atOffset(ASTNode<?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
-		return value.atOffset(node, offset, expectedTypeInfo).dataId();
 	}
 	
 	@Override

@@ -1,30 +1,19 @@
 package drlc.intermediate.component.data;
 
-import java.util.*;
+import java.util.Objects;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Global;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Variable;
-import drlc.intermediate.component.type.TypeInfo;
 
 public class VariableDataId extends DataId {
 	
 	public final @NonNull Variable variable;
-	public final int offset;
-	
-	protected final List<VariableDataId> offsetFrom;
 	
 	public VariableDataId(int dereferenceLevel, @NonNull Variable variable) {
-		this(dereferenceLevel, variable, 0, new ArrayList<>());
-	}
-	
-	protected VariableDataId(int dereferenceLevel, @NonNull Variable variable, int offset, List<VariableDataId> offsetFrom) {
 		super(variable.scope, dereferenceLevel, variable.typeInfo.modifyMutable(null, -dereferenceLevel));
 		this.variable = variable;
-		this.offset = offset;
-		this.offsetFrom = offsetFrom;
 	}
 	
 	@Override
@@ -33,47 +22,24 @@ public class VariableDataId extends DataId {
 	}
 	
 	@Override
-	public int getOffset() {
-		return offset;
-	}
-	
-	@Override
 	public @NonNull VariableDataId addDereference(ASTNode<?> node) {
-		return new VariableDataId(dereferenceLevel + 1, variable, offset, offsetFrom);
+		return new VariableDataId(dereferenceLevel + 1, variable);
 	}
 	
 	@Override
 	public @NonNull VariableDataId removeDereference(ASTNode<?> node) {
-		return new VariableDataId(dereferenceLevel - 1, variable, offset, offsetFrom);
-	}
-	
-	protected List<VariableDataId> nextIndexFrom() {
-		List<VariableDataId> nextIndexFrom = new ArrayList<>();
-		nextIndexFrom.addAll(offsetFrom);
-		nextIndexFrom.add(this);
-		return nextIndexFrom;
-	}
-	
-	@Override
-	public boolean isIndexed() {
-		return !offsetFrom.isEmpty();
-	}
-	
-	@Override
-	public @NonNull VariableDataId atOffset(ASTNode<?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
-		@NonNull Variable offsetVariable = variable.atOffset(node, offset, expectedTypeInfo);
-		return new VariableDataId(dereferenceLevel, offsetVariable, this.offset + offset, nextIndexFrom());
+		return new VariableDataId(dereferenceLevel - 1, variable);
 	}
 	
 	@Override
 	public @Nullable DataId getRawReplacer(ASTNode<?> node, DataId rawInternal) {
 		if (rawInternal instanceof RegDataId) {
 			RegDataId raw = (RegDataId) rawInternal;
-			return new RegDataId(raw.dereferenceLevel, raw.typeInfo.atOffset(node, offset, typeInfo.copyMutable(node, raw.dereferenceLevel)), raw.regId, offset, new ArrayList<>());
+			return new RegDataId(raw.dereferenceLevel, raw.typeInfo, raw.regId);
 		}
 		else if (rawInternal instanceof VariableDataId) {
 			VariableDataId raw = (VariableDataId) rawInternal;
-			return new VariableDataId(raw.dereferenceLevel, raw.variable.atOffset(node, offset, typeInfo.modifyMutable(node, raw.dereferenceLevel)), offset, new ArrayList<>());
+			return new VariableDataId(raw.dereferenceLevel, raw.variable);
 		}
 		else {
 			return null;
@@ -92,16 +58,7 @@ public class VariableDataId extends DataId {
 	
 	@Override
 	public int hashCode(boolean raw) {
-		return Objects.hash(scope, raw ? 0 : dereferenceLevel, raw ? null : typeInfo, variable.hashCode(raw), raw ? 0 : offset);
-	}
-	
-	protected boolean matchTypeInfos(VariableDataId other, boolean raw) {
-		if (raw) {
-			return typeInfo.equalsOther(other.typeInfo, true) || offsetFrom.stream().anyMatch(x -> x.typeInfo.equalsOther(other.typeInfo, true));
-		}
-		else {
-			return typeInfo.equalsOther(other.typeInfo, false);
-		}
+		return Objects.hash(scope, raw ? 0 : dereferenceLevel, raw ? null : typeInfo, variable.hashCode(raw));
 	}
 	
 	@Override
@@ -109,9 +66,8 @@ public class VariableDataId extends DataId {
 		if (obj instanceof VariableDataId) {
 			VariableDataId other = (VariableDataId) obj;
 			boolean equalDereferenceLevels = raw || low || dereferenceLevel == other.dereferenceLevel;
-			boolean equalTypeInfos = low || matchTypeInfos(other, raw);
-			boolean equalOffsets = raw || low || offset == other.offset;
-			return Objects.equals(scope, other.scope) && equalDereferenceLevels && equalTypeInfos && variable.equalsOther(other.variable, raw || low) && equalOffsets;
+			boolean equalTypeInfos = low || typeInfo.equalsOther(other.typeInfo, raw);
+			return Objects.equals(scope, other.scope) && equalDereferenceLevels && equalTypeInfos && variable.equalsOther(other.variable, raw || low);
 		}
 		else {
 			return false;
@@ -120,11 +76,6 @@ public class VariableDataId extends DataId {
 	
 	@Override
 	protected String rawString() {
-		if (offset == 0) {
-			return variable.name;
-		}
-		else {
-			return variable.name + (dereferenceLevel == 0 ? "" : Global.BRACE_END) + Global.FULL_STOP + offset;
-		}
+		return variable.name;
 	}
 }

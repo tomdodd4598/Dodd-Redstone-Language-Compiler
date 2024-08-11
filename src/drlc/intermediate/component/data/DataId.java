@@ -36,8 +36,6 @@ public abstract class DataId {
 		return dereferenceLevel > 0;
 	}
 	
-	public abstract int getOffset();
-	
 	public @Nullable Function getFunction() {
 		return null;
 	}
@@ -58,10 +56,6 @@ public abstract class DataId {
 			throw Helpers.nodeError(node, "Attempted to replace data ID \"%s\" with transient data ID!", this);
 		}
 	}
-	
-	public abstract boolean isIndexed();
-	
-	public abstract @NonNull DataId atOffset(ASTNode<?> node, int offset, @NonNull TypeInfo expectedTypeInfo);
 	
 	public abstract @Nullable DataId getRawReplacer(ASTNode<?> node, DataId rawInternal);
 	
@@ -86,7 +80,7 @@ public abstract class DataId {
 	protected abstract String rawString();
 	
 	protected String toStringPrefix() {
-		return (dereferenceLevel == 0 || getOffset() == 0 ? "" : Global.BRACE_START) + (dereferenceLevel >= 0 ? Helpers.dereferenceString(dereferenceLevel) : Global.ADDRESS_OF);
+		return dereferenceLevel >= 0 ? Helpers.dereferenceString(dereferenceLevel) : Global.ADDRESS_OF;
 	}
 	
 	@Override

@@ -20,11 +20,6 @@ public class TransientDataId extends DataId {
 	}
 	
 	@Override
-	public int getOffset() {
-		return 0;
-	}
-	
-	@Override
 	public @NonNull TransientDataId addDereference(ASTNode<?> node) {
 		throw Helpers.nodeError(node, "Attempted to add dereference to data ID \"%s\"!", this);
 	}
@@ -32,16 +27,6 @@ public class TransientDataId extends DataId {
 	@Override
 	public @NonNull TransientDataId removeDereference(ASTNode<?> node) {
 		throw Helpers.nodeError(node, "Attempted to remove dereference from data ID \"%s\"!", this);
-	}
-	
-	@Override
-	public boolean isIndexed() {
-		return false;
-	}
-	
-	@Override
-	public @NonNull TransientDataId atOffset(ASTNode<?> node, int offset, @NonNull TypeInfo expectedTypeInfo) {
-		throw Helpers.nodeError(node, "Attempted to index data ID \"%s\"!", this);
 	}
 	
 	@Override

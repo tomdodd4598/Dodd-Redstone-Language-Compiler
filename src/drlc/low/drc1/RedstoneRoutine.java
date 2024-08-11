@@ -497,7 +497,7 @@ public class RedstoneRoutine {
 	}
 	
 	protected static short dataAddress(Map<LowDataSpan, LowAddressSlice> addressMap, LowDataInfo info) {
-		return (short) (addressMap.get(info.span).start + info.dataId.getOffset() + info.extraOffset);
+		return (short) (addressMap.get(info.span).start + info.extraOffset);
 	}
 	
 	// Instructions
@@ -587,7 +587,7 @@ public class RedstoneRoutine {
 					for (int i = 0; i < arg.dereferenceLevel - 1; ++i) {
 						text.add(new InstructionDereferenceA());
 					}
-					text.add(new InstructionAddImmediate((short) (arg.getOffset() + x)));
+					text.add(new InstructionAddImmediate((short) x));
 					text.add(new InstructionDereferenceA());
 					consumer.accept(x);
 				});
@@ -620,7 +620,7 @@ public class RedstoneRoutine {
 				for (int i = 0; i < storeInfo.dereferenceLevel - 1; ++i) {
 					text.add(new InstructionDereferenceB());
 				}
-				text.add(new InstructionAddBImmediate((short) (target.getOffset() + offset)));
+				text.add(new InstructionAddBImmediate((short) offset));
 				text.add(new InstructionStoreAToBAddress());
 			}
 		}
