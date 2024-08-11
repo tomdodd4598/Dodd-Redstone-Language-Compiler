@@ -1,6 +1,5 @@
 package drlc.low.drc1.instruction.address;
 
-import drlc.Helpers;
 import drlc.low.LowDataInfo;
 import drlc.low.drc1.*;
 import drlc.low.drc1.instruction.Instruction;
@@ -17,12 +16,12 @@ public class InstructionLeftShift extends InstructionALU {
 	}
 	
 	@Override
-	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.LSH) + Helpers.toBinary(address, 8);
+	public String[] toBinary(boolean longAddress) {
+		return toBinary(longAddress, RedstoneMnemonics.LSH, RedstoneMnemonics.LSHL);
 	}
 	
 	@Override
-	public String toString() {
-		return RedstoneMnemonics.LSH + '\t' + Helpers.toHex(address, 2);
+	public String toAssembly(boolean longAddress) {
+		return toAssembly(longAddress, RedstoneMnemonics.LSH, RedstoneMnemonics.LSHL);
 	}
 }

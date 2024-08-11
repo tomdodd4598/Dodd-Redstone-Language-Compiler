@@ -69,7 +69,7 @@ public class RedstoneRoutine {
 	public void mapParams() {
 		for (DeclaratorInfo param : params) {
 			DataId dataId = param.dataId();
-			dataSpanMap.put(dataId.low(), new Pair<>(dataId, nextParamSpan(dataId)));
+			(isStackData(dataId) ? dataSpanMap : code.rootSpanMap).put(dataId.low(), new Pair<>(dataId, nextParamSpan(dataId)));
 		}
 	}
 	
@@ -312,7 +312,7 @@ public class RedstoneRoutine {
 		short sectionAddressOffset = 0;
 		for (Entry<Integer, List<Instruction>> entry : textSectionMap.entrySet()) {
 			sectionAddressMap.put(entry.getKey(), sectionAddressOffset);
-			sectionAddressOffset += entry.getValue().size();
+			sectionAddressOffset += entry.getValue().stream().mapToInt(x -> x.size(code.longAddress)).sum();
 		}
 		code.textAddressMap.put(function, code.addressOffset);
 		code.addressOffset += sectionAddressOffset;
@@ -358,6 +358,7 @@ public class RedstoneRoutine {
 			List<Instruction> section = entry.getValue();
 			for (int i = 0; i < section.size(); ++i) {
 				Instruction instruction = section.get(i);
+				int instructionSize = instruction.size(code.longAddress);
 				
 				if (instruction instanceof InstructionAddress) {
 					InstructionAddress ia = (InstructionAddress) instruction;
@@ -371,7 +372,7 @@ public class RedstoneRoutine {
 				
 				else if (instruction instanceof InstructionCallSubroutine) {
 					InstructionCallSubroutine ics = (InstructionCallSubroutine) instruction;
-					ics.returnAddress = (short) (code.textAddressMap.get(function) + instructionAddress + 1);
+					ics.returnAddress = (short) (code.textAddressMap.get(function) + instructionAddress + instructionSize);
 					
 					if (!ics.indirectCall && !(section.get(i - 1) instanceof InstructionLoadSubroutineAddress)) {
 						throw new IllegalArgumentException(String.format("Found unexpected direct subroutine call instruction \"%s\" not following call address load instruction as required!", instruction));
@@ -388,7 +389,7 @@ public class RedstoneRoutine {
 					ij.address = (short) (code.textAddressMap.get(function) + sectionAddressMap.get(ij.section));
 				}
 				
-				++instructionAddress;
+				instructionAddress += instructionSize;
 			}
 		}
 	}
@@ -501,18 +502,9 @@ public class RedstoneRoutine {
 	
 	// Instructions
 	
-	protected void longImmediate(List<Instruction> text, InstructionLongImmediate longImmediate) {
-		text.add(longImmediate);
-		text.add(longImmediate.succeedingData());
-	}
-	
 	protected void loadImmediate(List<Instruction> text, short value) {
-		short complement = (short) ~value;
-		if (!RedstoneCode.isLongImmediate(complement)) {
-			text.add(new InstructionNotImmediate(complement));
-		}
-		else if (RedstoneCode.isLongImmediate(value)) {
-			longImmediate(text, new InstructionLoadLongImmediate(value));
+		if (!RedstoneCode.isLongImmediate((short) ~value)) {
+			text.add(new InstructionNotImmediate((short) ~value));
 		}
 		else {
 			text.add(new InstructionLoadImmediate(value));
@@ -641,271 +633,145 @@ public class RedstoneRoutine {
 	protected void binaryOp(List<Instruction> text, BinaryActionType type, DataId arg) {
 		if (arg instanceof ValueDataId) {
 			short value = RedstoneCode.raw(((ValueDataId) arg).value).get(0);
-			if (RedstoneCode.isLongImmediate(value)) {
-				Consumer<String> binaryOpBuiltInSubroutine = x -> builtInSubroutine(text, x, () -> loadImmediate(text, value));
-				switch (type) {
-					case BOOL_EQUAL_TO_BOOL:
-					case INT_EQUAL_TO_INT:
-					case CHAR_EQUAL_TO_CHAR:
-						longImmediate(text, new InstructionXorLongImmediate(value));
-						text.add(new InstructionSetIsZero());
-						break;
-					case BOOL_NOT_EQUAL_TO_BOOL:
-					case INT_NOT_EQUAL_TO_INT:
-					case CHAR_NOT_EQUAL_TO_CHAR:
-						longImmediate(text, new InstructionXorLongImmediate(value));
-						text.add(new InstructionSetIsNotZero());
-						break;
-					case BOOL_LESS_THAN_BOOL:
-					case CHAR_LESS_THAN_CHAR:
-						longImmediate(text, new InstructionSubtractLongImmediate(value));
-						text.add(new InstructionSetIsLessThanZero());
-						break;
-					case INT_LESS_THAN_INT:
+			Consumer<String> binaryOpBuiltInSubroutine = x -> builtInSubroutine(text, x, () -> loadImmediate(text, value));
+			switch (type) {
+				case BOOL_EQUAL_TO_BOOL:
+				case INT_EQUAL_TO_INT:
+				case CHAR_EQUAL_TO_CHAR:
+					text.add(new InstructionXorImmediate(value));
+					text.add(new InstructionSetIsZero());
+					break;
+				case BOOL_NOT_EQUAL_TO_BOOL:
+				case INT_NOT_EQUAL_TO_INT:
+				case CHAR_NOT_EQUAL_TO_CHAR:
+					text.add(new InstructionXorImmediate(value));
+					text.add(new InstructionSetIsNotZero());
+					break;
+				case BOOL_LESS_THAN_BOOL:
+				case CHAR_LESS_THAN_CHAR:
+					text.add(new InstructionSubtractImmediate(value));
+					text.add(new InstructionSetIsLessThanZero());
+					break;
+				case INT_LESS_THAN_INT:
+					if (value != 0) {
 						binaryOpBuiltInSubroutine.accept(Global.INT_COMPARE_INT);
-						text.add(new InstructionSetIsLessThanZero());
-						break;
-					case NAT_LESS_THAN_NAT:
-						binaryOpBuiltInSubroutine.accept(Global.NAT_COMPARE_NAT);
-						text.add(new InstructionSetIsLessThanZero());
-						break;
-					case BOOL_LESS_OR_EQUAL_BOOL:
-					case CHAR_LESS_OR_EQUAL_CHAR:
-						longImmediate(text, new InstructionSubtractLongImmediate(value));
-						text.add(new InstructionSetIsLessThanOrEqualToZero());
-						break;
-					case INT_LESS_OR_EQUAL_INT:
+					}
+					text.add(new InstructionSetIsLessThanZero());
+					break;
+				case NAT_LESS_THAN_NAT:
+					binaryOpBuiltInSubroutine.accept(Global.NAT_COMPARE_NAT);
+					text.add(new InstructionSetIsLessThanZero());
+					break;
+				case BOOL_LESS_OR_EQUAL_BOOL:
+				case CHAR_LESS_OR_EQUAL_CHAR:
+					text.add(new InstructionSubtractImmediate(value));
+					text.add(new InstructionSetIsLessThanOrEqualToZero());
+					break;
+				case INT_LESS_OR_EQUAL_INT:
+					if (value != 0) {
 						binaryOpBuiltInSubroutine.accept(Global.INT_COMPARE_INT);
-						text.add(new InstructionSetIsLessThanOrEqualToZero());
-						break;
-					case NAT_LESS_OR_EQUAL_NAT:
+					}
+					text.add(new InstructionSetIsLessThanOrEqualToZero());
+					break;
+				case NAT_LESS_OR_EQUAL_NAT:
+					if (value == 0) {
+						binaryOp(text, BinaryActionType.INT_EQUAL_TO_INT, arg);
+					}
+					else {
 						binaryOpBuiltInSubroutine.accept(Global.NAT_COMPARE_NAT);
 						text.add(new InstructionSetIsLessThanOrEqualToZero());
-						break;
-					case BOOL_MORE_THAN_BOOL:
-					case CHAR_MORE_THAN_CHAR:
-						longImmediate(text, new InstructionSubtractLongImmediate(value));
-						text.add(new InstructionSetIsMoreThanZero());
-						break;
-					case INT_MORE_THAN_INT:
+					}
+					break;
+				case BOOL_MORE_THAN_BOOL:
+				case CHAR_MORE_THAN_CHAR:
+					text.add(new InstructionSubtractImmediate(value));
+					text.add(new InstructionSetIsMoreThanZero());
+					break;
+				case INT_MORE_THAN_INT:
+					if (value != 0) {
 						binaryOpBuiltInSubroutine.accept(Global.INT_COMPARE_INT);
-						text.add(new InstructionSetIsMoreThanZero());
-						break;
-					case NAT_MORE_THAN_NAT:
+					}
+					text.add(new InstructionSetIsMoreThanZero());
+					break;
+				case NAT_MORE_THAN_NAT:
+					if (value == 0) {
+						binaryOp(text, BinaryActionType.INT_NOT_EQUAL_TO_INT, arg);
+					}
+					else {
 						binaryOpBuiltInSubroutine.accept(Global.NAT_COMPARE_NAT);
 						text.add(new InstructionSetIsMoreThanZero());
-						break;
-					case BOOL_MORE_OR_EQUAL_BOOL:
-					case CHAR_MORE_OR_EQUAL_CHAR:
-						longImmediate(text, new InstructionSubtractLongImmediate(value));
-						text.add(new InstructionSetIsMoreThanOrEqualToZero());
-						break;
-					case INT_MORE_OR_EQUAL_INT:
+					}
+					break;
+				case BOOL_MORE_OR_EQUAL_BOOL:
+				case CHAR_MORE_OR_EQUAL_CHAR:
+					text.add(new InstructionSubtractImmediate(value));
+					text.add(new InstructionSetIsMoreThanOrEqualToZero());
+					break;
+				case INT_MORE_OR_EQUAL_INT:
+					if (value != 0) {
 						binaryOpBuiltInSubroutine.accept(Global.INT_COMPARE_INT);
-						text.add(new InstructionSetIsMoreThanOrEqualToZero());
-						break;
-					case NAT_MORE_OR_EQUAL_NAT:
-						binaryOpBuiltInSubroutine.accept(Global.NAT_COMPARE_NAT);
-						text.add(new InstructionSetIsMoreThanOrEqualToZero());
-						break;
-					case INT_PLUS_INT:
-						longImmediate(text, new InstructionAddLongImmediate(value));
-						break;
-					case CHAR_PLUS_CHAR:
-						longImmediate(text, new InstructionAddLongImmediate(value));
-						text.add(new InstructionAndImmediate(RedstoneCode.CHAR_MASK));
-						break;
-					case BOOL_AND_BOOL:
-					case INT_AND_INT:
-					case CHAR_AND_CHAR:
-						longImmediate(text, new InstructionAndLongImmediate(value));
-						break;
-					case BOOL_OR_BOOL:
-					case INT_OR_INT:
-					case CHAR_OR_CHAR:
-						longImmediate(text, new InstructionOrLongImmediate(value));
-						break;
-					case BOOL_XOR_BOOL:
-					case INT_XOR_INT:
-					case CHAR_XOR_CHAR:
-						longImmediate(text, new InstructionXorLongImmediate(value));
-						break;
-					case INT_MINUS_INT:
-						longImmediate(text, new InstructionSubtractLongImmediate(value));
-						break;
-					case CHAR_MINUS_CHAR:
-						longImmediate(text, new InstructionSubtractLongImmediate(value));
-						text.add(new InstructionAndImmediate(RedstoneCode.CHAR_MASK));
-						break;
-					case INT_MULTIPLY_INT:
-						longImmediate(text, new InstructionMultiplyLongImmediate(value));
-						break;
-					case INT_DIVIDE_INT:
-						longImmediate(text, new InstructionDivideLongImmediate(value));
-						break;
-					case INT_REMAINDER_INT:
-						longImmediate(text, new InstructionRemainderLongImmediate(value));
-						break;
-					case INT_LEFT_SHIFT_INT:
-						text.add(new InstructionLeftShiftImmediate(RedstoneCode.lowBits(value)));
-						break;
-					case INT_RIGHT_SHIFT_INT:
-						text.add(new InstructionRightShiftImmediate(RedstoneCode.lowBits(value)));
-						break;
-					case NAT_RIGHT_SHIFT_INT:
-						builtInSubroutine(text, Global.NAT_RIGHT_SHIFT_INT, () -> loadImmediate(text, RedstoneCode.lowBits(value)));
-						break;
-					case INT_LEFT_ROTATE_INT:
-						builtInSubroutine(text, Global.INT_LEFT_ROTATE_INT, () -> loadImmediate(text, RedstoneCode.lowBits(value)));
-						break;
-					case INT_RIGHT_ROTATE_INT:
-						builtInSubroutine(text, Global.INT_RIGHT_ROTATE_INT, () -> loadImmediate(text, RedstoneCode.lowBits(value)));
-						break;
-					default:
-						throw new IllegalArgumentException(String.format("Attempted to add long immediate binary op instruction of unknown type! %s %s", type, arg.opErrorString()));
-				}
-			}
-			else {
-				Consumer<String> binaryOpBuiltInSubroutine = x -> builtInSubroutine(text, x, () -> loadImmediate(text, value));
-				switch (type) {
-					case BOOL_EQUAL_TO_BOOL:
-					case INT_EQUAL_TO_INT:
-					case CHAR_EQUAL_TO_CHAR:
-						text.add(new InstructionXorImmediate(value));
-						text.add(new InstructionSetIsZero());
-						break;
-					case BOOL_NOT_EQUAL_TO_BOOL:
-					case INT_NOT_EQUAL_TO_INT:
-					case CHAR_NOT_EQUAL_TO_CHAR:
-						text.add(new InstructionXorImmediate(value));
-						text.add(new InstructionSetIsNotZero());
-						break;
-					case BOOL_LESS_THAN_BOOL:
-					case CHAR_LESS_THAN_CHAR:
-						text.add(new InstructionSubtractImmediate(value));
-						text.add(new InstructionSetIsLessThanZero());
-						break;
-					case INT_LESS_THAN_INT:
-						if (value != 0) {
-							binaryOpBuiltInSubroutine.accept(Global.INT_COMPARE_INT);
-						}
-						text.add(new InstructionSetIsLessThanZero());
-						break;
-					case NAT_LESS_THAN_NAT:
-						binaryOpBuiltInSubroutine.accept(Global.NAT_COMPARE_NAT);
-						text.add(new InstructionSetIsLessThanZero());
-						break;
-					case BOOL_LESS_OR_EQUAL_BOOL:
-					case CHAR_LESS_OR_EQUAL_CHAR:
-						text.add(new InstructionSubtractImmediate(value));
-						text.add(new InstructionSetIsLessThanOrEqualToZero());
-						break;
-					case INT_LESS_OR_EQUAL_INT:
-						if (value != 0) {
-							binaryOpBuiltInSubroutine.accept(Global.INT_COMPARE_INT);
-						}
-						text.add(new InstructionSetIsLessThanOrEqualToZero());
-						break;
-					case NAT_LESS_OR_EQUAL_NAT:
-						if (value == 0) {
-							binaryOp(text, BinaryActionType.INT_EQUAL_TO_INT, arg);
-						}
-						else {
-							binaryOpBuiltInSubroutine.accept(Global.NAT_COMPARE_NAT);
-							text.add(new InstructionSetIsLessThanOrEqualToZero());
-						}
-						break;
-					case BOOL_MORE_THAN_BOOL:
-					case CHAR_MORE_THAN_CHAR:
-						text.add(new InstructionSubtractImmediate(value));
-						text.add(new InstructionSetIsMoreThanZero());
-						break;
-					case INT_MORE_THAN_INT:
-						if (value != 0) {
-							binaryOpBuiltInSubroutine.accept(Global.INT_COMPARE_INT);
-						}
-						text.add(new InstructionSetIsMoreThanZero());
-						break;
-					case NAT_MORE_THAN_NAT:
-						if (value == 0) {
-							binaryOp(text, BinaryActionType.INT_NOT_EQUAL_TO_INT, arg);
-						}
-						else {
-							binaryOpBuiltInSubroutine.accept(Global.NAT_COMPARE_NAT);
-							text.add(new InstructionSetIsMoreThanZero());
-						}
-						break;
-					case BOOL_MORE_OR_EQUAL_BOOL:
-					case CHAR_MORE_OR_EQUAL_CHAR:
-						text.add(new InstructionSubtractImmediate(value));
-						text.add(new InstructionSetIsMoreThanOrEqualToZero());
-						break;
-					case INT_MORE_OR_EQUAL_INT:
-						if (value != 0) {
-							binaryOpBuiltInSubroutine.accept(Global.INT_COMPARE_INT);
-						}
-						text.add(new InstructionSetIsMoreThanOrEqualToZero());
-						break;
-					case NAT_MORE_OR_EQUAL_NAT:
-						binaryOpBuiltInSubroutine.accept(Global.NAT_COMPARE_NAT);
-						text.add(new InstructionSetIsMoreThanOrEqualToZero());
-						break;
-					case INT_PLUS_INT:
-						text.add(new InstructionAddImmediate(value));
-						break;
-					case CHAR_PLUS_CHAR:
-						text.add(new InstructionAddImmediate(value));
-						text.add(new InstructionAndImmediate(RedstoneCode.CHAR_MASK));
-						break;
-					case BOOL_AND_BOOL:
-					case INT_AND_INT:
-					case CHAR_AND_CHAR:
-						text.add(new InstructionAndImmediate(value));
-						break;
-					case BOOL_OR_BOOL:
-					case INT_OR_INT:
-					case CHAR_OR_CHAR:
-						text.add(new InstructionOrImmediate(value));
-						break;
-					case BOOL_XOR_BOOL:
-					case INT_XOR_INT:
-					case CHAR_XOR_CHAR:
-						text.add(new InstructionXorImmediate(value));
-						break;
-					case INT_MINUS_INT:
-						text.add(new InstructionSubtractImmediate(value));
-						break;
-					case CHAR_MINUS_CHAR:
-						text.add(new InstructionSubtractImmediate(value));
-						text.add(new InstructionAndImmediate(RedstoneCode.CHAR_MASK));
-						break;
-					case INT_MULTIPLY_INT:
-						text.add(new InstructionMultiplyImmediate(value));
-						break;
-					case INT_DIVIDE_INT:
-						text.add(new InstructionDivideImmediate(value));
-						break;
-					case INT_REMAINDER_INT:
-						text.add(new InstructionRemainderImmediate(value));
-						break;
-					case INT_LEFT_SHIFT_INT:
-						text.add(new InstructionLeftShiftImmediate(value));
-						break;
-					case INT_RIGHT_SHIFT_INT:
-						text.add(new InstructionRightShiftImmediate(value));
-						break;
-					case NAT_RIGHT_SHIFT_INT:
-						binaryOpBuiltInSubroutine.accept(Global.NAT_RIGHT_SHIFT_INT);
-						break;
-					case INT_LEFT_ROTATE_INT:
-						binaryOpBuiltInSubroutine.accept(Global.INT_LEFT_ROTATE_INT);
-						break;
-					case INT_RIGHT_ROTATE_INT:
-						binaryOpBuiltInSubroutine.accept(Global.INT_RIGHT_ROTATE_INT);
-						break;
-					default:
-						throw new IllegalArgumentException(String.format("Attempted to add immediate binary op instruction of unknown type! %s %s", type, arg.opErrorString()));
-				}
+					}
+					text.add(new InstructionSetIsMoreThanOrEqualToZero());
+					break;
+				case NAT_MORE_OR_EQUAL_NAT:
+					binaryOpBuiltInSubroutine.accept(Global.NAT_COMPARE_NAT);
+					text.add(new InstructionSetIsMoreThanOrEqualToZero());
+					break;
+				case INT_PLUS_INT:
+					text.add(new InstructionAddImmediate(value));
+					break;
+				case CHAR_PLUS_CHAR:
+					text.add(new InstructionAddImmediate(value));
+					text.add(new InstructionAndImmediate(RedstoneCode.CHAR_MASK));
+					break;
+				case BOOL_AND_BOOL:
+				case INT_AND_INT:
+				case CHAR_AND_CHAR:
+					text.add(new InstructionAndImmediate(value));
+					break;
+				case BOOL_OR_BOOL:
+				case INT_OR_INT:
+				case CHAR_OR_CHAR:
+					text.add(new InstructionOrImmediate(value));
+					break;
+				case BOOL_XOR_BOOL:
+				case INT_XOR_INT:
+				case CHAR_XOR_CHAR:
+					text.add(new InstructionXorImmediate(value));
+					break;
+				case INT_MINUS_INT:
+					text.add(new InstructionSubtractImmediate(value));
+					break;
+				case CHAR_MINUS_CHAR:
+					text.add(new InstructionSubtractImmediate(value));
+					text.add(new InstructionAndImmediate(RedstoneCode.CHAR_MASK));
+					break;
+				case INT_MULTIPLY_INT:
+					text.add(new InstructionMultiplyImmediate(value));
+					break;
+				case INT_DIVIDE_INT:
+					text.add(new InstructionDivideImmediate(value));
+					break;
+				case INT_REMAINDER_INT:
+					text.add(new InstructionRemainderImmediate(value));
+					break;
+				case INT_LEFT_SHIFT_INT:
+					text.add(new InstructionLeftShiftImmediate(RedstoneCode.lowBits(value)));
+					break;
+				case INT_RIGHT_SHIFT_INT:
+					text.add(new InstructionRightShiftImmediate(RedstoneCode.lowBits(value)));
+					break;
+				case NAT_RIGHT_SHIFT_INT:
+					builtInSubroutine(text, Global.NAT_RIGHT_SHIFT_INT, () -> loadImmediate(text, RedstoneCode.lowBits(value)));
+					break;
+				case INT_LEFT_ROTATE_INT:
+					builtInSubroutine(text, Global.INT_LEFT_ROTATE_INT, () -> loadImmediate(text, RedstoneCode.lowBits(value)));
+					break;
+				case INT_RIGHT_ROTATE_INT:
+					builtInSubroutine(text, Global.INT_RIGHT_ROTATE_INT, () -> loadImmediate(text, RedstoneCode.lowBits(value)));
+					break;
+				default:
+					throw new IllegalArgumentException(String.format("Attempted to add immediate binary op instruction of unknown type! %s %s", type, arg.opErrorString()));
 			}
 		}
 		else {

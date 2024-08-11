@@ -11,11 +11,6 @@ public class InstructionSetNot extends InstructionSet {
 	}
 	
 	@Override
-	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.LDNOT) + Global.ZERO_8;
-	}
-	
-	@Override
 	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		if (sameSection && next instanceof InstructionSetNot) {
 			return new InstructionNoOp();
@@ -26,7 +21,12 @@ public class InstructionSetNot extends InstructionSet {
 	}
 	
 	@Override
-	public String toString() {
+	public String[] toBinary(boolean longAddress) {
+		return new String[] {RedstoneOpcodes.get(RedstoneMnemonics.LDNOT) + Global.ZERO_8};
+	}
+	
+	@Override
+	public String toAssembly(boolean longAddress) {
 		return RedstoneMnemonics.LDNOT;
 	}
 }

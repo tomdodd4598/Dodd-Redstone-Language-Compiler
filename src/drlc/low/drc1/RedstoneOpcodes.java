@@ -48,7 +48,8 @@ public class RedstoneOpcodes {
 		put(RedstoneMnemonics.STBTA, 0x2D);
 		
 		put(RedstoneMnemonics.CALL, 0x30);
-		put(RedstoneMnemonics.RET, 0x31);
+		put(RedstoneMnemonics.CALLF, 0x31);
+		put(RedstoneMnemonics.RET, 0x32);
 		
 		put(RedstoneMnemonics.PSHA, 0x3A);
 		put(RedstoneMnemonics.POPA, 0x3B);
@@ -85,6 +86,14 @@ public class RedstoneOpcodes {
 		put(RedstoneMnemonics.JMZ, 0x75);
 		put(RedstoneMnemonics.JMEZ, 0x76);
 		
+		put(RedstoneMnemonics.JMPF, 0x77);
+		put(RedstoneMnemonics.JEZF, 0x78);
+		put(RedstoneMnemonics.JNEZF, 0x79);
+		put(RedstoneMnemonics.JLZF, 0x7A);
+		put(RedstoneMnemonics.JLEZF, 0x7B);
+		put(RedstoneMnemonics.JMZF, 0x7C);
+		put(RedstoneMnemonics.JMEZF, 0x7D);
+		
 		put(RedstoneMnemonics.STAPB, 0x80);
 		put(RedstoneMnemonics.LDAPB, 0x81);
 		put(RedstoneMnemonics.NOTPB, 0x82);
@@ -119,23 +128,40 @@ public class RedstoneOpcodes {
 		put(RedstoneMnemonics.ADDINB, 0xAD);
 		put(RedstoneMnemonics.SUBINB, 0xAE);
 		
+		put(RedstoneMnemonics.STAL, 0xB0);
+		put(RedstoneMnemonics.LDAL, 0xB1);
+		put(RedstoneMnemonics.NOTL, 0xB2);
+		put(RedstoneMnemonics.ANDL, 0xB3);
+		put(RedstoneMnemonics.ORL, 0xB4);
+		put(RedstoneMnemonics.XORL, 0xB5);
+		put(RedstoneMnemonics.ADDL, 0xB6);
+		put(RedstoneMnemonics.SUBL, 0xB7);
+		put(RedstoneMnemonics.LSHL, 0xB8);
+		put(RedstoneMnemonics.RSHL, 0xB9);
+		
+		put(RedstoneMnemonics.STBL, 0xBA);
+		put(RedstoneMnemonics.LDBL, 0xBB);
+		
 		put(RedstoneMnemonics.MULI, 0xC0);
 		put(RedstoneMnemonics.MULLI, 0xC1);
 		put(RedstoneMnemonics.MUL, 0xC2);
 		put(RedstoneMnemonics.MULPB, 0xC3);
 		put(RedstoneMnemonics.MULNB, 0xC4);
+		put(RedstoneMnemonics.MULL, 0xC5);
 		
 		put(RedstoneMnemonics.DIVI, 0xD0);
 		put(RedstoneMnemonics.DIVLI, 0xD1);
 		put(RedstoneMnemonics.DIV, 0xD2);
 		put(RedstoneMnemonics.DIVPB, 0xD3);
 		put(RedstoneMnemonics.DIVNB, 0xD4);
+		put(RedstoneMnemonics.DIVL, 0xD5);
 		
 		put(RedstoneMnemonics.REMI, 0xE0);
 		put(RedstoneMnemonics.REMLI, 0xE1);
 		put(RedstoneMnemonics.REM, 0xE2);
 		put(RedstoneMnemonics.REMPB, 0xE3);
 		put(RedstoneMnemonics.REMNB, 0xE4);
+		put(RedstoneMnemonics.REML, 0xE5);
 	}
 	
 	private static void put(String mnemonic, int opcode) {

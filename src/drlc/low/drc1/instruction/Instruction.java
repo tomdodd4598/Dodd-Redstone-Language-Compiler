@@ -8,19 +8,17 @@ public abstract class Instruction {
 	
 	public abstract boolean isCurrentRegisterValueUsed();
 	
-	public boolean precedesData() {
-		return false;
-	}
-	
-	public InstructionConstant succeedingData() {
-		return null;
-	}
-	
 	/** Ignores code sectioning! */
 	public abstract Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection);
 	
-	public abstract String binaryString();
+	public abstract int size(boolean longAddress);
+	
+	public abstract String[] toBinary(boolean longAddress);
+	
+	public abstract String toAssembly(boolean longAddress);
 	
 	@Override
-	public abstract String toString();
+	public final String toString() {
+		return toAssembly(true);
+	}
 }

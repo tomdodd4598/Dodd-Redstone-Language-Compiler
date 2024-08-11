@@ -1,7 +1,6 @@
 package drlc.low.drc1.instruction.immediate;
 
-import drlc.*;
-import drlc.low.drc1.*;
+import drlc.low.drc1.RedstoneMnemonics;
 import drlc.low.drc1.instruction.Instruction;
 
 public class InstructionRemainderImmediate extends InstructionALUImmediate {
@@ -17,7 +16,7 @@ public class InstructionRemainderImmediate extends InstructionALUImmediate {
 	
 	@Override
 	public Instruction getImmediateReplacementInternal() {
-		if (value == 1) {
+		if (value == 1 || value == -1) {
 			return new InstructionLoadImmediate((short) 0);
 		}
 		else {
@@ -26,12 +25,12 @@ public class InstructionRemainderImmediate extends InstructionALUImmediate {
 	}
 	
 	@Override
-	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.REMI) + Helpers.toBinary(value, 8);
+	public String[] toBinary(boolean longAddress) {
+		return toBinary(longAddress, RedstoneMnemonics.REMI, RedstoneMnemonics.REMLI);
 	}
 	
 	@Override
-	public String toString() {
-		return RedstoneMnemonics.REMI + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
+	public String toAssembly(boolean longAddress) {
+		return toAssembly(longAddress, RedstoneMnemonics.REMI, RedstoneMnemonics.REMLI);
 	}
 }

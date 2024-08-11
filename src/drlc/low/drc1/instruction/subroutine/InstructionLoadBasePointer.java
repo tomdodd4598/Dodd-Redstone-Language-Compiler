@@ -32,12 +32,17 @@ public class InstructionLoadBasePointer extends Instruction {
 	}
 	
 	@Override
-	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.LDBP) + Helpers.toBinary(value, 8);
+	public int size(boolean longAddress) {
+		return 1;
 	}
 	
 	@Override
-	public String toString() {
+	public String[] toBinary(boolean longAddress) {
+		return new String[] {RedstoneOpcodes.get(RedstoneMnemonics.LDBP) + Helpers.toBinary(value, 8)};
+	}
+	
+	@Override
+	public String toAssembly(boolean longAddress) {
 		return RedstoneMnemonics.LDBP + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
 	}
 }

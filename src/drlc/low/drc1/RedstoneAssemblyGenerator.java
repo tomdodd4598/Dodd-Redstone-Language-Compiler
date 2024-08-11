@@ -3,7 +3,7 @@ package drlc.low.drc1;
 import java.util.List;
 
 import drlc.Helpers;
-import drlc.low.drc1.instruction.*;
+import drlc.low.drc1.instruction.Instruction;
 
 public class RedstoneAssemblyGenerator extends RedstoneGenerator {
 	
@@ -13,11 +13,11 @@ public class RedstoneAssemblyGenerator extends RedstoneGenerator {
 	
 	@Override
 	public void generate() {
-		code.generate();
+		generateInternal();
 		
 		StringBuilder sb = new StringBuilder();
 		boolean begin = true;
-		int i = 0;
+		int address = 0;
 		for (RedstoneRoutine routine : code.routineMap.values()) {
 			if (begin) {
 				begin = false;
@@ -28,7 +28,8 @@ public class RedstoneAssemblyGenerator extends RedstoneGenerator {
 			sb.append(routine.function.asmString()).append(":\n");
 			for (List<Instruction> section : routine.textSectionMap.values()) {
 				for (Instruction instruction : section) {
-					appendInstruction(sb, instruction, i++);
+					appendInstruction(sb, instruction, address, code.longAddress);
+					address += instruction.size(code.longAddress);
 				}
 			}
 		}
@@ -36,9 +37,7 @@ public class RedstoneAssemblyGenerator extends RedstoneGenerator {
 		Helpers.writeFile(outputFile, sb.toString());
 	}
 	
-	protected void appendInstruction(StringBuilder sb, Instruction instruction, int address) {
-		if (!(instruction instanceof InstructionConstant)) {
-			sb.append(String.format("%-4s", Helpers.toHex(address, 2))).append('\t').append(instruction).append('\n');
-		}
+	protected void appendInstruction(StringBuilder sb, Instruction instruction, int address, boolean longAddress) {
+		sb.append(String.format("%-4s", Helpers.toHex(address, longAddress ? 4 : 2))).append('\t').append(instruction.toAssembly(longAddress)).append('\n');
 	}
 }

@@ -10,12 +10,12 @@ public class InstructionSetIsLessThanZero extends InstructionSet {
 	}
 	
 	@Override
-	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.LDLZ) + Global.ZERO_8;
+	public String[] toBinary(boolean longAddress) {
+		return new String[] {RedstoneOpcodes.get(RedstoneMnemonics.LDLZ) + Global.ZERO_8};
 	}
 	
 	@Override
-	public String toString() {
+	public String toAssembly(boolean longAddress) {
 		return RedstoneMnemonics.LDLZ;
 	}
 }

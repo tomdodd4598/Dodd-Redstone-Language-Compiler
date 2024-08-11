@@ -45,7 +45,7 @@ public class PrintNatRedstoneRoutine extends RedstoneRoutine {
 		storeScalar(negativeText, t);
 		
 		loadScalar(negativeText, x);
-		longImmediate(negativeText, new InstructionAddLongImmediate((short) 5536));
+		negativeText.add(new InstructionAddImmediate((short) 5536));
 		storeScalar(negativeText, c);
 		negativeText.add(new InstructionConditionalJumpIfLessThanZero(2));
 		
@@ -56,14 +56,14 @@ public class PrintNatRedstoneRoutine extends RedstoneRoutine {
 		negativeText.add(new InstructionJump(3));
 		
 		loadScalar(arithmeticText, x);
-		longImmediate(arithmeticText, new InstructionSubtractLongImmediate((short) 30000));
-		longImmediate(arithmeticText, new InstructionDivideLongImmediate((short) 10000));
+		arithmeticText.add(new InstructionSubtractImmediate((short) 30000));
+		arithmeticText.add(new InstructionDivideImmediate((short) 10000));
 		
 		arithmeticText.add(new InstructionAddImmediate((short) 51));
 		arithmeticText.add(new InstructionOutput());
 		
 		arithmeticText.add(new InstructionSubtractImmediate((short) 48));
-		longImmediate(arithmeticText, new InstructionMultiplyLongImmediate((short) 10000));
+		arithmeticText.add(new InstructionMultiplyImmediate((short) 10000));
 		storeScalar(arithmeticText, c);
 		
 		loadScalar(arithmeticText, x);

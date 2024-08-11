@@ -1,6 +1,5 @@
 package drlc.low.drc1.instruction.immediate;
 
-import drlc.*;
 import drlc.low.drc1.*;
 import drlc.low.drc1.instruction.Instruction;
 
@@ -27,7 +26,12 @@ public class InstructionLoadImmediate extends InstructionImmediate implements II
 	
 	@Override
 	public Instruction getImmediateReplacementInternal() {
-		return null;
+		if (RedstoneCode.isLongImmediate(value) && !RedstoneCode.isLongImmediate((short) ~value)) {
+			return new InstructionNotImmediate((short) ~value);
+		}
+		else {
+			return null;
+		}
 	}
 	
 	@Override
@@ -42,19 +46,19 @@ public class InstructionLoadImmediate extends InstructionImmediate implements II
 	
 	@Override
 	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
-		if (next instanceof InstructionLoadImmediate) {
+		if (next instanceof InstructionLoadImmediate || next instanceof InstructionNotImmediate) {
 			return next;
 		}
 		return null;
 	}
 	
 	@Override
-	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.LDAI) + Helpers.toBinary(value, 8);
+	public String[] toBinary(boolean longAddress) {
+		return toBinary(longAddress, RedstoneMnemonics.LDAI, RedstoneMnemonics.LDALI);
 	}
 	
 	@Override
-	public String toString() {
-		return RedstoneMnemonics.LDAI + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
+	public String toAssembly(boolean longAddress) {
+		return toAssembly(longAddress, RedstoneMnemonics.LDAI, RedstoneMnemonics.LDALI);
 	}
 }

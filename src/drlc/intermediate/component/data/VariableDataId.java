@@ -124,7 +124,7 @@ public class VariableDataId extends DataId {
 			return variable.name;
 		}
 		else {
-			return variable.name + Global.FULL_STOP + offset;
+			return variable.name + (dereferenceLevel == 0 ? "" : Global.BRACE_END) + Global.FULL_STOP + offset;
 		}
 	}
 }

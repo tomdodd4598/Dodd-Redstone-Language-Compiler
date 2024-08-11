@@ -1,7 +1,6 @@
 package drlc.low.drc1.instruction.immediate;
 
-import drlc.*;
-import drlc.low.drc1.*;
+import drlc.low.drc1.RedstoneMnemonics;
 import drlc.low.drc1.instruction.Instruction;
 
 public class InstructionAndImmediate extends InstructionALUImmediate {
@@ -12,7 +11,7 @@ public class InstructionAndImmediate extends InstructionALUImmediate {
 	
 	@Override
 	public boolean isUnnecessaryImmediate() {
-		return false;
+		return value == -1;
 	}
 	
 	@Override
@@ -26,21 +25,12 @@ public class InstructionAndImmediate extends InstructionALUImmediate {
 	}
 	
 	@Override
-	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
-		/*if (next instanceof InstructionAndImmediate) {
-			InstructionAndImmediate and = (InstructionAndImmediate) next;
-			return new InstructionAndImmediate((short) (value & and.value));
-		}*/
-		return null;
+	public String[] toBinary(boolean longAddress) {
+		return toBinary(longAddress, RedstoneMnemonics.ANDI, RedstoneMnemonics.ANDLI);
 	}
 	
 	@Override
-	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.ANDI) + Helpers.toBinary(value, 8);
-	}
-	
-	@Override
-	public String toString() {
-		return RedstoneMnemonics.ANDI + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
+	public String toAssembly(boolean longAddress) {
+		return toAssembly(longAddress, RedstoneMnemonics.ANDI, RedstoneMnemonics.ANDLI);
 	}
 }

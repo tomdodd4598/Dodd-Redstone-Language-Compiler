@@ -13,20 +13,22 @@ public class RedstoneOCGenerator extends RedstoneGenerator {
 	
 	@Override
 	public void generate() {
-		code.generate();
+		generateInternal();
 		
 		StringBuilder sb = new StringBuilder();
 		boolean begin = true;
 		for (RedstoneRoutine routine : code.routineMap.values()) {
 			for (List<Instruction> section : routine.textSectionMap.values()) {
 				for (Instruction instruction : section) {
-					if (begin) {
-						begin = false;
+					for (String binary : instruction.toBinary(code.longAddress)) {
+						if (begin) {
+							begin = false;
+						}
+						else {
+							sb.append(" ");
+						}
+						sb.append(Integer.parseUnsignedInt(binary, 2));
 					}
-					else {
-						sb.append(" ");
-					}
-					sb.append(Integer.parseUnsignedInt(instruction.binaryString(), 2));
 				}
 			}
 		}

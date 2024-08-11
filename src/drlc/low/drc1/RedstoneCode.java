@@ -17,6 +17,8 @@ public class RedstoneCode {
 	
 	public boolean requiresStack = false;
 	
+	public final boolean longAddress;
+	
 	public final Map<Function, RedstoneRoutine> routineMap = new LinkedHashMap<>();
 	
 	public final Map<LowDataId, Pair<DataId, LowDataSpan>> rootSpanMap = new LinkedHashMap<>();
@@ -25,6 +27,10 @@ public class RedstoneCode {
 	public final Map<LowDataSpan, LowAddressSlice> rootAddressMap = new LinkedHashMap<>();
 	
 	public final Map<Function, Short> textAddressMap = new LinkedHashMap<>();
+	
+	public RedstoneCode(boolean longAddress) {
+		this.longAddress = longAddress;
+	}
 	
 	public boolean routineExists(Function function) {
 		return routineMap.containsKey(function);
@@ -42,7 +48,7 @@ public class RedstoneCode {
 		}
 	}
 	
-	public void generate() {
+	public boolean generate() {
 		Main.rootScope.routineMap.forEach((k, v) -> {
 			if (!k.builtIn) {
 				addRoutine(k, v);
@@ -87,9 +93,15 @@ public class RedstoneCode {
 			routine.generateDataAddresses();
 		}
 		
+		if (!longAddress && addressOffset > BYTE_MASK) {
+			return false;
+		}
+		
 		for (RedstoneRoutine routine : routineMap.values()) {
 			routine.finalizeInstructions();
 		}
+		
+		return true;
 	}
 	
 	private RedstoneRoutine getBuiltInRoutine(String name, Routine intermediateRoutine) {
@@ -123,7 +135,6 @@ public class RedstoneCode {
 			boolean flag = true;
 			while (flag) {
 				flag = RedstoneOptimization.removeNoOps(routine);
-				flag |= RedstoneOptimization.checkConstants(routine);
 				flag |= RedstoneOptimization.removeDeadInstructions(routine);
 				flag |= RedstoneOptimization.simplifyImmediateInstructions(routine);
 				flag |= RedstoneOptimization.removeUnnecessaryLoads(routine);

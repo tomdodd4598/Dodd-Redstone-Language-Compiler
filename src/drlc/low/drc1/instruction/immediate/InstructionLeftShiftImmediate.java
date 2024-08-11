@@ -27,21 +27,17 @@ public class InstructionLeftShiftImmediate extends InstructionALUImmediate {
 	}
 	
 	@Override
-	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
-		/*if (next instanceof InstructionLeftShiftImmediate) {
-			InstructionLeftShiftImmediate lsh = (InstructionLeftShiftImmediate) next;
-			return new InstructionLeftShiftImmediate((short) (value + lsh.value));
-		}*/
-		return null;
+	public int size(boolean longAddress) {
+		return 1;
 	}
 	
 	@Override
-	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.LSHI) + Helpers.toBinary(value, 8);
+	public String[] toBinary(boolean longAddress) {
+		return new String[] {RedstoneOpcodes.get(RedstoneMnemonics.LSHI) + Helpers.toBinary(value, 8)};
 	}
 	
 	@Override
-	public String toString() {
+	public String toAssembly(boolean longAddress) {
 		return RedstoneMnemonics.LSHI + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
 	}
 }

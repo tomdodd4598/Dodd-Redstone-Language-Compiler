@@ -19,8 +19,8 @@ public abstract class InstructionConditionalJump extends InstructionJump {
 	public abstract Instruction getReplacementConditionalJump(Instruction previous);
 	
 	@Override
-	public abstract String binaryString();
+	public abstract String[] toBinary(boolean longAddress);
 	
 	@Override
-	public abstract String toString();
+	public abstract String toAssembly(boolean longAddress);
 }

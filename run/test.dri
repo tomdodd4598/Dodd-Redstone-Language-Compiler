@@ -5,225 +5,53 @@ nesting fn root() -> Int:
 	%0 = call $main()
 	exit $0
 
-leaf fn compareChars(<9> x: Chars {&mut Char, Nat}, <9> y: Chars {&mut Char, Nat}) -> Int:
+nesting fn printChars(<9> chars: Chars {&mut Char, Nat}) -> ():
 {dec}:
 	<10> i: Nat
-	<11> \r0: Nat
-	<10> lim: Nat
-	<19> cx: Char
-	<19> cy: Char
 {0}:
 	<10> i = $0
-	%t = <9> y.8 > <9> x.8
-	cnj 1
-	<11> \r0 = <9> x.8
 	jmp 2
 {1}:
-	<11> \r0 = <9> y.8
-{2}:
-	<10> lim = <11> \r0
-	jmp 5
-{3}:
-	%1 = <10> i + <9> x
-	<19> cx = *%1
-	%2 = <10> i + <9> y
-	<19> cy = *%2
-	%t = <19> cy != <19> cx
-	cnj 4
-	%4 = <19> cx - <19> cy
-	ret %4
-{4}:
-	<10> i = <10> i + $1
-	%5 = <10> i
-{5}:
-	%t = <10> i < <10> lim
-	cj 3
-	%7 = <9> x.8 - <9> y.8
-	ret %7
-
-nesting fn printChars(<34> chars: Chars {&mut Char, Nat}) -> ():
-{dec}:
-	<35> i: Nat
-{0}:
-	<35> i = $0
-	jmp 2
-{1}:
-	%0 = <35> i + <34> chars
+	%0 = &<9> chars
 	%1 = *%0
-	%2 = call builtin $printChar(%1)
-	<35> i = <35> i + $1
-	%3 = <35> i
-{2}:
-	%t = <34> chars.8 > <35> i
-	cj 1
-	ret $()
-
-leaf fn newElement(<44> item: Chars {&mut Char, Nat}) -> &Thing {Chars, &Thing}:
-{dec}:
-	\r0: [Char; 0]
-	<45> static arr: [Thing {Chars, &Thing}; 8]
-	<45> static i: Nat
-	<45> node: &Thing {Chars, &Thing}
-{0}:
-	\r0 = $[]
-	<45> arr = (&\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0)
-	<45> i = $0
-	%0 = <45> i * $24
-	<45> node = %0 + &<45> arr
-	%1 = (<44> item, $0x0)
-	*<45> node = %1
-	<45> i = <45> i + $1
-	ret <45> node
-
-leaf fn deleteElement(<54> node: &Thing {Chars, &Thing}) -> ():
-{dec}:
-	\r1: [Char; 0]
-{0}:
-	\r1 = $[]
-	%0 = (&\r1, $0, $0x0)
-	*<54> node = %0
-	ret $()
-
-nesting fn insertThing(<59> tracer: &&Thing {Chars, &Thing}, <59> elem: &Thing {Chars, &Thing}) -> ():
-{dec}:
-	<62> \r0: Bool
-{0}:
-	jmp 2
-{1}:
-	%0 = *<59> tracer
-	<59> tracer = %0.16
-{2}:
-	%1 = *<59> tracer
-	%t = %1 != $0x0
-	cnj 3
-	%2 = *<59> tracer
+	%2 = %1 + <10> i
 	%3 = *%2
-	%4 = *<59> elem
-	%5 = call $compareChars(%3, %4)
-	<62> \r0 = %5 < $1
-	jmp 4
-{3}:
-	<62> \r0 = $false
-{4}:
-	%t = <62> \r0
-	cj 1
-	%7 = *<59> tracer
-	*<59> elem.16 = %7
-	*<59> tracer = <59> elem
-	ret $()
-
-nesting fn removeThing(<78> tracer: &&Thing {Chars, &Thing}, <78> item: Chars {&mut Char, Nat}) -> ():
-{dec}:
-	<81> \r0: Bool
-	<94> old: &Thing {Chars, &Thing}
-{0}:
-	jmp 2
-{1}:
-	%0 = *<78> tracer
-	<78> tracer = %0.16
+	%4 = call builtin $printChar(%3)
+	%5 = &<10> i
+	%6 = *%5
+	*%5 = %6 + $1
+	%7 = *%5
 {2}:
-	%1 = *<78> tracer
-	%t = %1 != $0x0
-	cnj 3
-	%2 = *<78> tracer
-	%3 = *%2
-	%4 = call $compareChars(%3, <78> item)
-	<81> \r0 = %4 != $0
-	jmp 4
-{3}:
-	<81> \r0 = $false
-{4}:
-	%t = <81> \r0
-	cj 1
-	%6 = *<78> tracer
-	%t = %6 != $0x0
-	cnj 5
-	<94> old = *<78> tracer
-	%8 = *<78> tracer
-	%9 = *%8.16
-	*<78> tracer = %9
-	%10 = call $deleteElement(<94> old)
-{5}:
-	ret $()
-
-nesting fn printList(<100> node: &Thing {Chars, &Thing}) -> ():
-{0}:
-	jmp 2
-{1}:
-	%0 = *<100> node
-	%1 = call $printChars(%0)
-	%2 = call builtin $printChar($'\n')
-	<100> node = *<100> node.16
-{2}:
-	%t = <100> node != $0x0
+	%8 = &<9> chars + $8
+	%9 = *%8
+	%t = %9 > <10> i
 	cj 1
 	ret $()
 
 nesting fn main() -> ():
 {dec}:
-	<111> start: &Thing {Chars, &Thing}
-	\r2: [Char; 5]
-	\r3: [Char; 4]
-	\r4: [Char; 7]
-	\r5: [Char; 4]
-	\r6: [Char; 5]
-	\r7: [Char; 8]
-	\r8: [Char; 7]
-	\r9: [Char; 4]
-	\r10: [Char; 15]
-	\r11: [Char; 5]
-	\r12: [Char; 8]
-	\r13: [Char; 7]
-	\r14: [Char; 15]
+	\r0: [Char; 5]
+	\r1: [Char; 6]
+	<22> \r0: Thing {Chars, &Thing}
+	<21> \r0: Thing {Chars, &Thing}
+	<21> \r1: &Thing {Chars, &Thing}
+	<20> tracer: &&Thing {Chars, &Thing}
 {0}:
-	<111> start = $0x0
-	\r2 = $['c', 'h', 'i', 'p', 's']
-	%0 = (&\r2, $5)
-	%1 = call $newElement(%0)
-	%2 = call $insertThing(&<111> start, %1)
-	\r3 = $['w', 'i', 'n', 'e']
-	%3 = (&\r3, $4)
-	%4 = call $newElement(%3)
-	%5 = call $insertThing(&<111> start, %4)
-	\r4 = $['b', 'u', 'r', 'g', 'e', 'r', 's']
-	%6 = (&\r4, $7)
-	%7 = call $newElement(%6)
-	%8 = call $insertThing(&<111> start, %7)
-	\r5 = $['b', 'e', 'e', 'r']
-	%9 = (&\r5, $4)
-	%10 = call $newElement(%9)
-	%11 = call $insertThing(&<111> start, %10)
-	\r6 = $['p', 'i', 'z', 'z', 'a']
-	%12 = (&\r6, $5)
-	%13 = call $newElement(%12)
-	%14 = call $insertThing(&<111> start, %13)
-	\r7 = $['z', 'u', 'c', 'c', 'h', 'i', 'n', 'i']
-	%15 = (&\r7, $8)
-	%16 = call $newElement(%15)
-	%17 = call $insertThing(&<111> start, %16)
-	\r8 = $['b', 'u', 'r', 'g', 'e', 'r', 's']
-	%18 = (&\r8, $7)
-	%19 = call $newElement(%18)
-	%20 = call $insertThing(&<111> start, %19)
-	\r9 = $['s', 'l', 'a', 'w']
-	%21 = (&\r9, $4)
-	%22 = call $newElement(%21)
-	%23 = call $insertThing(&<111> start, %22)
-	\r10 = $['\n', 'I', 'n', 'i', 't', 'i', 'a', 'l', ' ', 'L', 'i', 's', 't', ':', '\n']
-	%24 = (&\r10, $15)
-	%25 = call $printChars(%24)
-	%26 = call $printList(<111> start)
-	\r11 = $['p', 'i', 'z', 'z', 'a']
-	%27 = (&\r11, $5)
-	%28 = call $removeThing(&<111> start, %27)
-	\r12 = $['z', 'u', 'c', 'c', 'h', 'i', 'n', 'i']
-	%29 = (&\r12, $8)
-	%30 = call $removeThing(&<111> start, %29)
-	\r13 = $['b', 'u', 'r', 'g', 'e', 'r', 's']
-	%31 = (&\r13, $7)
-	%32 = call $removeThing(&<111> start, %31)
-	\r14 = $['\n', 'A', 'l', 't', 'e', 'r', 'e', 'd', ' ', 'L', 'i', 's', 't', ':', '\n']
-	%33 = (&\r14, $15)
-	%34 = call $printChars(%33)
-	%35 = call $printList(<111> start)
+	\r0 = $['c', 'h', 'i', 'p', 's']
+	\r1 = $['b', 'u', 'r', 'g', 'e', 'r']
+	<22> \r0 = (&\r1, $6, $0x0)
+	<21> \r0 = (&\r0, $5, &<22> \r0)
+	<21> \r1 = &<21> \r0
+	<20> tracer = &<21> \r1
+	%0 = &<20> tracer
+	%1 = *%0
+	%2 = *%1
+	%3 = %2 + $16
+	%4 = &<20> tracer
+	*%4 = %3
+	%5 = &<20> tracer
+	%6 = *%5
+	%7 = *%6
+	%8 = *%7
+	%9 = call $printChars(%8)
 	ret $()

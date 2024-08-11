@@ -11,7 +11,7 @@ import drlc.intermediate.routine.Routine;
 
 public abstract class RedstoneGenerator extends Generator {
 	
-	protected final RedstoneCode code = new RedstoneCode();
+	protected RedstoneCode code = new RedstoneCode(false);
 	
 	public RedstoneGenerator(String outputFile) {
 		super(outputFile);
@@ -247,5 +247,12 @@ public abstract class RedstoneGenerator extends Generator {
 	@Override
 	public void charToWordCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg) {
 		routine.addAssignmentAction(node, target, arg);
+	}
+	
+	public void generateInternal() {
+		if (!code.generate()) {
+			code = new RedstoneCode(true);
+			code.generate();
+		}
 	}
 }

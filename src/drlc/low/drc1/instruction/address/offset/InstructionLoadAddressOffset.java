@@ -1,6 +1,5 @@
 package drlc.low.drc1.instruction.address.offset;
 
-import drlc.*;
 import drlc.low.LowDataInfo;
 import drlc.low.drc1.*;
 import drlc.low.drc1.instruction.Instruction;
@@ -37,22 +36,12 @@ public class InstructionLoadAddressOffset extends InstructionAddressOffset {
 	}
 	
 	@Override
-	public String binaryString() {
-		if (offset < 0) {
-			return RedstoneOpcodes.get(RedstoneMnemonics.LDINB) + Helpers.toBinary(-offset, 8);
-		}
-		else {
-			return RedstoneOpcodes.get(RedstoneMnemonics.LDIPB) + Helpers.toBinary(offset, 8);
-		}
+	public String[] toBinary(boolean longAddress) {
+		return toBinary(longAddress, RedstoneMnemonics.LDIPB, RedstoneMnemonics.LDINB);
 	}
 	
 	@Override
-	public String toString() {
-		if (offset < 0) {
-			return RedstoneMnemonics.LDINB + '\t' + Global.IMMEDIATE + Helpers.toHex(-offset);
-		}
-		else {
-			return RedstoneMnemonics.LDIPB + '\t' + Global.IMMEDIATE + Helpers.toHex(offset);
-		}
+	public String toAssembly(boolean longAddress) {
+		return toAssembly(longAddress, RedstoneMnemonics.LDIPB, RedstoneMnemonics.LDINB);
 	}
 }

@@ -1,6 +1,5 @@
 package drlc.low.drc1.instruction.address;
 
-import drlc.*;
 import drlc.low.LowDataInfo;
 import drlc.low.drc1.*;
 import drlc.low.drc1.instruction.Instruction;
@@ -37,12 +36,12 @@ public class InstructionLoadAddress extends InstructionAddress {
 	}
 	
 	@Override
-	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.LDAI) + Helpers.toBinary(address, 8);
+	public String[] toBinary(boolean longAddress) {
+		return toBinary(longAddress, RedstoneMnemonics.LDAI, RedstoneMnemonics.LDALI);
 	}
 	
 	@Override
-	public String toString() {
-		return RedstoneMnemonics.LDAI + '\t' + Global.IMMEDIATE + Helpers.toHex(address);
+	public String toAssembly(boolean longAddress) {
+		return toAssembly(longAddress, RedstoneMnemonics.LDAI, RedstoneMnemonics.LDALI);
 	}
 }

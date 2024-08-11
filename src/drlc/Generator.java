@@ -1406,7 +1406,7 @@ public abstract class Generator {
 				flag |= IntermediateOptimization.reorderRvalues(routine);
 				flag |= IntermediateOptimization.foldRvalues(routine);
 				flag |= IntermediateOptimization.simplifyBinaryOps(routine);
-				flag |= IntermediateOptimization.simplifyDereferences(routine);
+				//flag |= IntermediateOptimization.simplifyDereferences(routine);
 				flag |= IntermediateOptimization.removeUnusedAssignments(routine);
 				flag |= IntermediateOptimization.orderRegisters(routine);
 			}

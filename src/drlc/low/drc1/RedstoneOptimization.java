@@ -25,27 +25,6 @@ public class RedstoneOptimization {
 		return flag;
 	}
 	
-	public static boolean checkConstants(RedstoneRoutine routine) {
-		boolean flag = false;
-		for (List<Instruction> section : routine.textSectionMap.values()) {
-			for (int i = 0; i < section.size(); ++i) {
-				Instruction instruction = section.get(i);
-				if (instruction.precedesData()) {
-					if (i == section.size() - 1 || !(section.get(i + 1) instanceof InstructionConstant)) {
-						throw new IllegalArgumentException(String.format("Found unexpected instruction %s not preceding constant as required!", instruction));
-					}
-				}
-				else {
-					if (i < section.size() - 1 && section.get(i + 1) instanceof InstructionConstant) {
-						flag = true;
-						section.set(i + 1, new InstructionNoOp());
-					}
-				}
-			}
-		}
-		return flag;
-	}
-	
 	public static boolean removeDeadInstructions(RedstoneRoutine routine) {
 		boolean flag = false;
 		Set<Integer> possibleDeadSections = new HashSet<>(), requiredSections = new HashSet<>();
@@ -84,30 +63,16 @@ public class RedstoneOptimization {
 		return flag;
 	}
 	
-	/** A null succeedingData means do not replace succeeding instruction! */
-	public static class ImmediateReplacementInfo {
-		
-		public final Instruction instruction, succeedingData;
-		
-		public ImmediateReplacementInfo(Instruction instruction, Instruction succeedingData) {
-			this.instruction = instruction;
-			this.succeedingData = succeedingData;
-		}
-	}
-	
 	public static boolean simplifyImmediateInstructions(RedstoneRoutine routine) {
 		boolean flag = false;
 		for (List<Instruction> section : routine.textSectionMap.values()) {
 			for (int i = 0; i < section.size(); ++i) {
 				Instruction instruction = section.get(i);
 				if (instruction instanceof IInstructionImmediate) {
-					ImmediateReplacementInfo info = ((IInstructionImmediate) instruction).getImmediateReplacementInfo();
-					if (info != null && !info.instruction.equals(instruction)) {
+					Instruction replacement = ((IInstructionImmediate) instruction).getImmediateReplacement();
+					if (replacement != null && !replacement.equals(instruction)) {
 						flag = true;
-						section.set(i, info.instruction);
-						if (info.succeedingData != null) {
-							section.set(i + 1, info.succeedingData);
-						}
+						section.set(i, replacement);
 					}
 				}
 			}

@@ -127,7 +127,7 @@ public class RegDataId extends DataId {
 			return Global.REG + regId;
 		}
 		else {
-			return Global.REG + regId + Global.FULL_STOP + offset;
+			return Global.REG + regId + (dereferenceLevel == 0 ? "" : Global.BRACE_END) + Global.FULL_STOP + offset;
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package drlc.low.drc1.instruction.immediate;
 
-import drlc.low.drc1.RedstoneOptimization.ImmediateReplacementInfo;
+import drlc.*;
+import drlc.low.drc1.*;
 import drlc.low.drc1.instruction.*;
 
 public abstract class InstructionImmediate extends Instruction implements IInstructionImmediate {
@@ -18,21 +19,37 @@ public abstract class InstructionImmediate extends Instruction implements IInstr
 	}
 	
 	@Override
-	public ImmediateReplacementInfo getImmediateReplacementInfo() {
+	public Instruction getImmediateReplacement() {
 		if (isUnnecessaryImmediate()) {
-			return new ImmediateReplacementInfo(new InstructionNoOp(), precedesData() ? new InstructionNoOp() : null);
+			return new InstructionNoOp();
 		}
 		else {
-			Instruction replacement = getImmediateReplacementInternal();
-			if (replacement == null || (!precedesData() && replacement.precedesData())) {
-				return null;
-			}
-			else {
-				Instruction succeeding = !precedesData() && !replacement.precedesData() ? null : (precedesData() && !replacement.precedesData() ? new InstructionNoOp() : replacement.succeedingData());
-				return new ImmediateReplacementInfo(replacement, succeeding);
-			}
+			return getImmediateReplacementInternal();
 		}
 	}
 	
 	protected abstract Instruction getImmediateReplacementInternal();
+	
+	@Override
+	public int size(boolean longAddress) {
+		return RedstoneCode.isLongImmediate(value) ? 2 : 1;
+	}
+	
+	protected String[] toBinary(boolean longAddress, String mnemonic, String longMnemonic) {
+		if (RedstoneCode.isLongImmediate(value)) {
+			return new String[] {RedstoneOpcodes.get(longMnemonic) + Global.ZERO_8, Helpers.toBinary(value, 16)};
+		}
+		else {
+			return new String[] {RedstoneOpcodes.get(mnemonic) + Helpers.toBinary(value, 8)};
+		}
+	}
+	
+	protected String toAssembly(boolean longAddress, String mnemonic, String longMnemonic) {
+		if (RedstoneCode.isLongImmediate(value)) {
+			return longMnemonic + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
+		}
+		else {
+			return mnemonic + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
+		}
+	}
 }

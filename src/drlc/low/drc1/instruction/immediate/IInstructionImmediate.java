@@ -1,12 +1,12 @@
 package drlc.low.drc1.instruction.immediate;
 
-import drlc.low.drc1.RedstoneOptimization.ImmediateReplacementInfo;
+import drlc.low.drc1.instruction.Instruction;
 
 public interface IInstructionImmediate {
 	
 	public boolean isUnnecessaryImmediate();
 	
-	public ImmediateReplacementInfo getImmediateReplacementInfo();
+	public Instruction getImmediateReplacement();
 	
 	public Short getRegisterValue();
 }

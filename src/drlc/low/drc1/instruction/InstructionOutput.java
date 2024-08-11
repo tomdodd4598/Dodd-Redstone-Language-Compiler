@@ -30,12 +30,17 @@ public class InstructionOutput extends Instruction {
 	}
 	
 	@Override
-	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.OUT) + Global.ZERO_8;
+	public int size(boolean longAddress) {
+		return 1;
 	}
 	
 	@Override
-	public String toString() {
+	public String[] toBinary(boolean longAddress) {
+		return new String[] {RedstoneOpcodes.get(RedstoneMnemonics.OUT) + Global.ZERO_8};
+	}
+	
+	@Override
+	public String toAssembly(boolean longAddress) {
 		return RedstoneMnemonics.OUT;
 	}
 }

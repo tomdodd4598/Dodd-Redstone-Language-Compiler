@@ -1,8 +1,8 @@
 package drlc.low.drc1.instruction.immediate;
 
-import drlc.*;
-import drlc.low.drc1.*;
+import drlc.low.drc1.RedstoneMnemonics;
 import drlc.low.drc1.instruction.Instruction;
+import drlc.low.drc1.instruction.set.InstructionSetNegative;
 
 public class InstructionDivideImmediate extends InstructionALUImmediate {
 	
@@ -17,16 +17,21 @@ public class InstructionDivideImmediate extends InstructionALUImmediate {
 	
 	@Override
 	public Instruction getImmediateReplacementInternal() {
-		return null;
+		if (value == -1) {
+			return new InstructionSetNegative();
+		}
+		else {
+			return null;
+		}
 	}
 	
 	@Override
-	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.DIVI) + Helpers.toBinary(value, 8);
+	public String[] toBinary(boolean longAddress) {
+		return toBinary(longAddress, RedstoneMnemonics.DIVI, RedstoneMnemonics.DIVLI);
 	}
 	
 	@Override
-	public String toString() {
-		return RedstoneMnemonics.DIVI + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
+	public String toAssembly(boolean longAddress) {
+		return toAssembly(longAddress, RedstoneMnemonics.DIVI, RedstoneMnemonics.DIVLI);
 	}
 }

@@ -1,7 +1,6 @@
 package drlc.low.drc1.instruction.jump;
 
-import drlc.Helpers;
-import drlc.low.drc1.*;
+import drlc.low.drc1.RedstoneMnemonics;
 import drlc.low.drc1.instruction.*;
 import drlc.low.drc1.instruction.immediate.IInstructionImmediate;
 import drlc.low.drc1.instruction.set.*;
@@ -54,12 +53,12 @@ public class InstructionConditionalJumpIfNotZero extends InstructionConditionalJ
 	}
 	
 	@Override
-	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.JNEZ) + Helpers.toBinary(address, 8);
+	public String[] toBinary(boolean longAddress) {
+		return toBinary(longAddress, RedstoneMnemonics.JNEZ, RedstoneMnemonics.JNEZF);
 	}
 	
 	@Override
-	public String toString() {
-		return RedstoneMnemonics.JNEZ + '\t' + Helpers.toHex(address, 2);
+	public String toAssembly(boolean longAddress) {
+		return toAssembly(longAddress, RedstoneMnemonics.JNEZ, RedstoneMnemonics.JNEZF);
 	}
 }

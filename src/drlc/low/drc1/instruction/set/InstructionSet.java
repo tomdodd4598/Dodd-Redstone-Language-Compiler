@@ -22,4 +22,9 @@ public abstract class InstructionSet extends Instruction {
 	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		return null;
 	}
+	
+	@Override
+	public int size(boolean longAddress) {
+		return 1;
+	}
 }

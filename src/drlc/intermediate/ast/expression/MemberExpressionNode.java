@@ -2,9 +2,9 @@ package drlc.intermediate.ast.expression;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.Source;
+import drlc.*;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.component.MemberInfo;
+import drlc.intermediate.component.*;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
@@ -103,12 +103,17 @@ public class MemberExpressionNode extends ExpressionNode {
 			baseDataId = routine.addSelfDereferenceAssignmentAction(this, expressionTypeInfo.getReferenceLevel(), expressionNode.dataId);
 		}
 		
-		DataId baseDataIdIndexed = baseDataId.atOffset(this, getMemberInfo().offset, typeInfo.addressOf(this, true));
+		@NonNull TypeInfo addressTypeInfo = typeInfo.addressOf(this, true);
+		DataId target = routine.nextRegId(addressTypeInfo);
+		DataId indexId = Main.generator.natValue(getMemberInfo().offset).dataId();
+		
+		routine.addBinaryOpAction(this, Main.generator.natTypeInfo, BinaryOpType.PLUS, Main.generator.natTypeInfo, target, baseDataId, indexId);
+		
 		if (isLvalue) {
-			dataId = baseDataIdIndexed;
+			dataId = target;
 		}
 		else {
-			routine.addDereferenceAssignmentAction(this, dataId = routine.nextRegId(typeInfo), baseDataIdIndexed);
+			routine.addDereferenceAssignmentAction(this, dataId = routine.nextRegId(typeInfo), target);
 		}
 	}
 	

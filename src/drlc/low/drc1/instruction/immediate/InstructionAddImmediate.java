@@ -1,6 +1,5 @@
 package drlc.low.drc1.instruction.immediate;
 
-import drlc.*;
 import drlc.low.drc1.*;
 import drlc.low.drc1.instruction.Instruction;
 
@@ -17,41 +16,21 @@ public class InstructionAddImmediate extends InstructionALUImmediate {
 	
 	@Override
 	public Instruction getImmediateReplacementInternal() {
-		return null;
-	}
-	
-	@Override
-	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
-		/*if (next instanceof InstructionAddImmediate) {
-			InstructionAddImmediate add = (InstructionAddImmediate) next;
-			int sum = value + add.value;
-			if (!RedstoneCode.isLongImmediate((short) sum)) {
-				return new InstructionAddImmediate((short) sum);
-			}
-			else if (!RedstoneCode.isLongImmediate((short) -sum)) {
-				return new InstructionSubtractImmediate((short) -sum);
-			}
+		if (RedstoneCode.isLongImmediate(value) && !RedstoneCode.isLongImmediate((short) -value)) {
+			return new InstructionSubtractImmediate((short) -value);
 		}
-		else if (next instanceof InstructionSubtractImmediate) {
-			InstructionSubtractImmediate subtract = (InstructionSubtractImmediate) next;
-			int sum = value - subtract.value;
-			if (!RedstoneCode.isLongImmediate((short) sum)) {
-				return new InstructionAddImmediate((short) sum);
-			}
-			else if (!RedstoneCode.isLongImmediate((short) -sum)) {
-				return new InstructionSubtractImmediate((short) -sum);
-			}
-		}*/
-		return null;
+		else {
+			return null;
+		}
 	}
 	
 	@Override
-	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.ADDI) + Helpers.toBinary(value, 8);
+	public String[] toBinary(boolean longAddress) {
+		return toBinary(longAddress, RedstoneMnemonics.ADDI, RedstoneMnemonics.ADDLI);
 	}
 	
 	@Override
-	public String toString() {
-		return RedstoneMnemonics.ADDI + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
+	public String toAssembly(boolean longAddress) {
+		return toAssembly(longAddress, RedstoneMnemonics.ADDI, RedstoneMnemonics.ADDLI);
 	}
 }

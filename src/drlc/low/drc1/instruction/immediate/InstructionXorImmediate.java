@@ -1,8 +1,8 @@
 package drlc.low.drc1.instruction.immediate;
 
-import drlc.*;
-import drlc.low.drc1.*;
+import drlc.low.drc1.RedstoneMnemonics;
 import drlc.low.drc1.instruction.Instruction;
+import drlc.low.drc1.instruction.set.InstructionSetNot;
 
 public class InstructionXorImmediate extends InstructionALUImmediate {
 	
@@ -17,25 +17,21 @@ public class InstructionXorImmediate extends InstructionALUImmediate {
 	
 	@Override
 	public Instruction getImmediateReplacementInternal() {
-		return null;
+		if (value == -1) {
+			return new InstructionSetNot();
+		}
+		else {
+			return null;
+		}
 	}
 	
 	@Override
-	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
-		/*if (next instanceof InstructionXorImmediate) {
-			InstructionXorImmediate xor = (InstructionXorImmediate) next;
-			return new InstructionXorImmediate((short) (value ^ xor.value));
-		}*/
-		return null;
+	public String[] toBinary(boolean longAddress) {
+		return toBinary(longAddress, RedstoneMnemonics.XORI, RedstoneMnemonics.XORLI);
 	}
 	
 	@Override
-	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.XORI) + Helpers.toBinary(value, 8);
-	}
-	
-	@Override
-	public String toString() {
-		return RedstoneMnemonics.XORI + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
+	public String toAssembly(boolean longAddress) {
+		return toAssembly(longAddress, RedstoneMnemonics.XORI, RedstoneMnemonics.XORLI);
 	}
 }

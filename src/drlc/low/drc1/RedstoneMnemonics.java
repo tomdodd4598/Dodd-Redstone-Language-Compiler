@@ -41,6 +41,7 @@ public class RedstoneMnemonics {
 	public static final String STBTA = format("STBTA");
 	
 	public static final String CALL = format("CALL");
+	public static final String CALLF = format("CALLF");
 	public static final String RET = format("RET");
 	
 	public static final String PSHA = format("PSHA");
@@ -78,6 +79,14 @@ public class RedstoneMnemonics {
 	public static final String JMZ = format("JMZ");
 	public static final String JMEZ = format("JMEZ");
 	
+	public static final String JMPF = format("JMPF");
+	public static final String JEZF = format("JEZF");
+	public static final String JNEZF = format("JNEZF");
+	public static final String JLZF = format("JLZF");
+	public static final String JLEZF = format("JLEZF");
+	public static final String JMZF = format("JMZF");
+	public static final String JMEZF = format("JMEZF");
+	
 	public static final String STAPB = format("STAPB");
 	public static final String LDAPB = format("LDAPB");
 	public static final String NOTPB = format("NOTPB");
@@ -112,23 +121,40 @@ public class RedstoneMnemonics {
 	public static final String ADDINB = format("ADDINB");
 	public static final String SUBINB = format("SUBINB");
 	
+	public static final String STAL = format("STAL");
+	public static final String LDAL = format("LDAL");
+	public static final String NOTL = format("NOTL");
+	public static final String ANDL = format("ANDL");
+	public static final String ORL = format("ORL");
+	public static final String XORL = format("XORL");
+	public static final String ADDL = format("ADDL");
+	public static final String SUBL = format("SUBL");
+	public static final String LSHL = format("LSHL");
+	public static final String RSHL = format("RSHL");
+	
+	public static final String STBL = format("STBL");
+	public static final String LDBL = format("LDBL");
+	
 	public static final String MULI = format("MULI");
 	public static final String MULLI = format("MULLI");
 	public static final String MUL = format("MUL");
 	public static final String MULPB = format("MULPB");
 	public static final String MULNB = format("MULNB");
+	public static final String MULL = format("MULL");
 	
 	public static final String DIVI = format("DIVI");
 	public static final String DIVLI = format("DIVLI");
 	public static final String DIV = format("DIV");
 	public static final String DIVPB = format("DIVPB");
 	public static final String DIVNB = format("DIVNB");
+	public static final String DIVL = format("DIVL");
 	
 	public static final String REMI = format("REMI");
 	public static final String REMLI = format("REMLI");
 	public static final String REM = format("REM");
 	public static final String REMPB = format("REMPB");
 	public static final String REMNB = format("REMNB");
+	public static final String REML = format("REML");
 	
 	private static String format(String mnemonic) {
 		return String.format("%-4s", mnemonic);

@@ -128,27 +128,30 @@ public class IndexExpressionNode extends ExpressionNode {
 			if (constantIndex >= baseArrayTypeInfo.length) {
 				throw error("Attempted to index array value of type \"%s\" at position %d!", baseArrayTypeInfo, constantIndex);
 			}
-			
-			DataId baseDataIdIndexed = baseDataId.atOffset(this, baseArrayTypeInfo.indexToOffsetShallow(this, constantIndex), addressTypeInfo);
-			if (isLvalue) {
-				dataId = baseDataIdIndexed;
-			}
-			else {
-				routine.addDereferenceAssignmentAction(this, dataId = routine.nextRegId(typeInfo), baseDataIdIndexed);
-			}
 		}
 		else {
 			indexExpressionNode.generateIntermediate(this);
-			
-			DataId target = routine.nextRegId(addressTypeInfo);
-			routine.addBinaryOpAction(this, addressTypeInfo, BinaryOpType.PLUS, indexExpressionNode.getTypeInfo(), target, baseDataId, indexExpressionNode.dataId);
-			
-			if (isLvalue) {
-				dataId = target;
-			}
-			else {
-				routine.addDereferenceAssignmentAction(this, dataId = routine.nextRegId(typeInfo), target);
-			}
+		}
+		
+		DataId target = routine.nextRegId(addressTypeInfo);
+		DataId indexId;
+		@NonNull TypeInfo indexTypeInfo;
+		if (constantArrayIndex) {
+			indexId = Main.generator.natValue(constantIndex).dataId();
+			indexTypeInfo = Main.generator.natTypeInfo;
+		}
+		else {
+			indexId = indexExpressionNode.dataId;
+			indexTypeInfo = indexExpressionNode.getTypeInfo();
+		}
+		
+		routine.addBinaryOpAction(this, addressTypeInfo, BinaryOpType.PLUS, indexTypeInfo, target, baseDataId, indexId);
+		
+		if (isLvalue) {
+			dataId = target;
+		}
+		else {
+			routine.addDereferenceAssignmentAction(this, dataId = routine.nextRegId(typeInfo), target);
 		}
 	}
 	

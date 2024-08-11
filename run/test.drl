@@ -481,21 +481,6 @@ struct Thing {
 alias Node = &mut Thing;
 alias Tracer = &mut Node;
 
-fn compareChars(x: Chars, y: Chars) -> Int {
-	let mut i = 0N;
-	let lim = x.len < y.len ? x.len : y.len;
-	while i < lim {
-		let cx = x.ptr[i];
-		let cy = y.ptr[i];
-		if cx != cy {
-			return (cx - cy) as Int;
-		}
-		i += 1;
-	}
-	
-	return (x.len - y.len) as Int;
-}
-
 fn printChars(chars: Chars) {
 	let mut i = 0N;
 	while i < chars.len {
@@ -504,69 +489,10 @@ fn printChars(chars: Chars) {
 	}
 }
 
-fn newElement(item: Chars) -> Node {
-	let static mut arr = [Thing { "", null }; 8];
-	let static mut i = 0N;
-	
-	let node = &mut arr[i];
-	*node = Thing { item, null };
-	i += 1;
-	return node;
-}
-
-fn deleteElement(node: Node) {
-	*node = Thing { "", null };
-}
-
-fn insertThing(mut tracer: Tracer, mut elem: Node) {
-	while *tracer != null && compareChars(tracer.item, elem.item) < 1 {
-		tracer = &mut tracer.next;
-	}
-	
-	elem.next = *tracer;
-	*tracer = elem;
-}
-
-fn removeThing(mut tracer: Tracer, item: Chars) {
-	while *tracer != null && compareChars(tracer.item, item) != 0 {
-		tracer = &mut tracer.next;
-	}
-	
-	if *tracer != null {
-		let old = *tracer;
-		*tracer = tracer.next;
-		deleteElement(old);
-	}
-}
-
-fn printList(mut node: Node) {
-	while node != null {
-		printChars(node.item);
-		printChar('\n');
-		node = node.next;
-	}
-}
-
 fn main() {
-	let mut start = null as Node;
+	let mut tracer = Tracer { "chips", Node { "burger", null } };
+	tracer = &mut tracer.next;
 	
-	start.insertThing(newElement("chips"));
-	start.insertThing(newElement("wine"));
-	start.insertThing(newElement("burgers"));
-	start.insertThing(newElement("beer"));
-	start.insertThing(newElement("pizza"));
-	start.insertThing(newElement("zucchini"));
-	start.insertThing(newElement("burgers"));
-	start.insertThing(newElement("slaw"));
-
-	printChars("\nInitial List:\n");
-	start.printList();
-
-	start.removeThing("pizza");
-	start.removeThing("zucchini");
-	start.removeThing("burgers");
-
-	printChars("\nAltered List:\n");
-	start.printList();
+	printChars(tracer.item);
 }
 

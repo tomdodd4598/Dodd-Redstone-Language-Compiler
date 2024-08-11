@@ -43,12 +43,27 @@ public class InstructionLoadSubroutineAddress extends Instruction {
 	}
 	
 	@Override
-	public String binaryString() {
-		return RedstoneOpcodes.get(RedstoneMnemonics.LDAI) + Helpers.toBinary(value, 8);
+	public int size(boolean longAddress) {
+		return longAddress ? 2 : 1;
 	}
 	
 	@Override
-	public String toString() {
-		return RedstoneMnemonics.LDAI + '\t' + Global.IMMEDIATE + Helpers.toHex(value) + '\t' + function.asmString();
+	public String[] toBinary(boolean longAddress) {
+		if (longAddress) {
+			return new String[] {RedstoneOpcodes.get(RedstoneMnemonics.LDALI) + Global.ZERO_8, Helpers.toBinary(value, 16)};
+		}
+		else {
+			return new String[] {RedstoneOpcodes.get(RedstoneMnemonics.LDAI) + Helpers.toBinary(value, 8)};
+		}
+	}
+	
+	@Override
+	public String toAssembly(boolean longAddress) {
+		if (longAddress) {
+			return RedstoneMnemonics.LDALI + '\t' + Helpers.toHex(value, 4) + '\t' + function.asmString();
+		}
+		else {
+			return RedstoneMnemonics.LDAI + '\t' + Helpers.toHex(value, 2) + '\t' + function.asmString();
+		}
 	}
 }

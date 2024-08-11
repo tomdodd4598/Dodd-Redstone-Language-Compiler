@@ -85,13 +85,17 @@ public abstract class DataId {
 	
 	protected abstract String rawString();
 	
+	protected String toStringPrefix() {
+		return (dereferenceLevel == 0 || getOffset() == 0 ? "" : Global.BRACE_START) + (dereferenceLevel >= 0 ? Helpers.dereferenceString(dereferenceLevel) : Global.ADDRESS_OF);
+	}
+	
 	@Override
 	public String toString() {
-		return (dereferenceLevel >= 0 ? Helpers.dereferenceString(dereferenceLevel) : Global.ADDRESS_OF) + Helpers.scopeStringPrefix(scope) + rawString() /*+ Global.TYPE_ANNOTATION_PREFIX + " " + typeInfo.routineString()*/;
+		return toStringPrefix() + Helpers.scopeStringPrefix(scope) + rawString();
 	}
 	
 	public String opErrorString() {
-		return (dereferenceLevel >= 0 ? Helpers.dereferenceString(dereferenceLevel) : Global.ADDRESS_OF) + rawString() + Global.TYPE_ANNOTATION_PREFIX + " " + typeInfo.routineString();
+		return toStringPrefix() + rawString() + Global.TYPE_ANNOTATION_PREFIX + " " + typeInfo.routineString();
 	}
 	
 	public RawDataId raw() {
