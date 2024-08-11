@@ -217,40 +217,50 @@ fn main() {
 /*
 let mut a = 1;
 let mut b = &mut 2;
+let mut c = &mut &mut 3;
 
-let mut c = &mut a;
-let mut d = &mut &mut b;
+let mut d = &mut a;
+let mut e = &mut &mut b;
+let mut f = &mut &mut &mut c;
 
-fn update(x: &mut Int, y: &mut &mut Int) {
+fn update(x: &mut Int, y: &mut &mut Int, z: &mut &mut &mut Int) {
 	*x = *x + 501;
 	**y = **y + 502;
+	***z = ***z + 503;
 	
 	*x -= 1;
 	**y -= 2;
+	***z -= 3;
 }
 
-fn update2(x: &mut &mut Int, y: &mut &mut &mut &mut Int) {
+fn update2(x: &mut &mut Int, y: &mut &mut &mut &mut Int, z: &mut &mut &mut &mut &mut &mut Int) {
 	**x = 1001;
 	****y = 1002;
+	******z = 1003;
 	
 	**x *= 1;
 	****y *= 2;
+	******z *= 3;
 }
 
 fn main() {
-	update(&mut a, &mut b);
+	update(&mut a, &mut b, &mut c);
 	
-	//printInt(&a as Int);
-	printInt(a); printChar('\n');
-	//printInt(&b as Int); printInt(b as Int);
-	printInt(*b); printChar('\n');
+	printInt(a);
+	printChar('\n');
+	printInt(*b);
+	printChar('\n');
+	printInt(**c);
+	printChar('\n');
 	
-	update2(&mut c, &mut d);
+	update2(&mut d, &mut e, &mut f);
 	
-	//printInt(&c as Int); printInt(c as Int);
-	printInt(*c); printChar('\n');
-	//printInt(&d as Int); printInt(d as Int); printInt(*d as Int); printInt(**d as Int);
-	printInt(***d); printChar('\n');
+	printInt(*d);
+	printChar('\n');
+	printInt(***e);
+	printChar('\n');
+	printInt(*****f);
+	printChar('\n');
 }
 */
 
