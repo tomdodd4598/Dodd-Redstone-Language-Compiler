@@ -580,3 +580,24 @@ fn main() {
 	start.printList();
 }
 
+
+// EDSAC SQUARES
+
+/*
+fn main() {
+	let mut i = 0N;
+	let mut j = 0N;
+	while i < 10 {
+		i += 1;
+		printNat(i);
+		printChar('\t');
+		
+		let k = j;
+		printNat(j = i * i);
+		printChar('\t');
+		
+		printNat(j - k);
+		printChar('\n');
+	}
+}
+*/

@@ -33,8 +33,7 @@ public abstract class BasicTypeInfo extends TypeInfo {
 	
 	@Override
 	public boolean equalsOther(Object obj, boolean ignoreReferenceMutability) {
-		if (obj instanceof BasicTypeInfo) {
-			BasicTypeInfo other = (BasicTypeInfo) obj;
+		if (obj instanceof BasicTypeInfo other) {
 			boolean equalReferenceMutability = ignoreReferenceMutability || referenceMutability.equals(other.referenceMutability);
 			return name.equals(other.name) && size == other.size && equalReferenceMutability;
 		}

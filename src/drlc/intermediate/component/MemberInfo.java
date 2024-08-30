@@ -27,8 +27,7 @@ public class MemberInfo {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof MemberInfo) {
-			MemberInfo other = (MemberInfo) obj;
+		if (obj instanceof MemberInfo other) {
 			return name.equals(other.name) && index == other.index && offset == other.offset;
 		}
 		else {

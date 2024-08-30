@@ -39,8 +39,7 @@ public class BinaryOpAction extends Action implements IValueAction {
 			this.arg2 = arg2;
 		}
 		
-		if (type.isDivideOrRemainder() && arg2 instanceof ValueDataId) {
-			ValueDataId valueId = (ValueDataId) arg2;
+		if (type.isDivideOrRemainder() && arg2 instanceof ValueDataId valueId) {
 			if (valueId.typeInfo.isWord() && valueId.value.longValue(node) == 0) {
 				throw Helpers.nodeError(node, "Can not divide by zero!");
 			}
@@ -129,8 +128,8 @@ public class BinaryOpAction extends Action implements IValueAction {
 	
 	@Override
 	public Action foldRvalues() {
-		if (arg1 instanceof ValueDataId && arg2 instanceof ValueDataId) {
-			return new AssignmentAction(null, target, Main.generator.binaryOp(null, ((ValueDataId) arg1).value, type.opType, ((ValueDataId) arg2).value).dataId());
+		if (arg1 instanceof ValueDataId valueDataId1 && arg2 instanceof ValueDataId valueDataId2) {
+			return new AssignmentAction(null, target, Main.generator.binaryOp(null, valueDataId1.value, type.opType, valueDataId2.value).dataId());
 		}
 		else {
 			return null;
@@ -224,11 +223,11 @@ public class BinaryOpAction extends Action implements IValueAction {
 					return new AssignmentAction(null, target, arg1);
 				case CHAR_XOR_CHAR:
 				case CHAR_MINUS_CHAR:
-					return new AssignmentAction(null, target, Main.generator.charValue((byte) 0).dataId());
+					return new AssignmentAction(null, target, Main.generator.charValue(0).dataId());
 			}
 		}
 		
-		Value<?> left = arg1 instanceof ValueDataId ? ((ValueDataId) arg1).value : null, right = arg2 instanceof ValueDataId ? ((ValueDataId) arg2).value : null;
+		Value<?> left = arg1 instanceof ValueDataId valueDataId1 ? valueDataId1.value : null, right = arg2 instanceof ValueDataId valueDataId2 ? valueDataId2.value : null;
 		
 		if (left != null && right == null) {
 			switch (type) {

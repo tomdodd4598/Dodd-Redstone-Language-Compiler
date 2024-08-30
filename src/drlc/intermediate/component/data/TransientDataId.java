@@ -45,14 +45,13 @@ public class TransientDataId extends DataId {
 	}
 	
 	@Override
-	public int hashCode(boolean raw) {
-		return Objects.hash(scope, raw ? 0 : dereferenceLevel, raw ? null : typeInfo);
+	public int hashCode(boolean reduced) {
+		return Objects.hash(scope, reduced ? 0 : dereferenceLevel, reduced ? null : typeInfo);
 	}
 	
 	@Override
 	public boolean equalsOther(Object obj, boolean raw, boolean low) {
-		if (obj instanceof TransientDataId) {
-			TransientDataId other = (TransientDataId) obj;
+		if (obj instanceof TransientDataId other) {
 			boolean equalDereferenceLevels = raw || low || dereferenceLevel == other.dereferenceLevel;
 			boolean equalTypeInfos = low || typeInfo.equalsOther(other.typeInfo, raw);
 			return Objects.equals(scope, other.scope) && equalDereferenceLevels && equalTypeInfos;

@@ -2,7 +2,7 @@ package drlc.low.drc1.instruction.jump;
 
 import drlc.low.drc1.RedstoneMnemonics;
 import drlc.low.drc1.instruction.*;
-import drlc.low.drc1.instruction.immediate.IInstructionImmediate;
+import drlc.low.drc1.instruction.immediate.InstructionImmediate;
 import drlc.low.drc1.instruction.set.*;
 
 public class InstructionConditionalJumpIfMoreThanOrEqualToZero extends InstructionConditionalJump {
@@ -42,8 +42,7 @@ public class InstructionConditionalJumpIfMoreThanOrEqualToZero extends Instructi
 		else if (previous instanceof InstructionSetNot) {
 			return new InstructionConditionalJumpIfLessThanZero(section);
 		}
-		else if (previous instanceof IInstructionImmediate) {
-			IInstructionImmediate immediate = (IInstructionImmediate) previous;
+		else if (previous instanceof InstructionImmediate immediate) {
 			Short value = immediate.getRegisterValue();
 			if (value != null) {
 				return value >= 0 ? new InstructionJump(section) : new InstructionNoOp();
@@ -54,11 +53,11 @@ public class InstructionConditionalJumpIfMoreThanOrEqualToZero extends Instructi
 	
 	@Override
 	public String[] toBinary(boolean longAddress) {
-		return toBinary(longAddress, RedstoneMnemonics.JMEZ, RedstoneMnemonics.JMEZF);
+		return toBinary(longAddress, RedstoneMnemonics.JMEZ, RedstoneMnemonics.JMEZL);
 	}
 	
 	@Override
 	public String toAssembly(boolean longAddress) {
-		return toAssembly(longAddress, RedstoneMnemonics.JMEZ, RedstoneMnemonics.JMEZF);
+		return toAssembly(longAddress, RedstoneMnemonics.JMEZ, RedstoneMnemonics.JMEZL);
 	}
 }

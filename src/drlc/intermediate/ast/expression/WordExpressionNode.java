@@ -97,7 +97,7 @@ public class WordExpressionNode extends ExpressionNode {
 			constantValue = Main.generator.natValue(value);
 		}
 		else if (Main.generator.charTypeInfo.equals(typeInfo)) {
-			constantValue = Main.generator.charValue((byte) value);
+			constantValue = Main.generator.charValue((int) value);
 		}
 		else {
 			throw error("Could not infer type of constant value!");

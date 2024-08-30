@@ -36,7 +36,7 @@ public class InstructionLoadSubroutineAddress extends Instruction {
 	
 	@Override
 	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
-		if (next instanceof InstructionLoadSubroutineAddress) {
+		if (sameSection && next instanceof InstructionLoadSubroutineAddress) {
 			return next;
 		}
 		return null;

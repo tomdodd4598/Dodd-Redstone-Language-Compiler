@@ -1,7 +1,7 @@
-package drlc.low.drc1.instruction.address;
+package drlc.low.instruction.address;
 
 import drlc.low.LowDataInfo;
-import drlc.low.drc1.instruction.IInstructionLoad;
+import drlc.low.instruction.IInstructionLoad;
 
 public interface IInstructionLoadAddress extends IInstructionLoad, IInstructionAddress {
 	

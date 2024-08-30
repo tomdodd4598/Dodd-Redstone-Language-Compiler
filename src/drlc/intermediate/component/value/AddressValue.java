@@ -29,8 +29,7 @@ public class AddressValue extends Value<TypeInfo> {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof AddressValue) {
-			AddressValue other = (AddressValue) obj;
+		if (obj instanceof AddressValue other) {
 			return typeInfo.equals(other.typeInfo) && address == other.address;
 		}
 		else {

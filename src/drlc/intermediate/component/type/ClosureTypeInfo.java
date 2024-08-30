@@ -26,8 +26,8 @@ public class ClosureTypeInfo extends CompoundTypeInfo {
 	
 	@Override
 	public boolean canImplicitCastTo(TypeInfo otherInfo) {
-		if (otherInfo instanceof ClosureTypeInfo) {
-			return super.canImplicitCastTo(otherInfo) && function.equals(((ClosureTypeInfo) otherInfo).function);
+		if (otherInfo instanceof ClosureTypeInfo closureTypeInfo) {
+			return super.canImplicitCastTo(otherInfo) && function.equals(closureTypeInfo.function);
 		}
 		else {
 			return false;
@@ -41,8 +41,8 @@ public class ClosureTypeInfo extends CompoundTypeInfo {
 	
 	@Override
 	public boolean equalsOther(Object obj, boolean ignoreReferenceMutability) {
-		if (obj instanceof ClosureTypeInfo) {
-			return super.equalsOther(obj, ignoreReferenceMutability) && function.equals(((ClosureTypeInfo) obj).function);
+		if (obj instanceof ClosureTypeInfo other) {
+			return super.equalsOther(obj, ignoreReferenceMutability) && function.equals(other.function);
 		}
 		else {
 			return false;

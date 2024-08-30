@@ -44,8 +44,7 @@ public class ArrayValue extends Value<ArrayTypeInfo> {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof ArrayValue) {
-			ArrayValue other = (ArrayValue) obj;
+		if (obj instanceof ArrayValue other) {
 			return typeInfo.equals(other.typeInfo) && values.equals(other.values);
 		}
 		else {

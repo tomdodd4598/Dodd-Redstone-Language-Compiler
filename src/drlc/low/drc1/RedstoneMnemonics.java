@@ -79,13 +79,13 @@ public class RedstoneMnemonics {
 	public static final String JMZ = format("JMZ");
 	public static final String JMEZ = format("JMEZ");
 	
-	public static final String JMPF = format("JMPF");
-	public static final String JEZF = format("JEZF");
-	public static final String JNEZF = format("JNEZF");
-	public static final String JLZF = format("JLZF");
-	public static final String JLEZF = format("JLEZF");
-	public static final String JMZF = format("JMZF");
-	public static final String JMEZF = format("JMEZF");
+	public static final String JMPL = format("JMPL");
+	public static final String JEZL = format("JEZL");
+	public static final String JNEZL = format("JNEZL");
+	public static final String JLZL = format("JLZL");
+	public static final String JLEZL = format("JLEZL");
+	public static final String JMZL = format("JMZL");
+	public static final String JMEZL = format("JMEZL");
 	
 	public static final String STAPB = format("STAPB");
 	public static final String LDAPB = format("LDAPB");

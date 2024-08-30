@@ -1,13 +1,12 @@
 package drlc.low.drc1.instruction.address;
 
 import drlc.low.LowDataInfo;
-import drlc.low.drc1.*;
-import drlc.low.drc1.instruction.Instruction;
+import drlc.low.drc1.RedstoneMnemonics;
 
 public class InstructionLoadB extends InstructionAddress {
 	
-	public InstructionLoadB(LowDataInfo info) {
-		super(info);
+	public InstructionLoadB(LowDataInfo dataInfo) {
+		super(dataInfo);
 	}
 	
 	@Override
@@ -28,11 +27,6 @@ public class InstructionLoadB extends InstructionAddress {
 	@Override
 	public boolean isDataToMemory() {
 		return false;
-	}
-	
-	@Override
-	public Instruction getDataReplacement(RedstoneCode code) {
-		return new InstructionLoadB(getDataInfoReplacement(code));
 	}
 	
 	@Override

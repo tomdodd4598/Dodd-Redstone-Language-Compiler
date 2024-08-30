@@ -38,12 +38,10 @@ public class RegDataId extends DataId {
 	
 	@Override
 	public @Nullable DataId getRawReplacer(ASTNode<?> node, DataId rawInternal) {
-		if (rawInternal instanceof RegDataId) {
-			RegDataId raw = (RegDataId) rawInternal;
+		if (rawInternal instanceof RegDataId raw) {
 			return new RegDataId(raw.dereferenceLevel, raw.typeInfo, raw.regId);
 		}
-		else if (rawInternal instanceof VariableDataId) {
-			VariableDataId raw = (VariableDataId) rawInternal;
+		else if (rawInternal instanceof VariableDataId raw) {
 			return new VariableDataId(raw.dereferenceLevel, raw.variable);
 		}
 		else {
@@ -62,14 +60,13 @@ public class RegDataId extends DataId {
 	}
 	
 	@Override
-	public int hashCode(boolean raw) {
-		return Objects.hash(Global.REG, scope, raw ? 0 : dereferenceLevel, raw ? null : typeInfo);
+	public int hashCode(boolean reduced) {
+		return Objects.hash(Global.REG, scope, reduced ? 0 : dereferenceLevel, reduced ? null : typeInfo);
 	}
 	
 	@Override
 	public boolean equalsOther(Object obj, boolean raw, boolean low) {
-		if (obj instanceof RegDataId) {
-			RegDataId other = (RegDataId) obj;
+		if (obj instanceof RegDataId other) {
 			boolean equalDereferenceLevels = raw || low || dereferenceLevel == other.dereferenceLevel;
 			boolean equalTypeInfos = low || typeInfo.equalsOther(other.typeInfo, raw);
 			return Objects.equals(scope, other.scope) && equalDereferenceLevels && equalTypeInfos && regId == other.regId;

@@ -36,8 +36,7 @@ public abstract class FunctionTypeInfo extends TypeInfo {
 	
 	@Override
 	public boolean equalsOther(Object obj, boolean ignoreReferenceMutability) {
-		if (obj instanceof FunctionTypeInfo) {
-			FunctionTypeInfo other = (FunctionTypeInfo) obj;
+		if (obj instanceof FunctionTypeInfo other) {
 			boolean equalReferenceMutability = ignoreReferenceMutability || referenceMutability.equals(other.referenceMutability);
 			return equalReferenceMutability && returnTypeInfo.equals(other.returnTypeInfo) && paramTypeInfos.equals(other.paramTypeInfos);
 		}

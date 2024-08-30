@@ -72,8 +72,7 @@ public interface IValueAction {
 	
 	public default DataIdReplaceResult replaceRegId(DataId dataId, Map<Long, Long> regIdMap) {
 		boolean success = false;
-		if (dataId instanceof RegDataId) {
-			RegDataId regDataId = (RegDataId) dataId;
+		if (dataId instanceof RegDataId regDataId) {
 			long regId = regDataId.regId;
 			if (regIdMap.containsKey(regId)) {
 				long newRegId = regIdMap.get(regId);

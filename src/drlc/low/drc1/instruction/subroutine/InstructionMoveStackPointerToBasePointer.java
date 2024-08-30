@@ -22,6 +22,9 @@ public class InstructionMoveStackPointerToBasePointer extends Instruction {
 	
 	@Override
 	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
+		if (sameSection && (next instanceof InstructionMoveStackPointerToBasePointer || next instanceof InstructionLoadBasePointer)) {
+			return next;
+		}
 		return null;
 	}
 	

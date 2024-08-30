@@ -21,9 +21,9 @@ public class StringExpressionNode extends ExpressionNode {
 	@SuppressWarnings("null")
 	public @NonNull ArrayValue stringValue = null;
 	
-	public StringExpressionNode(Source source, String literal) {
+	public StringExpressionNode(Source source, String raw) {
 		super(source);
-		this.literal = literal;
+		this.literal = Main.generator.getStringLiteral(this, raw);
 	}
 	
 	@Override
@@ -84,7 +84,7 @@ public class StringExpressionNode extends ExpressionNode {
 	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
 		typeInfo = Main.rootScope.getTypeInfo(this, Global.CHARS, false);
 		
-		stringValue = new ArrayValue(this, new ArrayTypeInfo(this, new ArrayList<>(), Main.generator.charTypeInfo, literal.length()), literal.chars().mapToObj(x -> Main.generator.charValue((byte) x)).collect(Collectors.toList()));
+		stringValue = new ArrayValue(this, new ArrayTypeInfo(this, new ArrayList<>(), Main.generator.charTypeInfo, literal.length()), literal.chars().mapToObj(Main.generator::charValue).collect(Collectors.toList()));
 	}
 	
 	@Override

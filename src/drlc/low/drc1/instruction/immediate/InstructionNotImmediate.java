@@ -16,7 +16,7 @@ public class InstructionNotImmediate extends InstructionALUImmediate {
 	
 	@Override
 	public Instruction getImmediateReplacementInternal() {
-		if (RedstoneCode.isLongImmediate(value) && !RedstoneCode.isLongImmediate((short) ~value)) {
+		if (RedstoneCode.isLong(value) && !RedstoneCode.isLong((short) ~value)) {
 			return new InstructionLoadImmediate((short) ~value);
 		}
 		else {

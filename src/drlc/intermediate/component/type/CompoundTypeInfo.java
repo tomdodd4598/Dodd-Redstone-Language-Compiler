@@ -27,8 +27,7 @@ public abstract class CompoundTypeInfo extends TypeInfo {
 	
 	@Override
 	public boolean canImplicitCastTo(TypeInfo otherInfo) {
-		if (otherInfo instanceof CompoundTypeInfo) {
-			CompoundTypeInfo otherCompoundInfo = (CompoundTypeInfo) otherInfo;
+		if (otherInfo instanceof CompoundTypeInfo otherCompoundInfo) {
 			if (count == otherCompoundInfo.count && canImplicitCastToReferenceMutability(otherInfo)) {
 				return IntStream.range(0, count).allMatch(x -> typeInfos.get(x).canImplicitCastTo(otherCompoundInfo.typeInfos.get(x)));
 			}
@@ -80,8 +79,7 @@ public abstract class CompoundTypeInfo extends TypeInfo {
 	
 	@Override
 	public boolean equalsOther(Object obj, boolean ignoreReferenceMutability) {
-		if (obj instanceof CompoundTypeInfo) {
-			CompoundTypeInfo other = (CompoundTypeInfo) obj;
+		if (obj instanceof CompoundTypeInfo other) {
 			boolean equalReferenceMutability = ignoreReferenceMutability || referenceMutability.equals(other.referenceMutability);
 			return equalReferenceMutability && typeInfos.equals(other.typeInfos);
 		}

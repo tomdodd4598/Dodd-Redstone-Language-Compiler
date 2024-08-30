@@ -63,7 +63,7 @@ public abstract class DataId {
 	
 	public abstract boolean isRepeatable(boolean lvalue);
 	
-	public abstract int hashCode(boolean raw);
+	public abstract int hashCode(boolean reduced);
 	
 	@Override
 	public int hashCode() {
@@ -127,7 +127,7 @@ public abstract class DataId {
 		
 		@Override
 		public boolean equals(Object obj) {
-			return obj instanceof RawDataId && internal.equalsOther(((RawDataId) obj).internal, true, false);
+			return obj instanceof RawDataId other && internal.equalsOther(other.internal, true, false);
 		}
 	}
 	
@@ -139,7 +139,7 @@ public abstract class DataId {
 		
 		@Override
 		public boolean equals(Object obj) {
-			return obj instanceof LowDataId && internal.equalsOther(((LowDataId) obj).internal, false, true);
+			return obj instanceof LowDataId other && internal.equalsOther(other.internal, false, true);
 		}
 	}
 }

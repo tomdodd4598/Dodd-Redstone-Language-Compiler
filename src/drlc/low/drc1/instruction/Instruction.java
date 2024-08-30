@@ -1,6 +1,8 @@
 package drlc.low.drc1.instruction;
 
-public abstract class Instruction {
+import drlc.low.LowInstruction;
+
+public abstract class Instruction implements LowInstruction {
 	
 	public Instruction() {}
 	

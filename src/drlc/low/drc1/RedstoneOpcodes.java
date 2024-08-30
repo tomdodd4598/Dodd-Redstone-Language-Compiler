@@ -86,13 +86,13 @@ public class RedstoneOpcodes {
 		put(RedstoneMnemonics.JMZ, 0x75);
 		put(RedstoneMnemonics.JMEZ, 0x76);
 		
-		put(RedstoneMnemonics.JMPF, 0x77);
-		put(RedstoneMnemonics.JEZF, 0x78);
-		put(RedstoneMnemonics.JNEZF, 0x79);
-		put(RedstoneMnemonics.JLZF, 0x7A);
-		put(RedstoneMnemonics.JLEZF, 0x7B);
-		put(RedstoneMnemonics.JMZF, 0x7C);
-		put(RedstoneMnemonics.JMEZF, 0x7D);
+		put(RedstoneMnemonics.JMPL, 0x77);
+		put(RedstoneMnemonics.JEZL, 0x78);
+		put(RedstoneMnemonics.JNEZL, 0x79);
+		put(RedstoneMnemonics.JLZL, 0x7A);
+		put(RedstoneMnemonics.JLEZL, 0x7B);
+		put(RedstoneMnemonics.JMZL, 0x7C);
+		put(RedstoneMnemonics.JMEZL, 0x7D);
 		
 		put(RedstoneMnemonics.STAPB, 0x80);
 		put(RedstoneMnemonics.LDAPB, 0x81);

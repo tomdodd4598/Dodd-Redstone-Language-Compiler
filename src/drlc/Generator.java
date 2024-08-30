@@ -127,12 +127,16 @@ public abstract class Generator {
 		return new NatValue(null, value);
 	}
 	
-	public @NonNull CharValue charValue(byte value) {
+	public @NonNull CharValue charValue(int value) {
 		return new CharValue(null, value);
 	}
 	
 	public @NonNull AddressValue addressValue(@NonNull TypeInfo typeInfo, long address) {
 		return new AddressValue(null, typeInfo, address);
+	}
+	
+	public String getStringLiteral(ASTNode<?> node, String raw) {
+		return raw;
 	}
 	
 	public abstract int getWordSize();
@@ -252,15 +256,15 @@ public abstract class Generator {
 				case MORE_OR_EQUAL:
 					return boolValue(charLeft.value >= charRight.value);
 				case PLUS:
-					return charValue((byte) (charLeft.value + charRight.value));
+					return charValue(charLeft.value + charRight.value);
 				case AND:
-					return charValue((byte) (charLeft.value & charRight.value));
+					return charValue(charLeft.value & charRight.value);
 				case OR:
-					return charValue((byte) (charLeft.value | charRight.value));
+					return charValue(charLeft.value | charRight.value);
 				case XOR:
-					return charValue((byte) (charLeft.value ^ charRight.value));
+					return charValue(charLeft.value ^ charRight.value);
 				case MINUS:
-					return charValue((byte) (charLeft.value - charRight.value));
+					return charValue(charLeft.value - charRight.value);
 				case MULTIPLY:
 				case DIVIDE:
 				case REMAINDER:
@@ -280,15 +284,11 @@ public abstract class Generator {
 		TypeInfo leftType = left.typeInfo, rightType = right.typeInfo;
 		boolean plusOrMinus = opType.equals(BinaryOpType.PLUS) || opType.equals(BinaryOpType.MINUS);
 		
-		if (left instanceof AddressValue) {
-			AddressValue leftAddress = (AddressValue) left;
-			
-			if (right instanceof AddressValue) {
+		if (left instanceof AddressValue leftAddress) {
+			if (right instanceof AddressValue rightAddress) {
 				if (opType.equals(BinaryOpType.MINUS) && !leftType.equals(rightType)) {
 					throw undefinedBinaryOp(node, leftType, opType, rightType);
 				}
-				
-				AddressValue rightAddress = (AddressValue) right;
 				
 				switch (opType) {
 					case LOGICAL_AND:
@@ -337,8 +337,7 @@ public abstract class Generator {
 			}
 		}
 		else {
-			if (right instanceof AddressValue) {
-				AddressValue rightAddress = (AddressValue) right;
+			if (right instanceof AddressValue rightAddress) {
 				if (plusOrMinus && leftType.isWord()) {
 					long leftLong = left.longValue(node);
 					int size = leftType.getAddressOffsetSize(node);
@@ -394,9 +393,9 @@ public abstract class Generator {
 				}
 				return intValue(left.value % right.value);
 			case LEFT_SHIFT:
-				return intValue(left.value << right.intValue(node));
+				return intValue(left.value << right.value);
 			case RIGHT_SHIFT:
-				return intValue(left.value >> right.intValue(node));
+				return intValue(left.value >> right.value);
 			case LEFT_ROTATE:
 				return intValue(Long.rotateLeft(left.value, right.intValue(node)));
 			case RIGHT_ROTATE:
@@ -446,9 +445,9 @@ public abstract class Generator {
 				}
 				return natValue(Long.remainderUnsigned(left.value, right.value));
 			case LEFT_SHIFT:
-				return natValue(left.value << right.intValue(node));
+				return natValue(left.value << right.value);
 			case RIGHT_SHIFT:
-				return natValue(left.value >>> right.intValue(node));
+				return natValue(left.value >>> right.value);
 			case LEFT_ROTATE:
 				return natValue(Long.rotateLeft(left.value, right.intValue(node)));
 			case RIGHT_ROTATE:
@@ -984,7 +983,7 @@ public abstract class Generator {
 				case MINUS:
 					throw undefinedUnaryOp(node, opType, typeInfo);
 				case NOT:
-					return charValue((byte) ~byteValue);
+					return charValue(~byteValue);
 				default:
 					throw unknownUnaryOpType(node, opType, typeInfo);
 			}
@@ -1124,17 +1123,14 @@ public abstract class Generator {
 	
 	public @Nullable Value<?> typeCast(ASTNode<?> node, @NonNull TypeInfo castType, @NonNull Value<?> value) {
 		TypeInfo typeInfo = value.typeInfo;
-		if (typeInfo instanceof ClosureTypeInfo) {
+		if (typeInfo instanceof ClosureTypeInfo closureTypeInfo) {
 			if (typeInfo.isAddress()) {
 				return null;
 			}
-			else {
-				ClosureTypeInfo closureTypeInfo = (ClosureTypeInfo) typeInfo;
-				if (closureTypeInfo.count == 0) {
-					FunctionItemValue functionItemValue = closureTypeInfo.function.value;
-					if (functionItemValue.typeInfo.copy(node, closureTypeInfo.referenceMutability).canImplicitCastTo(castType)) {
-						return functionItemValue;
-					}
+			else if (closureTypeInfo.count == 0) {
+				FunctionItemValue functionItemValue = closureTypeInfo.function.value;
+				if (functionItemValue.typeInfo.copy(node, closureTypeInfo.referenceMutability).canImplicitCastTo(castType)) {
+					return functionItemValue;
 				}
 			}
 		}
@@ -1147,25 +1143,25 @@ public abstract class Generator {
 				return addressValue(castType, valueLong);
 			}
 			else if (castType.equals(intTypeInfo)) {
+				return intValue(addressToWordCast(node, valueLong));
+			}
+			else if (castType.equals(natTypeInfo)) {
+				return natValue(addressToWordCast(node, valueLong));
+			}
+		}
+		else if (typeInfo.equals(boolTypeInfo)) {
+			long valueLong = boolToWordCast(node, value.boolValue(node));
+			if (castType.equals(intTypeInfo)) {
 				return intValue(valueLong);
 			}
 			else if (castType.equals(natTypeInfo)) {
 				return natValue(valueLong);
 			}
 		}
-		else if (typeInfo.equals(boolTypeInfo)) {
-			boolean valueBool = value.boolValue(node);
-			if (castType.equals(intTypeInfo)) {
-				return intValue(valueBool ? 1 : 0);
-			}
-			else if (castType.equals(natTypeInfo)) {
-				return natValue(valueBool ? 1 : 0);
-			}
-		}
 		else if (typeInfo.isWord()) {
 			long valueLong = value.longValue(node);
 			if (castType.isAddress()) {
-				return addressValue(castType, valueLong);
+				return addressValue(castType, wordToAddressCast(node, valueLong));
 			}
 			else if (castType.equals(intTypeInfo)) {
 				return intValue(valueLong);
@@ -1174,24 +1170,43 @@ public abstract class Generator {
 				return natValue(valueLong);
 			}
 			else if (castType.equals(charTypeInfo)) {
-				return charValue((byte) valueLong);
+				return charValue(wordToCharCast(node, valueLong));
 			}
 		}
 		else if (typeInfo.equals(charTypeInfo)) {
-			byte valueByte = value.byteValue(node);
+			long valueLong = charToWordCast(node, value.byteValue(node));
 			if (castType.equals(intTypeInfo)) {
-				return intValue(valueByte);
+				return intValue(valueLong);
 			}
 			else if (castType.equals(natTypeInfo)) {
-				return natValue(valueByte);
+				return natValue(valueLong);
 			}
 		}
 		throw undefinedTypeCast(node, castType, typeInfo);
 	}
 	
+	public long addressToWordCast(ASTNode<?> node, long valueLong) {
+		return valueLong;
+	}
+	
+	public long boolToWordCast(ASTNode<?> node, boolean valueBool) {
+		return valueBool ? 1 : 0;
+	}
+	
+	public long wordToAddressCast(ASTNode<?> node, long valueLong) {
+		return valueLong;
+	}
+	
+	public int wordToCharCast(ASTNode<?> node, long valueLong) {
+		return (int) valueLong;
+	}
+	
+	public long charToWordCast(ASTNode<?> node, byte valueByte) {
+		return valueByte;
+	}
+	
 	public void typeCastAction(ASTNode<?> node, Scope scope, @NonNull Routine routine, @NonNull TypeInfo castType, @NonNull TypeInfo typeInfo, DataId target, DataId arg) {
-		if (typeInfo instanceof ClosureTypeInfo) {
-			ClosureTypeInfo closureTypeInfo = (ClosureTypeInfo) typeInfo;
+		if (typeInfo instanceof ClosureTypeInfo closureTypeInfo) {
 			if (closureTypeInfo.count == 0) {
 				FunctionItemValue functionItemValue = closureTypeInfo.function.value;
 				if (functionItemValue.typeInfo.copy(node, closureTypeInfo.referenceMutability).canImplicitCastTo(castType)) {
@@ -1231,12 +1246,7 @@ public abstract class Generator {
 		}
 		else if (typeInfo.isWord()) {
 			if (castType.isAddress()) {
-				if (typeInfo.equals(intTypeInfo)) {
-					intToAddressCastAction(node, routine, target, arg);
-				}
-				else {
-					natToAddressCastAction(node, routine, target, arg);
-				}
+				wordToAddressCastAction(node, routine, target, arg);
 				return;
 			}
 			else if (castType.isWord()) {
@@ -1261,9 +1271,7 @@ public abstract class Generator {
 	
 	public abstract void boolToWordCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg);
 	
-	public abstract void intToAddressCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg);
-	
-	public abstract void natToAddressCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg);
+	public abstract void wordToAddressCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg);
 	
 	public abstract void wordToCharCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg);
 	

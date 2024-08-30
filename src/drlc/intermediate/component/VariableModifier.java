@@ -25,8 +25,7 @@ public class VariableModifier {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof VariableModifier) {
-			VariableModifier other = (VariableModifier) obj;
+		if (obj instanceof VariableModifier other) {
 			return _static == other._static && mutable == other.mutable;
 		}
 		else {

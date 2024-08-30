@@ -80,8 +80,7 @@ public class Function {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Function) {
-			Function other = (Function) obj;
+		if (obj instanceof Function other) {
 			return name.equals(other.name) && Objects.equals(scope, other.scope) && returnTypeInfo.equals(other.returnTypeInfo) && paramTypeInfos.equals(other.paramTypeInfos);
 		}
 		return false;

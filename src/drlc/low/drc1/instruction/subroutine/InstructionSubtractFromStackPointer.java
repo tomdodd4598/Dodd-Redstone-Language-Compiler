@@ -7,7 +7,6 @@ import drlc.low.drc1.instruction.*;
 public class InstructionSubtractFromStackPointer extends Instruction {
 	
 	public Short value;
-	public boolean initialized = false;
 	
 	public InstructionSubtractFromStackPointer() {
 		super();
@@ -31,32 +30,30 @@ public class InstructionSubtractFromStackPointer extends Instruction {
 	@Override
 	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		if (sameSection && value != null) {
-			if (next instanceof InstructionAddToStackPointer) {
-				InstructionAddToStackPointer add = (InstructionAddToStackPointer) next;
+			if (next instanceof InstructionAddToStackPointer add) {
 				if (add.value != null) {
 					int sum = -value + add.value;
 					if (sum == 0) {
 						return new InstructionNoOp();
 					}
-					else if (!RedstoneCode.isLongImmediate((short) sum)) {
+					else if (!RedstoneCode.isLong((short) sum)) {
 						return new InstructionAddToStackPointer((short) sum);
 					}
-					else if (!RedstoneCode.isLongImmediate((short) -sum)) {
+					else if (!RedstoneCode.isLong((short) -sum)) {
 						return new InstructionSubtractFromStackPointer((short) -sum);
 					}
 				}
 			}
-			else if (next instanceof InstructionSubtractFromStackPointer) {
-				InstructionSubtractFromStackPointer subtract = (InstructionSubtractFromStackPointer) next;
+			else if (next instanceof InstructionSubtractFromStackPointer subtract) {
 				if (subtract.value != null) {
 					int sum = -value - subtract.value;
 					if (sum == 0) {
 						return new InstructionNoOp();
 					}
-					else if (!RedstoneCode.isLongImmediate((short) sum)) {
+					else if (!RedstoneCode.isLong((short) sum)) {
 						return new InstructionAddToStackPointer((short) sum);
 					}
-					else if (!RedstoneCode.isLongImmediate((short) -sum)) {
+					else if (!RedstoneCode.isLong((short) -sum)) {
 						return new InstructionSubtractFromStackPointer((short) -sum);
 					}
 				}

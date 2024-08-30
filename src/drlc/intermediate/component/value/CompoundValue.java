@@ -44,8 +44,7 @@ public abstract class CompoundValue<T extends CompoundTypeInfo> extends Value<T>
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof CompoundValue) {
-			CompoundValue<?> other = (CompoundValue<?>) obj;
+		if (obj instanceof CompoundValue<?> other) {
 			return typeInfo.equals(other.typeInfo) && values.equals(other.values);
 		}
 		else {

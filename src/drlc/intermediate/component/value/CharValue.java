@@ -10,9 +10,9 @@ public class CharValue extends BasicValue<CharTypeInfo> {
 	
 	public final byte value;
 	
-	public CharValue(ASTNode<?> node, byte value) {
+	public CharValue(ASTNode<?> node, int value) {
 		super(node, Main.generator.charTypeInfo);
-		this.value = value;
+		this.value = (byte) (value & 0x7F);
 	}
 	
 	@Override
@@ -27,8 +27,7 @@ public class CharValue extends BasicValue<CharTypeInfo> {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof CharValue) {
-			CharValue other = (CharValue) obj;
+		if (obj instanceof CharValue other) {
 			return typeInfo.equals(other.typeInfo) && value == other.value;
 		}
 		else {

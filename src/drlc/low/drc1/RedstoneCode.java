@@ -3,86 +3,55 @@ package drlc.low.drc1;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import drlc.*;
-import drlc.Helpers.Pair;
+import drlc.Global;
 import drlc.intermediate.component.Function;
-import drlc.intermediate.component.data.DataId;
-import drlc.intermediate.component.data.DataId.LowDataId;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.routine.Routine;
-import drlc.low.*;
+import drlc.low.LowCode;
 import drlc.low.drc1.builtin.*;
+import drlc.low.drc1.instruction.Instruction;
 
-public class RedstoneCode {
+public class RedstoneCode extends LowCode<RedstoneCode, RedstoneRoutine, Instruction> {
 	
 	public boolean requiresStack = false;
 	
 	public final boolean longAddress;
 	
-	public final Map<Function, RedstoneRoutine> routineMap = new LinkedHashMap<>();
-	
-	public final Map<LowDataId, Pair<DataId, LowDataSpan>> rootSpanMap = new LinkedHashMap<>();
-	
-	public short addressOffset = 0;
-	public final Map<LowDataSpan, LowAddressSlice> rootAddressMap = new LinkedHashMap<>();
-	
-	public final Map<Function, Short> textAddressMap = new LinkedHashMap<>();
+	public int addressOffset = 0;
 	
 	public RedstoneCode(boolean longAddress) {
+		super();
 		this.longAddress = longAddress;
 	}
 	
-	public boolean routineExists(Function function) {
-		return routineMap.containsKey(function);
+	@Override
+	protected RedstoneRoutine createRoutine(Routine intermediateRoutine) {
+		return new RedstoneRoutine(this, intermediateRoutine);
 	}
 	
-	public RedstoneRoutine getRoutine(Function function) {
-		return routineMap.get(function);
-	}
-	
-	public void addRoutine(Function function, Routine intermediateRoutine) {
-		RedstoneRoutine routine = new RedstoneRoutine(this, intermediateRoutine);
-		routineMap.put(function, function.builtIn ? getBuiltInRoutine(function.name, intermediateRoutine) : routine);
+	@Override
+	public RedstoneRoutine addRoutine(Function function, Routine intermediateRoutine) {
+		RedstoneRoutine routine = super.addRoutine(function, intermediateRoutine);
 		if (routine.isStackRoutine()) {
 			requiresStack = true;
 		}
+		return routine;
 	}
 	
+	@Override
 	public boolean generate() {
-		Main.rootScope.routineMap.forEach((k, v) -> {
-			if (!k.builtIn) {
-				addRoutine(k, v);
-			}
-		});
+		addRoutines();
 		
-		Main.rootScope.routineMap.forEach((k, v) -> {
-			if (k.builtIn) {
-				addRoutine(k, v);
-			}
-		});
-		
-		for (Function function : Main.rootScope.routineMap.keySet()) {
-			if (!routineMap.containsKey(function)) {
-				throw new IllegalArgumentException(String.format("Unexpectedly encountered unimplemented routine \"%s\"!", function));
-			}
-		}
-		
-		boolean flag = true;
-		while (flag) {
-			flag = false;
-			for (RedstoneRoutine routine : new ArrayList<>(routineMap.values())) {
-				flag |= routine.generateInstructions();
-			}
-		}
+		while (new ArrayList<>(routineMap.values()).stream().mapToInt(x -> x.generateInstructions() ? 1 : 0).sum() > 0);
 		
 		optimize();
 		
 		for (RedstoneRoutine routine : routineMap.values()) {
-			routine.prepareDataIdRegeneration();
+			routine.prepareDataInfoRegeneration();
 		}
 		
 		for (RedstoneRoutine routine : routineMap.values()) {
-			routine.regenerateDataIds();
+			routine.regenerateDataInfo();
 		}
 		
 		for (RedstoneRoutine routine : routineMap.values()) {
@@ -104,7 +73,8 @@ public class RedstoneCode {
 		return true;
 	}
 	
-	private RedstoneRoutine getBuiltInRoutine(String name, Routine intermediateRoutine) {
+	@Override
+	protected RedstoneRoutine getBuiltInRoutine(String name, Routine intermediateRoutine) {
 		switch (name) {
 			case Global.PRINT_BOOL:
 				return new PrintBoolRedstoneRoutine(this, intermediateRoutine);
@@ -130,7 +100,8 @@ public class RedstoneCode {
 		throw new IllegalArgumentException(String.format("Encountered unsupported built-in subroutine \"%s\"!", name));
 	}
 	
-	private void optimize() {
+	@Override
+	protected void optimize() {
 		for (RedstoneRoutine routine : routineMap.values()) {
 			boolean flag = true;
 			while (flag) {
@@ -154,21 +125,21 @@ public class RedstoneCode {
 	public static final short SHIFT_MASK = 0xF;
 	
 	public static List<Short> raw(Value<?> value) {
-		if (value instanceof BoolValue) {
-			return Arrays.asList((short) (((BoolValue) value).value ? 1 : 0));
+		if (value instanceof BoolValue boolValue) {
+			return Arrays.asList((short) (boolValue.value ? 1 : 0));
 		}
-		else if (value instanceof ArrayValue) {
-			return ((ArrayValue) value).values.stream().flatMap(x -> raw(x).stream()).collect(Collectors.toList());
+		else if (value instanceof ArrayValue arrayValue) {
+			return arrayValue.values.stream().flatMap(x -> raw(x).stream()).collect(Collectors.toList());
 		}
-		else if (value instanceof CompoundValue) {
-			return ((CompoundValue<?>) value).values.stream().flatMap(x -> raw(x).stream()).collect(Collectors.toList());
+		else if (value instanceof CompoundValue<?> compoundValue) {
+			return compoundValue.values.stream().flatMap(x -> raw(x).stream()).collect(Collectors.toList());
 		}
 		else {
 			return Arrays.asList(value.shortValue(null));
 		}
 	}
 	
-	public static boolean isLongImmediate(short value) {
+	public static boolean isLong(short value) {
 		return value < 0 || value > BYTE_MASK;
 	}
 	
@@ -176,17 +147,16 @@ public class RedstoneCode {
 		return (short) (value & BYTE_MASK);
 	}
 	
+	public static short charBits(short value) {
+		return (short) (value & CHAR_MASK);
+	}
+	
 	public static short shiftBits(short value) {
 		return (short) (value & SHIFT_MASK);
 	}
 	
 	public static boolean isPowerOfTwo(short value) {
-		if (value < 0) {
-			return ((-value) & (-value - 1)) == 0;
-		}
-		else {
-			return value > 0 && ((value & (value - 1)) == 0);
-		}
+		return value > 0 && ((value & (value - 1)) == 0);
 	}
 	
 	public static short log2(short value) {

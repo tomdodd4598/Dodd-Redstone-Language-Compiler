@@ -4,7 +4,7 @@ import drlc.*;
 import drlc.low.drc1.*;
 import drlc.low.drc1.instruction.*;
 
-public abstract class InstructionImmediate extends Instruction implements IInstructionImmediate {
+public abstract class InstructionImmediate extends Instruction {
 	
 	public final short value;
 	
@@ -18,7 +18,8 @@ public abstract class InstructionImmediate extends Instruction implements IInstr
 		return null;
 	}
 	
-	@Override
+	public abstract boolean isUnnecessaryImmediate();
+	
 	public Instruction getImmediateReplacement() {
 		if (isUnnecessaryImmediate()) {
 			return new InstructionNoOp();
@@ -30,13 +31,15 @@ public abstract class InstructionImmediate extends Instruction implements IInstr
 	
 	protected abstract Instruction getImmediateReplacementInternal();
 	
+	public abstract Short getRegisterValue();
+	
 	@Override
 	public int size(boolean longAddress) {
-		return RedstoneCode.isLongImmediate(value) ? 2 : 1;
+		return RedstoneCode.isLong(value) ? 2 : 1;
 	}
 	
 	protected String[] toBinary(boolean longAddress, String mnemonic, String longMnemonic) {
-		if (RedstoneCode.isLongImmediate(value)) {
+		if (RedstoneCode.isLong(value)) {
 			return new String[] {RedstoneOpcodes.get(longMnemonic) + Global.ZERO_8, Helpers.toBinary(value, 16)};
 		}
 		else {
@@ -45,7 +48,7 @@ public abstract class InstructionImmediate extends Instruction implements IInstr
 	}
 	
 	protected String toAssembly(boolean longAddress, String mnemonic, String longMnemonic) {
-		if (RedstoneCode.isLongImmediate(value)) {
+		if (RedstoneCode.isLong(value)) {
 			return longMnemonic + '\t' + Global.IMMEDIATE + Helpers.toHex(value);
 		}
 		else {

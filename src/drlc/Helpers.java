@@ -132,7 +132,7 @@ public class Helpers {
 		if (ESCAPE_MAP.containsKey(str)) {
 			str = ESCAPE_MAP.get(str);
 		}
-		else if (c > 127 || Character.isISOControl(c)) {
+		else if (c > 0x7F || Character.isISOControl(c)) {
 			str = "\\x" + upperCase(String.format("%2s", Integer.toHexString(c)).replace(' ', '0'));
 		}
 		return "\'" + str + "\'";
@@ -174,8 +174,8 @@ public class Helpers {
 	}
 	
 	private static Stream<Token> allTokens(Node parseNode) {
-		if (parseNode instanceof Token) {
-			return Stream.of((Token) parseNode);
+		if (parseNode instanceof Token token) {
+			return Stream.of(token);
 		}
 		else {
 			return Arrays.stream(parseNode.getClass().getDeclaredMethods()).filter(x -> {
@@ -194,8 +194,8 @@ public class Helpers {
 					return null;
 				}
 			}).filter(x -> x instanceof Node || x instanceof LinkedList).flatMap(x -> {
-				if (x instanceof Node) {
-					return allTokens((Node) x);
+				if (x instanceof Node node) {
+					return allTokens(node);
 				}
 				else {
 					return ((LinkedList<?>) x).stream().filter(y -> y instanceof Node).flatMap(y -> allTokens((Node) y));
@@ -370,8 +370,7 @@ public class Helpers {
 		
 		@Override
 		public boolean equals(Object obj) {
-			if (obj instanceof Pair) {
-				Pair<?, ?> other = (Pair<?, ?>) obj;
+			if (obj instanceof Pair<?, ?> other) {
 				return Objects.equals(left, other.left) && Objects.equals(right, other.right);
 			}
 			else {

@@ -1,4 +1,4 @@
-package drlc.low.drc1.instruction;
+package drlc.low.instruction;
 
 public interface IInstructionLoad {
 	

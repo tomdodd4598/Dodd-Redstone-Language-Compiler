@@ -43,8 +43,7 @@ public class ArrayTypeInfo extends TypeInfo {
 	
 	@Override
 	public boolean canImplicitCastTo(TypeInfo otherInfo) {
-		if (otherInfo instanceof ArrayTypeInfo) {
-			@NonNull ArrayTypeInfo otherArrayInfo = (ArrayTypeInfo) otherInfo;
+		if (otherInfo instanceof ArrayTypeInfo otherArrayInfo) {
 			if (length == otherArrayInfo.length && elementTypeInfo.canImplicitCastTo(otherArrayInfo.elementTypeInfo) && canImplicitCastToReferenceMutability(otherInfo)) {
 				return true;
 			}
@@ -92,8 +91,7 @@ public class ArrayTypeInfo extends TypeInfo {
 	
 	@Override
 	public boolean equalsOther(Object obj, boolean ignoreReferenceMutability) {
-		if (obj instanceof ArrayTypeInfo) {
-			ArrayTypeInfo other = (ArrayTypeInfo) obj;
+		if (obj instanceof ArrayTypeInfo other) {
 			boolean equalReferenceMutability = ignoreReferenceMutability || referenceMutability.equals(other.referenceMutability);
 			return equalReferenceMutability && elementTypeInfo.equals(other.elementTypeInfo) && length == other.length;
 		}

@@ -28,8 +28,7 @@ public abstract class WordValue<T extends BasicTypeInfo> extends BasicValue<T> {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof WordValue) {
-			WordValue<?> other = (WordValue<?>) obj;
+		if (obj instanceof WordValue<?> other) {
 			return typeInfo.equals(other.typeInfo) && value == other.value;
 		}
 		else {

@@ -23,8 +23,7 @@ public class LowDataSpan {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof LowDataSpan) {
-			LowDataSpan other = (LowDataSpan) obj;
+		if (obj instanceof LowDataSpan other) {
 			return function.equals(other.function) && id == other.id;
 		}
 		else {
@@ -34,6 +33,6 @@ public class LowDataSpan {
 	
 	@Override
 	public String toString() {
-		return id + "[" + size + "]";
+		return function + ", " + id + "[" + size + "]";
 	}
 }

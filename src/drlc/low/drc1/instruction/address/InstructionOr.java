@@ -1,18 +1,12 @@
 package drlc.low.drc1.instruction.address;
 
 import drlc.low.LowDataInfo;
-import drlc.low.drc1.*;
-import drlc.low.drc1.instruction.Instruction;
+import drlc.low.drc1.RedstoneMnemonics;
 
 public class InstructionOr extends InstructionALU {
 	
-	public InstructionOr(LowDataInfo info) {
-		super(info);
-	}
-	
-	@Override
-	public Instruction getDataReplacement(RedstoneCode code) {
-		return new InstructionOr(getDataInfoReplacement(code));
+	public InstructionOr(LowDataInfo dataInfo) {
+		super(dataInfo);
 	}
 	
 	@Override

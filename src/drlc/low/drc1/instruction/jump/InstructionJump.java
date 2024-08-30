@@ -58,11 +58,11 @@ public class InstructionJump extends Instruction {
 	
 	@Override
 	public String[] toBinary(boolean longAddress) {
-		return toBinary(longAddress, RedstoneMnemonics.JMP, RedstoneMnemonics.JMPF);
+		return toBinary(longAddress, RedstoneMnemonics.JMP, RedstoneMnemonics.JMPL);
 	}
 	
 	@Override
 	public String toAssembly(boolean longAddress) {
-		return toAssembly(longAddress, RedstoneMnemonics.JMP, RedstoneMnemonics.JMPF);
+		return toAssembly(longAddress, RedstoneMnemonics.JMP, RedstoneMnemonics.JMPL);
 	}
 }

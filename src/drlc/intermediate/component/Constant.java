@@ -26,8 +26,7 @@ public class Constant {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Constant) {
-			Constant other = (Constant) obj;
+		if (obj instanceof Constant other) {
 			return name.equals(other.name) && value.equals(other.value) && scope.equals(other.scope);
 		}
 		else {

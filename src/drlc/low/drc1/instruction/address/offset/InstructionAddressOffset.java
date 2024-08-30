@@ -4,21 +4,26 @@ import drlc.Helpers;
 import drlc.low.LowDataInfo;
 import drlc.low.drc1.RedstoneOpcodes;
 import drlc.low.drc1.instruction.Instruction;
-import drlc.low.drc1.instruction.address.IInstructionAddress;
+import drlc.low.instruction.address.IInstructionAddress;
 
 public abstract class InstructionAddressOffset extends Instruction implements IInstructionAddress {
 	
-	public final LowDataInfo info;
+	public LowDataInfo dataInfo;
 	public Short offset;
 	
-	public InstructionAddressOffset(LowDataInfo info) {
+	public InstructionAddressOffset(LowDataInfo dataInfo) {
 		super();
-		this.info = info;
+		this.dataInfo = dataInfo;
 	}
 	
 	@Override
 	public LowDataInfo getDataInfo() {
-		return info;
+		return dataInfo;
+	}
+	
+	@Override
+	public void regenerateDataInfo() {
+		dataInfo = dataInfo.getRegeneratedDataInfo();
 	}
 	
 	@Override

@@ -98,8 +98,8 @@ public class UnaryOpAction extends Action implements IValueAction {
 	
 	@Override
 	public Action foldRvalues() {
-		if (arg instanceof ValueDataId) {
-			return new AssignmentAction(null, target, Main.generator.unaryOp(null, type.opType, ((ValueDataId) arg).value).dataId());
+		if (arg instanceof ValueDataId valueDataId) {
+			return new AssignmentAction(null, target, Main.generator.unaryOp(null, type.opType, valueDataId.value).dataId());
 		}
 		else {
 			return null;

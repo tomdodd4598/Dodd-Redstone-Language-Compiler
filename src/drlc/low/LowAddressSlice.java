@@ -19,8 +19,7 @@ public class LowAddressSlice {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof LowAddressSlice) {
-			LowAddressSlice other = (LowAddressSlice) obj;
+		if (obj instanceof LowAddressSlice other) {
 			return start == other.start && size == other.size;
 		}
 		else {

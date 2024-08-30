@@ -25,7 +25,7 @@ public class ValueDataId extends DataId {
 	
 	@Override
 	public @Nullable Function getFunction() {
-		return value instanceof FunctionItemValue ? ((FunctionItemValue) value).typeInfo.function : null;
+		return value instanceof FunctionItemValue functionItemValue ? functionItemValue.typeInfo.function : null;
 	}
 	
 	@Override
@@ -54,14 +54,13 @@ public class ValueDataId extends DataId {
 	}
 	
 	@Override
-	public int hashCode(boolean raw) {
-		return Objects.hash(scope, raw ? 0 : dereferenceLevel, value);
+	public int hashCode(boolean reduced) {
+		return Objects.hash(scope, reduced ? 0 : dereferenceLevel, value);
 	}
 	
 	@Override
 	public boolean equalsOther(Object obj, boolean raw, boolean low) {
-		if (obj instanceof ValueDataId) {
-			ValueDataId other = (ValueDataId) obj;
+		if (obj instanceof ValueDataId other) {
 			boolean equalDereferenceLevels = raw || low || dereferenceLevel == other.dereferenceLevel;
 			return Objects.equals(scope, other.scope) && equalDereferenceLevels && value.equals(other.value);
 		}

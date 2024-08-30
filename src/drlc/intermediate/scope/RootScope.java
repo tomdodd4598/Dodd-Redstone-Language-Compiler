@@ -69,12 +69,11 @@ public class RootScope extends ModuleScope {
 	public void updateRoutineTypes(Routine routine, List<Function> callList, Map<Function, Integer> callMap, int depth) {
 		for (List<Action> list : routine.body) {
 			for (Action action : list) {
-				if (action instanceof CallAction) {
-					CallAction fca = (CallAction) action;
-					if (fca.caller instanceof ValueDataId) {
-						Value<?> value = ((ValueDataId) fca.caller).value;
-						if (value instanceof FunctionItemValue) {
-							Function callFunction = ((FunctionItemValue) value).typeInfo.function;
+				if (action instanceof CallAction ca) {
+					if (ca.caller instanceof ValueDataId valueDataId) {
+						Value<?> value = valueDataId.value;
+						if (value instanceof FunctionItemValue functionItemValue) {
+							Function callFunction = functionItemValue.typeInfo.function;
 							if (routineExists(callFunction)) {
 								Function routineFunction = routine.function;
 								if (callMap.containsKey(routineFunction)) {
@@ -99,7 +98,7 @@ public class RootScope extends ModuleScope {
 									}
 								}
 							}
-							else if (fca.scope.functionExists(callFunction.name, false)) {
+							else if (ca.scope.functionExists(callFunction.name, false)) {
 								throw Helpers.error("Function \"%s\" was not defined!", callFunction);
 							}
 						}

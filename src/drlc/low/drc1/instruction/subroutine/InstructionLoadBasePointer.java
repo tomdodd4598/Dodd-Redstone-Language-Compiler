@@ -25,7 +25,7 @@ public class InstructionLoadBasePointer extends Instruction {
 	
 	@Override
 	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
-		if (sameSection && next instanceof InstructionLoadBasePointer) {
+		if (sameSection && (next instanceof InstructionMoveStackPointerToBasePointer || next instanceof InstructionLoadBasePointer)) {
 			return next;
 		}
 		return null;

@@ -52,7 +52,7 @@ public class FunctionItemTypeInfo extends FunctionTypeInfo {
 	@Override
 	public boolean canImplicitCastTo(TypeInfo otherInfo) {
 		if (super.canImplicitCastTo(otherInfo)) {
-			return !(otherInfo instanceof FunctionItemTypeInfo) || function.equals(((FunctionItemTypeInfo) otherInfo).function);
+			return !(otherInfo instanceof FunctionItemTypeInfo functionItemTypeInfo) || function.equals(functionItemTypeInfo.function);
 		}
 		else {
 			return functionPointerTypeInfo.canImplicitCastTo(otherInfo);
@@ -66,8 +66,7 @@ public class FunctionItemTypeInfo extends FunctionTypeInfo {
 	
 	@Override
 	public boolean equalsOther(Object obj, boolean ignoreReferenceMutability) {
-		if (obj instanceof FunctionItemTypeInfo) {
-			FunctionItemTypeInfo other = (FunctionItemTypeInfo) obj;
+		if (obj instanceof FunctionItemTypeInfo other) {
 			return super.equalsOther(obj, ignoreReferenceMutability) && function.equals(other.function);
 		}
 		else {

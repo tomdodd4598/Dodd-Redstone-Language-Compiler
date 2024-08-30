@@ -138,8 +138,8 @@ public class Visitor extends AnalysisAdapter {
 	}
 	
 	protected @NonNull Pair<@NonNull ScopedBodyNode, @Nullable ReturnNode> closureBodyPair(PClosureBody node) {
-		if (node instanceof AExpressionClosureBody) {
-			return expressionClosureBodyPair(((AExpressionClosureBody) node).getExpression());
+		if (node instanceof AExpressionClosureBody expressionClosureBodyNode) {
+			return expressionClosureBodyPair(expressionClosureBodyNode.getExpression());
 		}
 		else {
 			return new Pair<>(scope(((ABlockClosureBody) node).getScopedBody()), null);
@@ -152,8 +152,8 @@ public class Visitor extends AnalysisAdapter {
 	}
 	
 	protected @NonNull List<DeclaratorNode> closureDeclaratorList(PClosureDeclaratorList node) {
-		if (node instanceof AStandardClosureDeclaratorList) {
-			return declaratorList(((AStandardClosureDeclaratorList) node).getDeclaratorList());
+		if (node instanceof AStandardClosureDeclaratorList standardClosureDeclaratorListNode) {
+			return declaratorList(standardClosureDeclaratorListNode.getDeclaratorList());
 		}
 		else {
 			return new ArrayList<>();
@@ -209,8 +209,8 @@ public class Visitor extends AnalysisAdapter {
 		if (node == null) {
 			return new Pair<>(new ArrayList<>(), new ArrayList<>());
 		}
-		else if (node instanceof ABasicStructExpressionList) {
-			return new Pair<>(null, expressionList(((ABasicStructExpressionList) node).getExpressionList()));
+		else if (node instanceof ABasicStructExpressionList basicStructExpressionListNode) {
+			return new Pair<>(null, expressionList(basicStructExpressionListNode.getExpressionList()));
 		}
 		else {
 			return labelledExpressionListPair(((ALabelledStructExpressionList) node).getLabelledExpressionList());

@@ -62,8 +62,8 @@ public class StructTypeInfo extends CompoundTypeInfo {
 	
 	@Override
 	public boolean equalsOther(Object obj, boolean ignoreReferenceMutability) {
-		if (obj instanceof StructTypeInfo) {
-			return super.equalsOther(obj, ignoreReferenceMutability) && typeDef.equals(((StructTypeInfo) obj).typeDef);
+		if (obj instanceof StructTypeInfo other) {
+			return super.equalsOther(obj, ignoreReferenceMutability) && typeDef.equals(other.typeDef);
 		}
 		else {
 			return false;

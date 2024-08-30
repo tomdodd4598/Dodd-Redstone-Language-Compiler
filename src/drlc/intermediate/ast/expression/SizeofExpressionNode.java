@@ -107,7 +107,7 @@ public class SizeofExpressionNode extends ExpressionNode {
 			constantValue = Main.generator.natValue(size);
 		}
 		else if (Main.generator.charTypeInfo.equals(typeInfo)) {
-			constantValue = Main.generator.charValue((byte) size);
+			constantValue = Main.generator.charValue(size);
 		}
 		else {
 			throw error("Could not infer type of constant value!");

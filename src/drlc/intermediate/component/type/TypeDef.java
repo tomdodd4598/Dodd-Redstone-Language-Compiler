@@ -36,8 +36,7 @@ public class TypeDef {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof TypeDef) {
-			TypeDef other = (TypeDef) obj;
+		if (obj instanceof TypeDef other) {
 			return name.equals(other.name) && size == other.size && memberMap.equals(other.memberMap) && Objects.equals(scope, other.scope);
 		}
 		else {

@@ -27,8 +27,7 @@ public class BoolValue extends BasicValue<BoolTypeInfo> {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof BoolValue) {
-			BoolValue other = (BoolValue) obj;
+		if (obj instanceof BoolValue other) {
 			return typeInfo.equals(other.typeInfo) && value == other.value;
 		}
 		else {

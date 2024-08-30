@@ -4,8 +4,8 @@ import drlc.low.LowDataInfo;
 
 public abstract class InstructionALUOffset extends InstructionAddressOffset {
 	
-	public InstructionALUOffset(LowDataInfo info) {
-		super(info);
+	public InstructionALUOffset(LowDataInfo dataInfo) {
+		super(dataInfo);
 	}
 	
 	@Override

@@ -27,8 +27,7 @@ public class FunctionItemValue extends Value<FunctionItemTypeInfo> {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof FunctionItemValue) {
-			FunctionItemValue other = (FunctionItemValue) obj;
+		if (obj instanceof FunctionItemValue other) {
 			return typeInfo.equals(other.typeInfo) && name.equals(other.name) && scope.equals(other.scope);
 		}
 		else {

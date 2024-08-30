@@ -23,7 +23,7 @@ public class InstructionMultiplyImmediate extends InstructionALUImmediate {
 		else if (value == 0) {
 			return new InstructionLoadImmediate((short) 0);
 		}
-		else if (value > 0 && RedstoneCode.isPowerOfTwo(value)) {
+		else if (RedstoneCode.isPowerOfTwo(value)) {
 			return new InstructionLeftShiftImmediate(RedstoneCode.log2(value));
 		}
 		else {

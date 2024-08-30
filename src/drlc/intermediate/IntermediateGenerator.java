@@ -55,18 +55,13 @@ public class IntermediateGenerator extends Generator {
 	}
 	
 	@Override
-	public void intToAddressCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg) {
-		routine.addAssignmentAction(node, target, arg);
-	}
-	
-	@Override
-	public void natToAddressCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg) {
+	public void wordToAddressCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg) {
 		routine.addAssignmentAction(node, target, arg);
 	}
 	
 	@Override
 	public void wordToCharCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg) {
-		routine.addBinaryOpAction(node, intTypeInfo, BinaryOpType.AND, intTypeInfo, target, arg, intValue(255).dataId());
+		routine.addBinaryOpAction(node, intTypeInfo, BinaryOpType.AND, intTypeInfo, target, arg, intValue(0xFF).dataId());
 	}
 	
 	@Override

@@ -3,7 +3,7 @@ package drlc.low.drc1.instruction.immediate;
 import drlc.low.drc1.*;
 import drlc.low.drc1.instruction.Instruction;
 
-public class InstructionLoadImmediate extends InstructionImmediate implements IInstructionLoadImmediate {
+public class InstructionLoadImmediate extends InstructionImmediate {
 	
 	public InstructionLoadImmediate(short value) {
 		super(value);
@@ -26,7 +26,7 @@ public class InstructionLoadImmediate extends InstructionImmediate implements II
 	
 	@Override
 	public Instruction getImmediateReplacementInternal() {
-		if (RedstoneCode.isLongImmediate(value) && !RedstoneCode.isLongImmediate((short) ~value)) {
+		if (RedstoneCode.isLong(value) && !RedstoneCode.isLong((short) ~value)) {
 			return new InstructionNotImmediate((short) ~value);
 		}
 		else {
@@ -36,11 +36,6 @@ public class InstructionLoadImmediate extends InstructionImmediate implements II
 	
 	@Override
 	public Short getRegisterValue() {
-		return value;
-	}
-	
-	@Override
-	public short getLoadedValue() {
 		return value;
 	}
 	

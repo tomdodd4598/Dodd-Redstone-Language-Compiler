@@ -2,54 +2,53 @@ package drlc.low;
 
 import java.util.Objects;
 
-import drlc.intermediate.component.Function;
 import drlc.intermediate.component.data.DataId;
 
 public class LowDataInfo {
 	
-	public final Function function;
 	public final DataId dataId;
-	public final LowDataType type;
+	public final int offset;
 	public final LowDataSpan span;
-	public final int extraOffset;
+	public final LowDataType type;
+	public final LowRoutine<?, ?, ?> routine;
 	
-	public LowDataInfo(Function function, DataId dataId, LowDataType type, LowDataSpan span, int extraOffset) {
-		this.function = function;
+	public LowDataInfo(LowCode<?, ?, ?> code, DataId dataId, int offset, LowDataSpan span, LowDataType type) {
 		this.dataId = dataId;
-		this.type = type;
+		this.offset = offset;
 		this.span = span;
-		this.extraOffset = extraOffset;
+		this.type = type;
+		routine = code.getRoutine(span.function);
+	}
+	
+	public LowDataInfo offsetBy(int offset) {
+		return new LowDataInfo(routine.code, dataId, this.offset + offset, span, type);
+	}
+	
+	public LowDataInfo getRegeneratedDataInfo() {
+		return routine.getDataInfo(dataId, offset);
 	}
 	
 	public boolean isTempData() {
-		return type.equals(LowDataType.TEMP);
-	}
-	
-	public boolean isStaticData() {
-		return type.equals(LowDataType.STATIC);
+		return routine.isTempData(dataId);
 	}
 	
 	public boolean isStackData() {
-		return type.equals(LowDataType.STACK);
-	}
-	
-	public LowDataInfo offset(int offset) {
-		return new LowDataInfo(function, dataId, type, span, extraOffset + offset);
+		return routine.isStackData(dataId);
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(function, dataId, type, span, extraOffset);
+		return Objects.hash(dataId, offset, span, type);
 	}
 	
-	public boolean equalsOther(LowDataInfo other, boolean ignoreArgId) {
-		return function.equals(other.function) && (ignoreArgId || dataId.equals(other.dataId)) && type.equals(other.type) && span.equals(other.span) && extraOffset == other.extraOffset;
+	public boolean equalsOther(LowDataInfo other, boolean ignoreDataId) {
+		return (ignoreDataId || dataId.equals(other.dataId)) && offset == other.offset && span.equals(other.span) && type.equals(other.type);
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof LowDataInfo) {
-			return equalsOther((LowDataInfo) obj, false);
+		if (obj instanceof LowDataInfo other) {
+			return equalsOther(other, false);
 		}
 		else {
 			return false;
@@ -58,6 +57,6 @@ public class LowDataInfo {
 	
 	@Override
 	public String toString() {
-		return function + ", " + dataId + ", " + type + ", " + span + ", " + extraOffset;
+		return dataId + ", " + offset + ", " + span + ", " + type;
 	}
 }

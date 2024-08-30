@@ -84,8 +84,7 @@ public class Routine {
 		for (List<Action> list : body) {
 			for (int j = 0; j < list.size(); ++j) {
 				Action action = list.get(j);
-				if (action instanceof IJumpAction) {
-					IJumpAction jump = (IJumpAction) action;
+				if (action instanceof IJumpAction jump) {
 					if (jump.getTarget() == Integer.MAX_VALUE) {
 						list.set(j, jump.copy(body.size()));
 					}
@@ -100,12 +99,10 @@ public class Routine {
 		for (List<Action> list : body) {
 			for (int j = 1; j < list.size(); ++j) {
 				Action action = list.get(j), previous = list.get(j - 1);
-				if (action instanceof ConditionalJumpAction) {
-					ConditionalJumpAction cja = (ConditionalJumpAction) action;
-					if (!(previous instanceof IValueAction)) {
+				if (action instanceof ConditionalJumpAction cja) {
+					if (!(previous instanceof IValueAction iva)) {
 						throw Helpers.error("Found unexpected action \"%s\" before conditional jump action \"%s\"!", previous, cja);
 					}
-					IValueAction iva = (IValueAction) previous;
 					DataId[] lvalues = iva.lvalues();
 					if (!iva.canReplaceLvalue() || lvalues.length != 1) {
 						throw Helpers.error("Found unexpected value action \"%s\" before conditional jump action \"%s\"!", iva, cja);
@@ -119,12 +116,10 @@ public class Routine {
 	public void checkFunctionVariableInitialization() {
 		for (List<Action> list : body) {
 			for (Action action : list) {
-				if (action instanceof AssignmentAction) {
-					AssignmentAction aa = (AssignmentAction) action;
-					if (aa.arg instanceof ValueDataId) {
-						ValueDataId valueData = (ValueDataId) aa.arg;
-						if (valueData.value instanceof FunctionItemValue) {
-							Function function = ((FunctionItemValue) valueData.value).typeInfo.function;
+				if (action instanceof AssignmentAction aa) {
+					if (aa.arg instanceof ValueDataId valueData) {
+						if (valueData.value instanceof FunctionItemValue functionItemValue) {
+							Function function = functionItemValue.typeInfo.function;
 							if (function.scope.functionExists(function.name, false) && !Main.rootScope.routineExists(function)) {
 								throw Helpers.error("Function \"%s\" was not defined! %s", function, aa);
 							}
@@ -276,8 +271,7 @@ public class Routine {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Routine) {
-			Routine other = (Routine) obj;
+		if (obj instanceof Routine other) {
 			return function.equals(other.function);
 		}
 		return false;

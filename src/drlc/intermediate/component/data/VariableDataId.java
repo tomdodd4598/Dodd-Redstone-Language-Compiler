@@ -33,12 +33,10 @@ public class VariableDataId extends DataId {
 	
 	@Override
 	public @Nullable DataId getRawReplacer(ASTNode<?> node, DataId rawInternal) {
-		if (rawInternal instanceof RegDataId) {
-			RegDataId raw = (RegDataId) rawInternal;
+		if (rawInternal instanceof RegDataId raw) {
 			return new RegDataId(raw.dereferenceLevel, raw.typeInfo, raw.regId);
 		}
-		else if (rawInternal instanceof VariableDataId) {
-			VariableDataId raw = (VariableDataId) rawInternal;
+		else if (rawInternal instanceof VariableDataId raw) {
 			return new VariableDataId(raw.dereferenceLevel, raw.variable);
 		}
 		else {
@@ -57,14 +55,13 @@ public class VariableDataId extends DataId {
 	}
 	
 	@Override
-	public int hashCode(boolean raw) {
-		return Objects.hash(scope, raw ? 0 : dereferenceLevel, raw ? null : typeInfo, variable.hashCode(raw));
+	public int hashCode(boolean reduced) {
+		return Objects.hash(scope, reduced ? 0 : dereferenceLevel, reduced ? null : typeInfo, variable.hashCode(reduced));
 	}
 	
 	@Override
 	public boolean equalsOther(Object obj, boolean raw, boolean low) {
-		if (obj instanceof VariableDataId) {
-			VariableDataId other = (VariableDataId) obj;
+		if (obj instanceof VariableDataId other) {
 			boolean equalDereferenceLevels = raw || low || dereferenceLevel == other.dereferenceLevel;
 			boolean equalTypeInfos = low || typeInfo.equalsOther(other.typeInfo, raw);
 			return Objects.equals(scope, other.scope) && equalDereferenceLevels && equalTypeInfos && variable.equalsOther(other.variable, raw || low);

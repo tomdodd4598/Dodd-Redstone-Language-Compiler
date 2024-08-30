@@ -31,8 +31,8 @@ public class Variable {
 		return new VariableDataId(0, this);
 	}
 	
-	public int hashCode(boolean raw) {
-		return Objects.hash(name, raw ? null : modifier, raw ? null : typeInfo, scope);
+	public int hashCode(boolean reduced) {
+		return Objects.hash(name, reduced ? null : modifier, reduced ? null : typeInfo, scope);
 	}
 	
 	@Override
@@ -41,8 +41,7 @@ public class Variable {
 	}
 	
 	public boolean equalsOther(Object obj, boolean raw) {
-		if (obj instanceof Variable) {
-			Variable other = (Variable) obj;
+		if (obj instanceof Variable other) {
 			boolean equalModifiers = raw || modifier.equals(other.modifier);
 			boolean equalTypeInfos = raw || typeInfo.equals(other.typeInfo);
 			return name.equals(other.name) && equalModifiers && equalTypeInfos && scope.equals(other.scope);

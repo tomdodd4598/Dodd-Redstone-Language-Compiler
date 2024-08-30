@@ -1,18 +1,12 @@
 package drlc.low.drc1.instruction.address.offset;
 
 import drlc.low.LowDataInfo;
-import drlc.low.drc1.*;
-import drlc.low.drc1.instruction.Instruction;
+import drlc.low.drc1.RedstoneMnemonics;
 
 public class InstructionDivideOffset extends InstructionALUOffset {
 	
-	public InstructionDivideOffset(LowDataInfo info) {
-		super(info);
-	}
-	
-	@Override
-	public Instruction getDataReplacement(RedstoneCode code) {
-		return new InstructionDivideOffset(getDataInfoReplacement(code));
+	public InstructionDivideOffset(LowDataInfo dataInfo) {
+		super(dataInfo);
 	}
 	
 	@Override
