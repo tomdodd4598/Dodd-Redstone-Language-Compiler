@@ -12,9 +12,9 @@ import drlc.intermediate.routine.Routine;
 import drlc.low.*;
 import drlc.low.drc1.instruction.InstructionHalt;
 import drlc.low.drc1.instruction.address.InstructionAddress;
-import drlc.low.drc1.instruction.jump.InstructionJump;
 import drlc.low.drc1.instruction.subroutine.*;
 import drlc.low.edsac.instruction.*;
+import drlc.low.edsac.instruction.jump.*;
 import drlc.low.instruction.address.IInstructionAddress;
 
 public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instruction> {
@@ -193,10 +193,6 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				
 				else if (instruction instanceof InstructionCallSubroutine ics) {
 					ics.returnAddress = (short) (code.textAddressMap.get(function) + instructionAddress + instructionSize);
-					
-					if (!ics.indirectCall && !(section.get(i - 1) instanceof InstructionLoadSubroutineAddress)) {
-						throw new IllegalArgumentException(String.format("Found unexpected direct subroutine call instruction \"%s\" not following call address load instruction as required!", instruction));
-					}
 				}
 				
 				else if (instruction instanceof InstructionLoadSubroutineAddress ilsa) {
@@ -213,4 +209,9 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 	}
 	
 	// Instructions
+	
+	protected void jump(List<Instruction> text, int section) {
+		text.add(new InstructionJumpIfMoreThanOrEqualToZero(section));
+		text.add(new InstructionJumpIfLessThanZero(section));
+	}
 }

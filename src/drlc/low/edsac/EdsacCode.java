@@ -113,4 +113,10 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 			return Arrays.asList(EdsacInt.of(value.longValue(null)));
 		}
 	}
+	
+	public static final int ADDRESS_MASK = 0x3FF;
+	
+	public static int addressBits(int value) {
+		return value & ADDRESS_MASK;
+	}
 }

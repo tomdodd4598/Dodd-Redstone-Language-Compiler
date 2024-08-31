@@ -12,8 +12,8 @@ public class EdsacOpcodes {
 	public static final String ADD_COLLATION = "C";
 	public static final String RIGHT_SHIFT = "R";
 	public static final String LEFT_SHIFT = "L";
-	public static final String JUMP_IF_POSITIVE = "E";
-	public static final String JUMP_IF_NEGATIVE = "G";
+	public static final String JUMP_IF_MORE_THAN_OR_EQUAL_TO_ZERO = "E";
+	public static final String JUMP_IF_LESS_THAN_ZERO = "G";
 	public static final String READ = "I";
 	public static final String PRINT = "O";
 	public static final String VERIFY = "F";

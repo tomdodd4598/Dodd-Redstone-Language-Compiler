@@ -300,7 +300,7 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 				else if (instruction instanceof InstructionCallSubroutine ics) {
 					ics.returnAddress = (short) (code.textAddressMap.get(function) + instructionAddress + instructionSize);
 					
-					if (!ics.indirectCall && !(section.get(i - 1) instanceof InstructionLoadSubroutineAddress)) {
+					if (!ics.indirectCall && (i == 0 || !(section.get(i - 1) instanceof InstructionLoadSubroutineAddress))) {
 						throw new IllegalArgumentException(String.format("Found unexpected direct subroutine call instruction \"%s\" not following call address load instruction as required!", instruction));
 					}
 				}
