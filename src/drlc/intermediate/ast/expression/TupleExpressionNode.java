@@ -152,4 +152,9 @@ public class TupleExpressionNode extends ExpressionNode {
 		}
 		constantValue = new TupleValue(this, typeInfo, values);
 	}
+	
+	@Override
+	public boolean isStatic() {
+		return expressionNodes.stream().allMatch(ExpressionNode::isStatic);
+	}
 }

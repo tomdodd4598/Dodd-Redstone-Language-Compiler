@@ -76,6 +76,8 @@ public abstract class ExpressionNode extends ASTNode<Scope> {
 		}
 	}
 	
+	public abstract boolean isStatic();
+	
 	public boolean isValidLvalue() {
 		return false;
 	}

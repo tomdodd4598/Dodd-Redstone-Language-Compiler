@@ -20,7 +20,7 @@ public class VariableDeclarationNode extends StaticSectionNode<Scope> {
 		this.expressionNode = expressionNode;
 		
 		if (expressionNode == null) {
-			if (declaratorNode.variableModifier._static) {
+			if (isStaticVariable()) {
 				throw error("Static variables require an initializer!");
 			}
 			if (declaratorNode.typeNode == null) {
@@ -49,7 +49,7 @@ public class VariableDeclarationNode extends StaticSectionNode<Scope> {
 	
 	@Override
 	public void declareExpressions(ASTNode<?> parent) {
-		routine = declaratorNode.variableModifier._static ? Main.rootRoutine : parent.routine;
+		routine = isStaticVariable() ? Main.rootRoutine : parent.routine;
 		
 		if (expressionNode != null) {
 			expressionNode.declareExpressions(this);
@@ -103,6 +103,10 @@ public class VariableDeclarationNode extends StaticSectionNode<Scope> {
 				expressionNode = constantExpressionNode;
 			}
 		}
+		
+		if (isStaticVariable() && !expressionNode.isStatic()) {
+			throw error("Static variables require a static initializer!");
+		}
 	}
 	
 	@Override
@@ -123,5 +127,9 @@ public class VariableDeclarationNode extends StaticSectionNode<Scope> {
 		if (expressionNode != null) {
 			routine.addAssignmentAction(this, declaratorNode.declaratorInfo.dataId(), expressionNode.dataId);
 		}
+	}
+	
+	protected boolean isStaticVariable() {
+		return declaratorNode.variableModifier._static;
 	}
 }

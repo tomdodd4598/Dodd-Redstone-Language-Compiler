@@ -20,9 +20,9 @@ public class PrintIntRedstoneRoutine extends RedstoneRoutine {
 	@Override
 	public void generateInstructionsInternal() {
 		List<Instruction> setupText = new ArrayList<>(), minusText = new ArrayList<>(), callText = new ArrayList<>();
-		textSectionMap.put(0, setupText);
-		textSectionMap.put(1, minusText);
-		textSectionMap.put(2, callText);
+		sectionTextMap.put(0, setupText);
+		sectionTextMap.put(1, minusText);
+		sectionTextMap.put(2, callText);
 		
 		DataId x = params.get(0).dataId();
 		

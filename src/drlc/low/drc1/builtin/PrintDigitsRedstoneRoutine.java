@@ -20,9 +20,9 @@ public class PrintDigitsRedstoneRoutine extends RedstoneRoutine {
 	@Override
 	public void generateInstructionsInternal() {
 		List<Instruction> setupText = new ArrayList<>(), loopText = new ArrayList<>(), returnText = new ArrayList<>();
-		textSectionMap.put(0, setupText);
-		textSectionMap.put(1, loopText);
-		textSectionMap.put(2, returnText);
+		sectionTextMap.put(0, setupText);
+		sectionTextMap.put(1, loopText);
+		sectionTextMap.put(2, returnText);
 		
 		DataId x = params.get(0).dataId(), t = params.get(1).dataId(), b = params.get(2).dataId();
 		DataId d = function.scope.nextLocalDataId(intermediate, x.typeInfo);

@@ -76,6 +76,10 @@ public final class Global {
 	public static final @NonNull String NESTING = "nesting";
 	public static final @NonNull String STACK = "stack";
 	
+	public static final @NonNull String TEMP = "temp";
+	
+	public static final @NonNull String DATA = "\\data";
+	
 	public static final @NonNull String LIST_SEPARATOR = ", ";
 	public static final @NonNull String LIST_START = "(";
 	public static final @NonNull String LIST_END = ")";

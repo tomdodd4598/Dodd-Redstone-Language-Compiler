@@ -15,12 +15,12 @@ import drlc.low.*;
 import drlc.low.drc1.instruction.*;
 import drlc.low.drc1.instruction.address.*;
 import drlc.low.drc1.instruction.address.offset.*;
+import drlc.low.drc1.instruction.constant.*;
 import drlc.low.drc1.instruction.immediate.*;
 import drlc.low.drc1.instruction.jump.*;
 import drlc.low.drc1.instruction.pointer.*;
 import drlc.low.drc1.instruction.set.*;
 import drlc.low.drc1.instruction.subroutine.*;
-import drlc.low.instruction.address.IInstructionAddress;
 
 public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, Instruction> {
 	
@@ -37,14 +37,14 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 		if (isRootRoutine()) {
 			if (code.requiresStack) {
 				List<Instruction> text = new ArrayList<>();
-				textSectionMap.put(-1, text);
+				sectionTextMap.put(-1, text);
 				text.add(new InstructionInitializeStackPointer());
 				text.add(new InstructionMoveStackPointerToBasePointer());
 			}
 		}
 		else if (isStackRoutine()) {
 			List<Instruction> text = new ArrayList<>();
-			textSectionMap.put(-1, text);
+			sectionTextMap.put(-1, text);
 			text.add(new InstructionPushBasePointer());
 			text.add(new InstructionMoveStackPointerToBasePointer());
 			text.add(new InstructionSubtractFromStackPointer());
@@ -54,7 +54,7 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 		
 		if (isStackRoutine()) {
 			List<Instruction> text = new ArrayList<>();
-			textSectionMap.put(getFinalTextSectionKey(), text);
+			sectionTextMap.put(getFinalTextSectionKey(), text);
 			text.add(new InstructionAddToStackPointer());
 			text.add(new InstructionPopBasePointer());
 			text.add(new InstructionReturnFromSubroutine());
@@ -67,11 +67,13 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 		List<List<Action>> body = intermediate.body;
 		for (int i = 0; i < body.size(); ++i) {
 			List<Instruction> text = new ArrayList<>();
-			textSectionMap.put(i, text);
+			sectionTextMap.put(i, text);
 			
 			for (Action action : body.get(i)) {
 				if (action instanceof AssignmentAction aa) {
-					loadThen(text, false, aa.arg, x -> storeAt(text, aa.target, x));
+					if (!isRootRoutine() || !tryStaticAssignment(text, aa.target, Arrays.asList(aa.arg), new int[] {0})) {
+						loadThen(text, false, aa.arg, x -> storeAt(text, aa.target, x));
+					}
 				}
 				
 				else if (action instanceof BinaryOpAction boa) {
@@ -95,14 +97,14 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 							loadScalar(text, target.removeDereference(null));
 							text.add(new InstructionPush());
 						}
-						for (int k = argCount - 1; k >= 0; --k) {
-							loadThen(text, true, args.get(k), x -> text.add(new InstructionPush()));
+						for (int j = argCount - 1; j >= 0; --j) {
+							loadThen(text, true, args.get(j), x -> text.add(new InstructionPush()));
 						}
 					}
 					else {
-						for (int k = 0; k < argCount; ++k) {
-							DataId paramId = subroutine.params.get(k).dataId();
-							loadThen(text, false, args.get(k), x -> subroutine.storeAt(text, paramId, x));
+						for (int j = 0; j < argCount; ++j) {
+							DataId paramId = subroutine.params.get(j).dataId();
+							loadThen(text, false, args.get(j), x -> subroutine.storeAt(text, paramId, x));
 						}
 						if (targetSize > 1) {
 							loadScalar(text, target.removeDereference(null));
@@ -131,11 +133,14 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 				}
 				
 				else if (action instanceof CompoundAssignmentAction caa) {
-					int acc = 0;
-					for (DataId arg : caa.args) {
-						int offset = acc;
-						loadThen(text, false, arg, x -> storeAt(text, caa.target, x + offset));
-						acc += arg.typeInfo.getSize();
+					int[] acc = {0}, offsets = caa.args.stream().mapToInt(x -> {
+						int offset = acc[0];
+						acc[0] += x.typeInfo.getSize();
+						return offset;
+					}).toArray();
+					
+					if (!isRootRoutine() || !tryStaticAssignment(text, caa.target, caa.args, offsets)) {
+						IntStream.range(0, offsets.length).forEach(x -> loadThen(text, false, caa.args.get(x), y -> storeAt(text, caa.target, y + offsets[x])));
 					}
 				}
 				
@@ -181,17 +186,24 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 		}
 	}
 	
+	public void prepareDataInfoRegeneration() {
+		localSpanMap.clear();
+		tempSpanMap.clear();
+		
+		generateParamDataInfo();
+		
+		if (isRootRoutine()) {
+			regenerateDataInfoInternal();
+		}
+	}
+	
 	public void regenerateDataInfo() {
-		for (List<Instruction> section : textSectionMap.values()) {
-			for (Instruction instruction : section) {
-				if (instruction instanceof IInstructionAddress instructionAddress) {
-					instructionAddress.regenerateDataInfo();
-				}
-			}
+		if (!isRootRoutine()) {
+			regenerateDataInfoInternal();
 		}
 		
 		if (isStackRoutine()) {
-			short stackSize = (short) (spanMapSize(dataSpanMap) + spanMapSize(tempSpanMap) - Helpers.sumToInt(params, x -> x.getTypeInfo().getSize()));
+			short stackSize = (short) (spanMapSize(localSpanMap) + spanMapSize(tempSpanMap) - Helpers.sumToInt(params, x -> x.getTypeInfo().getSize()));
 			if (stackSize < 0) {
 				throw new IllegalArgumentException(String.format("Stack-based subroutine \"%s\" has unexpected stack size %s!", function, stackSize));
 			}
@@ -199,7 +211,7 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 			boolean flag = true;
 			while (flag) {
 				flag = false;
-				for (Entry<Integer, List<Instruction>> entry : textSectionMap.entrySet()) {
+				for (Entry<Integer, List<Instruction>> entry : sectionTextMap.entrySet()) {
 					List<Instruction> section = entry.getValue();
 					for (int i = 0; i < section.size(); ++i) {
 						Instruction instruction = section.get(i);
@@ -214,7 +226,7 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 								section.remove(i);
 							}
 							else {
-								flag |= RedstoneOptimization.compressWithNextInstruction(textSectionMap, entry.getKey(), i, true);
+								flag |= RedstoneOptimization.compressWithNextInstruction(sectionTextMap, entry.getKey(), i, true);
 							}
 						}
 						
@@ -228,7 +240,7 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 								section.remove(i);
 							}
 							else {
-								flag |= RedstoneOptimization.compressWithNextInstruction(textSectionMap, entry.getKey(), i, true);
+								flag |= RedstoneOptimization.compressWithNextInstruction(sectionTextMap, entry.getKey(), i, true);
 							}
 						}
 					}
@@ -239,7 +251,7 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 	
 	public void generateTextAddresses() {
 		int sectionAddressOffset = 0;
-		for (Entry<Integer, List<Instruction>> entry : textSectionMap.entrySet()) {
+		for (Entry<Integer, List<Instruction>> entry : sectionTextMap.entrySet()) {
 			sectionAddressMap.put(entry.getKey(), sectionAddressOffset);
 			sectionAddressOffset += entry.getValue().stream().mapToInt(x -> x.size(code.longAddress)).sum();
 		}
@@ -251,12 +263,12 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 		int dataAddressOffset = 0;
 		if (isStackRoutine()) {
 			int paramAddressOffset = 0;
-			for (Pair<DataId, LowDataSpan> pair : dataSpanMap.values()) {
+			for (Pair<DataId, LowDataSpan> pair : localSpanMap.values()) {
 				if (pair.right.id < 0) {
-					paramAddressOffset += addAddressEntry(dataAddressMap, pair.right, paramAddressOffset, x -> x + 2);
+					paramAddressOffset += addAddressEntry(localAddressMap, pair.right, paramAddressOffset, x -> x + 2);
 				}
 				else {
-					dataAddressOffset += addAddressEntry(dataAddressMap, pair.right, dataAddressOffset, x -> -x - 1);
+					dataAddressOffset += addAddressEntry(localAddressMap, pair.right, dataAddressOffset, x -> -x - 1);
 				}
 			}
 			for (Pair<DataId, LowDataSpan> pair : tempSpanMap.values()) {
@@ -264,8 +276,8 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 			}
 		}
 		else {
-			for (Pair<DataId, LowDataSpan> pair : dataSpanMap.values()) {
-				dataAddressOffset += addAddressEntry(dataAddressMap, pair.right, dataAddressOffset, x -> x + code.addressOffset);
+			for (Pair<DataId, LowDataSpan> pair : localSpanMap.values()) {
+				dataAddressOffset += addAddressEntry(localAddressMap, pair.right, dataAddressOffset, x -> x + code.addressOffset);
 			}
 			for (Pair<DataId, LowDataSpan> pair : tempSpanMap.values()) {
 				dataAddressOffset += addAddressEntry(tempAddressMap, pair.right, dataAddressOffset, x -> x + code.addressOffset);
@@ -282,7 +294,7 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 	}
 	
 	public void finalizeInstructions() {
-		for (Entry<Integer, List<Instruction>> entry : textSectionMap.entrySet()) {
+		for (Entry<Integer, List<Instruction>> entry : sectionTextMap.entrySet()) {
 			int instructionAddress = sectionAddressMap.get(entry.getKey());
 			List<Instruction> section = entry.getValue();
 			for (int i = 0; i < section.size(); ++i) {
@@ -314,6 +326,18 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 				}
 				
 				instructionAddress += instructionSize;
+			}
+		}
+		
+		if (isRootRoutine()) {
+			for (Instruction data : code.staticDataMap.values()) {
+				if (data instanceof InstructionAddressData iad) {
+					iad.address = (short) getAddress(iad.dataInfo);
+				}
+				
+				else if (data instanceof InstructionSubroutineAddressData isad) {
+					isad.setValue(code.textAddressMap.get(isad.function).shortValue());
+				}
 			}
 		}
 	}
@@ -352,6 +376,35 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 			offsets = offsets.map(x -> size - x - 1);
 		}
 		return offsets;
+	}
+	
+	protected boolean tryStaticAssignment(List<Instruction> text, DataId target, List<DataId> args, int[] offsets) {
+		if (target instanceof TransientDataId || target instanceof ValueDataId || target.dereferenceLevel != 0) {
+			return false;
+		}
+		
+		List<Instruction> data = Helpers.map(args, x -> {
+			Function function = x.getFunction();
+			if (function != null) {
+				return new InstructionSubroutineAddressData(function);
+			}
+			else if (x instanceof ValueDataId valueDataId) {
+				return new InstructionValueData(RedstoneCode.raw(valueDataId.value));
+			}
+			else if (x.isAddress()) {
+				return new InstructionAddressData(getDataInfo(x.addDereference(null), 0));
+			}
+			else {
+				return null;
+			}
+		});
+		
+		if (data.stream().anyMatch(x -> x == null)) {
+			return false;
+		}
+		
+		IntStream.range(0, offsets.length).forEach(x -> code.staticDataMap.put(getDataInfo(target, offsets[x]), data.get(x)));
+		return true;
 	}
 	
 	protected void loadThen(List<Instruction> text, boolean reverse, DataId arg, IntConsumer consumer) {

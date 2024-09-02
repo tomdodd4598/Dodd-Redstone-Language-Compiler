@@ -1,10 +1,12 @@
 package drlc.low.drc1.instruction;
 
-import drlc.low.LowInstruction;
+import drlc.low.instruction.LowInstruction;
 
-public abstract class Instruction implements LowInstruction {
+public abstract class Instruction extends LowInstruction {
 	
-	public Instruction() {}
+	public Instruction() {
+		super();
+	}
 	
 	public abstract boolean isCurrentRegisterValueModified();
 	

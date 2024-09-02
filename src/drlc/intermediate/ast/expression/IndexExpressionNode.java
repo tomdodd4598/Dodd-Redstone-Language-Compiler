@@ -197,6 +197,11 @@ public class IndexExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
+	public boolean isStatic() {
+		return baseExpressionNode.isStatic() && indexExpressionNode.isStatic();
+	}
+	
+	@Override
 	public boolean isValidLvalue() {
 		return true;
 	}

@@ -5,10 +5,38 @@ nesting fn root() -> Int:
 	static \r0: [Char; 0]
 	<46> static arr: [Thing {Chars, &Thing}; 8]
 	<46> static i: Nat
+	static \r1: [Char; 0]
+	static \r2: [Char; 5]
+	static \r3: [Char; 4]
+	static \r4: [Char; 7]
+	static \r5: [Char; 4]
+	static \r6: [Char; 5]
+	static \r7: [Char; 8]
+	static \r8: [Char; 7]
+	static \r9: [Char; 4]
+	static \r10: [Char; 14]
+	static \r11: [Char; 5]
+	static \r12: [Char; 8]
+	static \r13: [Char; 7]
+	static \r14: [Char; 15]
 {0}:
 	\r0 = $[]
 	<46> arr = (&\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0, &\r0, $0, $0x0)
 	<46> i = $0
+	\r1 = $[]
+	\r2 = $['c', 'h', 'i', 'p', 's']
+	\r3 = $['w', 'i', 'n', 'e']
+	\r4 = $['b', 'u', 'r', 'g', 'e', 'r', 's']
+	\r5 = $['b', 'e', 'e', 'r']
+	\r6 = $['p', 'i', 'z', 'z', 'a']
+	\r7 = $['z', 'u', 'c', 'c', 'h', 'i', 'n', 'i']
+	\r8 = $['b', 'u', 'r', 'g', 'e', 'r', 's']
+	\r9 = $['s', 'l', 'a', 'w']
+	\r10 = $['I', 'n', 'i', 't', 'i', 'a', 'l', ' ', 'L', 'i', 's', 't', ':', '\n']
+	\r11 = $['p', 'i', 'z', 'z', 'a']
+	\r12 = $['z', 'u', 'c', 'c', 'h', 'i', 'n', 'i']
+	\r13 = $['b', 'u', 'r', 'g', 'e', 'r', 's']
+	\r14 = $['\n', 'A', 'l', 't', 'e', 'r', 'e', 'd', ' ', 'L', 'i', 's', 't', ':', '\n']
 	%0 = call $main()
 	exit $0
 
@@ -89,10 +117,7 @@ leaf fn newElement(<45> item: Chars {&mut Char, Nat}) -> &Thing {Chars, &Thing}:
 	ret <46> node
 
 leaf fn deleteElement(<55> node: &Thing {Chars, &Thing}) -> ():
-{dec}:
-	\r1: [Char; 0]
 {0}:
-	\r1 = $[]
 	%0 = (&\r1, $0, $0x0)
 	*<55> node = %0
 	ret $()
@@ -178,67 +203,41 @@ nesting fn printList(<101> node: &Thing {Chars, &Thing}) -> ():
 nesting fn main() -> ():
 {dec}:
 	<112> start: &Thing {Chars, &Thing}
-	\r2: [Char; 5]
-	\r3: [Char; 4]
-	\r4: [Char; 7]
-	\r5: [Char; 4]
-	\r6: [Char; 5]
-	\r7: [Char; 8]
-	\r8: [Char; 7]
-	\r9: [Char; 4]
-	\r10: [Char; 14]
-	\r11: [Char; 5]
-	\r12: [Char; 8]
-	\r13: [Char; 7]
-	\r14: [Char; 15]
 {0}:
 	<112> start = $0x0
-	\r2 = $['c', 'h', 'i', 'p', 's']
 	%0 = (&\r2, $5)
 	%1 = call $newElement(%0)
 	%2 = call $insertThing(&<112> start, %1)
-	\r3 = $['w', 'i', 'n', 'e']
 	%3 = (&\r3, $4)
 	%4 = call $newElement(%3)
 	%5 = call $insertThing(&<112> start, %4)
-	\r4 = $['b', 'u', 'r', 'g', 'e', 'r', 's']
 	%6 = (&\r4, $7)
 	%7 = call $newElement(%6)
 	%8 = call $insertThing(&<112> start, %7)
-	\r5 = $['b', 'e', 'e', 'r']
 	%9 = (&\r5, $4)
 	%10 = call $newElement(%9)
 	%11 = call $insertThing(&<112> start, %10)
-	\r6 = $['p', 'i', 'z', 'z', 'a']
 	%12 = (&\r6, $5)
 	%13 = call $newElement(%12)
 	%14 = call $insertThing(&<112> start, %13)
-	\r7 = $['z', 'u', 'c', 'c', 'h', 'i', 'n', 'i']
 	%15 = (&\r7, $8)
 	%16 = call $newElement(%15)
 	%17 = call $insertThing(&<112> start, %16)
-	\r8 = $['b', 'u', 'r', 'g', 'e', 'r', 's']
 	%18 = (&\r8, $7)
 	%19 = call $newElement(%18)
 	%20 = call $insertThing(&<112> start, %19)
-	\r9 = $['s', 'l', 'a', 'w']
 	%21 = (&\r9, $4)
 	%22 = call $newElement(%21)
 	%23 = call $insertThing(&<112> start, %22)
-	\r10 = $['I', 'n', 'i', 't', 'i', 'a', 'l', ' ', 'L', 'i', 's', 't', ':', '\n']
 	%24 = (&\r10, $14)
 	%25 = call $printChars(%24)
 	%26 = call $printList(<112> start)
-	\r11 = $['p', 'i', 'z', 'z', 'a']
 	%27 = (&\r11, $5)
 	%28 = call $removeThing(&<112> start, %27)
-	\r12 = $['z', 'u', 'c', 'c', 'h', 'i', 'n', 'i']
 	%29 = (&\r12, $8)
 	%30 = call $removeThing(&<112> start, %29)
-	\r13 = $['b', 'u', 'r', 'g', 'e', 'r', 's']
 	%31 = (&\r13, $7)
 	%32 = call $removeThing(&<112> start, %31)
-	\r14 = $['\n', 'A', 'l', 't', 'e', 'r', 'e', 'd', ' ', 'L', 'i', 's', 't', ':', '\n']
 	%33 = (&\r14, $15)
 	%34 = call $printChars(%33)
 	%35 = call $printList(<112> start)

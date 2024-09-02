@@ -141,4 +141,9 @@ public class ArrayRepeatExpressionNode extends ExpressionNode {
 			constantValue = null;
 		}
 	}
+	
+	@Override
+	public boolean isStatic() {
+		return repeatExpressionNode.isStatic() && constantExpressionNode.isStatic();
+	}
 }

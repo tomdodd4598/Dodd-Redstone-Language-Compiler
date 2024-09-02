@@ -109,6 +109,11 @@ public class AddressExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
+	public boolean isStatic() {
+		return expressionNode.isStatic();
+	}
+	
+	@Override
 	public @Nullable Function getDirectFunction() {
 		return expressionNode.getDirectFunction();
 	}

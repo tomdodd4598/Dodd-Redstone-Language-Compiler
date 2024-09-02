@@ -17,8 +17,8 @@ public class PrintBoolRedstoneRoutine extends RedstoneRoutine {
 	@Override
 	public void generateInstructionsInternal() {
 		List<Instruction> trueText = new ArrayList<>(), falseText = new ArrayList<>();
-		textSectionMap.put(0, trueText);
-		textSectionMap.put(1, falseText);
+		sectionTextMap.put(0, trueText);
+		sectionTextMap.put(1, falseText);
 		
 		DataId x = params.get(0).dataId();
 		

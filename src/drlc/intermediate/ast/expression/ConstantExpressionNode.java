@@ -33,4 +33,9 @@ public abstract class ConstantExpressionNode extends ExpressionNode {
 	public @NonNull ConstantExpressionNode constantExpressionNode() {
 		return this;
 	}
+	
+	@Override
+	public boolean isStatic() {
+		return true;
+	}
 }

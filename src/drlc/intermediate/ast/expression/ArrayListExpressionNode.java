@@ -165,4 +165,9 @@ public class ArrayListExpressionNode extends ExpressionNode {
 		}
 		constantValue = new ArrayValue(this, typeInfo, values);
 	}
+	
+	@Override
+	public boolean isStatic() {
+		return expressionNodes.stream().allMatch(ExpressionNode::isStatic);
+	}
 }

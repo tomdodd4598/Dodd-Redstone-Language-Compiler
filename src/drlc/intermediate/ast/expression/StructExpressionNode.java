@@ -178,4 +178,9 @@ public class StructExpressionNode extends ExpressionNode {
 		}
 		constantValue = new StructValue(this, typeInfo, values);
 	}
+	
+	@Override
+	public boolean isStatic() {
+		return expressionNodes.stream().allMatch(ExpressionNode::isStatic);
+	}
 }

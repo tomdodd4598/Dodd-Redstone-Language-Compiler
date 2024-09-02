@@ -101,6 +101,11 @@ public class ClosureExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
+	public boolean isStatic() {
+		return function.captures.stream().allMatch(x -> x.modifier._static);
+	}
+	
+	@Override
 	public @Nullable Function getDirectFunction() {
 		return function;
 	}

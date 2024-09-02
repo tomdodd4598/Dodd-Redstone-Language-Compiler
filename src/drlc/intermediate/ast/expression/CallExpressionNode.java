@@ -181,4 +181,9 @@ public class CallExpressionNode extends ExpressionNode {
 	protected void setConstantValueInternal() {
 		
 	}
+	
+	@Override
+	public boolean isStatic() {
+		return callerExpressionNode.isStatic() && argExpressionNodes.stream().allMatch(ExpressionNode::isStatic);
+	}
 }

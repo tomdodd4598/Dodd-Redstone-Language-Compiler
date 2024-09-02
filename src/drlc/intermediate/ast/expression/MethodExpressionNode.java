@@ -213,6 +213,11 @@ public class MethodExpressionNode extends ExpressionNode {
 		
 	}
 	
+	@Override
+	public boolean isStatic() {
+		return receiverExpressionNode.isStatic() && argExpressionNodes.stream().allMatch(ExpressionNode::isStatic);
+	}
+	
 	protected void setInternal() {
 		if (!setInternal) {
 			function = scope.pathGet(this, path, (x, name) -> x.getFunction(this, name, false));

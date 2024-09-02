@@ -108,4 +108,9 @@ public class CastExpressionNode extends ExpressionNode {
 			constantValue = null;
 		}
 	}
+	
+	@Override
+	public boolean isStatic() {
+		return expressionNode.isStatic();
+	}
 }

@@ -113,4 +113,9 @@ public class SizeofExpressionNode extends ExpressionNode {
 			throw error("Could not infer type of constant value!");
 		}
 	}
+	
+	@Override
+	public boolean isStatic() {
+		return true;
+	}
 }

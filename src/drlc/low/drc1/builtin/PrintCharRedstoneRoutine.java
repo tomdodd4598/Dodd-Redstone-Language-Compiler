@@ -16,7 +16,7 @@ public class PrintCharRedstoneRoutine extends RedstoneRoutine {
 	@Override
 	public void generateInstructionsInternal() {
 		List<Instruction> text = new ArrayList<>();
-		textSectionMap.put(0, text);
+		sectionTextMap.put(0, text);
 		
 		DataId x = params.get(0).dataId();
 		

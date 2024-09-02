@@ -19,8 +19,8 @@ public class IntCompareIntRedstoneRoutine extends RedstoneRoutine {
 	@Override
 	public void generateInstructionsInternal() {
 		List<Instruction> ifText = new ArrayList<>(), elseText = new ArrayList<>();
-		textSectionMap.put(0, ifText);
-		textSectionMap.put(1, elseText);
+		sectionTextMap.put(0, ifText);
+		sectionTextMap.put(1, elseText);
 		
 		DataId x = params.get(0).dataId(), y = params.get(1).dataId();
 		DataId a = function.scope.nextLocalDataId(intermediate, x.typeInfo);

@@ -530,29 +530,19 @@ public class Visitor extends AnalysisAdapter {
 	}
 	
 	@Override
-	public void caseADead0DeadSection(ADead0DeadSection node) {
-		
-	}
+	public void caseADead0DeadSection(ADead0DeadSection node) {}
 	
 	@Override
-	public void caseADead1DeadSection(ADead1DeadSection node) {
-		
-	}
+	public void caseADead1DeadSection(ADead1DeadSection node) {}
 	
 	@Override
-	public void caseADead2DeadSection(ADead2DeadSection node) {
-		
-	}
+	public void caseADead2DeadSection(ADead2DeadSection node) {}
 	
 	@Override
-	public void caseADead3DeadSection(ADead3DeadSection node) {
-		
-	}
+	public void caseADead3DeadSection(ADead3DeadSection node) {}
 	
 	@Override
-	public void caseADead4DeadSection(ADead4DeadSection node) {
-		
-	}
+	public void caseADead4DeadSection(ADead4DeadSection node) {}
 	
 	/* COMPONENT SPECIFICATIONS */
 	

@@ -103,4 +103,9 @@ public class UnaryExpressionNode extends ExpressionNode {
 			constantValue = null;
 		}
 	}
+	
+	@Override
+	public boolean isStatic() {
+		return expressionNode.isStatic();
+	}
 }

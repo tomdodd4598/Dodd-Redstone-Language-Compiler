@@ -18,7 +18,7 @@ public class NatCompareNatRedstoneRoutine extends RedstoneRoutine {
 	@Override
 	public void generateInstructionsInternal() {
 		List<Instruction> text = new ArrayList<>();
-		textSectionMap.put(0, text);
+		sectionTextMap.put(0, text);
 		
 		// intCompareInt(Short.MIN_VALUE + x, Short.MIN_VALUE + y)
 		

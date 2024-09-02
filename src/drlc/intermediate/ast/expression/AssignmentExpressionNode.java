@@ -146,4 +146,9 @@ public class AssignmentExpressionNode extends ExpressionNode {
 	protected void setConstantValueInternal() {
 		
 	}
+	
+	@Override
+	public boolean isStatic() {
+		return lvalueExpressionNode.isStatic() && rvalueExpressionNode.isStatic();
+	}
 }

@@ -63,8 +63,8 @@ public class StringExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
-		@NonNull DataId arrayDataId = Main.rootScope.nextLocalDataId(routine, stringValue.typeInfo);
-		routine.addValueAssignmentAction(this, arrayDataId, stringValue);
+		@NonNull DataId arrayDataId = Main.rootScope.nextLocalDataId(Main.rootRoutine, stringValue.typeInfo);
+		Main.rootRoutine.addValueAssignmentAction(this, arrayDataId, stringValue);
 		
 		@NonNull DataId ptrDataId = routine.nextRegId(Main.generator.charTypeInfo(false));
 		routine.addAddressAssignmentAction(this, ptrDataId, arrayDataId);
@@ -95,5 +95,10 @@ public class StringExpressionNode extends ExpressionNode {
 	@Override
 	protected void setConstantValueInternal() {
 		
+	}
+	
+	@Override
+	public boolean isStatic() {
+		return true;
 	}
 }

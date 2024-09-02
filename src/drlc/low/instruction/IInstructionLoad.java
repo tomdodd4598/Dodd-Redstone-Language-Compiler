@@ -1,5 +1,3 @@
 package drlc.low.instruction;
 
-public interface IInstructionLoad {
-	
-}
+public interface IInstructionLoad {}

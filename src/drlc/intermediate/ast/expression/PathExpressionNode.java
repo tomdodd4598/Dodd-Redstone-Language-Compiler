@@ -135,6 +135,11 @@ public class PathExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
+	public boolean isStatic() {
+		return variable == null || variable.modifier._static;
+	}
+	
+	@Override
 	public boolean isValidLvalue() {
 		return variable != null;
 	}

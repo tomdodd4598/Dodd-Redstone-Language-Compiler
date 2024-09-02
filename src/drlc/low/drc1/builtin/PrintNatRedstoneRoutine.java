@@ -21,10 +21,10 @@ public class PrintNatRedstoneRoutine extends RedstoneRoutine {
 	@Override
 	public void generateInstructionsInternal() {
 		List<Instruction> positiveText = new ArrayList<>(), negativeText = new ArrayList<>(), arithmeticText = new ArrayList<>(), callText = new ArrayList<>();
-		textSectionMap.put(0, positiveText);
-		textSectionMap.put(1, negativeText);
-		textSectionMap.put(2, arithmeticText);
-		textSectionMap.put(3, callText);
+		sectionTextMap.put(0, positiveText);
+		sectionTextMap.put(1, negativeText);
+		sectionTextMap.put(2, arithmeticText);
+		sectionTextMap.put(3, callText);
 		
 		DataId x = params.get(0).dataId();
 		DataId t = function.scope.nextLocalDataId(intermediate, x.typeInfo);

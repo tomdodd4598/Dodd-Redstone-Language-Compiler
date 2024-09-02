@@ -17,7 +17,7 @@ public class IntRightRotateIntRedstoneRoutine extends RedstoneRoutine {
 	@Override
 	public void generateInstructionsInternal() {
 		List<Instruction> text = new ArrayList<>();
-		textSectionMap.put(0, text);
+		sectionTextMap.put(0, text);
 		
 		// (x >>> y) | (x << (-y))
 		

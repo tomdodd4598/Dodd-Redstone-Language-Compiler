@@ -46,7 +46,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		List<List<Action>> body = intermediate.body;
 		for (int i = 0; i < body.size(); ++i) {
 			List<Instruction> text = new ArrayList<>();
-			textSectionMap.put(i, text);
+			sectionTextMap.put(i, text);
 			
 			for (Action action : body.get(i)) {
 				if (action instanceof AssignmentAction aa) {
@@ -142,7 +142,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 	}
 	
 	public void regenerateDataInfo() {
-		for (List<Instruction> section : textSectionMap.values()) {
+		for (List<Instruction> section : sectionTextMap.values()) {
 			for (Instruction instruction : section) {
 				if (instruction instanceof IInstructionAddress instructionAddress) {
 					instructionAddress.regenerateDataInfo();
@@ -153,7 +153,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 	
 	public void generateTextAddresses() {
 		int sectionAddressOffset = 0;
-		for (Entry<Integer, List<Instruction>> entry : textSectionMap.entrySet()) {
+		for (Entry<Integer, List<Instruction>> entry : sectionTextMap.entrySet()) {
 			sectionAddressMap.put(entry.getKey(), sectionAddressOffset);
 			sectionAddressOffset += entry.getValue().stream().mapToInt(Instruction::size).sum();
 		}
@@ -163,8 +163,8 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 	
 	public void generateDataAddresses() {
 		int dataAddressOffset = 0;
-		for (Pair<DataId, LowDataSpan> pair : dataSpanMap.values()) {
-			dataAddressOffset += addAddressEntry(dataAddressMap, pair.right, dataAddressOffset, x -> x + code.addressOffset);
+		for (Pair<DataId, LowDataSpan> pair : localSpanMap.values()) {
+			dataAddressOffset += addAddressEntry(localAddressMap, pair.right, dataAddressOffset, x -> x + code.addressOffset);
 		}
 		for (Pair<DataId, LowDataSpan> pair : tempSpanMap.values()) {
 			dataAddressOffset += addAddressEntry(tempAddressMap, pair.right, dataAddressOffset, x -> x + code.addressOffset);
@@ -180,7 +180,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 	}
 	
 	public void finalizeInstructions() {
-		for (Entry<Integer, List<Instruction>> entry : textSectionMap.entrySet()) {
+		for (Entry<Integer, List<Instruction>> entry : sectionTextMap.entrySet()) {
 			int instructionAddress = sectionAddressMap.get(entry.getKey());
 			List<Instruction> section = entry.getValue();
 			for (int i = 0; i < section.size(); ++i) {

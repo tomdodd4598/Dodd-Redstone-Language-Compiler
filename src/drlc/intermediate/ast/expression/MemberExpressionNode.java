@@ -144,6 +144,11 @@ public class MemberExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
+	public boolean isStatic() {
+		return expressionNode.isStatic();
+	}
+	
+	@Override
 	public boolean isValidLvalue() {
 		return true;
 	}

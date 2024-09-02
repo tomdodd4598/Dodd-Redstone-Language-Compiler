@@ -103,4 +103,9 @@ public class WordExpressionNode extends ExpressionNode {
 			throw error("Could not infer type of constant value!");
 		}
 	}
+	
+	@Override
+	public boolean isStatic() {
+		return true;
+	}
 }

@@ -260,7 +260,7 @@ public class Helpers {
 	}
 	
 	public static @NonNull String scopeStringPrefix(@Nullable Scope scope) {
-		return scope == null || scope.globalId == 0 ? "" : Global.POINTY_START + scope.globalId + Global.POINTY_END + " ";
+		return scope == null || scope.equals(Main.rootScope) ? "" : Global.POINTY_START + scope.globalId + Global.POINTY_END + " ";
 	}
 	
 	public static String dereferenceString(int count) {

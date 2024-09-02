@@ -1,6 +1,7 @@
 package drlc.low;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import drlc.Helpers.Pair;
@@ -9,6 +10,7 @@ import drlc.intermediate.component.Function;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.data.DataId.LowDataId;
 import drlc.intermediate.routine.Routine;
+import drlc.low.instruction.LowInstruction;
 
 public abstract class LowCode<CODE extends LowCode<CODE, ROUTINE, INSTRUCTION>, ROUTINE extends LowRoutine<CODE, ROUTINE, INSTRUCTION>, INSTRUCTION extends LowInstruction> {
 	
@@ -20,9 +22,9 @@ public abstract class LowCode<CODE extends LowCode<CODE, ROUTINE, INSTRUCTION>, 
 	
 	public final Map<Function, Integer> textAddressMap = new LinkedHashMap<>();
 	
-	protected LowCode() {
-		
-	}
+	public final Map<LowDataInfo, INSTRUCTION> staticDataMap = new LinkedHashMap<>();
+	
+	protected LowCode() {}
 	
 	protected abstract ROUTINE createRoutine(Routine intermediateRoutine);
 	
@@ -41,7 +43,7 @@ public abstract class LowCode<CODE extends LowCode<CODE, ROUTINE, INSTRUCTION>, 
 	}
 	
 	protected void addRoutines() {
-		var partition = Main.rootScope.routineMap.entrySet().stream().collect(Collectors.partitioningBy(e -> e.getKey().builtIn));
+		Map<Boolean, List<Entry<Function, Routine>>> partition = Main.rootScope.routineMap.entrySet().stream().collect(Collectors.partitioningBy(e -> e.getKey().builtIn));
 		for (boolean builtIn : new boolean[] {false, true}) {
 			partition.get(builtIn).forEach(e -> addRoutine(e.getKey(), e.getValue()));
 		}

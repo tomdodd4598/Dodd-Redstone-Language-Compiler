@@ -164,4 +164,9 @@ public class TernaryExpressionNode extends ExpressionNode {
 			constantValue = null;
 		}
 	}
+	
+	@Override
+	public boolean isStatic() {
+		return conditionExpressionNode.isStatic() && trueExpressionNode.isStatic() && falseExpressionNode.isStatic();
+	}
 }

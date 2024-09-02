@@ -1,5 +1,3 @@
 package drlc.intermediate.action;
 
-public interface IDefiniteRedirectAction {
-	
-}
+public interface IDefiniteRedirectAction {}

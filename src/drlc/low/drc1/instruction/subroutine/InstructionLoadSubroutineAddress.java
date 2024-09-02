@@ -8,7 +8,7 @@ import drlc.low.drc1.instruction.Instruction;
 public class InstructionLoadSubroutineAddress extends Instruction {
 	
 	public final Function function;
-	public Short value;
+	protected Short value;
 	
 	public InstructionLoadSubroutineAddress(Function function) {
 		super();

@@ -19,7 +19,7 @@ public class NatRightShiftIntRedstoneRoutine extends RedstoneRoutine {
 	@Override
 	public void generateInstructionsInternal() {
 		List<Instruction> text = new ArrayList<>();
-		textSectionMap.put(0, text);
+		sectionTextMap.put(0, text);
 		
 		// (x >> y) & ~((Short.MIN_VALUE >> y) << 1)
 		

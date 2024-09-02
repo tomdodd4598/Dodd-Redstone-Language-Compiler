@@ -1,10 +1,12 @@
 package drlc.low;
 
+import drlc.Global;
+
 public enum LowDataType {
 	
-	TEMP("TEMP"),
-	STATIC("STATIC"),
-	STACK("STACK");
+	TEMP(Global.TEMP),
+	STATIC(Global.STATIC),
+	STACK(Global.STACK);
 	
 	private final String str;
 	

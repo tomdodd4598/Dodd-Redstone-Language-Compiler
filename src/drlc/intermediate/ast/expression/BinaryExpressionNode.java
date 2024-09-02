@@ -154,4 +154,9 @@ public class BinaryExpressionNode extends ExpressionNode {
 		}
 		constantValue = null;
 	}
+	
+	@Override
+	public boolean isStatic() {
+		return leftExpressionNode.isStatic() && rightExpressionNode.isStatic();
+	}
 }
