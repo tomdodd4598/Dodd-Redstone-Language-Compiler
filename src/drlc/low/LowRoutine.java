@@ -10,7 +10,7 @@ import drlc.intermediate.component.data.*;
 import drlc.intermediate.component.data.DataId.LowDataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.routine.Routine;
-import drlc.low.instruction.LowInstruction;
+import drlc.low.instruction.*;
 import drlc.low.instruction.address.IInstructionAddress;
 
 public abstract class LowRoutine<CODE extends LowCode<CODE, ROUTINE, INSTRUCTION>, ROUTINE extends LowRoutine<CODE, ROUTINE, INSTRUCTION>, INSTRUCTION extends LowInstruction> {
@@ -64,23 +64,27 @@ public abstract class LowRoutine<CODE extends LowCode<CODE, ROUTINE, INSTRUCTION
 	}
 	
 	public void regenerateDataInfoInternal() {
-		for (List<INSTRUCTION> section : sectionTextMap.values()) {
-			for (INSTRUCTION instruction : section) {
-				if (instruction instanceof IInstructionAddress instructionAddress) {
-					instructionAddress.regenerateDataInfo();
-				}
-			}
-		}
-		
 		if (isRootRoutine()) {
 			Map<LowDataInfo, INSTRUCTION> regeneratedMap = new LinkedHashMap<>();
 			Iterator<Entry<LowDataInfo, INSTRUCTION>> iter = code.staticDataMap.entrySet().iterator();
 			while (iter.hasNext()) {
 				Entry<LowDataInfo, INSTRUCTION> entry = iter.next();
 				iter.remove();
-				regeneratedMap.put(entry.getKey().getRegeneratedDataInfo(), entry.getValue());
+				INSTRUCTION data = entry.getValue();
+				if (data instanceof IInstructionAddressData iad) {
+					iad.regenerateDataInfo();
+				}
+				regeneratedMap.put(entry.getKey().getRegeneratedDataInfo(), data);
 			}
 			code.staticDataMap.putAll(regeneratedMap);
+		}
+		
+		for (List<INSTRUCTION> section : sectionTextMap.values()) {
+			for (INSTRUCTION instruction : section) {
+				if (instruction instanceof IInstructionAddress instructionAddress) {
+					instructionAddress.regenerateDataInfo();
+				}
+			}
 		}
 	}
 	

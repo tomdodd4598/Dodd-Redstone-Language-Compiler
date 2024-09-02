@@ -1,7 +1,6 @@
-package drlc.low.drc1.instruction.constant;
+package drlc.low.drc1.instruction.data;
 
-import java.util.*;
-
+import drlc.Helpers;
 import drlc.intermediate.component.Function;
 
 public class InstructionSubroutineAddressData extends InstructionData {
@@ -24,7 +23,22 @@ public class InstructionSubroutineAddressData extends InstructionData {
 	}
 	
 	@Override
-	protected List<Short> values() {
-		return Arrays.asList(value);
+	public int size(boolean longAddress) {
+		return 1;
+	}
+	
+	@Override
+	public String[] toBinary(boolean longAddress) {
+		return new String[] {Helpers.toBinary(value, 16)};
+	}
+	
+	@Override
+	public String toAssembly(boolean longAddress) {
+		if (longAddress) {
+			return Helpers.toHex(value, 4) + '\t' + function.asmString();
+		}
+		else {
+			return Helpers.toHex(value, 2) + '\t' + function.asmString();
+		}
 	}
 }

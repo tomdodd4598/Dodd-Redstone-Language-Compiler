@@ -15,7 +15,7 @@ import drlc.low.*;
 import drlc.low.drc1.instruction.*;
 import drlc.low.drc1.instruction.address.*;
 import drlc.low.drc1.instruction.address.offset.*;
-import drlc.low.drc1.instruction.constant.*;
+import drlc.low.drc1.instruction.data.*;
 import drlc.low.drc1.instruction.immediate.*;
 import drlc.low.drc1.instruction.jump.*;
 import drlc.low.drc1.instruction.pointer.*;
