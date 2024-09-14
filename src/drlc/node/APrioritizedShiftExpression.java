@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class APrioritizedShiftExpression extends PShiftExpression
 {
-    private PUnaryExpression _unaryExpression_;
+    private PCastExpression _castExpression_;
 
     public APrioritizedShiftExpression()
     {
@@ -15,10 +15,10 @@ public final class APrioritizedShiftExpression extends PShiftExpression
     }
 
     public APrioritizedShiftExpression(
-        @SuppressWarnings("hiding") PUnaryExpression _unaryExpression_)
+        @SuppressWarnings("hiding") PCastExpression _castExpression_)
     {
         // Constructor
-        setUnaryExpression(_unaryExpression_);
+        setCastExpression(_castExpression_);
 
     }
 
@@ -26,7 +26,7 @@ public final class APrioritizedShiftExpression extends PShiftExpression
     public Object clone()
     {
         return new APrioritizedShiftExpression(
-            cloneNode(this._unaryExpression_));
+            cloneNode(this._castExpression_));
     }
 
     @Override
@@ -35,16 +35,16 @@ public final class APrioritizedShiftExpression extends PShiftExpression
         ((Analysis) sw).caseAPrioritizedShiftExpression(this);
     }
 
-    public PUnaryExpression getUnaryExpression()
+    public PCastExpression getCastExpression()
     {
-        return this._unaryExpression_;
+        return this._castExpression_;
     }
 
-    public void setUnaryExpression(PUnaryExpression node)
+    public void setCastExpression(PCastExpression node)
     {
-        if(this._unaryExpression_ != null)
+        if(this._castExpression_ != null)
         {
-            this._unaryExpression_.parent(null);
+            this._castExpression_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class APrioritizedShiftExpression extends PShiftExpression
             node.parent(this);
         }
 
-        this._unaryExpression_ = node;
+        this._castExpression_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._unaryExpression_);
+            + toString(this._castExpression_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._unaryExpression_ == child)
+        if(this._castExpression_ == child)
         {
-            this._unaryExpression_ = null;
+            this._castExpression_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class APrioritizedShiftExpression extends PShiftExpression
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._unaryExpression_ == oldChild)
+        if(this._castExpression_ == oldChild)
         {
-            setUnaryExpression((PUnaryExpression) newChild);
+            setCastExpression((PCastExpression) newChild);
             return;
         }
 

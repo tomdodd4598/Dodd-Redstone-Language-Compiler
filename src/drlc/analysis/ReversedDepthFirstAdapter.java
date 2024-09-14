@@ -2381,9 +2381,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseAPrioritizedTernaryExpression(APrioritizedTernaryExpression node)
     {
         inAPrioritizedTernaryExpression(node);
-        if(node.getCastExpression() != null)
+        if(node.getLogicalExpression() != null)
         {
-            node.getCastExpression().apply(this);
+            node.getLogicalExpression().apply(this);
         }
         outAPrioritizedTernaryExpression(node);
     }
@@ -2418,61 +2418,11 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getQuestionMark().apply(this);
         }
-        if(node.getCastExpression() != null)
-        {
-            node.getCastExpression().apply(this);
-        }
-        outATernaryTernaryExpression(node);
-    }
-
-    public void inAPrioritizedCastExpression(APrioritizedCastExpression node)
-    {
-        defaultIn(node);
-    }
-
-    public void outAPrioritizedCastExpression(APrioritizedCastExpression node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseAPrioritizedCastExpression(APrioritizedCastExpression node)
-    {
-        inAPrioritizedCastExpression(node);
         if(node.getLogicalExpression() != null)
         {
             node.getLogicalExpression().apply(this);
         }
-        outAPrioritizedCastExpression(node);
-    }
-
-    public void inACastCastExpression(ACastCastExpression node)
-    {
-        defaultIn(node);
-    }
-
-    public void outACastCastExpression(ACastCastExpression node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseACastCastExpression(ACastCastExpression node)
-    {
-        inACastCastExpression(node);
-        if(node.getType() != null)
-        {
-            node.getType().apply(this);
-        }
-        if(node.getAs() != null)
-        {
-            node.getAs().apply(this);
-        }
-        if(node.getUnaryExpression() != null)
-        {
-            node.getUnaryExpression().apply(this);
-        }
-        outACastCastExpression(node);
+        outATernaryTernaryExpression(node);
     }
 
     public void inAPrioritizedLogicalExpression(APrioritizedLogicalExpression node)
@@ -2739,9 +2689,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseAPrioritizedShiftExpression(APrioritizedShiftExpression node)
     {
         inAPrioritizedShiftExpression(node);
-        if(node.getUnaryExpression() != null)
+        if(node.getCastExpression() != null)
         {
-            node.getUnaryExpression().apply(this);
+            node.getCastExpression().apply(this);
         }
         outAPrioritizedShiftExpression(node);
     }
@@ -2760,9 +2710,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseABinaryShiftExpression(ABinaryShiftExpression node)
     {
         inABinaryShiftExpression(node);
-        if(node.getUnaryExpression() != null)
+        if(node.getCastExpression() != null)
         {
-            node.getUnaryExpression().apply(this);
+            node.getCastExpression().apply(this);
         }
         if(node.getShiftBinaryOp() != null)
         {
@@ -2773,6 +2723,56 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
             node.getShiftExpression().apply(this);
         }
         outABinaryShiftExpression(node);
+    }
+
+    public void inAPrioritizedCastExpression(APrioritizedCastExpression node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAPrioritizedCastExpression(APrioritizedCastExpression node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAPrioritizedCastExpression(APrioritizedCastExpression node)
+    {
+        inAPrioritizedCastExpression(node);
+        if(node.getUnaryExpression() != null)
+        {
+            node.getUnaryExpression().apply(this);
+        }
+        outAPrioritizedCastExpression(node);
+    }
+
+    public void inACastCastExpression(ACastCastExpression node)
+    {
+        defaultIn(node);
+    }
+
+    public void outACastCastExpression(ACastCastExpression node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseACastCastExpression(ACastCastExpression node)
+    {
+        inACastCastExpression(node);
+        if(node.getType() != null)
+        {
+            node.getType().apply(this);
+        }
+        if(node.getAs() != null)
+        {
+            node.getAs().apply(this);
+        }
+        if(node.getUnaryExpression() != null)
+        {
+            node.getUnaryExpression().apply(this);
+        }
+        outACastCastExpression(node);
     }
 
     public void inAPrioritizedUnaryExpression(APrioritizedUnaryExpression node)
@@ -3884,9 +3884,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseAPrioritizedBraceTernaryExpression(APrioritizedBraceTernaryExpression node)
     {
         inAPrioritizedBraceTernaryExpression(node);
-        if(node.getBraceCastExpression() != null)
+        if(node.getBraceLogicalExpression() != null)
         {
-            node.getBraceCastExpression().apply(this);
+            node.getBraceLogicalExpression().apply(this);
         }
         outAPrioritizedBraceTernaryExpression(node);
     }
@@ -3921,61 +3921,11 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getQuestionMark().apply(this);
         }
-        if(node.getBraceCastExpression() != null)
-        {
-            node.getBraceCastExpression().apply(this);
-        }
-        outATernaryBraceTernaryExpression(node);
-    }
-
-    public void inAPrioritizedBraceCastExpression(APrioritizedBraceCastExpression node)
-    {
-        defaultIn(node);
-    }
-
-    public void outAPrioritizedBraceCastExpression(APrioritizedBraceCastExpression node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseAPrioritizedBraceCastExpression(APrioritizedBraceCastExpression node)
-    {
-        inAPrioritizedBraceCastExpression(node);
         if(node.getBraceLogicalExpression() != null)
         {
             node.getBraceLogicalExpression().apply(this);
         }
-        outAPrioritizedBraceCastExpression(node);
-    }
-
-    public void inACastBraceCastExpression(ACastBraceCastExpression node)
-    {
-        defaultIn(node);
-    }
-
-    public void outACastBraceCastExpression(ACastBraceCastExpression node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseACastBraceCastExpression(ACastBraceCastExpression node)
-    {
-        inACastBraceCastExpression(node);
-        if(node.getType() != null)
-        {
-            node.getType().apply(this);
-        }
-        if(node.getAs() != null)
-        {
-            node.getAs().apply(this);
-        }
-        if(node.getBraceUnaryExpression() != null)
-        {
-            node.getBraceUnaryExpression().apply(this);
-        }
-        outACastBraceCastExpression(node);
+        outATernaryBraceTernaryExpression(node);
     }
 
     public void inAPrioritizedBraceLogicalExpression(APrioritizedBraceLogicalExpression node)
@@ -4242,9 +4192,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseAPrioritizedBraceShiftExpression(APrioritizedBraceShiftExpression node)
     {
         inAPrioritizedBraceShiftExpression(node);
-        if(node.getBraceUnaryExpression() != null)
+        if(node.getBraceCastExpression() != null)
         {
-            node.getBraceUnaryExpression().apply(this);
+            node.getBraceCastExpression().apply(this);
         }
         outAPrioritizedBraceShiftExpression(node);
     }
@@ -4263,9 +4213,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
     public void caseABinaryBraceShiftExpression(ABinaryBraceShiftExpression node)
     {
         inABinaryBraceShiftExpression(node);
-        if(node.getBraceUnaryExpression() != null)
+        if(node.getBraceCastExpression() != null)
         {
-            node.getBraceUnaryExpression().apply(this);
+            node.getBraceCastExpression().apply(this);
         }
         if(node.getShiftBinaryOp() != null)
         {
@@ -4276,6 +4226,56 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
             node.getBraceShiftExpression().apply(this);
         }
         outABinaryBraceShiftExpression(node);
+    }
+
+    public void inAPrioritizedBraceCastExpression(APrioritizedBraceCastExpression node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAPrioritizedBraceCastExpression(APrioritizedBraceCastExpression node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAPrioritizedBraceCastExpression(APrioritizedBraceCastExpression node)
+    {
+        inAPrioritizedBraceCastExpression(node);
+        if(node.getBraceUnaryExpression() != null)
+        {
+            node.getBraceUnaryExpression().apply(this);
+        }
+        outAPrioritizedBraceCastExpression(node);
+    }
+
+    public void inACastBraceCastExpression(ACastBraceCastExpression node)
+    {
+        defaultIn(node);
+    }
+
+    public void outACastBraceCastExpression(ACastBraceCastExpression node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseACastBraceCastExpression(ACastBraceCastExpression node)
+    {
+        inACastBraceCastExpression(node);
+        if(node.getType() != null)
+        {
+            node.getType().apply(this);
+        }
+        if(node.getAs() != null)
+        {
+            node.getAs().apply(this);
+        }
+        if(node.getBraceUnaryExpression() != null)
+        {
+            node.getBraceUnaryExpression().apply(this);
+        }
+        outACastBraceCastExpression(node);
     }
 
     public void inAPrioritizedBraceUnaryExpression(APrioritizedBraceUnaryExpression node)

@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class APrioritizedBraceCastExpression extends PBraceCastExpression
 {
-    private PBraceLogicalExpression _braceLogicalExpression_;
+    private PBraceUnaryExpression _braceUnaryExpression_;
 
     public APrioritizedBraceCastExpression()
     {
@@ -15,10 +15,10 @@ public final class APrioritizedBraceCastExpression extends PBraceCastExpression
     }
 
     public APrioritizedBraceCastExpression(
-        @SuppressWarnings("hiding") PBraceLogicalExpression _braceLogicalExpression_)
+        @SuppressWarnings("hiding") PBraceUnaryExpression _braceUnaryExpression_)
     {
         // Constructor
-        setBraceLogicalExpression(_braceLogicalExpression_);
+        setBraceUnaryExpression(_braceUnaryExpression_);
 
     }
 
@@ -26,7 +26,7 @@ public final class APrioritizedBraceCastExpression extends PBraceCastExpression
     public Object clone()
     {
         return new APrioritizedBraceCastExpression(
-            cloneNode(this._braceLogicalExpression_));
+            cloneNode(this._braceUnaryExpression_));
     }
 
     @Override
@@ -35,16 +35,16 @@ public final class APrioritizedBraceCastExpression extends PBraceCastExpression
         ((Analysis) sw).caseAPrioritizedBraceCastExpression(this);
     }
 
-    public PBraceLogicalExpression getBraceLogicalExpression()
+    public PBraceUnaryExpression getBraceUnaryExpression()
     {
-        return this._braceLogicalExpression_;
+        return this._braceUnaryExpression_;
     }
 
-    public void setBraceLogicalExpression(PBraceLogicalExpression node)
+    public void setBraceUnaryExpression(PBraceUnaryExpression node)
     {
-        if(this._braceLogicalExpression_ != null)
+        if(this._braceUnaryExpression_ != null)
         {
-            this._braceLogicalExpression_.parent(null);
+            this._braceUnaryExpression_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class APrioritizedBraceCastExpression extends PBraceCastExpression
             node.parent(this);
         }
 
-        this._braceLogicalExpression_ = node;
+        this._braceUnaryExpression_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._braceLogicalExpression_);
+            + toString(this._braceUnaryExpression_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._braceLogicalExpression_ == child)
+        if(this._braceUnaryExpression_ == child)
         {
-            this._braceLogicalExpression_ = null;
+            this._braceUnaryExpression_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class APrioritizedBraceCastExpression extends PBraceCastExpression
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._braceLogicalExpression_ == oldChild)
+        if(this._braceUnaryExpression_ == oldChild)
         {
-            setBraceLogicalExpression((PBraceLogicalExpression) newChild);
+            setBraceUnaryExpression((PBraceUnaryExpression) newChild);
             return;
         }
 

@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class APrioritizedCastExpression extends PCastExpression
 {
-    private PLogicalExpression _logicalExpression_;
+    private PUnaryExpression _unaryExpression_;
 
     public APrioritizedCastExpression()
     {
@@ -15,10 +15,10 @@ public final class APrioritizedCastExpression extends PCastExpression
     }
 
     public APrioritizedCastExpression(
-        @SuppressWarnings("hiding") PLogicalExpression _logicalExpression_)
+        @SuppressWarnings("hiding") PUnaryExpression _unaryExpression_)
     {
         // Constructor
-        setLogicalExpression(_logicalExpression_);
+        setUnaryExpression(_unaryExpression_);
 
     }
 
@@ -26,7 +26,7 @@ public final class APrioritizedCastExpression extends PCastExpression
     public Object clone()
     {
         return new APrioritizedCastExpression(
-            cloneNode(this._logicalExpression_));
+            cloneNode(this._unaryExpression_));
     }
 
     @Override
@@ -35,16 +35,16 @@ public final class APrioritizedCastExpression extends PCastExpression
         ((Analysis) sw).caseAPrioritizedCastExpression(this);
     }
 
-    public PLogicalExpression getLogicalExpression()
+    public PUnaryExpression getUnaryExpression()
     {
-        return this._logicalExpression_;
+        return this._unaryExpression_;
     }
 
-    public void setLogicalExpression(PLogicalExpression node)
+    public void setUnaryExpression(PUnaryExpression node)
     {
-        if(this._logicalExpression_ != null)
+        if(this._unaryExpression_ != null)
         {
-            this._logicalExpression_.parent(null);
+            this._unaryExpression_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class APrioritizedCastExpression extends PCastExpression
             node.parent(this);
         }
 
-        this._logicalExpression_ = node;
+        this._unaryExpression_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._logicalExpression_);
+            + toString(this._unaryExpression_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._logicalExpression_ == child)
+        if(this._unaryExpression_ == child)
         {
-            this._logicalExpression_ = null;
+            this._unaryExpression_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class APrioritizedCastExpression extends PCastExpression
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._logicalExpression_ == oldChild)
+        if(this._unaryExpression_ == oldChild)
         {
-            setLogicalExpression((PLogicalExpression) newChild);
+            setUnaryExpression((PUnaryExpression) newChild);
             return;
         }
 

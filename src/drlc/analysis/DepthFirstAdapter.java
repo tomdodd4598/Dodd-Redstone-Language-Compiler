@@ -2366,9 +2366,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAPrioritizedTernaryExpression(APrioritizedTernaryExpression node)
     {
         inAPrioritizedTernaryExpression(node);
-        if(node.getCastExpression() != null)
+        if(node.getLogicalExpression() != null)
         {
-            node.getCastExpression().apply(this);
+            node.getLogicalExpression().apply(this);
         }
         outAPrioritizedTernaryExpression(node);
     }
@@ -2387,9 +2387,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseATernaryTernaryExpression(ATernaryTernaryExpression node)
     {
         inATernaryTernaryExpression(node);
-        if(node.getCastExpression() != null)
+        if(node.getLogicalExpression() != null)
         {
-            node.getCastExpression().apply(this);
+            node.getLogicalExpression().apply(this);
         }
         if(node.getQuestionMark() != null)
         {
@@ -2408,56 +2408,6 @@ public class DepthFirstAdapter extends AnalysisAdapter
             node.getTernaryExpression().apply(this);
         }
         outATernaryTernaryExpression(node);
-    }
-
-    public void inAPrioritizedCastExpression(APrioritizedCastExpression node)
-    {
-        defaultIn(node);
-    }
-
-    public void outAPrioritizedCastExpression(APrioritizedCastExpression node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseAPrioritizedCastExpression(APrioritizedCastExpression node)
-    {
-        inAPrioritizedCastExpression(node);
-        if(node.getLogicalExpression() != null)
-        {
-            node.getLogicalExpression().apply(this);
-        }
-        outAPrioritizedCastExpression(node);
-    }
-
-    public void inACastCastExpression(ACastCastExpression node)
-    {
-        defaultIn(node);
-    }
-
-    public void outACastCastExpression(ACastCastExpression node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseACastCastExpression(ACastCastExpression node)
-    {
-        inACastCastExpression(node);
-        if(node.getUnaryExpression() != null)
-        {
-            node.getUnaryExpression().apply(this);
-        }
-        if(node.getAs() != null)
-        {
-            node.getAs().apply(this);
-        }
-        if(node.getType() != null)
-        {
-            node.getType().apply(this);
-        }
-        outACastCastExpression(node);
     }
 
     public void inAPrioritizedLogicalExpression(APrioritizedLogicalExpression node)
@@ -2724,9 +2674,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAPrioritizedShiftExpression(APrioritizedShiftExpression node)
     {
         inAPrioritizedShiftExpression(node);
-        if(node.getUnaryExpression() != null)
+        if(node.getCastExpression() != null)
         {
-            node.getUnaryExpression().apply(this);
+            node.getCastExpression().apply(this);
         }
         outAPrioritizedShiftExpression(node);
     }
@@ -2753,11 +2703,61 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getShiftBinaryOp().apply(this);
         }
+        if(node.getCastExpression() != null)
+        {
+            node.getCastExpression().apply(this);
+        }
+        outABinaryShiftExpression(node);
+    }
+
+    public void inAPrioritizedCastExpression(APrioritizedCastExpression node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAPrioritizedCastExpression(APrioritizedCastExpression node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAPrioritizedCastExpression(APrioritizedCastExpression node)
+    {
+        inAPrioritizedCastExpression(node);
         if(node.getUnaryExpression() != null)
         {
             node.getUnaryExpression().apply(this);
         }
-        outABinaryShiftExpression(node);
+        outAPrioritizedCastExpression(node);
+    }
+
+    public void inACastCastExpression(ACastCastExpression node)
+    {
+        defaultIn(node);
+    }
+
+    public void outACastCastExpression(ACastCastExpression node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseACastCastExpression(ACastCastExpression node)
+    {
+        inACastCastExpression(node);
+        if(node.getUnaryExpression() != null)
+        {
+            node.getUnaryExpression().apply(this);
+        }
+        if(node.getAs() != null)
+        {
+            node.getAs().apply(this);
+        }
+        if(node.getType() != null)
+        {
+            node.getType().apply(this);
+        }
+        outACastCastExpression(node);
     }
 
     public void inAPrioritizedUnaryExpression(APrioritizedUnaryExpression node)
@@ -3866,9 +3866,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAPrioritizedBraceTernaryExpression(APrioritizedBraceTernaryExpression node)
     {
         inAPrioritizedBraceTernaryExpression(node);
-        if(node.getBraceCastExpression() != null)
+        if(node.getBraceLogicalExpression() != null)
         {
-            node.getBraceCastExpression().apply(this);
+            node.getBraceLogicalExpression().apply(this);
         }
         outAPrioritizedBraceTernaryExpression(node);
     }
@@ -3887,9 +3887,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseATernaryBraceTernaryExpression(ATernaryBraceTernaryExpression node)
     {
         inATernaryBraceTernaryExpression(node);
-        if(node.getBraceCastExpression() != null)
+        if(node.getBraceLogicalExpression() != null)
         {
-            node.getBraceCastExpression().apply(this);
+            node.getBraceLogicalExpression().apply(this);
         }
         if(node.getQuestionMark() != null)
         {
@@ -3908,56 +3908,6 @@ public class DepthFirstAdapter extends AnalysisAdapter
             node.getBraceTernaryExpression().apply(this);
         }
         outATernaryBraceTernaryExpression(node);
-    }
-
-    public void inAPrioritizedBraceCastExpression(APrioritizedBraceCastExpression node)
-    {
-        defaultIn(node);
-    }
-
-    public void outAPrioritizedBraceCastExpression(APrioritizedBraceCastExpression node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseAPrioritizedBraceCastExpression(APrioritizedBraceCastExpression node)
-    {
-        inAPrioritizedBraceCastExpression(node);
-        if(node.getBraceLogicalExpression() != null)
-        {
-            node.getBraceLogicalExpression().apply(this);
-        }
-        outAPrioritizedBraceCastExpression(node);
-    }
-
-    public void inACastBraceCastExpression(ACastBraceCastExpression node)
-    {
-        defaultIn(node);
-    }
-
-    public void outACastBraceCastExpression(ACastBraceCastExpression node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseACastBraceCastExpression(ACastBraceCastExpression node)
-    {
-        inACastBraceCastExpression(node);
-        if(node.getBraceUnaryExpression() != null)
-        {
-            node.getBraceUnaryExpression().apply(this);
-        }
-        if(node.getAs() != null)
-        {
-            node.getAs().apply(this);
-        }
-        if(node.getType() != null)
-        {
-            node.getType().apply(this);
-        }
-        outACastBraceCastExpression(node);
     }
 
     public void inAPrioritizedBraceLogicalExpression(APrioritizedBraceLogicalExpression node)
@@ -4224,9 +4174,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAPrioritizedBraceShiftExpression(APrioritizedBraceShiftExpression node)
     {
         inAPrioritizedBraceShiftExpression(node);
-        if(node.getBraceUnaryExpression() != null)
+        if(node.getBraceCastExpression() != null)
         {
-            node.getBraceUnaryExpression().apply(this);
+            node.getBraceCastExpression().apply(this);
         }
         outAPrioritizedBraceShiftExpression(node);
     }
@@ -4253,11 +4203,61 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getShiftBinaryOp().apply(this);
         }
+        if(node.getBraceCastExpression() != null)
+        {
+            node.getBraceCastExpression().apply(this);
+        }
+        outABinaryBraceShiftExpression(node);
+    }
+
+    public void inAPrioritizedBraceCastExpression(APrioritizedBraceCastExpression node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAPrioritizedBraceCastExpression(APrioritizedBraceCastExpression node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAPrioritizedBraceCastExpression(APrioritizedBraceCastExpression node)
+    {
+        inAPrioritizedBraceCastExpression(node);
         if(node.getBraceUnaryExpression() != null)
         {
             node.getBraceUnaryExpression().apply(this);
         }
-        outABinaryBraceShiftExpression(node);
+        outAPrioritizedBraceCastExpression(node);
+    }
+
+    public void inACastBraceCastExpression(ACastBraceCastExpression node)
+    {
+        defaultIn(node);
+    }
+
+    public void outACastBraceCastExpression(ACastBraceCastExpression node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseACastBraceCastExpression(ACastBraceCastExpression node)
+    {
+        inACastBraceCastExpression(node);
+        if(node.getBraceUnaryExpression() != null)
+        {
+            node.getBraceUnaryExpression().apply(this);
+        }
+        if(node.getAs() != null)
+        {
+            node.getAs().apply(this);
+        }
+        if(node.getType() != null)
+        {
+            node.getType().apply(this);
+        }
+        outACastBraceCastExpression(node);
     }
 
     public void inAPrioritizedBraceUnaryExpression(APrioritizedBraceUnaryExpression node)

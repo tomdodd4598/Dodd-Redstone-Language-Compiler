@@ -9,7 +9,7 @@ public final class ABinaryShiftExpression extends PShiftExpression
 {
     private PShiftExpression _shiftExpression_;
     private PShiftBinaryOp _shiftBinaryOp_;
-    private PUnaryExpression _unaryExpression_;
+    private PCastExpression _castExpression_;
 
     public ABinaryShiftExpression()
     {
@@ -19,14 +19,14 @@ public final class ABinaryShiftExpression extends PShiftExpression
     public ABinaryShiftExpression(
         @SuppressWarnings("hiding") PShiftExpression _shiftExpression_,
         @SuppressWarnings("hiding") PShiftBinaryOp _shiftBinaryOp_,
-        @SuppressWarnings("hiding") PUnaryExpression _unaryExpression_)
+        @SuppressWarnings("hiding") PCastExpression _castExpression_)
     {
         // Constructor
         setShiftExpression(_shiftExpression_);
 
         setShiftBinaryOp(_shiftBinaryOp_);
 
-        setUnaryExpression(_unaryExpression_);
+        setCastExpression(_castExpression_);
 
     }
 
@@ -36,7 +36,7 @@ public final class ABinaryShiftExpression extends PShiftExpression
         return new ABinaryShiftExpression(
             cloneNode(this._shiftExpression_),
             cloneNode(this._shiftBinaryOp_),
-            cloneNode(this._unaryExpression_));
+            cloneNode(this._castExpression_));
     }
 
     @Override
@@ -95,16 +95,16 @@ public final class ABinaryShiftExpression extends PShiftExpression
         this._shiftBinaryOp_ = node;
     }
 
-    public PUnaryExpression getUnaryExpression()
+    public PCastExpression getCastExpression()
     {
-        return this._unaryExpression_;
+        return this._castExpression_;
     }
 
-    public void setUnaryExpression(PUnaryExpression node)
+    public void setCastExpression(PCastExpression node)
     {
-        if(this._unaryExpression_ != null)
+        if(this._castExpression_ != null)
         {
-            this._unaryExpression_.parent(null);
+            this._castExpression_.parent(null);
         }
 
         if(node != null)
@@ -117,7 +117,7 @@ public final class ABinaryShiftExpression extends PShiftExpression
             node.parent(this);
         }
 
-        this._unaryExpression_ = node;
+        this._castExpression_ = node;
     }
 
     @Override
@@ -126,7 +126,7 @@ public final class ABinaryShiftExpression extends PShiftExpression
         return ""
             + toString(this._shiftExpression_)
             + toString(this._shiftBinaryOp_)
-            + toString(this._unaryExpression_);
+            + toString(this._castExpression_);
     }
 
     @Override
@@ -145,9 +145,9 @@ public final class ABinaryShiftExpression extends PShiftExpression
             return;
         }
 
-        if(this._unaryExpression_ == child)
+        if(this._castExpression_ == child)
         {
-            this._unaryExpression_ = null;
+            this._castExpression_ = null;
             return;
         }
 
@@ -170,9 +170,9 @@ public final class ABinaryShiftExpression extends PShiftExpression
             return;
         }
 
-        if(this._unaryExpression_ == oldChild)
+        if(this._castExpression_ == oldChild)
         {
-            setUnaryExpression((PUnaryExpression) newChild);
+            setCastExpression((PCastExpression) newChild);
             return;
         }
 

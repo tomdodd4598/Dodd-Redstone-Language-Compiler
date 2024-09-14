@@ -97,8 +97,6 @@ public interface Analysis extends Switch
     void caseAAssignmentAssignmentExpression(AAssignmentAssignmentExpression node);
     void caseAPrioritizedTernaryExpression(APrioritizedTernaryExpression node);
     void caseATernaryTernaryExpression(ATernaryTernaryExpression node);
-    void caseAPrioritizedCastExpression(APrioritizedCastExpression node);
-    void caseACastCastExpression(ACastCastExpression node);
     void caseAPrioritizedLogicalExpression(APrioritizedLogicalExpression node);
     void caseABinaryLogicalExpression(ABinaryLogicalExpression node);
     void caseAPrioritizedEqualityExpression(APrioritizedEqualityExpression node);
@@ -111,6 +109,8 @@ public interface Analysis extends Switch
     void caseABinaryMultiplicativeExpression(ABinaryMultiplicativeExpression node);
     void caseAPrioritizedShiftExpression(APrioritizedShiftExpression node);
     void caseABinaryShiftExpression(ABinaryShiftExpression node);
+    void caseAPrioritizedCastExpression(APrioritizedCastExpression node);
+    void caseACastCastExpression(ACastCastExpression node);
     void caseAPrioritizedUnaryExpression(APrioritizedUnaryExpression node);
     void caseAUnaryUnaryExpression(AUnaryUnaryExpression node);
     void caseADereferenceUnaryExpression(ADereferenceUnaryExpression node);
@@ -156,8 +156,6 @@ public interface Analysis extends Switch
     void caseAAssignmentBraceAssignmentExpression(AAssignmentBraceAssignmentExpression node);
     void caseAPrioritizedBraceTernaryExpression(APrioritizedBraceTernaryExpression node);
     void caseATernaryBraceTernaryExpression(ATernaryBraceTernaryExpression node);
-    void caseAPrioritizedBraceCastExpression(APrioritizedBraceCastExpression node);
-    void caseACastBraceCastExpression(ACastBraceCastExpression node);
     void caseAPrioritizedBraceLogicalExpression(APrioritizedBraceLogicalExpression node);
     void caseABinaryBraceLogicalExpression(ABinaryBraceLogicalExpression node);
     void caseAPrioritizedBraceEqualityExpression(APrioritizedBraceEqualityExpression node);
@@ -170,6 +168,8 @@ public interface Analysis extends Switch
     void caseABinaryBraceMultiplicativeExpression(ABinaryBraceMultiplicativeExpression node);
     void caseAPrioritizedBraceShiftExpression(APrioritizedBraceShiftExpression node);
     void caseABinaryBraceShiftExpression(ABinaryBraceShiftExpression node);
+    void caseAPrioritizedBraceCastExpression(APrioritizedBraceCastExpression node);
+    void caseACastBraceCastExpression(ACastBraceCastExpression node);
     void caseAPrioritizedBraceUnaryExpression(APrioritizedBraceUnaryExpression node);
     void caseAUnaryBraceUnaryExpression(AUnaryBraceUnaryExpression node);
     void caseADereferenceBraceUnaryExpression(ADereferenceBraceUnaryExpression node);

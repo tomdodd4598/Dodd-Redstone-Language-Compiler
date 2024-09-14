@@ -334,12 +334,8 @@ Productions
 		{assignment} unary_expression assignment_op expression;
 	
 	ternary_expression =
-		{prioritized} cast_expression |
-		{ternary} cast_expression question_mark expression colon ternary_expression;
-	
-	cast_expression =
 		{prioritized} logical_expression |
-		{cast} unary_expression as type;
+		{ternary} logical_expression question_mark expression colon ternary_expression;
 	
 	logical_expression =
 		{prioritized} equality_expression |
@@ -362,8 +358,12 @@ Productions
 		{binary} multiplicative_expression multiplicative_binary_op shift_expression;
 	
 	shift_expression =
+		{prioritized} cast_expression |
+		{binary} shift_expression shift_binary_op cast_expression;
+	
+	cast_expression =
 		{prioritized} unary_expression |
-		{binary} shift_expression shift_binary_op unary_expression;
+		{cast} unary_expression as type;
 	
 	unary_expression =
 		{prioritized} suffix_expression |
@@ -445,12 +445,8 @@ Productions
 		{assignment} brace_unary_expression assignment_op brace_expression;
 	
 	brace_ternary_expression =
-		{prioritized} brace_cast_expression |
-		{ternary} brace_cast_expression question_mark expression colon brace_ternary_expression;
-	
-	brace_cast_expression =
 		{prioritized} brace_logical_expression |
-		{cast} brace_unary_expression as type;
+		{ternary} brace_logical_expression question_mark expression colon brace_ternary_expression;
 	
 	brace_logical_expression =
 		{prioritized} brace_equality_expression |
@@ -473,8 +469,12 @@ Productions
 		{binary} brace_multiplicative_expression multiplicative_binary_op brace_shift_expression;
 	
 	brace_shift_expression =
+		{prioritized} brace_cast_expression |
+		{binary} brace_shift_expression shift_binary_op brace_cast_expression;
+	
+	brace_cast_expression =
 		{prioritized} brace_unary_expression |
-		{binary} brace_shift_expression shift_binary_op brace_unary_expression;
+		{cast} brace_unary_expression as type;
 	
 	brace_unary_expression =
 		{prioritized} brace_suffix_expression |

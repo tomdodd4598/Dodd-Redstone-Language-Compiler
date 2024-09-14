@@ -654,22 +654,12 @@ public class Visitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAPrioritizedTernaryExpression(APrioritizedTernaryExpression node) {
-		node.getCastExpression().apply(this);
-	}
-	
-	@Override
-	public void caseATernaryTernaryExpression(ATernaryTernaryExpression node) {
-		expressionStack.push(new TernaryExpressionNode(source(node), expression(node.getCastExpression()), expression(node.getExpression()), expression(node.getTernaryExpression())));
-	}
-	
-	@Override
-	public void caseAPrioritizedCastExpression(APrioritizedCastExpression node) {
 		node.getLogicalExpression().apply(this);
 	}
 	
 	@Override
-	public void caseACastCastExpression(ACastCastExpression node) {
-		expressionStack.push(new CastExpressionNode(source(node), expression(node.getUnaryExpression()), type(node.getType())));
+	public void caseATernaryTernaryExpression(ATernaryTernaryExpression node) {
+		expressionStack.push(new TernaryExpressionNode(source(node), expression(node.getLogicalExpression()), expression(node.getExpression()), expression(node.getTernaryExpression())));
 	}
 	
 	@Override
@@ -724,12 +714,22 @@ public class Visitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAPrioritizedShiftExpression(APrioritizedShiftExpression node) {
-		node.getUnaryExpression().apply(this);
+		node.getCastExpression().apply(this);
 	}
 	
 	@Override
 	public void caseABinaryShiftExpression(ABinaryShiftExpression node) {
-		expressionStack.push(binaryExpression(node, node.getShiftExpression(), node.getShiftBinaryOp(), node.getUnaryExpression()));
+		expressionStack.push(binaryExpression(node, node.getShiftExpression(), node.getShiftBinaryOp(), node.getCastExpression()));
+	}
+	
+	@Override
+	public void caseAPrioritizedCastExpression(APrioritizedCastExpression node) {
+		node.getUnaryExpression().apply(this);
+	}
+	
+	@Override
+	public void caseACastCastExpression(ACastCastExpression node) {
+		expressionStack.push(new CastExpressionNode(source(node), expression(node.getUnaryExpression()), type(node.getType())));
 	}
 	
 	@Override
@@ -935,22 +935,12 @@ public class Visitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAPrioritizedBraceTernaryExpression(APrioritizedBraceTernaryExpression node) {
-		node.getBraceCastExpression().apply(this);
-	}
-	
-	@Override
-	public void caseATernaryBraceTernaryExpression(ATernaryBraceTernaryExpression node) {
-		expressionStack.push(new TernaryExpressionNode(source(node), expression(node.getBraceCastExpression()), expression(node.getExpression()), expression(node.getBraceTernaryExpression())));
-	}
-	
-	@Override
-	public void caseAPrioritizedBraceCastExpression(APrioritizedBraceCastExpression node) {
 		node.getBraceLogicalExpression().apply(this);
 	}
 	
 	@Override
-	public void caseACastBraceCastExpression(ACastBraceCastExpression node) {
-		expressionStack.push(new CastExpressionNode(source(node), expression(node.getBraceUnaryExpression()), type(node.getType())));
+	public void caseATernaryBraceTernaryExpression(ATernaryBraceTernaryExpression node) {
+		expressionStack.push(new TernaryExpressionNode(source(node), expression(node.getBraceLogicalExpression()), expression(node.getExpression()), expression(node.getBraceTernaryExpression())));
 	}
 	
 	@Override
@@ -1005,12 +995,22 @@ public class Visitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAPrioritizedBraceShiftExpression(APrioritizedBraceShiftExpression node) {
-		node.getBraceUnaryExpression().apply(this);
+		node.getBraceCastExpression().apply(this);
 	}
 	
 	@Override
 	public void caseABinaryBraceShiftExpression(ABinaryBraceShiftExpression node) {
-		expressionStack.push(binaryExpression(node, node.getBraceShiftExpression(), node.getShiftBinaryOp(), node.getBraceUnaryExpression()));
+		expressionStack.push(binaryExpression(node, node.getBraceShiftExpression(), node.getShiftBinaryOp(), node.getBraceCastExpression()));
+	}
+	
+	@Override
+	public void caseAPrioritizedBraceCastExpression(APrioritizedBraceCastExpression node) {
+		node.getBraceUnaryExpression().apply(this);
+	}
+	
+	@Override
+	public void caseACastBraceCastExpression(ACastBraceCastExpression node) {
+		expressionStack.push(new CastExpressionNode(source(node), expression(node.getBraceUnaryExpression()), type(node.getType())));
 	}
 	
 	@Override

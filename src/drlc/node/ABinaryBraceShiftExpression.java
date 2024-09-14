@@ -9,7 +9,7 @@ public final class ABinaryBraceShiftExpression extends PBraceShiftExpression
 {
     private PBraceShiftExpression _braceShiftExpression_;
     private PShiftBinaryOp _shiftBinaryOp_;
-    private PBraceUnaryExpression _braceUnaryExpression_;
+    private PBraceCastExpression _braceCastExpression_;
 
     public ABinaryBraceShiftExpression()
     {
@@ -19,14 +19,14 @@ public final class ABinaryBraceShiftExpression extends PBraceShiftExpression
     public ABinaryBraceShiftExpression(
         @SuppressWarnings("hiding") PBraceShiftExpression _braceShiftExpression_,
         @SuppressWarnings("hiding") PShiftBinaryOp _shiftBinaryOp_,
-        @SuppressWarnings("hiding") PBraceUnaryExpression _braceUnaryExpression_)
+        @SuppressWarnings("hiding") PBraceCastExpression _braceCastExpression_)
     {
         // Constructor
         setBraceShiftExpression(_braceShiftExpression_);
 
         setShiftBinaryOp(_shiftBinaryOp_);
 
-        setBraceUnaryExpression(_braceUnaryExpression_);
+        setBraceCastExpression(_braceCastExpression_);
 
     }
 
@@ -36,7 +36,7 @@ public final class ABinaryBraceShiftExpression extends PBraceShiftExpression
         return new ABinaryBraceShiftExpression(
             cloneNode(this._braceShiftExpression_),
             cloneNode(this._shiftBinaryOp_),
-            cloneNode(this._braceUnaryExpression_));
+            cloneNode(this._braceCastExpression_));
     }
 
     @Override
@@ -95,16 +95,16 @@ public final class ABinaryBraceShiftExpression extends PBraceShiftExpression
         this._shiftBinaryOp_ = node;
     }
 
-    public PBraceUnaryExpression getBraceUnaryExpression()
+    public PBraceCastExpression getBraceCastExpression()
     {
-        return this._braceUnaryExpression_;
+        return this._braceCastExpression_;
     }
 
-    public void setBraceUnaryExpression(PBraceUnaryExpression node)
+    public void setBraceCastExpression(PBraceCastExpression node)
     {
-        if(this._braceUnaryExpression_ != null)
+        if(this._braceCastExpression_ != null)
         {
-            this._braceUnaryExpression_.parent(null);
+            this._braceCastExpression_.parent(null);
         }
 
         if(node != null)
@@ -117,7 +117,7 @@ public final class ABinaryBraceShiftExpression extends PBraceShiftExpression
             node.parent(this);
         }
 
-        this._braceUnaryExpression_ = node;
+        this._braceCastExpression_ = node;
     }
 
     @Override
@@ -126,7 +126,7 @@ public final class ABinaryBraceShiftExpression extends PBraceShiftExpression
         return ""
             + toString(this._braceShiftExpression_)
             + toString(this._shiftBinaryOp_)
-            + toString(this._braceUnaryExpression_);
+            + toString(this._braceCastExpression_);
     }
 
     @Override
@@ -145,9 +145,9 @@ public final class ABinaryBraceShiftExpression extends PBraceShiftExpression
             return;
         }
 
-        if(this._braceUnaryExpression_ == child)
+        if(this._braceCastExpression_ == child)
         {
-            this._braceUnaryExpression_ = null;
+            this._braceCastExpression_ = null;
             return;
         }
 
@@ -170,9 +170,9 @@ public final class ABinaryBraceShiftExpression extends PBraceShiftExpression
             return;
         }
 
-        if(this._braceUnaryExpression_ == oldChild)
+        if(this._braceCastExpression_ == oldChild)
         {
-            setBraceUnaryExpression((PBraceUnaryExpression) newChild);
+            setBraceCastExpression((PBraceCastExpression) newChild);
             return;
         }
 

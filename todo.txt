@@ -1,3 +1,7 @@
+Add 'typeof expression' expression
+
+Add 'nameof expression' expression
+
 Add 'macro! name(...) { ... }' syntax
 
 Generics/templates

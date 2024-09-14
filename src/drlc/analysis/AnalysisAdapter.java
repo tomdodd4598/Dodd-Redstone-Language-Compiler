@@ -585,18 +585,6 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAPrioritizedCastExpression(APrioritizedCastExpression node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseACastCastExpression(ACastCastExpression node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
     public void caseAPrioritizedLogicalExpression(APrioritizedLogicalExpression node)
     {
         defaultCase(node);
@@ -664,6 +652,18 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseABinaryShiftExpression(ABinaryShiftExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPrioritizedCastExpression(APrioritizedCastExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseACastCastExpression(ACastCastExpression node)
     {
         defaultCase(node);
     }
@@ -939,18 +939,6 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAPrioritizedBraceCastExpression(APrioritizedBraceCastExpression node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseACastBraceCastExpression(ACastBraceCastExpression node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
     public void caseAPrioritizedBraceLogicalExpression(APrioritizedBraceLogicalExpression node)
     {
         defaultCase(node);
@@ -1018,6 +1006,18 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseABinaryBraceShiftExpression(ABinaryBraceShiftExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPrioritizedBraceCastExpression(APrioritizedBraceCastExpression node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseACastBraceCastExpression(ACastBraceCastExpression node)
     {
         defaultCase(node);
     }

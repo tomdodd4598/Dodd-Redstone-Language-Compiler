@@ -498,7 +498,7 @@ fn compareChars(x: Chars, y: Chars) -> Int {
 		let cx = x.ptr[i];
 		let cy = y.ptr[i];
 		if cx != cy {
-			return (cx as Int) - (cy as Int);
+			return cx as Int - cy as Int;
 		}
 		i += 1;
 	}
@@ -549,7 +549,7 @@ fn removeThing(mut tracer: Tracer, item: Chars) {
 	}
 }
 
-fn printList(mut node: Node) {
+fn printList(mut node: &Thing) {
 	while node != null {
 		printChars(node.item);
 		printChar('\n');

@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class ATernaryTernaryExpression extends PTernaryExpression
 {
-    private PCastExpression _castExpression_;
+    private PLogicalExpression _logicalExpression_;
     private TQuestionMark _questionMark_;
     private PExpression _expression_;
     private TColon _colon_;
@@ -19,14 +19,14 @@ public final class ATernaryTernaryExpression extends PTernaryExpression
     }
 
     public ATernaryTernaryExpression(
-        @SuppressWarnings("hiding") PCastExpression _castExpression_,
+        @SuppressWarnings("hiding") PLogicalExpression _logicalExpression_,
         @SuppressWarnings("hiding") TQuestionMark _questionMark_,
         @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") TColon _colon_,
         @SuppressWarnings("hiding") PTernaryExpression _ternaryExpression_)
     {
         // Constructor
-        setCastExpression(_castExpression_);
+        setLogicalExpression(_logicalExpression_);
 
         setQuestionMark(_questionMark_);
 
@@ -42,7 +42,7 @@ public final class ATernaryTernaryExpression extends PTernaryExpression
     public Object clone()
     {
         return new ATernaryTernaryExpression(
-            cloneNode(this._castExpression_),
+            cloneNode(this._logicalExpression_),
             cloneNode(this._questionMark_),
             cloneNode(this._expression_),
             cloneNode(this._colon_),
@@ -55,16 +55,16 @@ public final class ATernaryTernaryExpression extends PTernaryExpression
         ((Analysis) sw).caseATernaryTernaryExpression(this);
     }
 
-    public PCastExpression getCastExpression()
+    public PLogicalExpression getLogicalExpression()
     {
-        return this._castExpression_;
+        return this._logicalExpression_;
     }
 
-    public void setCastExpression(PCastExpression node)
+    public void setLogicalExpression(PLogicalExpression node)
     {
-        if(this._castExpression_ != null)
+        if(this._logicalExpression_ != null)
         {
-            this._castExpression_.parent(null);
+            this._logicalExpression_.parent(null);
         }
 
         if(node != null)
@@ -77,7 +77,7 @@ public final class ATernaryTernaryExpression extends PTernaryExpression
             node.parent(this);
         }
 
-        this._castExpression_ = node;
+        this._logicalExpression_ = node;
     }
 
     public TQuestionMark getQuestionMark()
@@ -184,7 +184,7 @@ public final class ATernaryTernaryExpression extends PTernaryExpression
     public String toString()
     {
         return ""
-            + toString(this._castExpression_)
+            + toString(this._logicalExpression_)
             + toString(this._questionMark_)
             + toString(this._expression_)
             + toString(this._colon_)
@@ -195,9 +195,9 @@ public final class ATernaryTernaryExpression extends PTernaryExpression
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._castExpression_ == child)
+        if(this._logicalExpression_ == child)
         {
-            this._castExpression_ = null;
+            this._logicalExpression_ = null;
             return;
         }
 
@@ -232,9 +232,9 @@ public final class ATernaryTernaryExpression extends PTernaryExpression
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._castExpression_ == oldChild)
+        if(this._logicalExpression_ == oldChild)
         {
-            setCastExpression((PCastExpression) newChild);
+            setLogicalExpression((PLogicalExpression) newChild);
             return;
         }
 
