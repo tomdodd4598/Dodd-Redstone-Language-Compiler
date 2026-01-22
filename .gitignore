@@ -1,23 +1,65 @@
-# eclipse
-bin/
-*.launch
-.settings
-.metadata
-.classpath
-.project
+# Mercurial:
+/.hg*
 
-# idea
-out
-*.ipr
-*.iws
-*.iml
-.idea
+# IntelliJ config files:
+/.idea
+/.gradle
+/gradle
+/project
 
-# gradle
-build/
-.gradle
+# Eclipse config files:
+/.classpath
+/.cproject
+/.project
+/.settings
 
-# other
-eclipse/
-*.suo
+# QtCreator config files:
+/*.config
+/*.creator
+/*.creator.user
+/*.files
+/*.includes
+/*.autosave
+/CMakeLists.txt.user*
+
+# Mac Finder:
+/.DS_Store
+
+# CLion/IntelliJ
+/*cmake-build-debug
+/.idea/*
+
+# Visual Studio:
 /.vs
+/*.sln
+/*.*proj*
+
+# VS Code:
+/.vscode
+
+/*~
+/*/__pycache__
+/.bsp
+/bin
+/build
+/dist-newstyle
+/node_modules
+/obj
+/out
+/target
+/tmp
+/vscode-haskell-config
+/x64
+
+/*.code-workspace
+/*.exe
+/*.iml
+/*.luac
+/*.pyc
+/*.sbt
+/.dart_tool
+/.packages
+/analysis_options.yaml
+/build.bat
+/env.bat
+/pubspec.*

@@ -13,7 +13,6 @@ import drlc.intermediate.component.value.Value;
 
 public class ClosureExpressionNode extends ExpressionNode {
 	
-	public final @NonNull String name;
 	public final @NonNull FunctionDefinitionNode functionNode;
 	
 	@SuppressWarnings("null")
@@ -22,9 +21,8 @@ public class ClosureExpressionNode extends ExpressionNode {
 	@SuppressWarnings("null")
 	public @NonNull ClosureTypeInfo typeInfo = null;
 	
-	public ClosureExpressionNode(Source source, @NonNull String name, @NonNull FunctionDefinitionNode functionNode) {
+	public ClosureExpressionNode(Source source, @NonNull FunctionDefinitionNode functionNode) {
 		super(source);
-		this.name = name;
 		this.functionNode = functionNode;
 	}
 	
@@ -87,7 +85,7 @@ public class ClosureExpressionNode extends ExpressionNode {
 	
 	@Override
 	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
-		typeInfo = new ClosureTypeInfo(this, new ArrayList<>(), name, function);
+		typeInfo = new ClosureTypeInfo(this, new ArrayList<>(), function);
 	}
 	
 	@Override

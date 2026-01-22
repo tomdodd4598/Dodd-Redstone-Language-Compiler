@@ -635,11 +635,11 @@ public class Visitor extends AnalysisAdapter {
 	public void caseAClosureExpression(AClosureExpression node) {
 		long id = Main.rootScope.nextLocalId();
 		@NonNull Pair<@NonNull ScopedBodyNode, @Nullable ReturnNode> closureBodyPair = closureBodyPair(node.getClosureBody());
-		@NonNull FunctionDefinitionNode functionNode = new FunctionDefinitionNode(source(node), "\\fn" + id, closureDeclaratorList(node.getClosureDeclaratorList()), closureReturnType(node.getClosureBody()), closureBodyPair.left, true);
+		@NonNull FunctionDefinitionNode functionNode = new FunctionDefinitionNode(source(node), Global.LAMBDA + id, closureDeclaratorList(node.getClosureDeclaratorList()), closureReturnType(node.getClosureBody()), closureBodyPair.left, true);
 		if (closureBodyPair.right != null) {
 			closureBodyPair.right.closureDefinition = functionNode;
 		}
-		expressionStack.push(new ClosureExpressionNode(source(node), "\\Closure" + id, functionNode));
+		expressionStack.push(new ClosureExpressionNode(source(node), functionNode));
 	}
 	
 	@Override
@@ -916,11 +916,11 @@ public class Visitor extends AnalysisAdapter {
 	public void caseAClosureBraceExpression(AClosureBraceExpression node) {
 		long id = Main.rootScope.nextLocalId();
 		@NonNull Pair<@NonNull ScopedBodyNode, @Nullable ReturnNode> closureBodyPair = expressionClosureBodyPair(node.getBraceExpression());
-		@NonNull FunctionDefinitionNode functionNode = new FunctionDefinitionNode(source(node), "\\fn" + id, closureDeclaratorList(node.getClosureDeclaratorList()), null, closureBodyPair.left, true);
+		@NonNull FunctionDefinitionNode functionNode = new FunctionDefinitionNode(source(node), Global.LAMBDA + id, closureDeclaratorList(node.getClosureDeclaratorList()), null, closureBodyPair.left, true);
 		if (closureBodyPair.right != null) {
 			closureBodyPair.right.closureDefinition = functionNode;
 		}
-		expressionStack.push(new ClosureExpressionNode(source(node), "\\Closure" + id, functionNode));
+		expressionStack.push(new ClosureExpressionNode(source(node), functionNode));
 	}
 	
 	@Override

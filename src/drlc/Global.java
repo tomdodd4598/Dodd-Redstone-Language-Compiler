@@ -11,6 +11,8 @@ public final class Global {
 	
 	public static final @NonNull String VOID = "Void";
 	
+	public static final @NonNull String LAMBDA = "\\lambda";
+	
 	public static final @NonNull String BOOLS = "Bools";
 	public static final @NonNull String INTS = "Ints";
 	public static final @NonNull String NATS = "Nats";

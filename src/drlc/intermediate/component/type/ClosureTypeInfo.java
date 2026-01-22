@@ -10,18 +10,16 @@ import drlc.intermediate.component.Function;
 
 public class ClosureTypeInfo extends CompoundTypeInfo {
 	
-	public final @NonNull String name;
 	public final @NonNull Function function;
 	
-	public ClosureTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, @NonNull String name, @NonNull Function function) {
+	public ClosureTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, @NonNull Function function) {
 		super(node, referenceMutability, function.captureTypeInfos);
-		this.name = name;
 		this.function = function;
 	}
 	
 	@Override
 	public @NonNull TypeInfo copy(ASTNode<?> node, List<Boolean> referenceMutability) {
-		return new ClosureTypeInfo(node, referenceMutability, name, function);
+		return new ClosureTypeInfo(node, referenceMutability, function);
 	}
 	
 	@Override
@@ -51,11 +49,11 @@ public class ClosureTypeInfo extends CompoundTypeInfo {
 	
 	@Override
 	public String rawString() {
-		return Global.FN + " " + function.name + Helpers.captureString(typeInfos) + Helpers.listString((function.value.typeInfo).getArgTypeInfos()) + " " + Global.ARROW + " " + function.returnTypeInfo;
+		return Global.FN + " " + function.name + Helpers.listString(function.value.typeInfo.getArgTypeInfos()) + " " + Helpers.captureString(typeInfos) + " " + Global.ARROW + " " + function.returnTypeInfo;
 	}
 	
 	@Override
 	public String rawRoutineString() {
-		return Global.FN + " " + function.name + Helpers.captureString(Helpers.map(typeInfos, TypeInfo::routineString)) + Helpers.listString(Helpers.map((function.value.typeInfo).getArgTypeInfos(), TypeInfo::routineString)) + " " + Global.ARROW + " " + function.returnTypeInfo.routineString();
+		return Global.FN + " " + function.name + Helpers.listString(Helpers.map(function.value.typeInfo.getArgTypeInfos(), TypeInfo::routineString)) + " " + Helpers.captureString(Helpers.map(typeInfos, TypeInfo::routineString)) + " " + Global.ARROW + " " + function.returnTypeInfo.routineString();
 	}
 }

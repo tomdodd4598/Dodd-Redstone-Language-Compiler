@@ -1,6 +1,6 @@
-Add 'typeof expression' expression
+EDSAC backend
 
-Add 'nameof expression' expression
+Add move semantics
 
 Add 'macro! name(...) { ... }' syntax
 
