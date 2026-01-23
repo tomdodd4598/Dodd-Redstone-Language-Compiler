@@ -57,8 +57,12 @@ public class LoopIterativeSectionNode extends IterativeSectionNode {
 	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
 		routine.incrementSectionId();
-		scope.continueJump.setTarget(routine.currentSectionId());
+		int jumpTarget = routine.currentSectionId();
 		bodyNode.generateIntermediate(this);
+		
+		routine.incrementSectionId();
+		scope.continueJump.setTarget(routine.currentSectionId());
+		routine.addJumpAction(this, jumpTarget);
 		
 		routine.incrementSectionId();
 		scope.breakJump.setTarget(routine.currentSectionId());

@@ -480,6 +480,18 @@ fn main() {
 }
 */
 
+// TESTING CLOSURES
+
+/*
+fn main() {
+	let p = &mut 0;
+	let f = |x: Int| { *p += x; };
+	printInt(*p);
+	f(5);
+	printInt(*p);
+}
+*/
+
 // TRIPLE REF TECHNIQUE
 
 
