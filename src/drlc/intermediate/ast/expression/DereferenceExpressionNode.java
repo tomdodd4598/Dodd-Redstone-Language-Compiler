@@ -44,9 +44,9 @@ public class DereferenceExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void defineExpressions(ASTNode<?> parent) {
-		expressionNode.defineExpressions(this);
-		
 		setTypeInfo(null);
+		
+		expressionNode.defineExpressions(this);
 	}
 	
 	@Override

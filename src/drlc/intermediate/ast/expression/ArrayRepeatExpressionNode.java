@@ -63,9 +63,9 @@ public class ArrayRepeatExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void defineExpressions(ASTNode<?> parent) {
-		repeatExpressionNode.defineExpressions(this);
-		
 		setTypeInfo(null);
+		
+		repeatExpressionNode.defineExpressions(this);
 	}
 	
 	@Override

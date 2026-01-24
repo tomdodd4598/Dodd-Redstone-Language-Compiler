@@ -45,9 +45,9 @@ public class AddressExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void defineExpressions(ASTNode<?> parent) {
-		expressionNode.defineExpressions(this);
-		
 		setTypeInfo(null);
+		
+		expressionNode.defineExpressions(this);
 		
 		if (expressionNode.isValidLvalue()) {
 			expressionNode.setIsLvalue();
