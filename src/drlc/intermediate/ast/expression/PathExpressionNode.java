@@ -5,7 +5,7 @@ import org.eclipse.jdt.annotation.*;
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
-import drlc.intermediate.component.type.*;
+import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.*;
 
 public class PathExpressionNode extends ExpressionNode {
@@ -110,12 +110,6 @@ public class PathExpressionNode extends ExpressionNode {
 		}
 		else {
 			typeInfo = variable.typeInfo;
-		}
-		
-		if (typeInfo instanceof FunctionItemTypeInfo) {
-			if (!((FunctionItemTypeInfo) typeInfo).function.defined) {
-				throw error("Nested function \"%s\" not yet defined in this scope!", path);
-			}
 		}
 	}
 	
