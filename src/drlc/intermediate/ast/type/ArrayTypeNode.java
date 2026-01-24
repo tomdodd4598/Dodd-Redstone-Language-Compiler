@@ -34,6 +34,7 @@ public class ArrayTypeNode extends TypeNode {
 	@Override
 	public void defineTypes(ASTNode<?> parent) {
 		typeNode.defineTypes(this);
+		constantExpressionNode.defineTypes(this);
 		
 		@Nullable Value<?> constantValue = constantExpressionNode.getConstantValue(Main.generator.natTypeInfo);
 		if (constantValue != null && constantValue.typeInfo.canImplicitCastTo(Main.generator.natTypeInfo)) {

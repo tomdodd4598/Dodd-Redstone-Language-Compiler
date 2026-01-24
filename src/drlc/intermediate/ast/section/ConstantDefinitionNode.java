@@ -38,12 +38,7 @@ public class ConstantDefinitionNode extends StaticSectionNode<Scope> {
 		if (typeNode != null) {
 			typeNode.defineTypes(this);
 		}
-		
 		constantExpressionNode.defineTypes(this);
-		
-		if (typeNode != null) {
-			typeNode.setTypeInfo();
-		}
 		
 		@Nullable Value<?> constantValue = constantExpressionNode.getConstantValue(typeNode == null ? null : typeNode.getTypeInfo());
 		if (constantValue != null && (typeNode == null || constantValue.typeInfo.canImplicitCastTo(typeNode.getTypeInfo()))) {

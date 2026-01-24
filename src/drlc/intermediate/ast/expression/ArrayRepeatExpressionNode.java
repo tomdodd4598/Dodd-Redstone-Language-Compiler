@@ -38,6 +38,8 @@ public class ArrayRepeatExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void defineTypes(ASTNode<?> parent) {
+		constantExpressionNode.defineTypes(this);
+		
 		@Nullable Value<?> constantValue = constantExpressionNode.getConstantValue(Main.generator.natTypeInfo);
 		if (constantValue != null && constantValue.typeInfo.canImplicitCastTo(Main.generator.natTypeInfo)) {
 			length = constantValue.intValue(this);
