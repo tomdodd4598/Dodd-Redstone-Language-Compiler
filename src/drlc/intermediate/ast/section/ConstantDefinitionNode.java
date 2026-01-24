@@ -39,6 +39,8 @@ public class ConstantDefinitionNode extends StaticSectionNode<Scope> {
 			typeNode.defineTypes(this);
 		}
 		
+		constantExpressionNode.defineTypes(this);
+		
 		if (typeNode != null) {
 			typeNode.setTypeInfo();
 		}
