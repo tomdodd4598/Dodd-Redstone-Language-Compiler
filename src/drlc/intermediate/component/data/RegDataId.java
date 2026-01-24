@@ -51,12 +51,12 @@ public class RegDataId extends DataId {
 	
 	@Override
 	public boolean isCompressable() {
-		return dereferenceLevel <= 0;
+		return !isDereferenced();
 	}
 	
 	@Override
 	public boolean isRepeatable(boolean lvalue) {
-		return !lvalue || dereferenceLevel > 0;
+		return !lvalue || isDereferenced();
 	}
 	
 	@Override

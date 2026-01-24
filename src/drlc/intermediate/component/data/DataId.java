@@ -80,7 +80,7 @@ public abstract class DataId {
 	protected abstract String rawString();
 	
 	protected String toStringPrefix() {
-		return dereferenceLevel >= 0 ? Helpers.dereferenceString(dereferenceLevel) : Global.ADDRESS_OF;
+		return isAddress() ? Global.ADDRESS_OF : Helpers.dereferenceString(dereferenceLevel);
 	}
 	
 	@Override

@@ -290,7 +290,7 @@ public class IntermediateOptimization {
 		for (DataId dataId : iva.dataIds(lvalues)) {
 			RawDataId rawDataId = dataId.raw();
 			if (replacerInfoMap.containsKey(rawDataId)) {
-				if (dataId.dereferenceLevel > 0) {
+				if (dataId.isDereferenced()) {
 					if (iva.canReplaceDataId(lvalues)) {
 						Pair<RawDataId, boolean[]> match = targetMatchMap.get(index);
 						if (match != null) {
@@ -316,7 +316,7 @@ public class IntermediateOptimization {
 				if (list.get(i) instanceof IValueAction iva) {
 					if (iva instanceof AssignmentAction) {
 						DataId lvalue = iva.lvalues()[0], rvalue = iva.rvalues()[0];
-						if (lvalue.typeInfo.isAddress() && !lvalue.isRepeatable(true) && rvalue.dereferenceLevel <= 0) {
+						if (lvalue.typeInfo.isAddress() && !lvalue.isRepeatable(true) && !rvalue.isDereferenced()) {
 							RawDataId rawDeref = lvalue.addDereference(null).raw();
 							if (replacerInfoMap.containsKey(rawDeref)) {
 								throw new IllegalArgumentException(String.format("Found unexpected repeated use of register %s! %s", lvalue, iva));
