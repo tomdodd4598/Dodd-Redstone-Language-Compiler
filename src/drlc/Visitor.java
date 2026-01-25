@@ -511,21 +511,37 @@ public class Visitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAExitStopStatement(AExitStopStatement node) {
+		List<PDeadSection> pDeadSections = node.getDeadSection();
+		if (!pDeadSections.isEmpty()) {
+			throw Helpers.sourceError(source(pDeadSections.toArray(PDeadSection[]::new)), "Dead code after an exit statement is not supported!");
+		}
 		stopStack.push(new ExitNode(source(node), traverseNullable(node.getExpression(), expressionStack)));
 	}
 	
 	@Override
 	public void caseAReturnStopStatement(AReturnStopStatement node) {
+		List<PDeadSection> pDeadSections = node.getDeadSection();
+		if (!pDeadSections.isEmpty()) {
+			throw Helpers.sourceError(source(pDeadSections.toArray(PDeadSection[]::new)), "Dead code after a return statement is not supported!");
+		}
 		stopStack.push(new ReturnNode(source(node), traverseNullable(node.getExpression(), expressionStack)));
 	}
 	
 	@Override
 	public void caseAContinueStopStatement(AContinueStopStatement node) {
+		List<PDeadSection> pDeadSections = node.getDeadSection();
+		if (!pDeadSections.isEmpty()) {
+			throw Helpers.sourceError(source(pDeadSections.toArray(PDeadSection[]::new)), "Dead code after a continue statement is not supported!");
+		}
 		stopStack.push(new ContinueNode(source(node), textNullable(node.getName())));
 	}
 	
 	@Override
 	public void caseABreakStopStatement(ABreakStopStatement node) {
+		List<PDeadSection> pDeadSections = node.getDeadSection();
+		if (!pDeadSections.isEmpty()) {
+			throw Helpers.sourceError(source(pDeadSections.toArray(PDeadSection[]::new)), "Dead code after a break statement is not supported!");
+		}
 		stopStack.push(new BreakNode(source(node), textNullable(node.getName())));
 	}
 	
