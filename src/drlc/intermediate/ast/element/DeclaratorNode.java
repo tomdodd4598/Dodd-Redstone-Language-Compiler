@@ -33,9 +33,7 @@ public class DeclaratorNode extends ASTNode<Scope> {
 	@Override
 	public void setScopes(ASTNode<?> parent) {
 		scope = parent.scope;
-		
-		scope.addConstantShadow(name);
-		
+
 		if (typeNode != null) {
 			typeNode.setScopes(this);
 		}
