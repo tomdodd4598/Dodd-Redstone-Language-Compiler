@@ -58,12 +58,15 @@ public class ReturnNode extends StopNode {
 		expectedTypeInfo = routine.getReturnTypeInfo();
 		
 		if (expressionNode != null) {
-			expressionNode.setTypeInfo(expectedTypeInfo);
+			expressionNode.setTypeInfo(closureDefinition == null ? expectedTypeInfo : null);
+			
 			expressionNode.defineExpressions(this);
 		}
 		
 		if (closureDefinition != null) {
 			closureDefinition.function.updateReturnType(expressionNode.getTypeInfo());
+			
+			expectedTypeInfo = routine.getReturnTypeInfo();
 		}
 	}
 	
