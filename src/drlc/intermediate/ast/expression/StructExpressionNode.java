@@ -132,13 +132,28 @@ public class StructExpressionNode extends ExpressionNode {
 		
 		if (labels != null) {
 			int count = expressionNodes.size();
-			sortedExpressionNodes = new ArrayList<>(Collections.nCopies(count, null));
+			Set<String> uniqueLabels = new HashSet<>();
 			for (int i = 0; i < count; ++i) {
 				@SuppressWarnings("null") @NonNull String label = labels.get(i);
 				MemberInfo info = typeInfo.getMemberInfo(label);
 				if (info == null) {
 					throw error("Expression of type \"%s\" has no member \"%s\"!", typeInfo, label);
 				}
+				if (uniqueLabels.contains(label)) {
+					throw error("Repeated member \"%s\" in \"%s\" value!", label, typeInfo);
+				}
+				uniqueLabels.add(label);
+			}
+			
+			for (String label : this.typeInfo.typeDef.memberMap.keySet()) {
+				if (!uniqueLabels.contains(label)) {
+					throw error("Missing member \"%s\" in \"%s\" value!", label, typeInfo);
+				}
+			}
+			
+			sortedExpressionNodes = new ArrayList<>(Collections.nCopies(count, null));
+			for (int i = 0; i < count; ++i) {
+				@SuppressWarnings("null") MemberInfo info = typeInfo.getMemberInfo(labels.get(i));
 				sortedExpressionNodes.set(info.index, expressionNodes.get(i));
 			}
 		}
