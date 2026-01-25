@@ -95,6 +95,8 @@ public class StructExpressionNode extends ExpressionNode {
 				expressionNodes.set(i, constantExpressionNode);
 			}
 		}
+		
+		setSortedExpressionNodes();
 	}
 	
 	@Override
@@ -150,16 +152,9 @@ public class StructExpressionNode extends ExpressionNode {
 					throw error("Missing member \"%s\" in \"%s\" value!", label, typeInfo);
 				}
 			}
-			
-			sortedExpressionNodes = new ArrayList<>(Collections.nCopies(count, null));
-			for (int i = 0; i < count; ++i) {
-				@SuppressWarnings("null") MemberInfo info = typeInfo.getMemberInfo(labels.get(i));
-				sortedExpressionNodes.set(info.index, expressionNodes.get(i));
-			}
 		}
-		else {
-			sortedExpressionNodes = expressionNodes;
-		}
+		
+		setSortedExpressionNodes();
 		
 		List<TypeInfo> memberTypeInfos = this.typeInfo.typeInfos;
 		int structMemberCount = memberTypeInfos.size(), expressionCount = sortedExpressionNodes.size();
@@ -197,5 +192,19 @@ public class StructExpressionNode extends ExpressionNode {
 	@Override
 	public boolean isStatic() {
 		return expressionNodes.stream().allMatch(ExpressionNode::isStatic);
+	}
+	
+	protected void setSortedExpressionNodes() {
+		if (labels != null) {
+			int count = expressionNodes.size();
+			sortedExpressionNodes = new ArrayList<>(Collections.nCopies(count, null));
+			for (int i = 0; i < count; ++i) {
+				@SuppressWarnings("null") MemberInfo info = typeInfo.getMemberInfo(labels.get(i));
+				sortedExpressionNodes.set(info.index, expressionNodes.get(i));
+			}
+		}
+		else {
+			sortedExpressionNodes = expressionNodes;
+		}
 	}
 }
