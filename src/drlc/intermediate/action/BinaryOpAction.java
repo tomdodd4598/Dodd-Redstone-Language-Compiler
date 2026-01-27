@@ -178,11 +178,8 @@ public class BinaryOpAction extends Action implements IValueAction {
 				case INT_MINUS_INT:
 					return new AssignmentAction(null, target, (arg1.typeInfo.equals(Main.generator.natTypeInfo) ? Main.generator.natValue(0) : Main.generator.intValue(0)).dataId());
 				case INT_MULTIPLY_INT:
-					return null;
 				case INT_DIVIDE_INT:
-					return new AssignmentAction(null, target, Main.generator.intValue(1).dataId());
 				case INT_REMAINDER_INT:
-					return new AssignmentAction(null, target, Main.generator.intValue(0).dataId());
 				case INT_LEFT_SHIFT_INT:
 				case INT_RIGHT_SHIFT_INT:
 				case INT_LEFT_ROTATE_INT:
@@ -198,9 +195,7 @@ public class BinaryOpAction extends Action implements IValueAction {
 				case NAT_MORE_OR_EQUAL_NAT:
 					return new AssignmentAction(null, target, Main.generator.trueValue.dataId());
 				case NAT_DIVIDE_NAT:
-					return new AssignmentAction(null, target, Main.generator.natValue(1).dataId());
 				case NAT_REMAINDER_NAT:
-					return new AssignmentAction(null, target, Main.generator.natValue(0).dataId());
 				case NAT_RIGHT_SHIFT_INT:
 					return null;
 				
