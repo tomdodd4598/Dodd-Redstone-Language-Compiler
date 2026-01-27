@@ -313,6 +313,7 @@ public class BinaryOpAction extends Action implements IValueAction {
 				}
 				case INT_DIVIDE_INT:
 				case INT_REMAINDER_INT:
+					return null;
 				case INT_LEFT_SHIFT_INT:
 					return left.longValue(null) == 0 ? new AssignmentAction(null, target, left.dataId()) : null;
 				case INT_RIGHT_SHIFT_INT:
@@ -337,6 +338,7 @@ public class BinaryOpAction extends Action implements IValueAction {
 					return left.longValue(null) == -1 ? new AssignmentAction(null, target, Main.generator.trueValue.dataId()) : null;
 				case NAT_DIVIDE_NAT:
 				case NAT_REMAINDER_NAT:
+					return null;
 				case NAT_RIGHT_SHIFT_INT:
 					return left.longValue(null) == 0 ? new AssignmentAction(null, target, left.dataId()) : null;
 				
