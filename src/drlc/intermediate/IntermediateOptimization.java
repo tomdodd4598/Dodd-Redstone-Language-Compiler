@@ -58,6 +58,7 @@ public class IntermediateOptimization {
 				sectionIndexMap.put(i + count, count);
 				body.remove(i);
 				++count;
+				--i;
 			}
 		}
 		Set<Integer> sectionIndexKeys = sectionIndexMap.keySet();
