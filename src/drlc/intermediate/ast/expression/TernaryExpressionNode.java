@@ -80,8 +80,8 @@ public class TernaryExpressionNode extends ExpressionNode {
 		}
 		
 		@NonNull TypeInfo trueExpressionType = trueExpressionNode.getTypeInfo(), falseExpressionType = falseExpressionNode.getTypeInfo();
-		if (!trueExpressionType.equals(falseExpressionType)) {
-			throw error("Ternary expression branches have unequal types \"%s\" and \"%s\"!", trueExpressionType, falseExpressionType);
+		if (!trueExpressionType.canImplicitCastTo(typeInfo) || !falseExpressionType.canImplicitCastTo(typeInfo)) {
+			throw error("Ternary expression branches have incompatible types \"%s\" and \"%s\"!", trueExpressionType, falseExpressionType);
 		}
 	}
 	
@@ -142,8 +142,28 @@ public class TernaryExpressionNode extends ExpressionNode {
 	
 	@Override
 	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
-		trueExpressionNode.setTypeInfo(targetType);
-		falseExpressionNode.setTypeInfo(typeInfo = trueExpressionNode.getTypeInfo());
+		if (targetType != null) {
+			trueExpressionNode.setTypeInfo(targetType);
+			falseExpressionNode.setTypeInfo(targetType);
+			typeInfo = targetType;
+		}
+		else {
+			trueExpressionNode.setTypeInfo(null);
+			falseExpressionNode.setTypeInfo(null);
+			
+			@NonNull TypeInfo trueExpressionType = trueExpressionNode.getTypeInfo();
+			@NonNull TypeInfo falseExpressionType = falseExpressionNode.getTypeInfo();
+			
+			if (trueExpressionType.canImplicitCastTo(falseExpressionType)) {
+				typeInfo = falseExpressionType;
+			}
+			else if (falseExpressionType.canImplicitCastTo(trueExpressionType)) {
+				typeInfo = trueExpressionType;
+			}
+			else {
+				throw error("Ternary expression branches have incompatible types \"%s\" and \"%s\"!", trueExpressionType, falseExpressionType);
+			}
+		}
 	}
 	
 	@Override
