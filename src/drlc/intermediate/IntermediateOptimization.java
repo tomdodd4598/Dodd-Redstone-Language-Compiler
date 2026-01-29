@@ -2,12 +2,12 @@ package drlc.intermediate;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import drlc.Helpers.Pair;
 import drlc.Main;
 import drlc.intermediate.action.*;
+import drlc.intermediate.component.Variable;
 import drlc.intermediate.component.data.*;
 import drlc.intermediate.component.data.DataId.RawDataId;
 import drlc.intermediate.component.value.Value;
@@ -50,38 +50,52 @@ public class IntermediateOptimization {
 	public static boolean removeEmptySections(Routine routine) {
 		boolean flag = false;
 		List<List<Action>> body = routine.body;
-		Map<Integer, Integer> sectionIndexMap = new TreeMap<>();
-		int count = 0;
-		for (int i = 0; i < body.size(); ++i) {
+		int prevSize = body.size();
+		boolean[] removed = new boolean[prevSize];
+		int removedCount = 0;
+		for (int i = 0; i < prevSize; ++i) {
 			if (body.get(i).isEmpty()) {
 				flag = true;
-				sectionIndexMap.put(i + count, count);
-				body.remove(i);
-				++count;
-				--i;
+				removed[i] = true;
+				++removedCount;
 			}
 		}
-		Set<Integer> sectionIndexKeys = sectionIndexMap.keySet();
+		
+		if (!flag) {
+			return false;
+		}
+		
+		int[] removedBefore = new int[prevSize + 1];
+		int count = 0;
+		for (int i = 0; i < prevSize; ++i) {
+			removedBefore[i] = count;
+			if (removed[i]) {
+				++count;
+			}
+		}
+		removedBefore[prevSize] = count;
+		
+		List<List<Action>> newBody = new ArrayList<>(prevSize - removedCount);
+		for (int i = 0; i < prevSize; ++i) {
+			if (!removed[i]) {
+				newBody.add(body.get(i));
+			}
+		}
+		body.clear();
+		body.addAll(newBody);
 		
 		for (List<Action> list : body) {
 			for (int i = 0; i < list.size(); ++i) {
 				if (list.get(i) instanceof IJumpAction jump) {
 					int target = jump.getTarget();
-					boolean bool = true;
-					for (int key : sectionIndexKeys) {
-						if (target <= key) {
-							bool = false;
-							list.set(i, jump.copy(target - sectionIndexMap.get(key)));
-							break;
-						}
-					}
-					if (bool) {
-						list.set(i, jump.copy(target - count));
+					int newTarget = target - removedBefore[target <= prevSize ? target : prevSize];
+					if (newTarget != target) {
+						list.set(i, jump.copy(newTarget));
 					}
 				}
 			}
 		}
-		return flag;
+		return true;
 	}
 	
 	public static boolean concatenateSections(Routine routine) {
@@ -166,6 +180,108 @@ public class IntermediateOptimization {
 		return added;
 	}
 	
+	private static boolean hasMapIntersection(Map<DataId, Integer> a, Map<DataId, Integer> b) {
+		Map<DataId, Integer> small = a.size() <= b.size() ? a : b;
+		Map<DataId, Integer> large = a.size() <= b.size() ? b : a;
+		for (DataId dataId : small.keySet()) {
+			if (large.containsKey(dataId)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private static boolean hasVariableAssignmentBetween(List<Action> list, int fromIndex, int toIndex, Variable variable) {
+		int start = Math.min(fromIndex, toIndex), end = Math.max(fromIndex, toIndex);
+		Map<Long, Variable> addressRegMap = new HashMap<>();
+		for (int i = start + 1; i < end; ++i) {
+			Action action = list.get(i);
+			if (action instanceof IValueAction iva) {
+				for (DataId lvalue : iva.lvalues()) {
+					if (lvalue instanceof VariableDataId variableDataId) {
+						if (variableDataId.dereferenceLevel == 0 && variableDataId.variable.equals(variable)) {
+							return true;
+						}
+					}
+					else if (lvalue instanceof RegDataId regDataId) {
+						if (regDataId.dereferenceLevel > 0) {
+							Variable mapped = addressRegMap.get(regDataId.regId);
+							if (variable.equals(mapped)) {
+								return true;
+							}
+						}
+						else {
+							Variable mapped = null;
+							if (action instanceof AssignmentAction aa) {
+								DataId arg = aa.arg;
+								if (arg instanceof VariableDataId argVar && argVar.dereferenceLevel == -1) {
+									mapped = argVar.variable;
+								}
+								else if (arg instanceof RegDataId argReg) {
+									mapped = addressRegMap.get(argReg.regId);
+								}
+							}
+							if (mapped == null) {
+								addressRegMap.remove(regDataId.regId);
+							}
+							else {
+								addressRegMap.put(regDataId.regId, mapped);
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	private static boolean compressInternal(List<Action> list, Map<DataId, Integer> lMap, Map<DataId, Integer> rMap, boolean lvalues) {
+		boolean flag = false;
+		Map<DataId, Integer> otherMap = lvalues ? lMap : rMap;
+		Map<DataId, Integer> currentMap = lvalues ? rMap : lMap;
+		for (Entry<DataId, Integer> entry : currentMap.entrySet()) {
+			DataId dataId = entry.getKey();
+			int actionIndex = entry.getValue();
+			IValueAction action = (IValueAction) list.get(actionIndex);
+			if (otherMap.containsKey(dataId)) {
+				int otherIndex = otherMap.get(dataId);
+				IValueAction other = (IValueAction) list.get(otherIndex);
+				if (other.canReplaceDataId(lvalues)) {
+					if (action.canRemove(false)) {
+						DataId replacer = action.getDataIdReplacer(lvalues);
+						if (replacer instanceof VariableDataId variableDataId && !variableDataId.isAddress() && variableDataId.variable.modifier.mutable) {
+							if (hasVariableAssignmentBetween(list, actionIndex, otherIndex, variableDataId.variable)) {
+								continue;
+							}
+						}
+						Action replacement = other.replaceDataId(lvalues, dataId, replacer);
+						if (replacement != null) {
+							flag = true;
+							list.set(actionIndex, new NoOpAction());
+							list.set(otherIndex, replacement);
+						}
+					}
+					else if (action.canRemove(true) && other instanceof CompoundAssignmentAction to) {
+						flag = true;
+						CompoundAssignmentAction from = (CompoundAssignmentAction) action;
+						List<DataId> args = new ArrayList<>();
+						for (DataId arg : to.args) {
+							if (dataId.equals(arg)) {
+								args.addAll(from.args);
+							}
+							else {
+								args.add(arg);
+							}
+						}
+						list.set(actionIndex, new NoOpAction());
+						list.set(otherIndex, new CompoundAssignmentAction(null, to.target, args));
+					}
+				}
+			}
+		}
+		return flag;
+	}
+	
 	public static boolean compressRegisters(Routine routine) {
 		boolean flag = false;
 		for (List<Action> list : routine.body) {
@@ -178,47 +294,9 @@ public class IntermediateOptimization {
 				}
 			}
 			
-			Function<Boolean, Boolean> compressInternal = lvalues -> {
-				boolean internalFlag = false;
-				Map<DataId, Integer> otherMap = lvalues ? lMap : rMap;
-				for (Entry<DataId, Integer> entry : (lvalues ? rMap : lMap).entrySet()) {
-					DataId dataId = entry.getKey();
-					int actionIndex = entry.getValue();
-					IValueAction action = (IValueAction) list.get(actionIndex);
-					if (otherMap.containsKey(dataId)) {
-						int otherIndex = otherMap.get(dataId);
-						IValueAction other = (IValueAction) list.get(otherIndex);
-						if (other.canReplaceDataId(lvalues)) {
-							if (action.canRemove(false)) {
-								Action replacement = other.replaceDataId(lvalues, dataId, action.getDataIdReplacer(lvalues));
-								if (replacement != null) {
-									internalFlag = true;
-									list.set(actionIndex, new NoOpAction());
-									list.set(otherIndex, replacement);
-								}
-							}
-							else if (action.canRemove(true) && other instanceof CompoundAssignmentAction to) {
-								internalFlag = true;
-								CompoundAssignmentAction from = (CompoundAssignmentAction) action;
-								List<DataId> args = new ArrayList<>();
-								for (DataId arg : to.args) {
-									if (dataId.equals(arg)) {
-										args.addAll(from.args);
-									}
-									else {
-										args.add(arg);
-									}
-								}
-								list.set(actionIndex, new NoOpAction());
-								list.set(otherIndex, new CompoundAssignmentAction(null, to.target, args));
-							}
-						}
-					}
-				}
-				return internalFlag;
-			};
-			
-			flag |= compressInternal.apply(false) || compressInternal.apply(true);
+			if (!lMap.isEmpty() && !rMap.isEmpty() && hasMapIntersection(lMap, rMap)) {
+				flag |= compressInternal(list, lMap, rMap, false) || compressInternal(list, lMap, rMap, true);
+			}
 		}
 		return flag;
 	}
