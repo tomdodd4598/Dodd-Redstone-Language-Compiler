@@ -180,52 +180,79 @@ public class IntermediateOptimization {
 		return added;
 	}
 	
-	private static boolean hasMapIntersection(Map<DataId, Integer> a, Map<DataId, Integer> b) {
-		Map<DataId, Integer> small = a.size() <= b.size() ? a : b;
-		Map<DataId, Integer> large = a.size() <= b.size() ? b : a;
-		for (DataId dataId : small.keySet()) {
-			if (large.containsKey(dataId)) {
-				return true;
+	private static Variable getMappedVariable(DataId dataId, Map<Long, Variable> regIdAddressMap, Map<Variable, Variable> variableAddressMap) {
+		if (dataId instanceof VariableDataId variableDataId) {
+			if (variableDataId.isAddress()) {
+				return variableDataId.variable;
+			}
+			else if (variableDataId.dereferenceLevel == 0) {
+				return variableAddressMap.get(variableDataId.variable);
 			}
 		}
-		return false;
+		else if (dataId instanceof RegDataId regDataId) {
+			if (regDataId.dereferenceLevel == 0) {
+				return regIdAddressMap.get(regDataId.regId);
+			}
+		}
+		return null;
 	}
 	
 	private static boolean hasVariableAssignmentBetween(List<Action> list, int fromIndex, int toIndex, Variable variable) {
 		int start = Math.min(fromIndex, toIndex), end = Math.max(fromIndex, toIndex);
-		Map<Long, Variable> addressRegMap = new HashMap<>();
+		Map<Long, Variable> regIdAddressMap = new HashMap<>();
+		Map<Variable, Variable> variableAddressMap = new HashMap<>();
 		for (int i = start + 1; i < end; ++i) {
 			Action action = list.get(i);
+			if (action instanceof CallAction callAction) {
+				for (DataId arg : callAction.args) {
+					Variable mapped = getMappedVariable(arg, regIdAddressMap, variableAddressMap);
+					if (variable.equals(mapped)) {
+						return true;
+					}
+				}
+			}
 			if (action instanceof IValueAction iva) {
 				for (DataId lvalue : iva.lvalues()) {
 					if (lvalue instanceof VariableDataId variableDataId) {
 						if (variableDataId.dereferenceLevel == 0 && variableDataId.variable.equals(variable)) {
 							return true;
 						}
-					}
-					else if (lvalue instanceof RegDataId regDataId) {
-						if (regDataId.dereferenceLevel > 0) {
-							Variable mapped = addressRegMap.get(regDataId.regId);
+						else if (variableDataId.dereferenceLevel == 0 && variableDataId.variable.typeInfo.isAddress()) {
+							Variable mapped = null;
+							if (action instanceof AssignmentAction aa) {
+								mapped = getMappedVariable(aa.arg, regIdAddressMap, variableAddressMap);
+							}
+							if (mapped == null) {
+								variableAddressMap.remove(variableDataId.variable);
+							}
+							else {
+								variableAddressMap.put(variableDataId.variable, mapped);
+							}
+						}
+						else if (variableDataId.dereferenceLevel > 0) {
+							Variable mapped = variableAddressMap.get(variableDataId.variable);
 							if (variable.equals(mapped)) {
 								return true;
 							}
 						}
-						else {
+					}
+					else if (lvalue instanceof RegDataId regDataId) {
+						if (regDataId.dereferenceLevel > 0) {
+							Variable mapped = regIdAddressMap.get(regDataId.regId);
+							if (variable.equals(mapped)) {
+								return true;
+							}
+						}
+						else if (regDataId.dereferenceLevel == 0) {
 							Variable mapped = null;
 							if (action instanceof AssignmentAction aa) {
-								DataId arg = aa.arg;
-								if (arg instanceof VariableDataId argVar && argVar.dereferenceLevel == -1) {
-									mapped = argVar.variable;
-								}
-								else if (arg instanceof RegDataId argReg) {
-									mapped = addressRegMap.get(argReg.regId);
-								}
+								mapped = getMappedVariable(aa.arg, regIdAddressMap, variableAddressMap);
 							}
 							if (mapped == null) {
-								addressRegMap.remove(regDataId.regId);
+								regIdAddressMap.remove(regDataId.regId);
 							}
 							else {
-								addressRegMap.put(regDataId.regId, mapped);
+								regIdAddressMap.put(regDataId.regId, mapped);
 							}
 						}
 					}
@@ -249,10 +276,8 @@ public class IntermediateOptimization {
 				if (other.canReplaceDataId(lvalues)) {
 					if (action.canRemove(false)) {
 						DataId replacer = action.getDataIdReplacer(lvalues);
-						if (replacer instanceof VariableDataId variableDataId && !variableDataId.isAddress() && variableDataId.variable.modifier.mutable) {
-							if (hasVariableAssignmentBetween(list, actionIndex, otherIndex, variableDataId.variable)) {
-								continue;
-							}
+						if (replacer instanceof VariableDataId variableDataId && !variableDataId.isAddress() && hasVariableAssignmentBetween(list, actionIndex, otherIndex, variableDataId.variable)) {
+							continue;
 						}
 						Action replacement = other.replaceDataId(lvalues, dataId, replacer);
 						if (replacement != null) {
@@ -294,7 +319,7 @@ public class IntermediateOptimization {
 				}
 			}
 			
-			if (!lMap.isEmpty() && !rMap.isEmpty() && hasMapIntersection(lMap, rMap)) {
+			if (!Collections.disjoint(lMap.keySet(), rMap.keySet())) {
 				flag |= compressInternal(list, lMap, rMap, false) || compressInternal(list, lMap, rMap, true);
 			}
 		}
