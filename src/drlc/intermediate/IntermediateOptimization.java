@@ -203,13 +203,8 @@ public class IntermediateOptimization {
 		Map<Variable, Variable> variableAddressMap = new HashMap<>();
 		for (int i = start + 1; i < end; ++i) {
 			Action action = list.get(i);
-			if (action instanceof CallAction callAction) {
-				for (DataId arg : callAction.args) {
-					Variable mapped = getMappedVariable(arg, regIdAddressMap, variableAddressMap);
-					if (variable.equals(mapped)) {
-						return true;
-					}
-				}
+			if (action instanceof CallAction) {
+				return true;
 			}
 			if (action instanceof IValueAction iva) {
 				for (DataId lvalue : iva.lvalues()) {
@@ -420,7 +415,7 @@ public class IntermediateOptimization {
 				if (list.get(i) instanceof IValueAction iva) {
 					if (iva instanceof AssignmentAction) {
 						DataId lvalue = iva.lvalues()[0], rvalue = iva.rvalues()[0];
-						if (lvalue.typeInfo.isAddress() && !lvalue.isRepeatable(true) && !rvalue.isDereferenced()) {
+						if (lvalue.typeInfo.isAddress() && rvalue.typeInfo.isAddress() && !lvalue.isRepeatable(true) && !rvalue.isDereferenced()) {
 							RawDataId rawDeref = lvalue.addDereference(null).raw();
 							if (replacerInfoMap.containsKey(rawDeref)) {
 								throw new IllegalArgumentException(String.format("Found unexpected repeated use of register %s! %s", lvalue, iva));
