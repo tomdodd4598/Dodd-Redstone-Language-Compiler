@@ -99,9 +99,11 @@ public final class Global {
 	public static final @NonNull String PATH_SEPARATOR = "::";
 	public static final @NonNull String WILDCARD_PATH = "*";
 	
-	public static final @NonNull String NAT_RIGHT_SHIFT_INT = "\\natRightShiftInt";
 	public static final @NonNull String INT_LEFT_ROTATE_INT = "\\intLeftRotateInt";
 	public static final @NonNull String INT_RIGHT_ROTATE_INT = "\\intRightRotateInt";
+	public static final @NonNull String NAT_DIVIDE_NAT = "\\natDivideNat";
+	public static final @NonNull String NAT_REMAINDER_NAT = "\\natRemainderNat";
+	public static final @NonNull String NAT_RIGHT_SHIFT_INT = "\\natRightShiftInt";
 	
 	public static final @NonNull String INT_COMPARE_INT = "\\intCompareInt";
 	public static final @NonNull String NAT_COMPARE_NAT = "\\natCompareNat";

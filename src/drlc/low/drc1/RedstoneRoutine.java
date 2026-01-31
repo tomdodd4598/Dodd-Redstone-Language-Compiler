@@ -610,8 +610,14 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 				case INT_DIVIDE_INT:
 					text.add(new InstructionDivideImmediate(value));
 					break;
+				case NAT_DIVIDE_NAT:
+					builtInSubroutine(text, Global.NAT_DIVIDE_NAT, () -> loadImmediate(text, value));
+					break;
 				case INT_REMAINDER_INT:
 					text.add(new InstructionRemainderImmediate(value));
+					break;
+				case NAT_REMAINDER_NAT:
+					builtInSubroutine(text, Global.NAT_REMAINDER_NAT, () -> loadImmediate(text, value));
 					break;
 				case INT_LEFT_SHIFT_INT:
 					text.add(new InstructionLeftShiftImmediate(RedstoneCode.lowBits(value)));
@@ -737,8 +743,14 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 					case INT_DIVIDE_INT:
 						text.add(new InstructionDivideOffset(argInfo));
 						break;
+					case NAT_DIVIDE_NAT:
+						binaryOpBuiltInSubroutine.accept(Global.NAT_DIVIDE_NAT);
+						break;
 					case INT_REMAINDER_INT:
 						text.add(new InstructionRemainderOffset(argInfo));
+						break;
+					case NAT_REMAINDER_NAT:
+						binaryOpBuiltInSubroutine.accept(Global.NAT_REMAINDER_NAT);
 						break;
 					case INT_LEFT_SHIFT_INT:
 						text.add(new InstructionLeftShiftOffset(argInfo));
@@ -861,8 +873,14 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 					case INT_DIVIDE_INT:
 						text.add(new InstructionDivide(argInfo));
 						break;
+					case NAT_DIVIDE_NAT:
+						binaryOpBuiltInSubroutine.accept(Global.NAT_DIVIDE_NAT);
+						break;
 					case INT_REMAINDER_INT:
 						text.add(new InstructionRemainder(argInfo));
+						break;
+					case NAT_REMAINDER_NAT:
+						binaryOpBuiltInSubroutine.accept(Global.NAT_REMAINDER_NAT);
 						break;
 					case INT_LEFT_SHIFT_INT:
 						text.add(new InstructionLeftShift(argInfo));

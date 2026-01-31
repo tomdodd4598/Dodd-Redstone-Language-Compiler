@@ -61,11 +61,17 @@ public abstract class RedstoneGenerator extends Generator {
 	public @NonNull Function getBuiltInFunction(ASTNode<?> node, String name) {
 		if (!Main.rootScope.functionExists(name, false)) {
 			switch (name) {
+				case Global.INT_LEFT_ROTATE_INT:
+				case Global.INT_RIGHT_ROTATE_INT:
+					addBuiltInFunction(name, intTypeInfo, Helpers.builtInDeclarator("x", intTypeInfo), Helpers.builtInDeclarator("y", intTypeInfo));
+					break;
+				case Global.NAT_DIVIDE_NAT:
+				case Global.NAT_REMAINDER_NAT:
+					addBuiltInFunction(name, natTypeInfo, Helpers.builtInDeclarator("x", natTypeInfo), Helpers.builtInDeclarator("y", natTypeInfo));
+					break;
 				case Global.NAT_RIGHT_SHIFT_INT:
 					addBuiltInFunction(name, natTypeInfo, Helpers.builtInDeclarator("x", natTypeInfo), Helpers.builtInDeclarator("y", intTypeInfo));
 					break;
-				case Global.INT_LEFT_ROTATE_INT:
-				case Global.INT_RIGHT_ROTATE_INT:
 				case Global.INT_COMPARE_INT:
 					addBuiltInFunction(name, intTypeInfo, Helpers.builtInDeclarator("x", intTypeInfo), Helpers.builtInDeclarator("y", intTypeInfo));
 					break;

@@ -197,7 +197,7 @@ public class IntermediateOptimization {
 		return null;
 	}
 	
-	private static boolean hasVariableAssignmentBetween(List<Action> list, int fromIndex, int toIndex, Variable variable) {
+	private static boolean hasInterveningAssignment(List<Action> list, int fromIndex, int toIndex, Variable variable) {
 		int start = Math.min(fromIndex, toIndex), end = Math.max(fromIndex, toIndex);
 		Map<Long, Variable> regIdAddressMap = new HashMap<>();
 		Map<Variable, Variable> variableAddressMap = new HashMap<>();
@@ -271,7 +271,7 @@ public class IntermediateOptimization {
 				if (other.canReplaceDataId(lvalues)) {
 					if (action.canRemove(false)) {
 						DataId replacer = action.getDataIdReplacer(lvalues);
-						if (replacer instanceof VariableDataId variableDataId && !variableDataId.isAddress() && hasVariableAssignmentBetween(list, actionIndex, otherIndex, variableDataId.variable)) {
+						if (replacer instanceof VariableDataId variableDataId && !variableDataId.isAddress() && hasInterveningAssignment(list, actionIndex, otherIndex, variableDataId.variable)) {
 							continue;
 						}
 						Action replacement = other.replaceDataId(lvalues, dataId, replacer);

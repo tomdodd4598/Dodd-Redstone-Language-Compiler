@@ -84,12 +84,16 @@ public class RedstoneCode extends LowCode<RedstoneCode, RedstoneRoutine, Instruc
 				return new PrintNatRedstoneRoutine(this, intermediateRoutine);
 			case Global.PRINT_CHAR:
 				return new PrintCharRedstoneRoutine(this, intermediateRoutine);
-			case Global.NAT_RIGHT_SHIFT_INT:
-				return new NatRightShiftIntRedstoneRoutine(this, intermediateRoutine);
 			case Global.INT_LEFT_ROTATE_INT:
 				return new IntLeftRotateIntRedstoneRoutine(this, intermediateRoutine);
 			case Global.INT_RIGHT_ROTATE_INT:
 				return new IntRightRotateIntRedstoneRoutine(this, intermediateRoutine);
+			case Global.NAT_DIVIDE_NAT:
+				return new NatDivideNatRedstoneRoutine(this, intermediateRoutine);
+			case Global.NAT_REMAINDER_NAT:
+				return new NatRemainderNatRedstoneRoutine(this, intermediateRoutine);
+			case Global.NAT_RIGHT_SHIFT_INT:
+				return new NatRightShiftIntRedstoneRoutine(this, intermediateRoutine);
 			case Global.INT_COMPARE_INT:
 				return new IntCompareIntRedstoneRoutine(this, intermediateRoutine);
 			case Global.NAT_COMPARE_NAT:
