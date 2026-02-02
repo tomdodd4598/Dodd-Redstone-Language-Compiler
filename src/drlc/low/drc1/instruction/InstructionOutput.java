@@ -21,12 +21,7 @@ public class InstructionOutput extends Instruction {
 	
 	@Override
 	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
-		if (sameSection && next instanceof InstructionOutput) {
-			return this;
-		}
-		else {
-			return null;
-		}
+		return null;
 	}
 	
 	@Override

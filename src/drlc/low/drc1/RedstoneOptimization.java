@@ -8,6 +8,8 @@ import drlc.low.LowDataInfo;
 import drlc.low.drc1.instruction.*;
 import drlc.low.drc1.instruction.immediate.*;
 import drlc.low.drc1.instruction.jump.*;
+import drlc.low.drc1.instruction.pointer.*;
+import drlc.low.drc1.instruction.subroutine.*;
 import drlc.low.instruction.IInstructionLoad;
 import drlc.low.instruction.address.*;
 
@@ -37,6 +39,9 @@ public class RedstoneOptimization {
 					if (ij.isDefiniteJump()) {
 						possibleDeadSections.add(entry.getKey());
 					}
+				}
+				else if (previousInstruction instanceof InstructionReturnFromSubroutine || previousInstruction instanceof InstructionHalt) {
+					possibleDeadSections.add(entry.getKey());
 				}
 			}
 			
@@ -81,6 +86,18 @@ public class RedstoneOptimization {
 	private static void replaceWithNoOp(List<Instruction> section, Instruction instruction) {
 		section.set(section.indexOf(instruction), new InstructionNoOp());
 	}
+
+	private static boolean isControlFlowBarrier(Instruction instruction) {
+		return instruction instanceof InstructionJump || instruction instanceof InstructionCallSubroutine || instruction instanceof InstructionReturnFromSubroutine || instruction instanceof InstructionHalt;
+	}
+
+	private static boolean isUnknownMemoryAccess(Instruction instruction) {
+		return instruction instanceof InstructionStoreAToBAddress || instruction instanceof InstructionStoreBToAAddress || instruction instanceof InstructionDereferenceA || instruction instanceof InstructionDereferenceB;
+	}
+
+	private static boolean isLoadStoreBarrier(Instruction instruction) {
+		return isControlFlowBarrier(instruction) || isUnknownMemoryAccess(instruction);
+	}
 	
 	public static boolean removeUnnecessaryLoads(RedstoneRoutine routine) {
 		boolean flag = false;
@@ -90,6 +107,12 @@ public class RedstoneOptimization {
 			Set<LowDataInfo> loadedData = new HashSet<>();
 			for (int i = 0; i < section.size(); ++i) {
 				Instruction instruction = section.get(i);
+				if (isLoadStoreBarrier(instruction)) {
+					removableLoad = null;
+					loadedImmediate = null;
+					loadedData.clear();
+					continue;
+				}
 				if (instruction.isCurrentRegisterValueModified()) {
 					if (instruction instanceof IInstructionLoad) {
 						if (removableLoad != null) {
@@ -143,8 +166,12 @@ public class RedstoneOptimization {
 		boolean flag = false;
 		Map<LowDataInfo, Pair<Instruction, Integer>> removableStoreMap = new HashMap<>();
 		Set<LowDataInfo> requiredStoreData = new HashSet<>();
+		boolean hasUnknownMemoryAccess = false;
 		for (Entry<Integer, List<Instruction>> entry : routine.sectionTextMap.entrySet()) {
 			for (Instruction instruction : entry.getValue()) {
+				if (isUnknownMemoryAccess(instruction)) {
+					hasUnknownMemoryAccess = true;
+				}
 				if (instruction instanceof IInstructionStoreAddress store) {
 					LowDataInfo data = store.getStoredData();
 					if (data.span.size <= 1 && data.isStackData() && !requiredStoreData.contains(data)) {
@@ -160,9 +187,11 @@ public class RedstoneOptimization {
 			}
 		}
 		
-		for (Pair<Instruction, Integer> removableStore : removableStoreMap.values()) {
-			flag = true;
-			replaceWithNoOp(routine.sectionTextMap.get(removableStore.right), removableStore.left);
+		if (!hasUnknownMemoryAccess) {
+			for (Pair<Instruction, Integer> removableStore : removableStoreMap.values()) {
+				flag = true;
+				replaceWithNoOp(routine.sectionTextMap.get(removableStore.right), removableStore.left);
+			}
 		}
 		
 		for (Entry<Integer, List<Instruction>> entry : routine.sectionTextMap.entrySet()) {
@@ -172,6 +201,11 @@ public class RedstoneOptimization {
 			Set<LowDataInfo> loadedData = new HashSet<>();
 			for (int i = 0; i < section.size(); ++i) {
 				Instruction instruction = section.get(i);
+				if (isLoadStoreBarrier(instruction)) {
+					removableStore = null;
+					loadedData.clear();
+					continue;
+				}
 				if (instruction.isCurrentRegisterValueModified()) {
 					loadedData.clear();
 					if (instruction instanceof IInstructionLoad) {
@@ -307,11 +341,13 @@ public class RedstoneOptimization {
 		for (List<Instruction> section : routine.sectionTextMap.values()) {
 			for (int i = 1; i < section.size(); ++i) {
 				if (section.get(i) instanceof InstructionConditionalJump icj) {
-					Instruction replacement = icj.getReplacementConditionalJump(section.get(i - 1));
-					if (replacement != null) {
-						flag = true;
-						section.set(i - 1, new InstructionNoOp());
-						section.set(i, replacement);
+					Instruction previous = section.get(i - 1);
+					if (previous instanceof InstructionImmediate immediate && immediate.getRegisterValue() != null) {
+						Instruction replacement = icj.getReplacementConditionalJump(previous);
+						if (replacement != null) {
+							flag = true;
+							section.set(i, replacement);
+						}
 					}
 				}
 			}
