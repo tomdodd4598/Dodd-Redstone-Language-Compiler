@@ -17,7 +17,7 @@ public class InstructionStoreBToAAddress extends Instruction {
 	
 	@Override
 	public boolean isCurrentRegisterValueUsed() {
-		return false;
+		return true;
 	}
 	
 	@Override
