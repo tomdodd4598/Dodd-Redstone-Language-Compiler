@@ -56,7 +56,13 @@ public abstract class EdsacGenerator extends Generator {
 		Boolean currentShift = null;
 		for (byte b : raw.getBytes()) {
 			EdsacChar edsacChar = EdsacChar.of((char) b);
-			if (edsacChar.requiresLetterShift()) {
+			if (edsacChar.isLetterShift()) {
+				currentShift = false;
+			}
+			else if (edsacChar.isFigureShift()) {
+				currentShift = true;
+			}
+			else if (edsacChar.requiresLetterShift()) {
 				if (currentShift == null || currentShift) {
 					sb.append(EdsacChar.LETTER_SHIFT.code);
 				}

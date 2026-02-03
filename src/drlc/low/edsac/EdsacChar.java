@@ -53,6 +53,14 @@ public class EdsacChar {
 		return new EdsacChar((byte) value, code);
 	}
 	
+	public boolean isLetterShift() {
+		return code == 15;
+	}
+	
+	public boolean isFigureShift() {
+		return code == 11;
+	}
+	
 	public boolean requiresLetterShift() {
 		return switch (ascii) {
 			case '^', '*', '\0', '\r', ' ', '\n' -> false;
@@ -69,5 +77,10 @@ public class EdsacChar {
 	
 	public EdsacInt toInt() {
 		return EdsacInt.of(code << 12);
+	}
+	
+	@Override
+	public String toString() {
+		return Helpers.charToString((char) ascii);
 	}
 }
