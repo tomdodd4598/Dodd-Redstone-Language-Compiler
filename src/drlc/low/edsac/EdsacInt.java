@@ -5,17 +5,15 @@ public class EdsacInt {
 	public static final EdsacInt ZERO = of(0);
 	public static final EdsacInt ONE = of(1);
 	
-	public static final EdsacInt MIN_VALUE = of(0x400000000L);
-	public static final EdsacInt MAX_VALUE = of(0x3FFFFFFFFL);
+	public static final EdsacInt MIN_VALUE = of(0x10000L);
+	public static final EdsacInt MAX_VALUE = of(0x0FFFFL);
 	
-	public static final EdsacInt SHORT_MASK = of(0x1FFFF);
 	public static final EdsacInt CHAR_MASK = of(0x1F000);
-	public static final EdsacInt SANDWICH_MASK = of(0x20000);
 	
 	private final long internal;
 	
 	private EdsacInt(long value) {
-		internal = Long.remainderUnsigned(value, 0x800000000L);
+		internal = Long.remainderUnsigned(value, 0x20000L);
 	}
 	
 	public static EdsacInt of(long value) {
@@ -31,7 +29,7 @@ public class EdsacInt {
 	}
 	
 	public long toSigned() {
-		return (internal << 29) / 0x20000000L;
+		return (internal << 47) >> 47;
 	}
 	
 	public EdsacInt minus() {
@@ -48,11 +46,11 @@ public class EdsacInt {
 	}
 	
 	public int compare(EdsacInt other) {
-		return Long.compare(internal << 29, other.internal << 29);
+		return Long.compare(toSigned(), other.toSigned());
 	}
 	
 	public int compareUnsigned(EdsacInt other) {
-		return Long.compareUnsigned(internal << 29, other.internal << 29);
+		return Long.compareUnsigned(internal, other.internal);
 	}
 	
 	public EdsacInt plus(EdsacInt other) {
@@ -143,33 +141,12 @@ public class EdsacInt {
 		}
 	}
 	
-	public boolean isLong() {
-		return internal > SHORT_MASK.internal;
-	}
-	
-	public EdsacInt highBits() {
-		return rightShiftUnsigned(of(18)).lowBits();
-	}
-	
-	public EdsacInt lowBits() {
-		return and(SHORT_MASK);
-	}
-	
 	public int toChar() {
 		return (int) (and(CHAR_MASK).toLong() >> 12);
 	}
 	
 	public String toAssembly() {
-		if (isLong()) {
-			return lowBits().toAssembly() + highBits().toAssembly();
-		}
-		else {
-			return EdsacOpcodes.get(this) + Long.toUnsignedString(internal >>> 2) + ((internal & 1) == 0 ? EdsacOpcodes.SHORT : EdsacOpcodes.LONG);
-		}
-	}
-	
-	public boolean requiresSandwich() {
-		return !and(SANDWICH_MASK).equals(ZERO);
+		return EdsacOpcodes.get(this) + Long.toUnsignedString(internal >>> 2) + ((internal & 1) == 0 ? EdsacOpcodes.SHORT : EdsacOpcodes.LONG);
 	}
 	
 	@Override

@@ -75,7 +75,7 @@ public abstract class EdsacGenerator extends Generator {
 	
 	@Override
 	public int getWordSize() {
-		return 2;
+		return 1;
 	}
 	
 	@Override
@@ -252,7 +252,7 @@ public abstract class EdsacGenerator extends Generator {
 	
 	@Override
 	public long wordToAddressCast(ASTNode<?> node, long valueLong) {
-		return EdsacInt.of(valueLong).lowBits().toLong();
+		return EdsacInt.of(valueLong).toLong();
 	}
 	
 	@Override
@@ -277,7 +277,7 @@ public abstract class EdsacGenerator extends Generator {
 	
 	@Override
 	public void wordToAddressCastAction(ASTNode<?> node, @NonNull Routine routine, DataId target, DataId arg) {
-		routine.addBinaryOpAction(node, intTypeInfo, BinaryOpType.AND, intTypeInfo, target, arg, intValue(EdsacInt.SHORT_MASK).dataId());
+		routine.addAssignmentAction(node, target, arg);
 	}
 	
 	@Override
