@@ -2,22 +2,31 @@ package drlc.low.edsac;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.function.IntUnaryOperator;
+import java.util.function.*;
+import java.util.stream.IntStream;
 
 import drlc.Helpers.Pair;
+import drlc.Main;
 import drlc.intermediate.action.*;
 import drlc.intermediate.component.Function;
-import drlc.intermediate.component.data.DataId;
+import drlc.intermediate.component.data.*;
 import drlc.intermediate.routine.Routine;
 import drlc.low.*;
-import drlc.low.drc1.instruction.InstructionHalt;
-import drlc.low.drc1.instruction.address.InstructionAddress;
-import drlc.low.drc1.instruction.subroutine.*;
 import drlc.low.edsac.instruction.*;
+import drlc.low.edsac.instruction.address.*;
+import drlc.low.edsac.instruction.data.*;
 import drlc.low.edsac.instruction.jump.*;
+import drlc.low.edsac.instruction.wheeler.*;
 import drlc.low.instruction.address.IInstructionAddress;
 
 public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instruction> {
+	
+	protected DataId utilityDataId = null;
+	
+	protected static final int CALL_SETUP_INSTRUCTIONS = 2;
+	protected static final int CALL_JUMP_INSTRUCTIONS = 1;
+	
+	protected static final long WHEELER_STORE_DELTA = 0x18000L;
 	
 	public EdsacRoutine(EdsacCode code, Routine intermediate) {
 		super(code, intermediate);
@@ -34,7 +43,18 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		generated = true;
 		
 		if (!isRootRoutine()) {
-			// TODO Complete the Wheeler jump
+			List<Instruction> returnText = new ArrayList<>();
+			sectionTextMap.put(-2, returnText);
+			
+			returnText.add(new InstructionNoOp(true));
+			returnText.add(new InstructionNoOp(true));
+			
+			List<Instruction> patchText = new ArrayList<>();
+			sectionTextMap.put(-1, patchText);
+			
+			patchText.add(new InstructionWheelerStore(function, -2, 0));
+			patchText.add(new InstructionAdd(constantInfo(WHEELER_STORE_DELTA)));
+			patchText.add(new InstructionWheelerStore(function, -2, 1));
 		}
 		
 		generateInstructionsInternal();
@@ -64,26 +84,31 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 					List<DataId> args = ca.args;
 					
 					Function callerFunction = caller.getFunction();
-					EdsacRoutine subroutine = callerFunction == null ? null : code.getRoutine(callerFunction);
-					boolean indirectCall = subroutine == null;
+					if (callerFunction == null) {
+						throw new UnsupportedOperationException("EDSAC backend does not support indirect calls yet!");
+					}
+					
+					EdsacRoutine subroutine = code.getRoutine(callerFunction);
+					if (subroutine == null) {
+						throw new IllegalArgumentException(String.format("Encountered unknown subroutine \"%s\"!", callerFunction));
+					}
+					
 					int targetSize = target.typeInfo.getSize(), argCount = args.size();
 					
-					for (int k = 0; k < argCount; ++k) {
-						DataId paramId = subroutine.params.get(k).dataId();
-						loadThen(text, false, args.get(k), x -> subroutine.storeAt(text, paramId, x));
+					for (int j = 0; j < argCount; ++j) {
+						DataId paramId = subroutine.params.get(j).dataId();
+						loadThen(text, false, args.get(j), x -> subroutine.storeAt(text, paramId, x));
 					}
+					
 					if (targetSize > 1) {
 						loadScalar(text, target.removeDereference(null));
 						subroutine.storeScalar(text, subroutine.params.get(argCount).dataId());
 					}
 					
-					if (indirectCall) {
-						loadScalar(text, caller);
-					}
-					else {
-						text.add(new InstructionLoadSubroutineAddress(callerFunction));
-					}
-					text.add(new InstructionCallSubroutine(indirectCall));
+					LowDataInfo returnAddressInfo = returnAddressInfo();
+					InstructionWheelerReturn iwr = (InstructionWheelerReturn) code.staticDataMap.get(returnAddressInfo);
+					loadConstantWord(text, returnAddressInfo);
+					text.add(new InstructionWheelerJump(subroutine.function, iwr));
 					
 					if (targetSize == 1) {
 						storeScalar(text, target);
@@ -188,30 +213,245 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				int instructionSize = instruction.size();
 				
 				if (instruction instanceof InstructionAddress ia) {
-					ia.address = (short) getAddress(ia.dataInfo);
-				}
-				
-				else if (instruction instanceof InstructionCallSubroutine ics) {
-					ics.returnAddress = (short) (code.textAddressMap.get(function) + instructionAddress + instructionSize);
-				}
-				
-				else if (instruction instanceof InstructionLoadSubroutineAddress ilsa) {
-					ilsa.setValue(code.textAddressMap.get(ilsa.function).shortValue());
+					ia.address = getAddress(ia.dataInfo);
 				}
 				
 				else if (instruction instanceof InstructionJump ij) {
-					ij.address = (short) (code.textAddressMap.get(function) + sectionAddressMap.get(ij.section));
+					ij.address = code.textAddressMap.get(function) + sectionAddressMap.get(ij.section);
+				}
+				
+				else if (instruction instanceof InstructionWheelerStore iws) {
+					iws.address = textAddress(iws.function, iws.section, iws.offset);
+				}
+				
+				else if (instruction instanceof InstructionWheelerJump iwj) {
+					iwj.address = textAddress(iwj.function, -1, 0);
+					iwj.iwr.setAddress(code.textAddressMap.get(function) + instructionAddress + instructionSize);
 				}
 				
 				instructionAddress += instructionSize;
+			}
+		}
+		
+		if (isRootRoutine()) {
+			for (Instruction data : code.staticDataMap.values()) {
+				if (data instanceof InstructionAddressData iad) {
+					iad.address = getAddress(iad.dataInfo);
+				}
+				else if (data instanceof InstructionSubroutineAddressData isad) {
+					isad.setValue(code.textAddressMap.get(isad.function));
+				}
 			}
 		}
 	}
 	
 	// Instructions
 	
+	protected void conditionalJump(List<Instruction> text, int section, boolean jumpCondition) {
+		text.add(new InstructionSubtract(constantInfo(1)));
+		if (jumpCondition) {
+			text.add(new InstructionJumpIfMoreThanOrEqualToZero(section));
+		}
+		else {
+			text.add(new InstructionJumpIfLessThanZero(section));
+		}
+	}
+	
 	protected void jump(List<Instruction> text, int section) {
 		text.add(new InstructionJumpIfMoreThanOrEqualToZero(section));
 		text.add(new InstructionJumpIfLessThanZero(section));
+	}
+	
+	protected void returnFromSubroutine(List<Instruction> text) {
+		jump(text, -2);
+	}
+	
+	protected int textAddress(Function function, int section, int offset) {
+		EdsacRoutine routine = code.getRoutine(function);
+		return code.textAddressMap.get(function) + routine.sectionAddressMap.get(section) + offset;
+	}
+	
+	protected static IntStream loadStoreOffsets(int size, boolean reverse) {
+		IntStream offsets = IntStream.range(0, size);
+		if (reverse) {
+			offsets = offsets.map(x -> size - x - 1);
+		}
+		return offsets;
+	}
+	
+	protected LowDataInfo utilityDataInfo() {
+		if (utilityDataId == null) {
+			utilityDataId = function.scope.nextLocalDataId(intermediate, Main.generator.intTypeInfo);
+		}
+		return getDataInfo(utilityDataId, 0);
+	}
+	
+	protected void clearAccumulator(List<Instruction> text) {
+		text.add(new InstructionStoreAndClear(utilityDataInfo()));
+	}
+	
+	protected void loadConstantWord(List<Instruction> text, LowDataInfo info) {
+		clearAccumulator(text);
+		text.add(new InstructionAdd(info));
+	}
+	
+	protected LowDataInfo constantInfo(long value) {
+		ValueDataId valueDataId = new ValueDataId(Main.generator.intValue(value));
+		LowDataInfo info = getDataInfo(valueDataId, 0);
+		code.staticDataMap.putIfAbsent(info, new InstructionValueData(EdsacCode.raw(valueDataId.value)));
+		return info;
+	}
+	
+	protected LowDataInfo returnAddressInfo() {
+		DataId dataId = function.scope.nextLocalDataId(intermediate, Main.generator.intTypeInfo);
+		LowDataInfo info = getDataInfo(dataId, 0);
+		code.staticDataMap.putIfAbsent(info, new InstructionWheelerReturn());
+		return info;
+	}
+	
+	protected LowDataInfo ensureValueInfo(ValueDataId valueDataId) {
+		LowDataInfo info = getDataInfo(valueDataId, 0);
+		code.staticDataMap.putIfAbsent(info, new InstructionValueData(EdsacCode.raw(valueDataId.value)));
+		return info;
+	}
+	
+	protected LowDataInfo ensureFunctionInfo(Function function, DataId arg) {
+		LowDataInfo info = getDataInfo(arg, 0);
+		code.staticDataMap.putIfAbsent(info, new InstructionSubroutineAddressData(function));
+		return info;
+	}
+	
+	protected LowDataInfo ensureAddressInfo(DataId arg) {
+		LowDataInfo addressInfo = getDataInfo(arg.addDereference(null), 0);
+		LowDataInfo info = getDataInfo(arg, 0);
+		code.staticDataMap.putIfAbsent(info, new InstructionAddressData(addressInfo));
+		return info;
+	}
+	
+	protected LowDataInfo loadInfoForArg(DataId arg) {
+		Function function = arg.getFunction();
+		if (function != null) {
+			return ensureFunctionInfo(function, arg);
+		}
+		else if (arg instanceof ValueDataId valueDataId) {
+			return ensureValueInfo(valueDataId);
+		}
+		else if (arg.isAddress()) {
+			return ensureAddressInfo(arg);
+		}
+		else if (arg.dereferenceLevel == 0) {
+			return getDataInfo(arg, 0);
+		}
+		else {
+			throw new UnsupportedOperationException(String.format("EDSAC backend does not support dereferenced loads yet! %s", arg));
+		}
+	}
+	
+	protected void loadThen(List<Instruction> text, boolean reverse, DataId arg, IntConsumer consumer) {
+		if (arg instanceof TransientDataId) {
+			throw new IllegalArgumentException(String.format("Attempted to add a transient load instruction! %s", arg));
+		}
+		else if (arg instanceof ValueDataId valueDataId) {
+			List<EdsacInt> values = EdsacCode.raw(valueDataId.value);
+			LowDataInfo baseInfo = ensureValueInfo(valueDataId);
+			IntStream offsets = loadStoreOffsets(values.size(), reverse);
+			offsets.forEach(x -> {
+				clearAccumulator(text);
+				text.add(new InstructionAdd(baseInfo.offsetBy(x)));
+				consumer.accept(x);
+			});
+		}
+		else if (arg.isAddress()) {
+			LowDataInfo info = ensureAddressInfo(arg);
+			clearAccumulator(text);
+			text.add(new InstructionAdd(info));
+			consumer.accept(0);
+		}
+		else if (arg.dereferenceLevel == 0) {
+			IntStream offsets = loadStoreOffsets(arg.typeInfo.getSize(), reverse);
+			LowDataInfo loadInfo = getDataInfo(arg, 0);
+			offsets.forEach(x -> {
+				clearAccumulator(text);
+				text.add(new InstructionAdd(loadInfo.offsetBy(x)));
+				consumer.accept(x);
+			});
+		}
+		else {
+			throw new UnsupportedOperationException(String.format("EDSAC backend does not support dereferenced loads yet! %s", arg));
+		}
+	}
+	
+	protected void loadScalar(List<Instruction> text, DataId arg) {
+		loadThen(text, false, arg, x -> {});
+	}
+	
+	protected void storeAt(List<Instruction> text, DataId target, int offset) {
+		if (target instanceof TransientDataId) {
+			return;
+		}
+		else if (target instanceof ValueDataId) {
+			throw new IllegalArgumentException(String.format("Attempted to add an immediate store instruction! %s", target));
+		}
+		else if (target.isAddress()) {
+			throw new IllegalArgumentException(String.format("Attempted to add an address store instruction! %s", target));
+		}
+		else if (target.dereferenceLevel == 0) {
+			LowDataInfo storeInfo = getDataInfo(target, 0).offsetBy(offset);
+			text.add(new InstructionStore(storeInfo));
+		}
+		else {
+			throw new UnsupportedOperationException(String.format("EDSAC backend does not support dereferenced stores yet! %s", target));
+		}
+	}
+	
+	protected void storeScalar(List<Instruction> text, DataId target) {
+		storeAt(text, target, 0);
+	}
+	
+	protected void binaryOp(List<Instruction> text, BinaryActionType type, DataId arg) {
+		if (arg instanceof ValueDataId valueDataId) {
+			long value = EdsacCode.raw(valueDataId.value).get(0).toLong();
+			switch (type) {
+				case INT_LEFT_SHIFT_INT:
+					text.add(new InstructionLeftShift(value));
+					return;
+				case INT_RIGHT_SHIFT_INT:
+				case NAT_RIGHT_SHIFT_INT:
+					text.add(new InstructionRightShift(value));
+					return;
+				default:
+					break;
+			}
+		}
+		
+		switch (type) {
+			case INT_PLUS_INT:
+			case CHAR_PLUS_CHAR:
+				text.add(new InstructionAdd(loadInfoForArg(arg)));
+				break;
+			case INT_MINUS_INT:
+			case CHAR_MINUS_CHAR:
+				text.add(new InstructionSubtract(loadInfoForArg(arg)));
+				break;
+			case INT_MULTIPLY_INT:
+				text.add(new InstructionStoreAndClear(utilityDataInfo()));
+				text.add(new InstructionLoadMultiplier(loadInfoForArg(arg)));
+				text.add(new InstructionAddMultiplication(utilityDataInfo()));
+				break;
+			default:
+				throw new UnsupportedOperationException(String.format("EDSAC backend does not support binary op %s yet!", type));
+		}
+	}
+	
+	protected void unaryOp(List<Instruction> text, UnaryActionType type, DataId arg) {
+		switch (type) {
+			case MINUS_INT:
+				loadScalar(text, arg);
+				text.add(new InstructionStoreAndClear(utilityDataInfo()));
+				text.add(new InstructionSubtract(utilityDataInfo()));
+				break;
+			default:
+				throw new UnsupportedOperationException(String.format("EDSAC backend does not support unary op %s yet!", type));
+		}
 	}
 }

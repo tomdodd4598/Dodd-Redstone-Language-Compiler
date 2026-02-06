@@ -1,19 +1,19 @@
-package drlc.low.drc1.instruction.data;
+package drlc.low.edsac.instruction.data;
 
-import drlc.Helpers;
 import drlc.intermediate.component.Function;
+import drlc.low.edsac.EdsacInt;
 
 public class InstructionSubroutineAddressData extends InstructionData {
 	
 	public final Function function;
-	protected Short value;
+	protected Integer value;
 	
 	public InstructionSubroutineAddressData(Function function) {
 		super();
 		this.function = function;
 	}
 	
-	public void setValue(short value) {
+	public void setValue(int value) {
 		if (this.value == null) {
 			this.value = value;
 		}
@@ -23,17 +23,12 @@ public class InstructionSubroutineAddressData extends InstructionData {
 	}
 	
 	@Override
-	public int size(boolean longAddress) {
+	public int size() {
 		return 1;
 	}
 	
 	@Override
-	public String[] toBinary(boolean longAddress) {
-		return new String[] {Helpers.toBinary(value, 16)};
-	}
-	
-	@Override
-	public String toAssembly(boolean longAddress) {
-		return Helpers.toHex(value, longAddress ? 4 : 2) + '\t' + function.asmString();
+	public String toAssembly() {
+		return EdsacInt.of(value).toAssembly() + " [" + function.asmString() + "]";
 	}
 }

@@ -8,7 +8,9 @@ public abstract class Instruction extends LowInstruction {
 		super();
 	}
 	
-	public abstract int size();
+	public int size() {
+		return 1;
+	}
 	
 	public abstract String toAssembly();
 	

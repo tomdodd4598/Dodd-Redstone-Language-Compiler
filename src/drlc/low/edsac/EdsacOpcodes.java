@@ -30,8 +30,8 @@ public class EdsacOpcodes {
 	public static final String PI = "#";
 	
 	public static final String get(EdsacInt value) {
-		int code = value.toChar();
-		return switch (value.toChar()) {
+		byte code = value.toChar().code;
+		return switch (code) {
 			case 0 -> "P";
 			case 1 -> "Q";
 			case 2 -> "W";

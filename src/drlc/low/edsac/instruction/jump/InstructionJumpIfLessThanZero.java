@@ -1,6 +1,6 @@
 package drlc.low.edsac.instruction.jump;
 
-import drlc.low.edsac.*;
+import drlc.low.edsac.EdsacOpcodes;
 
 public class InstructionJumpIfLessThanZero extends InstructionJump {
 	
@@ -9,7 +9,7 @@ public class InstructionJumpIfLessThanZero extends InstructionJump {
 	}
 	
 	@Override
-	public String toAssembly() {
-		return EdsacOpcodes.JUMP_IF_LESS_THAN_ZERO + EdsacCode.addressBits(address) + EdsacOpcodes.SHORT;
+	protected String opcode() {
+		return EdsacOpcodes.JUMP_IF_LESS_THAN_ZERO;
 	}
 }

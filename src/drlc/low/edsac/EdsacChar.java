@@ -53,6 +53,10 @@ public class EdsacChar {
 		return new EdsacChar((byte) value, code);
 	}
 	
+	public static EdsacChar of(byte value) {
+		return of((char) value);
+	}
+	
 	public boolean isLetterShift() {
 		return code == 15;
 	}

@@ -168,9 +168,11 @@ public abstract class EdsacGenerator extends Generator {
 			case RIGHT_SHIFT:
 				return intValue(leftInt.rightShift(rightInt));
 			case LEFT_ROTATE:
-				return intValue(leftInt.leftShift(rightInt).or(leftInt.rightShiftUnsigned(rightInt.minus())));
+				rightInt = rightInt.remainderUnsigned(EdsacInt.of(EdsacInt.BITS));
+				return intValue(leftInt.leftShift(rightInt).or(leftInt.rightShiftUnsigned(EdsacInt.of(EdsacInt.BITS).minus(rightInt))));
 			case RIGHT_ROTATE:
-				return intValue(leftInt.rightShiftUnsigned(rightInt).or(leftInt.leftShift(rightInt.minus())));
+				rightInt = rightInt.remainderUnsigned(EdsacInt.of(EdsacInt.BITS));
+				return intValue(leftInt.rightShiftUnsigned(rightInt).or(leftInt.leftShift(EdsacInt.of(EdsacInt.BITS).minus(rightInt))));
 			default:
 				throw unknownBinaryOpType(node, left.typeInfo, opType, right.typeInfo);
 		}
@@ -222,9 +224,11 @@ public abstract class EdsacGenerator extends Generator {
 			case RIGHT_SHIFT:
 				return natValue(leftInt.rightShiftUnsigned(rightInt));
 			case LEFT_ROTATE:
-				return natValue(leftInt.leftShift(rightInt).or(leftInt.rightShiftUnsigned(rightInt.minus())));
+				rightInt = rightInt.remainderUnsigned(EdsacInt.of(EdsacInt.BITS));
+				return natValue(leftInt.leftShift(rightInt).or(leftInt.rightShiftUnsigned(EdsacInt.of(EdsacInt.BITS).minus(rightInt))));
 			case RIGHT_ROTATE:
-				return natValue(leftInt.rightShiftUnsigned(rightInt).or(leftInt.leftShift(rightInt.minus())));
+				rightInt = rightInt.remainderUnsigned(EdsacInt.of(EdsacInt.BITS));
+				return natValue(leftInt.rightShiftUnsigned(rightInt).or(leftInt.leftShift(EdsacInt.of(EdsacInt.BITS).minus(rightInt))));
 			default:
 				throw unknownBinaryOpType(node, left.typeInfo, opType, right.typeInfo);
 		}
@@ -263,12 +267,12 @@ public abstract class EdsacGenerator extends Generator {
 	
 	@Override
 	public int wordToCharCast(ASTNode<?> node, long valueLong) {
-		return EdsacInt.of(valueLong).toChar();
+		return EdsacInt.of(valueLong).toChar().code;
 	}
 	
 	@Override
 	public long charToWordCast(ASTNode<?> node, byte valueByte) {
-		return EdsacInt.fromChar(valueByte).toLong();
+		return EdsacChar.of(valueByte).toInt().toLong();
 	}
 	
 	@Override

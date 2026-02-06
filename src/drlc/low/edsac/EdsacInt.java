@@ -2,26 +2,24 @@ package drlc.low.edsac;
 
 public class EdsacInt {
 	
-	public static final EdsacInt ZERO = of(0);
-	public static final EdsacInt ONE = of(1);
+	public static final int BITS = 17;
+	
+	public static final EdsacInt ZERO = of(0L);
+	public static final EdsacInt ONE = of(1L);
 	
 	public static final EdsacInt MIN_VALUE = of(0x10000L);
 	public static final EdsacInt MAX_VALUE = of(0x0FFFFL);
 	
-	public static final EdsacInt CHAR_MASK = of(0x1F000);
+	public static final EdsacInt CHAR_MASK = of(0x1F000L);
 	
 	private final long internal;
 	
 	private EdsacInt(long value) {
-		internal = Long.remainderUnsigned(value, 0x20000L);
+		internal = value & 0x1FFFFL;
 	}
 	
 	public static EdsacInt of(long value) {
 		return new EdsacInt(value);
-	}
-	
-	public static EdsacInt fromChar(byte value) {
-		return of(value << 12).and(CHAR_MASK);
 	}
 	
 	public long toLong() {
@@ -86,11 +84,11 @@ public class EdsacInt {
 	}
 	
 	public EdsacInt leftShift(EdsacInt other) {
-		return of(internal << other.internal);
+		return of(internal << EdsacCode.shiftBits(other.internal));
 	}
 	
 	public EdsacInt rightShift(EdsacInt other) {
-		return of(toSigned() >> other.internal);
+		return of(toSigned() >> EdsacCode.shiftBits(other.internal));
 	}
 	
 	public EdsacInt divideUnsigned(EdsacInt other) {
@@ -102,7 +100,7 @@ public class EdsacInt {
 	}
 	
 	public EdsacInt rightShiftUnsigned(EdsacInt other) {
-		return of(internal >>> other.internal);
+		return of(internal >>> EdsacCode.shiftBits(other.internal));
 	}
 	
 	public boolean isPowerOfTwo() {
@@ -141,12 +139,12 @@ public class EdsacInt {
 		}
 	}
 	
-	public int toChar() {
-		return (int) (and(CHAR_MASK).toLong() >> 12);
+	public EdsacChar toChar() {
+		return EdsacChar.of((byte) (and(CHAR_MASK).toLong() >> 12));
 	}
 	
 	public String toAssembly() {
-		return EdsacOpcodes.get(this) + Long.toUnsignedString(internal >>> 2) + ((internal & 1) == 0 ? EdsacOpcodes.SHORT : EdsacOpcodes.LONG);
+		return EdsacOpcodes.get(this) + EdsacCode.instructionArgument(internal >>> 1) + ((internal & 1) == 0 ? EdsacOpcodes.SHORT : EdsacOpcodes.LONG);
 	}
 	
 	@Override

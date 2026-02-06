@@ -101,7 +101,7 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 			return Arrays.asList(EdsacInt.of(boolValue.value ? 1 : 0));
 		}
 		else if (value instanceof CharValue charValue) {
-			return Arrays.asList(EdsacInt.fromChar(charValue.value));
+			return Arrays.asList(EdsacChar.of(charValue.value).toInt());
 		}
 		else if (value instanceof ArrayValue arrayValue) {
 			return arrayValue.values.stream().flatMap(x -> raw(x).stream()).collect(Collectors.toList());
@@ -114,9 +114,18 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 		}
 	}
 	
-	public static final int ADDRESS_MASK = 0x3FF;
+	public static final long ARGUMENT_MASK = 0x7FFL;
 	
-	public static int addressBits(int value) {
-		return value & ADDRESS_MASK;
+	public static String instructionArgument(long value) {
+		value &= ARGUMENT_MASK;
+		return value == 0L ? "" : Long.toString(value);
+	}
+	
+	public static long shiftBits(long value) {
+		return Math.min(EdsacInt.BITS, value & Integer.MAX_VALUE);
+	}
+	
+	public static long rotationBits(long value) {
+		return (value & Integer.MAX_VALUE) % EdsacInt.BITS;
 	}
 }

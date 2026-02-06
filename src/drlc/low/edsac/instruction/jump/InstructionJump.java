@@ -1,5 +1,6 @@
 package drlc.low.edsac.instruction.jump;
 
+import drlc.low.edsac.*;
 import drlc.low.edsac.instruction.Instruction;
 
 public abstract class InstructionJump extends Instruction {
@@ -12,8 +13,10 @@ public abstract class InstructionJump extends Instruction {
 		this.section = section;
 	}
 	
+	protected abstract String opcode();
+	
 	@Override
-	public int size() {
-		return 1;
+	public String toAssembly() {
+		return opcode() + EdsacCode.instructionArgument(address) + EdsacOpcodes.SHORT;
 	}
 }

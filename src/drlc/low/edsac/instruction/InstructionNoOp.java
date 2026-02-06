@@ -2,19 +2,21 @@ package drlc.low.edsac.instruction;
 
 import drlc.low.edsac.EdsacOpcodes;
 
-public class InstructionNoOp extends Instruction {
+public class InstructionNoOp extends InstructionImmediate {
+	
+	public final boolean placeholder;
+	
+	public InstructionNoOp(boolean placeholder) {
+		super(0L);
+		this.placeholder = placeholder;
+	}
 	
 	public InstructionNoOp() {
-		super();
+		this(false);
 	}
 	
 	@Override
-	public int size() {
-		return 1;
-	}
-	
-	@Override
-	public String toAssembly() {
-		return EdsacOpcodes.NO_OP + EdsacOpcodes.SHORT;
+	protected String opcode() {
+		return EdsacOpcodes.NO_OP;
 	}
 }
