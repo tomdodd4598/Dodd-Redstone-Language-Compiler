@@ -16,7 +16,7 @@ public class InstructionWheelerJump extends Instruction {
 	}
 	
 	@Override
-	public String toAssembly() {
-		return EdsacOpcodes.JUMP_IF_MORE_THAN_OR_EQUAL_TO_ZERO + EdsacCode.instructionArgument(address) + EdsacOpcodes.SHORT;
+	public String toAssembly(Integer offset) {
+		return EdsacOpcodes.JUMP_IF_MORE_THAN_OR_EQUAL_TO_ZERO + EdsacCode.instructionArgument(address) + suffix(EdsacOpcodes.SHORT, offset);
 	}
 }

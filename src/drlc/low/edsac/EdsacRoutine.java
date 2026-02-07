@@ -17,16 +17,12 @@ import drlc.low.edsac.instruction.address.*;
 import drlc.low.edsac.instruction.data.*;
 import drlc.low.edsac.instruction.jump.*;
 import drlc.low.edsac.instruction.wheeler.*;
-import drlc.low.instruction.address.IInstructionAddress;
 
 public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instruction> {
 	
-	protected DataId utilityDataId = null;
-	
-	protected static final int CALL_SETUP_INSTRUCTIONS = 2;
-	protected static final int CALL_JUMP_INSTRUCTIONS = 1;
-	
 	protected static final long WHEELER_STORE_DELTA = 0x18000L;
+	
+	protected DataId scratchDataId = null;
 	
 	public EdsacRoutine(EdsacCode code, Routine intermediate) {
 		super(code, intermediate);
@@ -54,7 +50,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			
 			patchText.add(new InstructionWheelerStore(function, -2, 0));
 			patchText.add(new InstructionAdd(constantInfo(WHEELER_STORE_DELTA)));
-			patchText.add(new InstructionWheelerStore(function, -2, 1));
+			patchText.add(new InstructionWheelerStoreAndClear(function, -2, 1));
 		}
 		
 		generateInstructionsInternal();
@@ -166,13 +162,24 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		}
 	}
 	
+	public void prepareDataInfoRegeneration() {
+		localSpanMap.clear();
+		tempSpanMap.clear();
+		
+		generateParamDataInfo();
+		
+		if (isRootRoutine()) {
+			regenerateDataInfoInternal();
+		}
+	}
+	
 	public void regenerateDataInfo() {
-		for (List<Instruction> section : sectionTextMap.values()) {
-			for (Instruction instruction : section) {
-				if (instruction instanceof IInstructionAddress instructionAddress) {
-					instructionAddress.regenerateDataInfo();
-				}
-			}
+		if (!isRootRoutine()) {
+			regenerateDataInfoInternal();
+		}
+		
+		if (isStackRoutine()) {
+			
 		}
 	}
 	
@@ -222,6 +229,10 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				
 				else if (instruction instanceof InstructionWheelerStore iws) {
 					iws.address = textAddress(iws.function, iws.section, iws.offset);
+				}
+				
+				else if (instruction instanceof InstructionWheelerStoreAndClear iwsac) {
+					iwsac.address = textAddress(iwsac.function, iwsac.section, iwsac.offset);
 				}
 				
 				else if (instruction instanceof InstructionWheelerJump iwj) {
@@ -279,15 +290,15 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		return offsets;
 	}
 	
-	protected LowDataInfo utilityDataInfo() {
-		if (utilityDataId == null) {
-			utilityDataId = function.scope.nextLocalDataId(intermediate, Main.generator.intTypeInfo);
+	protected LowDataInfo scratchDataInfo() {
+		if (scratchDataId == null) {
+			scratchDataId = function.scope.nextLocalDataId(intermediate, Main.generator.intTypeInfo);
 		}
-		return getDataInfo(utilityDataId, 0);
+		return getDataInfo(scratchDataId, 0);
 	}
 	
 	protected void clearAccumulator(List<Instruction> text) {
-		text.add(new InstructionStoreAndClear(utilityDataInfo()));
+		text.add(new InstructionStoreAndClear(scratchDataInfo()));
 	}
 	
 	protected void loadConstantWord(List<Instruction> text, LowDataInfo info) {
@@ -296,7 +307,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 	}
 	
 	protected LowDataInfo constantInfo(long value) {
-		ValueDataId valueDataId = new ValueDataId(Main.generator.intValue(value));
+		ValueDataId valueDataId = intValueDataId(value);
 		LowDataInfo info = getDataInfo(valueDataId, 0);
 		code.staticDataMap.putIfAbsent(info, new InstructionValueData(EdsacCode.raw(valueDataId.value)));
 		return info;
@@ -326,6 +337,14 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		LowDataInfo info = getDataInfo(arg, 0);
 		code.staticDataMap.putIfAbsent(info, new InstructionAddressData(addressInfo));
 		return info;
+	}
+	
+	protected ValueDataId intValueDataId(long value) {
+		return new ValueDataId(Main.generator.intValue(value));
+	}
+	
+	protected ValueDataId natValueDataId(long value) {
+		return new ValueDataId(Main.generator.natValue(value));
 	}
 	
 	protected LowDataInfo loadInfoForArg(DataId arg) {
@@ -434,9 +453,10 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				text.add(new InstructionSubtract(loadInfoForArg(arg)));
 				break;
 			case INT_MULTIPLY_INT:
-				text.add(new InstructionStoreAndClear(utilityDataInfo()));
+				text.add(new InstructionStoreAndClear(scratchDataInfo()));
 				text.add(new InstructionLoadMultiplier(loadInfoForArg(arg)));
-				text.add(new InstructionAddMultiplication(utilityDataInfo()));
+				text.add(new InstructionAddMultiplication(scratchDataInfo()));
+				binaryOp(text, BinaryActionType.INT_LEFT_SHIFT_INT, intValueDataId(16));
 				break;
 			default:
 				throw new UnsupportedOperationException(String.format("EDSAC backend does not support binary op %s yet!", type));
@@ -447,8 +467,8 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		switch (type) {
 			case MINUS_INT:
 				loadScalar(text, arg);
-				text.add(new InstructionStoreAndClear(utilityDataInfo()));
-				text.add(new InstructionSubtract(utilityDataInfo()));
+				text.add(new InstructionStoreAndClear(scratchDataInfo()));
+				text.add(new InstructionSubtract(scratchDataInfo()));
 				break;
 			default:
 				throw new UnsupportedOperationException(String.format("EDSAC backend does not support unary op %s yet!", type));

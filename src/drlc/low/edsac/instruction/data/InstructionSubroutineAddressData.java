@@ -28,7 +28,7 @@ public class InstructionSubroutineAddressData extends InstructionData {
 	}
 	
 	@Override
-	public String toAssembly() {
-		return EdsacInt.of(value).toAssembly() + " [" + function.asmString() + "]";
+	public String toAssembly(Integer offset) {
+		return EdsacInt.of(value + (offset == null ? 0 : offset)).toAssembly() + " [" + function.asmString() + "]";
 	}
 }

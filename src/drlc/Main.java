@@ -39,7 +39,7 @@ public class Main {
 			try {
 				String outputFile = input.args.get(0), inputFile = input.args.get(1);
 				if (input.options.contains("all")) {
-					outputFile = (outputFile.contains(".") ? outputFile.substring(0, 1 + outputFile.lastIndexOf('.')) : (outputFile + ".")) + "dr";
+					outputFile = outputFile.contains(".") ? outputFile.substring(0, 1 + outputFile.lastIndexOf('.')) : (outputFile + ".");
 					for (String target : Generator.NAME_MAP.keySet()) {
 						generate(target, outputFile + target, inputFile);
 					}

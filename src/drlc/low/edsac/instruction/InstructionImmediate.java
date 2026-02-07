@@ -14,7 +14,7 @@ public abstract class InstructionImmediate extends Instruction {
 	protected abstract String opcode();
 	
 	@Override
-	public String toAssembly() {
+	public String toAssembly(Integer offset) {
 		return opcode() + EdsacCode.instructionArgument(value) + EdsacOpcodes.SHORT;
 	}
 }

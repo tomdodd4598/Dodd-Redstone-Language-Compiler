@@ -25,7 +25,7 @@ public class InstructionAddressData extends InstructionData implements IInstruct
 	}
 	
 	@Override
-	public String toAssembly() {
-		return EdsacInt.of(address).toAssembly();
+	public String toAssembly(Integer offset) {
+		return EdsacInt.of(address + (offset == null ? 0 : offset)).toAssembly();
 	}
 }

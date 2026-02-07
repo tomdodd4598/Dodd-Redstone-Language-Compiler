@@ -31,7 +31,11 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 		optimize();
 		
 		for (EdsacRoutine routine : routineMap.values()) {
-			routine.generateDataIds();
+			routine.prepareDataInfoRegeneration();
+		}
+		
+		for (EdsacRoutine routine : routineMap.values()) {
+			routine.regenerateDataInfo();
 		}
 		
 		for (EdsacRoutine routine : routineMap.values()) {
@@ -53,25 +57,25 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 	protected EdsacRoutine getBuiltInRoutine(String name, Routine intermediateRoutine) {
 		switch (name) {
 			case Global.PRINT_BOOL:
-				return new PrintBoolEdsacRoutine(this, intermediateRoutine);
+				// return new PrintBoolEdsacRoutine(this, intermediateRoutine);
 			case Global.PRINT_INT:
-				return new PrintIntEdsacRoutine(this, intermediateRoutine);
+				// return new PrintIntEdsacRoutine(this, intermediateRoutine);
 			case Global.PRINT_NAT:
-				return new PrintNatEdsacRoutine(this, intermediateRoutine);
+				// return new PrintNatEdsacRoutine(this, intermediateRoutine);
 			case Global.PRINT_CHAR:
-				return new PrintCharEdsacRoutine(this, intermediateRoutine);
+				// return new PrintCharEdsacRoutine(this, intermediateRoutine);
 			case Global.NAT_RIGHT_SHIFT_INT:
-				return new NatRightShiftIntEdsacRoutine(this, intermediateRoutine);
+				// return new NatRightShiftIntEdsacRoutine(this, intermediateRoutine);
 			case Global.INT_LEFT_ROTATE_INT:
-				return new IntLeftRotateIntEdsacRoutine(this, intermediateRoutine);
+				// return new IntLeftRotateIntEdsacRoutine(this, intermediateRoutine);
 			case Global.INT_RIGHT_ROTATE_INT:
-				return new IntRightRotateIntEdsacRoutine(this, intermediateRoutine);
+				// return new IntRightRotateIntEdsacRoutine(this, intermediateRoutine);
 			case Global.INT_COMPARE_INT:
-				return new IntCompareIntEdsacRoutine(this, intermediateRoutine);
+				// return new IntCompareIntEdsacRoutine(this, intermediateRoutine);
 			case Global.NAT_COMPARE_NAT:
-				return new NatCompareNatEdsacRoutine(this, intermediateRoutine);
+				// return new NatCompareNatEdsacRoutine(this, intermediateRoutine);
 			case Global.PRINT_DIGITS:
-				return new PrintDigitsEdsacRoutine(this, intermediateRoutine);
+				// return new PrintDigitsEdsacRoutine(this, intermediateRoutine);
 		}
 		throw new IllegalArgumentException(String.format("Encountered unsupported built-in subroutine \"%s\"!", name));
 	}
@@ -82,14 +86,14 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 			boolean flag = true;
 			while (flag) {
 				flag = EdsacOptimization.removeNoOps(routine);
-				flag |= EdsacOptimization.removeDeadInstructions(routine);
-				flag |= EdsacOptimization.simplifyImmediateInstructions(routine);
-				flag |= EdsacOptimization.removeUnnecessaryLoads(routine);
-				flag |= EdsacOptimization.removeUnnecessaryStores(routine);
-				flag |= EdsacOptimization.removeUnusedTemporaryData(routine);
-				flag |= EdsacOptimization.removeUnnecessaryJumps(routine);
-				flag |= EdsacOptimization.simplifyConditionalJumps(routine);
-				flag |= EdsacOptimization.compressSuccessiveInstructions(routine);
+				// flag |= EdsacOptimization.removeDeadInstructions(routine);
+				// flag |= EdsacOptimization.simplifyImmediateInstructions(routine);
+				// flag |= EdsacOptimization.removeUnnecessaryLoads(routine);
+				// flag |= EdsacOptimization.removeUnnecessaryStores(routine);
+				// flag |= EdsacOptimization.removeUnusedTemporaryData(routine);
+				// flag |= EdsacOptimization.removeUnnecessaryJumps(routine);
+				// flag |= EdsacOptimization.simplifyConditionalJumps(routine);
+				// flag |= EdsacOptimization.compressSuccessiveInstructions(routine);
 			}
 		}
 	}

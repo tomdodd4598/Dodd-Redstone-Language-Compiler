@@ -4,14 +4,14 @@ import drlc.intermediate.component.Function;
 import drlc.low.edsac.*;
 import drlc.low.edsac.instruction.Instruction;
 
-public class InstructionWheelerStore extends Instruction {
+public class InstructionWheelerStoreAndClear extends Instruction {
 	
 	public final Function function;
 	public final int section;
 	public final int offset;
 	public Integer address;
 	
-	public InstructionWheelerStore(Function function, int section, int offset) {
+	public InstructionWheelerStoreAndClear(Function function, int section, int offset) {
 		this.function = function;
 		this.section = section;
 		this.offset = offset;
@@ -19,6 +19,6 @@ public class InstructionWheelerStore extends Instruction {
 	
 	@Override
 	public String toAssembly(Integer offset) {
-		return EdsacOpcodes.STORE + EdsacCode.instructionArgument(address) + suffix(EdsacOpcodes.SHORT, offset);
+		return EdsacOpcodes.STORE_AND_CLEAR + EdsacCode.instructionArgument(address) + suffix(EdsacOpcodes.SHORT, offset);
 	}
 }

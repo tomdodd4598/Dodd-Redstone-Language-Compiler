@@ -1,5 +1,8 @@
 package drlc.low.edsac;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
@@ -8,13 +11,40 @@ import drlc.intermediate.component.*;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.routine.Routine;
+import drlc.low.edsac.instruction.Instruction;
 
-public abstract class EdsacGenerator extends Generator {
+public class EdsacGenerator extends Generator {
+	
+	public static final int OFFSET = 64;
 	
 	protected EdsacCode code = new EdsacCode();
 	
 	public EdsacGenerator(String outputFile) {
 		super(outputFile);
+	}
+	
+	@Override
+	public void generate() {
+		generateInternal();
+		
+		StringBuilder sb = new StringBuilder();
+		Consumer<Instruction> appendInstruction = x -> sb.append(x.toAssembly(OFFSET)).append('\n');
+		
+		sb.append('T').append(OFFSET).append("K\nGK\n\n");
+		
+		for (EdsacRoutine routine : code.routineMap.values()) {
+			for (List<Instruction> section : routine.sectionTextMap.values()) {
+				section.forEach(appendInstruction);
+			}
+		}
+		
+		if (!code.staticDataMap.isEmpty()) {
+			code.staticDataMap.values().stream().forEach(appendInstruction);
+		}
+		
+		sb.append("\nEZPF\n");
+		
+		Helpers.writeFile(outputFile, sb.toString());
 	}
 	
 	@Override
@@ -267,7 +297,7 @@ public abstract class EdsacGenerator extends Generator {
 	
 	@Override
 	public int wordToCharCast(ASTNode<?> node, long valueLong) {
-		return EdsacInt.of(valueLong).toChar().code;
+		return EdsacInt.of(valueLong).toCharCode();
 	}
 	
 	@Override

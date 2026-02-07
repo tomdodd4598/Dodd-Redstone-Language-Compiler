@@ -20,7 +20,7 @@ public class InstructionValueData extends InstructionData {
 	}
 	
 	@Override
-	public String toAssembly() {
+	public String toAssembly(Integer offset) {
 		return values.stream().map(EdsacInt::toAssembly).collect(Collectors.joining(" "));
 	}
 }

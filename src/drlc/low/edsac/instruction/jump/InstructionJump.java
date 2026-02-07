@@ -16,7 +16,7 @@ public abstract class InstructionJump extends Instruction {
 	protected abstract String opcode();
 	
 	@Override
-	public String toAssembly() {
-		return opcode() + EdsacCode.instructionArgument(address) + EdsacOpcodes.SHORT;
+	public String toAssembly(Integer offset) {
+		return opcode() + EdsacCode.instructionArgument(address) + suffix(EdsacOpcodes.SHORT, offset);
 	}
 }

@@ -15,6 +15,7 @@ import drlc.intermediate.component.value.*;
 import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.*;
 import drlc.low.drc1.*;
+import drlc.low.edsac.EdsacGenerator;
 
 public abstract class Generator {
 	
@@ -24,9 +25,10 @@ public abstract class Generator {
 	public static final Map<String, GeneratorConstructor> CONSTRUCTOR_MAP = new LinkedHashMap<>();
 	
 	static {
-		put("i", "Intermediate", IntermediateGenerator::new);
-		put("s1", "DRC1 Assembly", RedstoneAssemblyGenerator::new);
-		put("oc1", "DRC1 OC Input", RedstoneOCGenerator::new);
+		put("dri", "Intermediate", IntermediateGenerator::new);
+		put("drs1", "DRC1 Assembly", RedstoneAssemblyGenerator::new);
+		put("droc1", "DRC1 OC Input", RedstoneOCGenerator::new);
+		put("edsac", "EDSAC Assembly", EdsacGenerator::new);
 	}
 	
 	private static void put(String id, String name, GeneratorConstructor constructor) {

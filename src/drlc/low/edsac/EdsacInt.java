@@ -139,8 +139,8 @@ public class EdsacInt {
 		}
 	}
 	
-	public EdsacChar toChar() {
-		return EdsacChar.of((byte) (and(CHAR_MASK).toLong() >> 12));
+	public byte toCharCode() {
+		return (byte) (and(CHAR_MASK).toLong() >> 12);
 	}
 	
 	public String toAssembly() {

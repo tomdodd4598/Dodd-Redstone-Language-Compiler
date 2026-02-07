@@ -35,7 +35,7 @@ public class InstructionLeftShift extends InstructionImmediate {
 	}
 	
 	@Override
-	public String toAssembly() {
-		return Arrays.stream(shift).mapToObj(x -> opcode() + (x == 1 ? EdsacOpcodes.LONG : (EdsacCode.instructionArgument(1 << (x - 2)) + EdsacOpcodes.SHORT))).collect(Collectors.joining(" "));
+	public String toAssembly(Integer offset) {
+		return Arrays.stream(shift).mapToObj(x -> opcode() + (x == 1 ? EdsacOpcodes.LONG : (EdsacCode.instructionArgument(1 << (x - 2)) + EdsacOpcodes.SHORT))).collect(Collectors.joining("\n"));
 	}
 }
