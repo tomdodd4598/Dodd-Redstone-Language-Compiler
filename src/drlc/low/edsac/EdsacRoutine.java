@@ -313,6 +313,10 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		return info;
 	}
 	
+	protected LowDataInfo constantInfo(EdsacInt value) {
+		return constantInfo(value.toLong());
+	}
+	
 	protected LowDataInfo returnAddressInfo() {
 		DataId dataId = function.scope.nextLocalDataId(intermediate, Main.generator.intTypeInfo);
 		LowDataInfo info = getDataInfo(dataId, 0);
@@ -375,23 +379,19 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			LowDataInfo baseInfo = ensureValueInfo(valueDataId);
 			IntStream offsets = loadStoreOffsets(values.size(), reverse);
 			offsets.forEach(x -> {
-				clearAccumulator(text);
-				text.add(new InstructionAdd(baseInfo.offsetBy(x)));
+				loadConstantWord(text, baseInfo.offsetBy(x));
 				consumer.accept(x);
 			});
 		}
 		else if (arg.isAddress()) {
-			LowDataInfo info = ensureAddressInfo(arg);
-			clearAccumulator(text);
-			text.add(new InstructionAdd(info));
+			loadConstantWord(text, ensureAddressInfo(arg));
 			consumer.accept(0);
 		}
 		else if (arg.dereferenceLevel == 0) {
 			IntStream offsets = loadStoreOffsets(arg.typeInfo.getSize(), reverse);
 			LowDataInfo loadInfo = getDataInfo(arg, 0);
 			offsets.forEach(x -> {
-				clearAccumulator(text);
-				text.add(new InstructionAdd(loadInfo.offsetBy(x)));
+				loadConstantWord(text, loadInfo.offsetBy(x));
 				consumer.accept(x);
 			});
 		}
@@ -453,7 +453,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				text.add(new InstructionSubtract(loadInfoForArg(arg)));
 				break;
 			case INT_MULTIPLY_INT:
-				text.add(new InstructionStoreAndClear(scratchDataInfo()));
+				clearAccumulator(text);
 				text.add(new InstructionLoadMultiplier(loadInfoForArg(arg)));
 				text.add(new InstructionAddMultiplication(scratchDataInfo()));
 				binaryOp(text, BinaryActionType.INT_LEFT_SHIFT_INT, intValueDataId(16));
@@ -467,11 +467,29 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		switch (type) {
 			case MINUS_INT:
 				loadScalar(text, arg);
-				text.add(new InstructionStoreAndClear(scratchDataInfo()));
+				clearAccumulator(text);
+				text.add(new InstructionSubtract(scratchDataInfo()));
+				break;
+			case NOT_BOOL:
+				loadScalar(text, arg);
+				clearAccumulator(text);
+				text.add(new InstructionAdd(constantInfo(1)));
+				text.add(new InstructionSubtract(scratchDataInfo()));
+				break;
+			case NOT_INT:
+				loadScalar(text, arg);
+				clearAccumulator(text);
+				text.add(new InstructionAdd(constantInfo(-1)));
+				text.add(new InstructionSubtract(scratchDataInfo()));
+				break;
+			case NOT_CHAR:
+				loadScalar(text, arg);
+				clearAccumulator(text);
+				text.add(new InstructionAdd(constantInfo(EdsacInt.CHAR_MASK)));
 				text.add(new InstructionSubtract(scratchDataInfo()));
 				break;
 			default:
-				throw new UnsupportedOperationException(String.format("EDSAC backend does not support unary op %s yet!", type));
+				throw new IllegalArgumentException(String.format("Attempted to add unary op instruction of unknown type! %s %s", type, arg.opErrorString()));
 		}
 	}
 }

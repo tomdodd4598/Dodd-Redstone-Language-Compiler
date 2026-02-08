@@ -141,6 +141,10 @@ public abstract class Generator {
 		return raw;
 	}
 	
+	public int getCharCodeSigned(byte value) {
+		return ((value & Helpers.ASCII_MASK) << 25) >> 25;
+	}
+	
 	public abstract int getWordSize();
 	
 	public abstract int getFunctionSize();
@@ -239,44 +243,8 @@ public abstract class Generator {
 			if (!rightType.equals(charTypeInfo)) {
 				throw undefinedBinaryOp(node, leftType, opType, rightType);
 			}
-			
-			CharValue charLeft = (CharValue) left, charRight = (CharValue) right;
-			switch (opType) {
-				case LOGICAL_AND:
-				case LOGICAL_OR:
-					throw undefinedBinaryOp(node, leftType, opType, rightType);
-				case EQUAL_TO:
-					return boolValue(charLeft.value == charRight.value);
-				case NOT_EQUAL_TO:
-					return boolValue(charLeft.value != charRight.value);
-				case LESS_THAN:
-					return boolValue(charLeft.value < charRight.value);
-				case LESS_OR_EQUAL:
-					return boolValue(charLeft.value <= charRight.value);
-				case MORE_THAN:
-					return boolValue(charLeft.value > charRight.value);
-				case MORE_OR_EQUAL:
-					return boolValue(charLeft.value >= charRight.value);
-				case PLUS:
-					return charValue(charLeft.value + charRight.value);
-				case AND:
-					return charValue(charLeft.value & charRight.value);
-				case OR:
-					return charValue(charLeft.value | charRight.value);
-				case XOR:
-					return charValue(charLeft.value ^ charRight.value);
-				case MINUS:
-					return charValue(charLeft.value - charRight.value);
-				case MULTIPLY:
-				case DIVIDE:
-				case REMAINDER:
-				case LEFT_SHIFT:
-				case RIGHT_SHIFT:
-				case LEFT_ROTATE:
-				case RIGHT_ROTATE:
-					throw undefinedBinaryOp(node, leftType, opType, rightType);
-				default:
-					throw unknownBinaryOpType(node, leftType, opType, rightType);
+			else {
+				return charCharBinaryOp(node, (CharValue) left, opType, (CharValue) right);
 			}
 		}
 		throw undefinedBinaryOp(node, leftType, opType, rightType);
@@ -454,6 +422,46 @@ public abstract class Generator {
 				return natValue(Long.rotateLeft(left.value, right.intValue(node)));
 			case RIGHT_ROTATE:
 				return natValue(Long.rotateRight(left.value, right.intValue(node)));
+			default:
+				throw unknownBinaryOpType(node, left.typeInfo, opType, right.typeInfo);
+		}
+	}
+	
+	public @NonNull Value<?> charCharBinaryOp(ASTNode<?> node, CharValue left, @NonNull BinaryOpType opType, CharValue right) {
+		switch (opType) {
+			case LOGICAL_AND:
+			case LOGICAL_OR:
+				throw undefinedBinaryOp(node, left.typeInfo, opType, right.typeInfo);
+			case EQUAL_TO:
+				return boolValue(left.value == right.value);
+			case NOT_EQUAL_TO:
+				return boolValue(left.value != right.value);
+			case LESS_THAN:
+				return boolValue(left.value < right.value);
+			case LESS_OR_EQUAL:
+				return boolValue(left.value <= right.value);
+			case MORE_THAN:
+				return boolValue(left.value > right.value);
+			case MORE_OR_EQUAL:
+				return boolValue(left.value >= right.value);
+			case PLUS:
+				return charValue(left.value + right.value);
+			case AND:
+				return charValue(left.value & right.value);
+			case OR:
+				return charValue(left.value | right.value);
+			case XOR:
+				return charValue(left.value ^ right.value);
+			case MINUS:
+				return charValue(left.value - right.value);
+			case MULTIPLY:
+			case DIVIDE:
+			case REMAINDER:
+			case LEFT_SHIFT:
+			case RIGHT_SHIFT:
+			case LEFT_ROTATE:
+			case RIGHT_ROTATE:
+				throw undefinedBinaryOp(node, left.typeInfo, opType, right.typeInfo);
 			default:
 				throw unknownBinaryOpType(node, left.typeInfo, opType, right.typeInfo);
 		}
@@ -980,15 +988,7 @@ public abstract class Generator {
 			return natUnaryOp(node, opType, (NatValue) value);
 		}
 		else if (typeInfo.equals(charTypeInfo)) {
-			byte byteValue = value.byteValue(node);
-			switch (opType) {
-				case MINUS:
-					throw undefinedUnaryOp(node, opType, typeInfo);
-				case NOT:
-					return charValue(~byteValue);
-				default:
-					throw unknownUnaryOpType(node, opType, typeInfo);
-			}
+			return charUnaryOp(node, opType, (CharValue) value);
 		}
 		throw undefinedUnaryOp(node, opType, typeInfo);
 	}
@@ -1010,6 +1010,18 @@ public abstract class Generator {
 				throw undefinedUnaryOp(node, opType, value.typeInfo);
 			case NOT:
 				return natValue(~value.value);
+			default:
+				throw unknownUnaryOpType(node, opType, value.typeInfo);
+		}
+	}
+	
+	public @NonNull Value<?> charUnaryOp(ASTNode<?> node, @NonNull UnaryOpType opType, @NonNull CharValue value) {
+		byte byteValue = value.byteValue(node);
+		switch (opType) {
+			case MINUS:
+				throw undefinedUnaryOp(node, opType, value.typeInfo);
+			case NOT:
+				return charValue(~byteValue);
 			default:
 				throw unknownUnaryOpType(node, opType, value.typeInfo);
 		}

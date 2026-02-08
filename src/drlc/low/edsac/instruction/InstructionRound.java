@@ -9,7 +9,7 @@ public class InstructionRound extends InstructionImmediate {
 	}
 	
 	@Override
-	protected String opcode() {
+	protected char opcode() {
 		return EdsacOpcodes.ROUND;
 	}
 }

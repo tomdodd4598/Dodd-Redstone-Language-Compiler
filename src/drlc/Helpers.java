@@ -22,6 +22,8 @@ import drlc.parser.*;
 
 public class Helpers {
 	
+	public static final int ASCII_MASK = 0x7F;
+	
 	public static @NonNull String readFile(String fileName) throws RuntimeException {
 		try {
 			return new String(Files.readAllBytes(Paths.get(fileName)), Charset.defaultCharset());

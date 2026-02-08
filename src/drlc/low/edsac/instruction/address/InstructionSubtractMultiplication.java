@@ -20,7 +20,7 @@ public class InstructionSubtractMultiplication extends InstructionAddress {
 	}
 	
 	@Override
-	protected String opcode() {
+	protected char opcode() {
 		return EdsacOpcodes.SUBTRACT_MULTIPLICATION;
 	}
 }

@@ -20,7 +20,7 @@ public class InstructionPrint extends InstructionAddress {
 	}
 	
 	@Override
-	protected String opcode() {
+	protected char opcode() {
 		return EdsacOpcodes.PRINT;
 	}
 }

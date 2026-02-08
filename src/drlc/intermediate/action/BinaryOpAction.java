@@ -346,21 +346,21 @@ public class BinaryOpAction extends Action implements IValueAction {
 				case CHAR_NOT_EQUAL_TO_CHAR:
 					return null;
 				case CHAR_LESS_THAN_CHAR:
-					return left.byteValue(null) == -1 ? new AssignmentAction(null, target, Main.generator.falseValue.dataId()) : null;
+					return Main.generator.getCharCodeSigned(left.byteValue(null)) == -1 ? new AssignmentAction(null, target, Main.generator.falseValue.dataId()) : null;
 				case CHAR_LESS_OR_EQUAL_CHAR:
-					return left.byteValue(null) == 0 ? new AssignmentAction(null, target, Main.generator.trueValue.dataId()) : null;
+					return Main.generator.getCharCodeSigned(left.byteValue(null)) == 0 ? new AssignmentAction(null, target, Main.generator.trueValue.dataId()) : null;
 				case CHAR_MORE_THAN_CHAR:
-					return left.byteValue(null) == 0 ? new AssignmentAction(null, target, Main.generator.falseValue.dataId()) : null;
+					return Main.generator.getCharCodeSigned(left.byteValue(null)) == 0 ? new AssignmentAction(null, target, Main.generator.falseValue.dataId()) : null;
 				case CHAR_MORE_OR_EQUAL_CHAR:
-					return left.byteValue(null) == -1 ? new AssignmentAction(null, target, Main.generator.trueValue.dataId()) : null;
+					return Main.generator.getCharCodeSigned(left.byteValue(null)) == -1 ? new AssignmentAction(null, target, Main.generator.trueValue.dataId()) : null;
 				case CHAR_PLUS_CHAR:
-					return left.byteValue(null) == 0 ? new AssignmentAction(null, target, arg2) : null;
+					return Main.generator.getCharCodeSigned(left.byteValue(null)) == 0 ? new AssignmentAction(null, target, arg2) : null;
 				case CHAR_AND_CHAR: {
-					byte byteValue = left.byteValue(null);
-					if (byteValue == 0) {
+					int codeSigned = Main.generator.getCharCodeSigned(left.byteValue(null));
+					if (codeSigned == 0) {
 						return new AssignmentAction(null, target, left.dataId());
 					}
-					else if (byteValue == -1) {
+					else if (codeSigned == -1) {
 						return new AssignmentAction(null, target, arg2);
 					}
 					else {
@@ -368,11 +368,11 @@ public class BinaryOpAction extends Action implements IValueAction {
 					}
 				}
 				case CHAR_OR_CHAR: {
-					byte byteValue = left.byteValue(null);
-					if (byteValue == 0) {
+					int codeSigned = Main.generator.getCharCodeSigned(left.byteValue(null));
+					if (codeSigned == 0) {
 						return new AssignmentAction(null, target, arg2);
 					}
-					else if (byteValue == -1) {
+					else if (codeSigned == -1) {
 						return new AssignmentAction(null, target, left.dataId());
 					}
 					else {
@@ -380,11 +380,11 @@ public class BinaryOpAction extends Action implements IValueAction {
 					}
 				}
 				case CHAR_XOR_CHAR: {
-					byte byteValue = left.byteValue(null);
-					if (byteValue == 0) {
+					int codeSigned = Main.generator.getCharCodeSigned(left.byteValue(null));
+					if (codeSigned == 0) {
 						return new AssignmentAction(null, target, arg2);
 					}
-					else if (byteValue == -1) {
+					else if (codeSigned == -1) {
 						return UnaryActionType.NOT_CHAR.action(null, target, arg2);
 					}
 					else {
@@ -474,7 +474,7 @@ public class BinaryOpAction extends Action implements IValueAction {
 				case CHAR_XOR_CHAR:
 					return commutated(target, arg2, arg1).simplify();
 				case CHAR_MINUS_CHAR:
-					return right.byteValue(null) == 0 ? new AssignmentAction(null, target, arg1) : null;
+					return Main.generator.getCharCodeSigned(right.byteValue(null)) == 0 ? new AssignmentAction(null, target, arg1) : null;
 			}
 		}
 		

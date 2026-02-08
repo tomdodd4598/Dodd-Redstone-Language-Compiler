@@ -1,12 +1,15 @@
 T64K
 GK
 
+[root]
 T16@
 A13@
 E8@
 T16@
 A14@
 ZF
+
+[main]
 XF
 XF
 U6@
@@ -14,6 +17,8 @@ A15@
 T7@
 E6@
 G6@
+
+[\data]
 E3@
 PF
 &F

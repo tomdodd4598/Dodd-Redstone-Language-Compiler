@@ -36,7 +36,7 @@ public class InstructionRightShift extends InstructionImmediate {
 	}
 	
 	@Override
-	protected String opcode() {
+	protected char opcode() {
 		return EdsacOpcodes.RIGHT_SHIFT;
 	}
 	

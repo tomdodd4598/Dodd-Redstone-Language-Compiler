@@ -100,6 +100,8 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 	
 	// Static helpers
 	
+	public static final long ARGUMENT_MASK = 0x7FFL;
+	
 	public static List<EdsacInt> raw(Value<?> value) {
 		if (value instanceof BoolValue boolValue) {
 			return Arrays.asList(EdsacInt.of(boolValue.value ? 1 : 0));
@@ -117,8 +119,6 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 			return Arrays.asList(EdsacInt.of(value.longValue(null)));
 		}
 	}
-	
-	public static final long ARGUMENT_MASK = 0x7FFL;
 	
 	public static String instructionArgument(long value) {
 		value &= ARGUMENT_MASK;

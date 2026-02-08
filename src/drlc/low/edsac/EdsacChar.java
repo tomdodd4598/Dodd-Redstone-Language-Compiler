@@ -4,8 +4,8 @@ import drlc.Helpers;
 
 public class EdsacChar {
 	
-	public static final EdsacChar LETTER_SHIFT = EdsacChar.of('*');
-	public static final EdsacChar FIGURE_SHIFT = EdsacChar.of('^');
+	public static final EdsacChar LETTER_SHIFT = of('*');
+	public static final EdsacChar FIGURE_SHIFT = of('^');
 	
 	public final byte ascii, code;
 	

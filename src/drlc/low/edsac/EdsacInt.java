@@ -143,6 +143,10 @@ public class EdsacInt {
 		return (byte) (and(CHAR_MASK).toLong() >> 12);
 	}
 	
+	public byte toCharAscii() {
+		return EdsacChar.of(EdsacOpcodes.get(toCharCode())).ascii;
+	}
+	
 	public String toAssembly() {
 		return EdsacOpcodes.get(this) + EdsacCode.instructionArgument(internal >>> 1) + ((internal & 1) == 0 ? EdsacOpcodes.SHORT : EdsacOpcodes.LONG);
 	}

@@ -13,7 +13,7 @@ public abstract class InstructionJump extends Instruction {
 		this.section = section;
 	}
 	
-	protected abstract String opcode();
+	protected abstract char opcode();
 	
 	@Override
 	public String toAssembly(Integer offset) {

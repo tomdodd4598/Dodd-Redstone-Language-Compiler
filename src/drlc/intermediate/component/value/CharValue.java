@@ -12,7 +12,7 @@ public class CharValue extends BasicValue<CharTypeInfo> {
 	
 	public CharValue(ASTNode<?> node, int value) {
 		super(node, Main.generator.charTypeInfo);
-		this.value = (byte) (value & 0x7F);
+		this.value = (byte) (value & Helpers.ASCII_MASK);
 	}
 	
 	@Override
@@ -37,6 +37,6 @@ public class CharValue extends BasicValue<CharTypeInfo> {
 	
 	@Override
 	public String valueString() {
-		return Helpers.charToString((char) Byte.toUnsignedInt(value));
+		return Helpers.charToString((char) value);
 	}
 }

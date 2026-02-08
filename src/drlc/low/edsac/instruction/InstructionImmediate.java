@@ -11,7 +11,7 @@ public abstract class InstructionImmediate extends Instruction {
 		this.value = value;
 	}
 	
-	protected abstract String opcode();
+	protected abstract char opcode();
 	
 	@Override
 	public String toAssembly(Integer offset) {

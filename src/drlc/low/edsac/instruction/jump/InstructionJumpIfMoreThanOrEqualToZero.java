@@ -9,7 +9,7 @@ public class InstructionJumpIfMoreThanOrEqualToZero extends InstructionJump {
 	}
 	
 	@Override
-	protected String opcode() {
+	protected char opcode() {
 		return EdsacOpcodes.JUMP_IF_MORE_THAN_OR_EQUAL_TO_ZERO;
 	}
 }

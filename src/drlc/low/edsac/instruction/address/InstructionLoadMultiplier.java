@@ -20,7 +20,7 @@ public class InstructionLoadMultiplier extends InstructionAddress {
 	}
 	
 	@Override
-	protected String opcode() {
+	protected char opcode() {
 		return EdsacOpcodes.LOAD_MULTIPLIER;
 	}
 }

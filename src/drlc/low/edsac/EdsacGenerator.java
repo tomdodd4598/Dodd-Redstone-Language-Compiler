@@ -30,15 +30,17 @@ public class EdsacGenerator extends Generator {
 		StringBuilder sb = new StringBuilder();
 		Consumer<Instruction> appendInstruction = x -> sb.append(x.toAssembly(OFFSET)).append('\n');
 		
-		sb.append('T').append(OFFSET).append("K\nGK\n\n");
+		sb.append('T').append(OFFSET).append("K\nGK\n");
 		
 		for (EdsacRoutine routine : code.routineMap.values()) {
+			sb.append("\n[").append(routine.function.asmString()).append("]\n");
 			for (List<Instruction> section : routine.sectionTextMap.values()) {
 				section.forEach(appendInstruction);
 			}
 		}
 		
 		if (!code.staticDataMap.isEmpty()) {
+			sb.append("\n[").append(Global.DATA).append("]\n");
 			code.staticDataMap.values().stream().forEach(appendInstruction);
 		}
 		
@@ -107,6 +109,11 @@ public class EdsacGenerator extends Generator {
 			sb.append(edsacChar.code);
 		}
 		return sb.toString();
+	}
+	
+	@Override
+	public int getCharCodeSigned(byte value) {
+		return (EdsacChar.of(value).code << 27) >> 27;
 	}
 	
 	@Override
@@ -265,6 +272,48 @@ public class EdsacGenerator extends Generator {
 	}
 	
 	@Override
+	public @NonNull Value<?> charCharBinaryOp(ASTNode<?> node, CharValue left, @NonNull BinaryOpType opType, CharValue right) {
+		EdsacInt leftInt = EdsacChar.of(left.byteValue(node)).toInt(), rightInt = EdsacChar.of(right.byteValue(node)).toInt();
+		switch (opType) {
+			case LOGICAL_AND:
+			case LOGICAL_OR:
+				throw undefinedBinaryOp(node, left.typeInfo, opType, right.typeInfo);
+			case EQUAL_TO:
+				return boolValue(leftInt.equals(rightInt));
+			case NOT_EQUAL_TO:
+				return boolValue(!leftInt.equals(rightInt));
+			case LESS_THAN:
+				return boolValue(leftInt.compareUnsigned(rightInt) < 0);
+			case LESS_OR_EQUAL:
+				return boolValue(leftInt.compareUnsigned(rightInt) <= 0);
+			case MORE_THAN:
+				return boolValue(leftInt.compareUnsigned(rightInt) > 0);
+			case MORE_OR_EQUAL:
+				return boolValue(leftInt.compareUnsigned(rightInt) >= 0);
+			case PLUS:
+				return charValue(leftInt.plus(rightInt).toCharAscii());
+			case AND:
+				return charValue(leftInt.and(rightInt).toCharAscii());
+			case OR:
+				return charValue(leftInt.or(rightInt).toCharAscii());
+			case XOR:
+				return charValue(leftInt.xor(rightInt).toCharAscii());
+			case MINUS:
+				return charValue(leftInt.minus(rightInt).toCharAscii());
+			case MULTIPLY:
+			case DIVIDE:
+			case REMAINDER:
+			case LEFT_SHIFT:
+			case RIGHT_SHIFT:
+			case LEFT_ROTATE:
+			case RIGHT_ROTATE:
+				throw undefinedBinaryOp(node, left.typeInfo, opType, right.typeInfo);
+			default:
+				throw unknownBinaryOpType(node, left.typeInfo, opType, right.typeInfo);
+		}
+	}
+	
+	@Override
 	public @NonNull Value<?> intUnaryOp(ASTNode<?> node, @NonNull UnaryOpType opType, @NonNull IntValue value) {
 		EdsacInt intValue = EdsacInt.of(value.value);
 		switch (opType) {
@@ -285,6 +334,19 @@ public class EdsacGenerator extends Generator {
 				throw undefinedUnaryOp(node, opType, value.typeInfo);
 			case NOT:
 				return natValue(intValue.not());
+			default:
+				throw unknownUnaryOpType(node, opType, value.typeInfo);
+		}
+	}
+	
+	@Override
+	public @NonNull Value<?> charUnaryOp(ASTNode<?> node, @NonNull UnaryOpType opType, @NonNull CharValue value) {
+		EdsacInt intValue = EdsacChar.of(value.byteValue(node)).toInt();
+		switch (opType) {
+			case MINUS:
+				throw undefinedUnaryOp(node, opType, value.typeInfo);
+			case NOT:
+				return charValue(intValue.not().toCharAscii());
 			default:
 				throw unknownUnaryOpType(node, opType, value.typeInfo);
 		}

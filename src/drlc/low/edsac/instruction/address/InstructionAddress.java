@@ -25,7 +25,7 @@ public abstract class InstructionAddress extends Instruction implements IInstruc
 		dataInfo = dataInfo.getRegeneratedDataInfo();
 	}
 	
-	protected abstract String opcode();
+	protected abstract char opcode();
 	
 	@Override
 	public String toAssembly(Integer offset) {
