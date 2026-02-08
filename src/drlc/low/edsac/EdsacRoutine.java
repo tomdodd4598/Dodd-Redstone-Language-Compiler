@@ -306,6 +306,11 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		text.add(new InstructionAdd(info));
 	}
 	
+	protected void loadMultiplier(List<Instruction> text) {
+		clearAccumulator(text);
+		text.add(new InstructionLoadMultiplier(scratchDataInfo()));
+	}
+	
 	protected LowDataInfo constantInfo(long value) {
 		ValueDataId valueDataId = intValueDataId(value);
 		LowDataInfo info = getDataInfo(valueDataId, 0);
@@ -435,7 +440,6 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 					text.add(new InstructionLeftShift(value));
 					return;
 				case INT_RIGHT_SHIFT_INT:
-				case NAT_RIGHT_SHIFT_INT:
 					text.add(new InstructionRightShift(value));
 					return;
 				default:
@@ -448,14 +452,19 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			case CHAR_PLUS_CHAR:
 				text.add(new InstructionAdd(loadInfoForArg(arg)));
 				break;
+			case BOOL_AND_BOOL:
+			case INT_AND_INT:
+			case CHAR_AND_CHAR:
+				loadMultiplier(text);
+				text.add(new InstructionAddCollation(loadInfoForArg(arg)));
+				break;
 			case INT_MINUS_INT:
 			case CHAR_MINUS_CHAR:
 				text.add(new InstructionSubtract(loadInfoForArg(arg)));
 				break;
 			case INT_MULTIPLY_INT:
-				clearAccumulator(text);
-				text.add(new InstructionLoadMultiplier(loadInfoForArg(arg)));
-				text.add(new InstructionAddMultiplication(scratchDataInfo()));
+				loadMultiplier(text);
+				text.add(new InstructionAddMultiplication(loadInfoForArg(arg)));
 				binaryOp(text, BinaryActionType.INT_LEFT_SHIFT_INT, intValueDataId(16));
 				break;
 			default:
