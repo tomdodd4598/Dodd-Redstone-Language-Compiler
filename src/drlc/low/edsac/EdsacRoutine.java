@@ -22,7 +22,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 	
 	protected static final long WHEELER_STORE_DELTA = 0x18000L;
 	
-	protected DataId scratchDataId = null;
+	protected Map<Integer, DataId> tempDataMap = new HashMap<>();
 	
 	public EdsacRoutine(EdsacCode code, Routine intermediate) {
 		super(code, intermediate);
@@ -42,8 +42,8 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			List<Instruction> returnText = new ArrayList<>();
 			sectionTextMap.put(-2, returnText);
 			
-			returnText.add(new InstructionNoOp(true));
-			returnText.add(new InstructionNoOp(true));
+			returnText.add(new InstructionPlaceholder());
+			returnText.add(new InstructionPlaceholder());
 			
 			List<Instruction> patchText = new ArrayList<>();
 			sectionTextMap.put(-1, patchText);
@@ -90,6 +90,9 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 					}
 					
 					int targetSize = target.typeInfo.getSize(), argCount = args.size();
+					if (targetSize > 1) {
+						throw new UnsupportedOperationException("EDSAC backend does not support compound returns yet!");
+					}
 					
 					for (int j = 0; j < argCount; ++j) {
 						DataId paramId = subroutine.params.get(j).dataId();
@@ -103,7 +106,9 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 					
 					LowDataInfo returnAddressInfo = returnAddressInfo();
 					InstructionWheelerReturn iwr = (InstructionWheelerReturn) code.staticDataMap.get(returnAddressInfo);
-					loadConstantWord(text, returnAddressInfo);
+					
+					text.add(new InstructionStoreAndClear(tempDataInfo(0)));
+					text.add(new InstructionAdd(returnAddressInfo));
 					text.add(new InstructionWheelerJump(subroutine.function, iwr));
 					
 					if (targetSize == 1) {
@@ -273,8 +278,17 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		text.add(new InstructionJumpIfLessThanZero(section));
 	}
 	
+	protected void returnFromSubroutineIfMoreThanOrEqualToZero(List<Instruction> text) {
+		text.add(new InstructionJumpIfMoreThanOrEqualToZero(-2));
+	}
+	
+	protected void returnFromSubroutineIfLessThanZero(List<Instruction> text) {
+		text.add(new InstructionJumpIfLessThanZero(-2));
+	}
+	
 	protected void returnFromSubroutine(List<Instruction> text) {
-		jump(text, -2);
+		returnFromSubroutineIfMoreThanOrEqualToZero(text);
+		returnFromSubroutineIfLessThanZero(text);
 	}
 	
 	protected int textAddress(Function function, int section, int offset) {
@@ -290,25 +304,12 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		return offsets;
 	}
 	
-	protected LowDataInfo scratchDataInfo() {
-		if (scratchDataId == null) {
-			scratchDataId = function.scope.nextLocalDataId(intermediate, Main.generator.intTypeInfo);
+	protected LowDataInfo tempDataInfo(int key) {
+		DataId dataId = tempDataMap.get(key);
+		if (dataId == null) {
+			tempDataMap.put(key, dataId = function.scope.nextLocalDataId(intermediate, Main.generator.intTypeInfo));
 		}
-		return getDataInfo(scratchDataId, 0);
-	}
-	
-	protected void clearAccumulator(List<Instruction> text) {
-		text.add(new InstructionStoreAndClear(scratchDataInfo()));
-	}
-	
-	protected void loadConstantWord(List<Instruction> text, LowDataInfo info) {
-		clearAccumulator(text);
-		text.add(new InstructionAdd(info));
-	}
-	
-	protected void loadMultiplier(List<Instruction> text) {
-		clearAccumulator(text);
-		text.add(new InstructionLoadMultiplier(scratchDataInfo()));
+		return getDataInfo(dataId, 0);
 	}
 	
 	protected LowDataInfo constantInfo(long value) {
@@ -356,7 +357,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		return new ValueDataId(Main.generator.natValue(value));
 	}
 	
-	protected LowDataInfo loadInfoForArg(DataId arg) {
+	protected LowDataInfo ensureDataInfo(DataId arg) {
 		Function function = arg.getFunction();
 		if (function != null) {
 			return ensureFunctionInfo(function, arg);
@@ -384,19 +385,22 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			LowDataInfo baseInfo = ensureValueInfo(valueDataId);
 			IntStream offsets = loadStoreOffsets(values.size(), reverse);
 			offsets.forEach(x -> {
-				loadConstantWord(text, baseInfo.offsetBy(x));
+				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
+				text.add(new InstructionAdd(baseInfo.offsetBy(x)));
 				consumer.accept(x);
 			});
 		}
 		else if (arg.isAddress()) {
-			loadConstantWord(text, ensureAddressInfo(arg));
+			text.add(new InstructionStoreAndClear(tempDataInfo(0)));
+			text.add(new InstructionAdd(ensureAddressInfo(arg)));
 			consumer.accept(0);
 		}
 		else if (arg.dereferenceLevel == 0) {
 			IntStream offsets = loadStoreOffsets(arg.typeInfo.getSize(), reverse);
 			LowDataInfo loadInfo = getDataInfo(arg, 0);
 			offsets.forEach(x -> {
-				loadConstantWord(text, loadInfo.offsetBy(x));
+				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
+				text.add(new InstructionAdd(loadInfo.offsetBy(x)));
 				consumer.accept(x);
 			});
 		}
@@ -447,25 +451,152 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			}
 		}
 		
+		LowDataInfo argDataInfo = ensureDataInfo(arg);
 		switch (type) {
+			case BOOL_EQUAL_TO_BOOL:
+				// TODO
+				break;
+			case INT_EQUAL_TO_INT:
+				// TODO
+				break;
+			case CHAR_EQUAL_TO_CHAR:
+				// TODO
+				break;
+			case BOOL_NOT_EQUAL_TO_BOOL:
+				// TODO
+				break;
+			case INT_NOT_EQUAL_TO_INT:
+				// TODO
+				break;
+			case CHAR_NOT_EQUAL_TO_CHAR:
+				// TODO
+				break;
+			case BOOL_LESS_THAN_BOOL:
+				// TODO
+				break;
+			case CHAR_LESS_THAN_CHAR:
+				// TODO
+				break;
+			case INT_LESS_THAN_INT:
+				// TODO
+				break;
+			case NAT_LESS_THAN_NAT:
+				// TODO
+				break;
+			case BOOL_LESS_OR_EQUAL_BOOL:
+				// TODO
+				break;
+			case CHAR_LESS_OR_EQUAL_CHAR:
+				// TODO
+				break;
+			case INT_LESS_OR_EQUAL_INT:
+				// TODO
+				break;
+			case NAT_LESS_OR_EQUAL_NAT:
+				// TODO
+				break;
+			case BOOL_MORE_THAN_BOOL:
+				// TODO
+				break;
+			case CHAR_MORE_THAN_CHAR:
+				// TODO
+				break;
+			case INT_MORE_THAN_INT:
+				// TODO
+				break;
+			case NAT_MORE_THAN_NAT:
+				// TODO
+				break;
+			case BOOL_MORE_OR_EQUAL_BOOL:
+				// TODO
+				break;
+			case CHAR_MORE_OR_EQUAL_CHAR:
+				// TODO
+				break;
+			case INT_MORE_OR_EQUAL_INT:
+				// TODO
+				break;
+			case NAT_MORE_OR_EQUAL_NAT:
+				// TODO
+				break;
 			case INT_PLUS_INT:
 			case CHAR_PLUS_CHAR:
-				text.add(new InstructionAdd(loadInfoForArg(arg)));
+				text.add(new InstructionAdd(argDataInfo));
 				break;
 			case BOOL_AND_BOOL:
 			case INT_AND_INT:
 			case CHAR_AND_CHAR:
-				loadMultiplier(text);
-				text.add(new InstructionAddCollation(loadInfoForArg(arg)));
+				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
+				text.add(new InstructionLoadMultiplier(tempDataInfo(0)));
+				text.add(new InstructionAddCollation(argDataInfo));
+				break;
+			case BOOL_OR_BOOL:
+				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
+				text.add(new InstructionLoadMultiplier(tempDataInfo(0)));
+				text.add(new InstructionAddCollation(argDataInfo));
+				text.add(new InstructionStoreAndClear(tempDataInfo(1)));
+				text.add(new InstructionAdd(tempDataInfo(0)));
+				text.add(new InstructionAdd(argDataInfo));
+				text.add(new InstructionSubtract(tempDataInfo(1)));
+				break;
+			case INT_OR_INT:
+				// TODO
+				break;
+			case CHAR_OR_CHAR:
+				// TODO
+				break;
+			case BOOL_XOR_BOOL:
+				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
+				text.add(new InstructionLoadMultiplier(tempDataInfo(0)));
+				text.add(new InstructionAddCollation(argDataInfo));
+				text.add(new InstructionLeftShift(1));
+				text.add(new InstructionStoreAndClear(tempDataInfo(1)));
+				text.add(new InstructionAdd(tempDataInfo(0)));
+				text.add(new InstructionAdd(argDataInfo));
+				text.add(new InstructionSubtract(tempDataInfo(1)));
+				break;
+			case INT_XOR_INT:
+				// TODO
+				break;
+			case CHAR_XOR_CHAR:
+				// TODO
 				break;
 			case INT_MINUS_INT:
 			case CHAR_MINUS_CHAR:
-				text.add(new InstructionSubtract(loadInfoForArg(arg)));
+				text.add(new InstructionSubtract(argDataInfo));
 				break;
 			case INT_MULTIPLY_INT:
-				loadMultiplier(text);
-				text.add(new InstructionAddMultiplication(loadInfoForArg(arg)));
-				binaryOp(text, BinaryActionType.INT_LEFT_SHIFT_INT, intValueDataId(16));
+				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
+				text.add(new InstructionLoadMultiplier(tempDataInfo(0)));
+				text.add(new InstructionAddMultiplication(argDataInfo));
+				text.add(new InstructionLeftShift(16));
+				break;
+			case INT_DIVIDE_INT:
+				// TODO
+				break;
+			case NAT_DIVIDE_NAT:
+				// TODO
+				break;
+			case INT_REMAINDER_INT:
+				// TODO
+				break;
+			case NAT_REMAINDER_NAT:
+				// TODO
+				break;
+			case INT_LEFT_SHIFT_INT:
+				// TODO
+				break;
+			case INT_RIGHT_SHIFT_INT:
+				// TODO
+				break;
+			case NAT_RIGHT_SHIFT_INT:
+				// TODO
+				break;
+			case INT_LEFT_ROTATE_INT:
+				// TODO
+				break;
+			case INT_RIGHT_ROTATE_INT:
+				// TODO
 				break;
 			default:
 				throw new UnsupportedOperationException(String.format("EDSAC backend does not support binary op %s yet!", type));
@@ -476,26 +607,26 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		switch (type) {
 			case MINUS_INT:
 				loadScalar(text, arg);
-				clearAccumulator(text);
-				text.add(new InstructionSubtract(scratchDataInfo()));
+				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
+				text.add(new InstructionSubtract(tempDataInfo(0)));
 				break;
 			case NOT_BOOL:
 				loadScalar(text, arg);
-				clearAccumulator(text);
+				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
 				text.add(new InstructionAdd(constantInfo(1)));
-				text.add(new InstructionSubtract(scratchDataInfo()));
+				text.add(new InstructionSubtract(tempDataInfo(0)));
 				break;
 			case NOT_INT:
 				loadScalar(text, arg);
-				clearAccumulator(text);
+				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
 				text.add(new InstructionAdd(constantInfo(-1)));
-				text.add(new InstructionSubtract(scratchDataInfo()));
+				text.add(new InstructionSubtract(tempDataInfo(0)));
 				break;
 			case NOT_CHAR:
 				loadScalar(text, arg);
-				clearAccumulator(text);
+				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
 				text.add(new InstructionAdd(constantInfo(EdsacInt.CHAR_MASK)));
-				text.add(new InstructionSubtract(scratchDataInfo()));
+				text.add(new InstructionSubtract(tempDataInfo(0)));
 				break;
 			default:
 				throw new IllegalArgumentException(String.format("Attempted to add unary op instruction of unknown type! %s %s", type, arg.opErrorString()));

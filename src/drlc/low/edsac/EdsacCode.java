@@ -7,6 +7,7 @@ import drlc.Global;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.routine.Routine;
 import drlc.low.LowCode;
+import drlc.low.edsac.builtin.*;
 import drlc.low.edsac.instruction.Instruction;
 
 public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
@@ -56,6 +57,11 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 	@Override
 	protected EdsacRoutine getBuiltInRoutine(String name, Routine intermediateRoutine) {
 		switch (name) {
+			case Global.READ_BOOL:
+				return new ReadBoolEdsacRoutine(this, intermediateRoutine);
+			case Global.READ_INT:
+			case Global.READ_NAT:
+				return new ReadIntEdsacRoutine(this, intermediateRoutine);
 			case Global.PRINT_BOOL:
 				// return new PrintBoolEdsacRoutine(this, intermediateRoutine);
 			case Global.PRINT_INT:
@@ -70,10 +76,6 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 				// return new IntLeftRotateIntEdsacRoutine(this, intermediateRoutine);
 			case Global.INT_RIGHT_ROTATE_INT:
 				// return new IntRightRotateIntEdsacRoutine(this, intermediateRoutine);
-			case Global.INT_COMPARE_INT:
-				// return new IntCompareIntEdsacRoutine(this, intermediateRoutine);
-			case Global.NAT_COMPARE_NAT:
-				// return new NatCompareNatEdsacRoutine(this, intermediateRoutine);
 			case Global.PRINT_DIGITS:
 				// return new PrintDigitsEdsacRoutine(this, intermediateRoutine);
 		}

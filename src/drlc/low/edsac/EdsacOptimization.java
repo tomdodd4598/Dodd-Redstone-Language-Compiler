@@ -10,7 +10,7 @@ public class EdsacOptimization {
 		boolean flag = false;
 		for (List<Instruction> section : routine.sectionTextMap.values()) {
 			for (int i = section.size() - 1; i >= 0; --i) {
-				if (section.get(i) instanceof InstructionNoOp noop && !noop.placeholder) {
+				if (section.get(i) instanceof InstructionNoOp) {
 					flag = true;
 					section.remove(i);
 				}

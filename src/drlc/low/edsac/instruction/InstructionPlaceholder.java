@@ -2,9 +2,9 @@ package drlc.low.edsac.instruction;
 
 import drlc.low.edsac.EdsacOpcodes;
 
-public class InstructionNoOp extends InstructionImmediate {
+public class InstructionPlaceholder extends InstructionImmediate {
 	
-	public InstructionNoOp() {
+	public InstructionPlaceholder() {
 		super(0L);
 	}
 	

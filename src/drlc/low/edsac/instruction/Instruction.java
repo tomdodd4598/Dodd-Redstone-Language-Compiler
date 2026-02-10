@@ -14,11 +14,14 @@ public abstract class Instruction extends LowInstruction {
 	}
 	
 	protected String suffix(String str, Integer offset) {
-		switch (str) {
-			case EdsacOpcodes.SHORT:
-				return offset == null ? EdsacOpcodes.SHORT : EdsacOpcodes.THETA;
-			default:
-				throw new IllegalArgumentException(String.format("Offset mapping for suffix \"%s\" not implemented!", str));
+		if (str.equals(EdsacOpcodes.SHORT)) {
+			return offset == null ? str : EdsacOpcodes.THETA;
+		}
+		else if (str.equals(EdsacOpcodes.LONG)) {
+			return offset == null ? str : (EdsacOpcodes.PI + EdsacOpcodes.THETA);
+		}
+		else {
+			throw new IllegalArgumentException(String.format("Encountered unexpected instruction suffix \"%s\"!", str));
 		}
 	}
 	
