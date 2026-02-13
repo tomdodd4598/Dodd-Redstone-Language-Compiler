@@ -5,7 +5,7 @@ import java.util.*;
 import drlc.intermediate.routine.Routine;
 import drlc.low.edsac.*;
 import drlc.low.edsac.instruction.*;
-import drlc.low.edsac.instruction.address.*;
+import drlc.low.edsac.instruction.address.InstructionSubtract;
 
 public class ReadBoolEdsacRoutine extends EdsacRoutine {
 	
@@ -19,11 +19,10 @@ public class ReadBoolEdsacRoutine extends EdsacRoutine {
 		sectionTextMap.put(0, text);
 		
 		text.add(new InstructionDial());
-		text.add(new InstructionRightShift(1));
-		text.add(new InstructionSubtract(constantInfo(10)));
+		text.add(new InstructionSubtract(constantInfo(20)));
 		returnFromSubroutineIfMoreThanOrEqualToZero(text);
-		text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-		text.add(new InstructionAdd(constantInfo(1)));
-		returnFromSubroutine(text);
+		text.add(new InstructionDirect("TF")); // [0]
+		text.add(new InstructionSubtract(constantInfo(1)));
+		returnFromSubroutineIfLessThanZero(text);
 	}
 }

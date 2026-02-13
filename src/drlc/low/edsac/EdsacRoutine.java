@@ -264,12 +264,11 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 	// Instructions
 	
 	protected void conditionalJump(List<Instruction> text, int section, boolean jumpCondition) {
-		text.add(new InstructionSubtract(constantInfo(1)));
 		if (jumpCondition) {
-			text.add(new InstructionJumpIfMoreThanOrEqualToZero(section));
+			text.add(new InstructionJumpIfLessThanZero(section));
 		}
 		else {
-			text.add(new InstructionJumpIfLessThanZero(section));
+			text.add(new InstructionJumpIfMoreThanOrEqualToZero(section));
 		}
 	}
 	
@@ -321,6 +320,14 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 	
 	protected LowDataInfo constantInfo(EdsacInt value) {
 		return constantInfo(value.toLong());
+	}
+	
+	protected LowDataInfo constantInfo(EdsacChar value) {
+		return constantInfo(value.toInt());
+	}
+	
+	protected LowDataInfo constantInfo(String str) {
+		return constantInfo(EdsacInt.of(str));
 	}
 	
 	protected LowDataInfo returnAddressInfo() {
@@ -474,19 +481,16 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			case BOOL_LESS_THAN_BOOL:
 				// TODO
 				break;
-			case CHAR_LESS_THAN_CHAR:
-				// TODO
-				break;
 			case INT_LESS_THAN_INT:
 				// TODO
 				break;
 			case NAT_LESS_THAN_NAT:
 				// TODO
 				break;
-			case BOOL_LESS_OR_EQUAL_BOOL:
+			case CHAR_LESS_THAN_CHAR:
 				// TODO
 				break;
-			case CHAR_LESS_OR_EQUAL_CHAR:
+			case BOOL_LESS_OR_EQUAL_BOOL:
 				// TODO
 				break;
 			case INT_LESS_OR_EQUAL_INT:
@@ -495,10 +499,10 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			case NAT_LESS_OR_EQUAL_NAT:
 				// TODO
 				break;
-			case BOOL_MORE_THAN_BOOL:
+			case CHAR_LESS_OR_EQUAL_CHAR:
 				// TODO
 				break;
-			case CHAR_MORE_THAN_CHAR:
+			case BOOL_MORE_THAN_BOOL:
 				// TODO
 				break;
 			case INT_MORE_THAN_INT:
@@ -507,16 +511,19 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			case NAT_MORE_THAN_NAT:
 				// TODO
 				break;
-			case BOOL_MORE_OR_EQUAL_BOOL:
+			case CHAR_MORE_THAN_CHAR:
 				// TODO
 				break;
-			case CHAR_MORE_OR_EQUAL_CHAR:
+			case BOOL_MORE_OR_EQUAL_BOOL:
 				// TODO
 				break;
 			case INT_MORE_OR_EQUAL_INT:
 				// TODO
 				break;
 			case NAT_MORE_OR_EQUAL_NAT:
+				// TODO
+				break;
+			case CHAR_MORE_OR_EQUAL_CHAR:
 				// TODO
 				break;
 			case INT_PLUS_INT:
@@ -531,6 +538,8 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				text.add(new InstructionAddCollation(argDataInfo));
 				break;
 			case BOOL_OR_BOOL:
+			case INT_OR_INT:
+			case CHAR_OR_CHAR:
 				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
 				text.add(new InstructionLoadMultiplier(tempDataInfo(0)));
 				text.add(new InstructionAddCollation(argDataInfo));
@@ -539,13 +548,9 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				text.add(new InstructionAdd(argDataInfo));
 				text.add(new InstructionSubtract(tempDataInfo(1)));
 				break;
-			case INT_OR_INT:
-				// TODO
-				break;
-			case CHAR_OR_CHAR:
-				// TODO
-				break;
 			case BOOL_XOR_BOOL:
+			case INT_XOR_INT:
+			case CHAR_XOR_CHAR:
 				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
 				text.add(new InstructionLoadMultiplier(tempDataInfo(0)));
 				text.add(new InstructionAddCollation(argDataInfo));
@@ -554,12 +559,6 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				text.add(new InstructionAdd(tempDataInfo(0)));
 				text.add(new InstructionAdd(argDataInfo));
 				text.add(new InstructionSubtract(tempDataInfo(1)));
-				break;
-			case INT_XOR_INT:
-				// TODO
-				break;
-			case CHAR_XOR_CHAR:
-				// TODO
 				break;
 			case INT_MINUS_INT:
 			case CHAR_MINUS_CHAR:
@@ -612,8 +611,8 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				break;
 			case NOT_BOOL:
 				loadScalar(text, arg);
-				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
 				text.add(new InstructionAdd(constantInfo(1)));
+				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
 				text.add(new InstructionSubtract(tempDataInfo(0)));
 				break;
 			case NOT_INT:
@@ -631,5 +630,23 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			default:
 				throw new IllegalArgumentException(String.format("Attempted to add unary op instruction of unknown type! %s %s", type, arg.opErrorString()));
 		}
+	}
+
+	protected void builtInSubroutine(List<Instruction> text, String name, Runnable... load) {
+		Function builtInFunction = Main.generator.getBuiltInFunction(null, name);
+		EdsacRoutine subroutine = code.getRoutine(builtInFunction);
+		if (!subroutine.params.isEmpty()) {
+			subroutine.storeScalar(text, subroutine.params.get(0).dataId());
+		}
+		for (int i = 0; i < load.length; ++i) {
+			load[i].run();
+			subroutine.storeScalar(text, subroutine.params.get(i + 1).dataId());
+		}
+		LowDataInfo returnAddressInfo = returnAddressInfo();
+		InstructionWheelerReturn iwr = (InstructionWheelerReturn) code.staticDataMap.get(returnAddressInfo);
+		text.add(new InstructionStoreAndClear(tempDataInfo(0)));
+		text.add(new InstructionAdd(returnAddressInfo));
+		text.add(new InstructionWheelerJump(subroutine.function, iwr));
+		intermediate.onRequiresNesting();
 	}
 }

@@ -6,6 +6,7 @@ public class EdsacInt {
 	
 	public static final EdsacInt ZERO = of(0L);
 	public static final EdsacInt ONE = of(1L);
+	public static final EdsacInt MINUS = of(-1L);
 	
 	public static final EdsacInt MIN_VALUE = of(0x10000L);
 	public static final EdsacInt MAX_VALUE = of(0x0FFFFL);
@@ -20,6 +21,24 @@ public class EdsacInt {
 	
 	public static EdsacInt of(long value) {
 		return new EdsacInt(value);
+	}
+	
+	public static EdsacInt of(String str) {
+		EdsacInt opcodeInt = EdsacInt.of(EdsacOpcodes.getCode(str.charAt(0)) << 12);
+		
+		int i = 1, length = str.length();
+		while (i < length && Character.isDigit(str.charAt(i))) {
+			++i;
+		}
+		EdsacInt argumentInt = i == 1 ? ZERO : EdsacInt.of(2 * Integer.parseInt(str.substring(1, i)));
+		
+		String suffix = str.substring(i, length);
+		boolean isShort;
+		if (!(isShort = suffix.equals(EdsacOpcodes.SHORT)) && !suffix.equals(EdsacOpcodes.LONG)) {
+			throw new IllegalArgumentException(String.format("Failed to parse EDSAC integer string \"%s\"!", str));
+		}
+		
+		return opcodeInt.plus(argumentInt).plus(isShort ? ZERO : ONE);
 	}
 	
 	public long toLong() {
@@ -144,11 +163,11 @@ public class EdsacInt {
 	}
 	
 	public byte toCharAscii() {
-		return EdsacChar.of(EdsacOpcodes.get(toCharCode())).ascii;
+		return EdsacChar.of(EdsacOpcodes.getChar(toCharCode())).ascii;
 	}
 	
 	public String toAssembly() {
-		return EdsacOpcodes.get(this) + EdsacCode.instructionArgument(internal >>> 1) + ((internal & 1) == 0 ? EdsacOpcodes.SHORT : EdsacOpcodes.LONG);
+		return EdsacOpcodes.getChar(this) + EdsacCode.instructionArgument(internal >>> 1) + ((internal & 1) == 0 ? EdsacOpcodes.SHORT : EdsacOpcodes.LONG);
 	}
 	
 	@Override

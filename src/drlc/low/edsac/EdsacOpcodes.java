@@ -1,5 +1,7 @@
 package drlc.low.edsac;
 
+import drlc.Helpers;
+
 public class EdsacOpcodes {
 	
 	public static final char ADD = 'A';
@@ -29,7 +31,45 @@ public class EdsacOpcodes {
 	public static final String DELTA = "&";
 	public static final String PI = "#";
 	
-	public static char get(byte code) {
+	public static byte getCode(char c) {
+		return (byte) switch (c) {
+			case 'P' -> 0;
+			case 'Q' -> 1;
+			case 'W' -> 2;
+			case 'E' -> 3;
+			case 'R' -> 4;
+			case 'T' -> 5;
+			case 'Y' -> 6;
+			case 'U' -> 7;
+			case 'I' -> 8;
+			case 'O' -> 9;
+			case 'J' -> 10;
+			case '#' -> 11;
+			case 'S' -> 12;
+			case 'Z' -> 13;
+			case 'K' -> 14;
+			case '*' -> 15;
+			case '.' -> 16;
+			case 'F' -> 17;
+			case '@' -> 18;
+			case 'D' -> 19;
+			case '!' -> 20;
+			case 'H' -> 21;
+			case 'N' -> 22;
+			case 'M' -> 23;
+			case '&' -> 24;
+			case 'L' -> 25;
+			case 'X' -> 26;
+			case 'G' -> 27;
+			case 'A' -> 28;
+			case 'B' -> 29;
+			case 'C' -> 30;
+			case 'V' -> 31;
+			default -> throw new IllegalArgumentException(String.format("Found unexpected EDSAC opcode character %s!", Helpers.charToString(c)));
+		};
+	}
+	
+	public static char getChar(byte code) {
 		return switch (code) {
 			case 0 -> 'P';
 			case 1 -> 'Q';
@@ -63,11 +103,11 @@ public class EdsacOpcodes {
 			case 29 -> 'B';
 			case 30 -> 'C';
 			case 31 -> 'V';
-			default -> throw new IllegalArgumentException(String.format("Found unexpected EDSAC character code %d!", code));
+			default -> throw new IllegalArgumentException(String.format("Found unexpected EDSAC opcode value %d!", code));
 		};
 	}
 	
-	public static char get(EdsacInt value) {
-		return get(value.toCharCode());
+	public static char getChar(EdsacInt value) {
+		return getChar(value.toCharCode());
 	}
 }

@@ -494,7 +494,7 @@ fn main() {
 
 // TRIPLE REF TECHNIQUE
 
-
+/*
 struct Thing {
 	item: Chars,
 	next: &mut Thing,
@@ -591,25 +591,75 @@ fn main() {
 	printChars("\nAltered List:\n");
 	start.printList();
 }
-
+*/
 
 // EDSAC SQUARES
 
-/*
+
 fn main() {
-	let mut i = 0N;
-	let mut j = 0N;
-	while i < 10 {
-		i += 1;
-		printNat(i);
-		printChar('\t');
-		
-		let k = j;
-		printNat(j = i * i);
-		printChar('\t');
-		
-		printNat(j - k);
-		printChar('\n');
-	}
+	printInt(0);
+	printChar('\n');
+	printInt(1);
+	printChar('\n');
+	printInt(24);
+	printChar('\n');
+	printInt(360);
+	printChar('\n');
+	printInt(4598);
+	printChar('\n');
+	
+	printChar('\n');
+	
+	printInt(-0);
+	printChar('\n');
+	printInt(-1);
+	printChar('\n');
+	printInt(-24);
+	printChar('\n');
+	printInt(-360);
+	printChar('\n');
+	printInt(-4598);
+	printChar('\n');
+	
+	printChar('\n');
+	
+	printInt(65535);
+	printChar('\n');
+	printInt(-65535);
+	printChar('\n');
+	printInt(-65536);
+	printChar('\n');
+	
+	printChar('\n');
+	
+	printNat(0);
+	printChar('\n');
+	printNat(1);
+	printChar('\n');
+	printNat(24);
+	printChar('\n');
+	printNat(360);
+	printChar('\n');
+	printNat(4598);
+	printChar('\n');
+	printNat(65535);
+	printChar('\n');
+	
+	printChar('\n');
+	
+	printNat(65536);
+	printChar('\n');
+	printNat(69999);
+	printChar('\n');
+	printNat(70000);
+	printChar('\n');
+	printNat(87654);
+	printChar('\n');
+	printNat(100000);
+	printChar('\n');
+	printNat(123456);
+	printChar('\n');
+	printNat(131071);
+	printChar('\n');
 }
-*/
+

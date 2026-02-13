@@ -63,21 +63,21 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 			case Global.READ_NAT:
 				return new ReadIntEdsacRoutine(this, intermediateRoutine);
 			case Global.PRINT_BOOL:
-				// return new PrintBoolEdsacRoutine(this, intermediateRoutine);
+				return new PrintBoolEdsacRoutine(this, intermediateRoutine);
 			case Global.PRINT_INT:
-				// return new PrintIntEdsacRoutine(this, intermediateRoutine);
+				return new PrintIntEdsacRoutine(this, intermediateRoutine);
 			case Global.PRINT_NAT:
-				// return new PrintNatEdsacRoutine(this, intermediateRoutine);
+				return new PrintNatEdsacRoutine(this, intermediateRoutine);
 			case Global.PRINT_CHAR:
-				// return new PrintCharEdsacRoutine(this, intermediateRoutine);
-			case Global.NAT_RIGHT_SHIFT_INT:
-				// return new NatRightShiftIntEdsacRoutine(this, intermediateRoutine);
-			case Global.INT_LEFT_ROTATE_INT:
-				// return new IntLeftRotateIntEdsacRoutine(this, intermediateRoutine);
-			case Global.INT_RIGHT_ROTATE_INT:
-				// return new IntRightRotateIntEdsacRoutine(this, intermediateRoutine);
+				return new PrintCharEdsacRoutine(this, intermediateRoutine);
+			// case Global.NAT_RIGHT_SHIFT_INT:
+			// return new NatRightShiftIntEdsacRoutine(this, intermediateRoutine);
+			// case Global.INT_LEFT_ROTATE_INT:
+			// return new IntLeftRotateIntEdsacRoutine(this, intermediateRoutine);
+			// case Global.INT_RIGHT_ROTATE_INT:
+			// return new IntRightRotateIntEdsacRoutine(this, intermediateRoutine);
 			case Global.PRINT_DIGITS:
-				// return new PrintDigitsEdsacRoutine(this, intermediateRoutine);
+				return new PrintDigitsEdsacRoutine(this, intermediateRoutine);
 		}
 		throw new IllegalArgumentException(String.format("Encountered unsupported built-in subroutine \"%s\"!", name));
 	}
@@ -106,7 +106,7 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 	
 	public static List<EdsacInt> raw(Value<?> value) {
 		if (value instanceof BoolValue boolValue) {
-			return Arrays.asList(EdsacInt.of(boolValue.value ? 1 : 0));
+			return Arrays.asList(boolValue.value ? EdsacInt.MINUS : EdsacInt.ZERO);
 		}
 		else if (value instanceof CharValue charValue) {
 			return Arrays.asList(EdsacChar.of(charValue.value).toInt());
@@ -128,10 +128,10 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 	}
 	
 	public static long shiftBits(long value) {
-		return Math.min(EdsacInt.BITS, value & Integer.MAX_VALUE);
+		return Math.min(EdsacInt.BITS, value & Long.MAX_VALUE);
 	}
 	
 	public static long rotationBits(long value) {
-		return (value & Integer.MAX_VALUE) % EdsacInt.BITS;
+		return (value & Long.MAX_VALUE) % EdsacInt.BITS;
 	}
 }

@@ -23,6 +23,6 @@ public class ReadIntEdsacRoutine extends EdsacRoutine {
 		text.add(new InstructionSubtract(constantInfo(10)));
 		returnFromSubroutineIfMoreThanOrEqualToZero(text);
 		text.add(new InstructionAdd(constantInfo(10)));
-		returnFromSubroutine(text);
+		returnFromSubroutineIfMoreThanOrEqualToZero(text);
 	}
 }

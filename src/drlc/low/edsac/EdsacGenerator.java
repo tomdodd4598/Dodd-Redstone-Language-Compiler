@@ -135,15 +135,15 @@ public class EdsacGenerator extends Generator {
 	public @NonNull Function getBuiltInFunction(ASTNode<?> node, String name) {
 		if (!Main.rootScope.functionExists(name, false)) {
 			switch (name) {
-				case Global.NAT_RIGHT_SHIFT_INT:
-					addBuiltInFunction(name, natTypeInfo, Helpers.builtInDeclarator("x", natTypeInfo), Helpers.builtInDeclarator("y", intTypeInfo));
-					break;
-				case Global.INT_LEFT_ROTATE_INT:
-				case Global.INT_RIGHT_ROTATE_INT:
-					addBuiltInFunction(name, intTypeInfo, Helpers.builtInDeclarator("x", intTypeInfo), Helpers.builtInDeclarator("y", intTypeInfo));
-					break;
+				// case Global.NAT_RIGHT_SHIFT_INT:
+				// addBuiltInFunction(name, natTypeInfo, Helpers.builtInDeclarator("x", natTypeInfo), Helpers.builtInDeclarator("y", intTypeInfo));
+				// break;
+				// case Global.INT_LEFT_ROTATE_INT:
+				// case Global.INT_RIGHT_ROTATE_INT:
+				// addBuiltInFunction(name, intTypeInfo, Helpers.builtInDeclarator("x", intTypeInfo), Helpers.builtInDeclarator("y", intTypeInfo));
+				// break;
 				case Global.PRINT_DIGITS:
-					addBuiltInFunction(name, unitTypeInfo, Helpers.builtInDeclarator("x", intTypeInfo), Helpers.builtInDeclarator("t", intTypeInfo), Helpers.builtInDeclarator("b", intTypeInfo));
+					addBuiltInFunction(name, unitTypeInfo);
 					break;
 			}
 		}
@@ -346,6 +346,16 @@ public class EdsacGenerator extends Generator {
 			default:
 				throw unknownUnaryOpType(node, opType, value.typeInfo);
 		}
+	}
+	
+	@Override
+	public long addressToWordCast(ASTNode<?> node, long valueLong) {
+		return EdsacInt.of(valueLong).toLong();
+	}
+	
+	@Override
+	public long boolToWordCast(ASTNode<?> node, boolean valueBool) {
+		return valueBool ? -1 : 0;
 	}
 	
 	@Override

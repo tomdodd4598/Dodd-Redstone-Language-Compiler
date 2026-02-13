@@ -984,7 +984,9 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 	protected void builtInSubroutine(List<Instruction> text, String name, Runnable... load) {
 		Function builtInFunction = Main.generator.getBuiltInFunction(null, name);
 		RedstoneRoutine subroutine = code.getRoutine(builtInFunction);
-		subroutine.storeScalar(text, subroutine.params.get(0).dataId());
+		if (!subroutine.params.isEmpty()) {
+			subroutine.storeScalar(text, subroutine.params.get(0).dataId());
+		}
 		for (int i = 0; i < load.length; ++i) {
 			load[i].run();
 			subroutine.storeScalar(text, subroutine.params.get(i + 1).dataId());
