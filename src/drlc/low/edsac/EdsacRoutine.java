@@ -461,7 +461,11 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		LowDataInfo argDataInfo = ensureDataInfo(arg);
 		switch (type) {
 			case BOOL_EQUAL_TO_BOOL:
-				// TODO
+				text.add(new InstructionAdd(argDataInfo));
+				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
+				text.add(new InstructionLoadMultiplier(tempDataInfo(0)));
+				text.add(new InstructionAddCollation(constantInfo(1)));
+				text.add(new InstructionSubtract(constantInfo(1)));
 				break;
 			case INT_EQUAL_TO_INT:
 				// TODO
@@ -470,7 +474,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				// TODO
 				break;
 			case BOOL_NOT_EQUAL_TO_BOOL:
-				// TODO
+				binaryOp(text, BinaryActionType.BOOL_XOR_BOOL, arg);
 				break;
 			case INT_NOT_EQUAL_TO_INT:
 				// TODO
@@ -479,7 +483,10 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				// TODO
 				break;
 			case BOOL_LESS_THAN_BOOL:
-				// TODO
+				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
+				text.add(new InstructionAdd(argDataInfo));
+				text.add(new InstructionSubtract(tempDataInfo(0)));
+				text.add(new InstructionRightShift(16));
 				break;
 			case INT_LESS_THAN_INT:
 				// TODO
@@ -491,7 +498,10 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				// TODO
 				break;
 			case BOOL_LESS_OR_EQUAL_BOOL:
-				// TODO
+				binaryOp(text, BinaryActionType.BOOL_MORE_THAN_BOOL, arg);
+				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
+				text.add(new InstructionSubtract(constantInfo(1)));
+				text.add(new InstructionSubtract(tempDataInfo(0)));
 				break;
 			case INT_LESS_OR_EQUAL_INT:
 				// TODO
@@ -503,7 +513,8 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				// TODO
 				break;
 			case BOOL_MORE_THAN_BOOL:
-				// TODO
+				text.add(new InstructionSubtract(argDataInfo));
+				text.add(new InstructionRightShift(16));
 				break;
 			case INT_MORE_THAN_INT:
 				// TODO
@@ -515,7 +526,9 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				// TODO
 				break;
 			case BOOL_MORE_OR_EQUAL_BOOL:
-				// TODO
+				text.add(new InstructionSubtract(argDataInfo));
+				text.add(new InstructionSubtract(constantInfo(1)));
+				text.add(new InstructionRightShift(16));
 				break;
 			case INT_MORE_OR_EQUAL_INT:
 				// TODO
@@ -538,6 +551,9 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				text.add(new InstructionAddCollation(argDataInfo));
 				break;
 			case BOOL_OR_BOOL:
+				text.add(new InstructionAdd(argDataInfo));
+				text.add(new InstructionRightShift(16));
+				break;
 			case INT_OR_INT:
 			case CHAR_OR_CHAR:
 				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
@@ -549,6 +565,13 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				text.add(new InstructionSubtract(tempDataInfo(1)));
 				break;
 			case BOOL_XOR_BOOL:
+				text.add(new InstructionAdd(argDataInfo));
+				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
+				text.add(new InstructionLoadMultiplier(tempDataInfo(0)));
+				text.add(new InstructionAddCollation(constantInfo(1)));
+				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
+				text.add(new InstructionSubtract(tempDataInfo(0)));
+				break;
 			case INT_XOR_INT:
 			case CHAR_XOR_CHAR:
 				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
@@ -618,7 +641,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			case NOT_INT:
 				loadScalar(text, arg);
 				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-				text.add(new InstructionAdd(constantInfo(-1)));
+				text.add(new InstructionSubtract(constantInfo(1)));
 				text.add(new InstructionSubtract(tempDataInfo(0)));
 				break;
 			case NOT_CHAR:
@@ -631,7 +654,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				throw new IllegalArgumentException(String.format("Attempted to add unary op instruction of unknown type! %s %s", type, arg.opErrorString()));
 		}
 	}
-
+	
 	protected void builtInSubroutine(List<Instruction> text, String name, Runnable... load) {
 		Function builtInFunction = Main.generator.getBuiltInFunction(null, name);
 		EdsacRoutine subroutine = code.getRoutine(builtInFunction);

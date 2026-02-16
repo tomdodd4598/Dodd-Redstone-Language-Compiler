@@ -100,6 +100,36 @@ fn main() {
 }
 */
 
+// ACKERMANN FUNCTION
+
+/*
+fn ackermann(m: Nat, n: Nat) -> Nat {
+    if m == 0 {
+        return n + 1;
+    }
+	else if n == 0 {
+        return ackermann(m - 1, 1);
+    }
+	else {
+        return ackermann(m - 1, ackermann(m, n - 1));
+    }
+}
+
+fn main() {
+    let mut m = 0N;
+	while m < 4 {
+		let mut n = 0N;
+		while n < 7 {
+			printNat(ackermann(m, n));
+			n += 1;
+			printChar(' ');
+		}
+		m += 1;
+		printChar('\n');
+	}
+}
+*/
+
 // PRIME NUMBERS
 
 /*
@@ -597,69 +627,20 @@ fn main() {
 
 
 fn main() {
-	printInt(0);
-	printChar('\n');
-	printInt(1);
-	printChar('\n');
-	printInt(24);
-	printChar('\n');
-	printInt(360);
-	printChar('\n');
-	printInt(4598);
-	printChar('\n');
-	
-	printChar('\n');
-	
-	printInt(-0);
-	printChar('\n');
-	printInt(-1);
-	printChar('\n');
-	printInt(-24);
-	printChar('\n');
-	printInt(-360);
-	printChar('\n');
-	printInt(-4598);
-	printChar('\n');
-	
-	printChar('\n');
-	
-	printInt(65535);
-	printChar('\n');
-	printInt(-65535);
-	printChar('\n');
-	printInt(-65536);
-	printChar('\n');
-	
-	printChar('\n');
-	
-	printNat(0);
-	printChar('\n');
-	printNat(1);
-	printChar('\n');
-	printNat(24);
-	printChar('\n');
-	printNat(360);
-	printChar('\n');
-	printNat(4598);
-	printChar('\n');
-	printNat(65535);
-	printChar('\n');
-	
-	printChar('\n');
-	
-	printNat(65536);
-	printChar('\n');
-	printNat(69999);
-	printChar('\n');
-	printNat(70000);
-	printChar('\n');
-	printNat(87654);
-	printChar('\n');
-	printNat(100000);
-	printChar('\n');
-	printNat(123456);
-	printChar('\n');
-	printNat(131071);
-	printChar('\n');
+	let mut i = 0;
+	let mut j = 0;
+	while i < 100 {
+		printChar('\n');
+		printInt(i += 1);
+		
+		let k = j;
+		printChar(' ');
+		printChar(' ');
+		printInt(j = i * i);
+		
+		printChar(' ');
+		printChar(' ');
+		printInt(j - k);
+	}
 }
 
