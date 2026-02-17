@@ -100,8 +100,9 @@ public class RedstoneCode extends LowCode<RedstoneCode, RedstoneRoutine, Instruc
 				return new NatCompareNatRedstoneRoutine(this, intermediateRoutine);
 			case Global.PRINT_DIGITS:
 				return new PrintDigitsRedstoneRoutine(this, intermediateRoutine);
+			default:
+				throw new IllegalArgumentException(String.format("Encountered unsupported built-in subroutine \"%s\"!", name));
 		}
-		throw new IllegalArgumentException(String.format("Encountered unsupported built-in subroutine \"%s\"!", name));
 	}
 	
 	@Override

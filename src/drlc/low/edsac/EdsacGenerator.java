@@ -135,6 +135,10 @@ public class EdsacGenerator extends Generator {
 	public @NonNull Function getBuiltInFunction(ASTNode<?> node, String name) {
 		if (!Main.rootScope.functionExists(name, false)) {
 			switch (name) {
+				case Global.INT_NOT_EQUAL_TO_INT:
+				case Global.INT_LESS_THAN_INT:
+					addBuiltInFunction(name, boolTypeInfo, Helpers.builtInDeclarator("x", intTypeInfo), Helpers.builtInDeclarator("y", intTypeInfo));
+					break;
 				// case Global.NAT_RIGHT_SHIFT_INT:
 				// addBuiltInFunction(name, natTypeInfo, Helpers.builtInDeclarator("x", natTypeInfo), Helpers.builtInDeclarator("y", intTypeInfo));
 				// break;

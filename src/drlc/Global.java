@@ -99,6 +99,8 @@ public final class Global {
 	public static final @NonNull String PATH_SEPARATOR = "::";
 	public static final @NonNull String WILDCARD_PATH = "*";
 	
+	public static final @NonNull String INT_NOT_EQUAL_TO_INT = "\\intNotEqualToInt";
+	public static final @NonNull String INT_LESS_THAN_INT = "\\intLessThanInt";
 	public static final @NonNull String INT_LEFT_ROTATE_INT = "\\intLeftRotateInt";
 	public static final @NonNull String INT_RIGHT_ROTATE_INT = "\\intRightRotateInt";
 	public static final @NonNull String NAT_DIVIDE_NAT = "\\natDivideNat";

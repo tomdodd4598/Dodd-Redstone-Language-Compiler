@@ -70,7 +70,7 @@ public class PrintNatEdsacRoutine extends EdsacRoutine {
 		prepareText.add(new InstructionAdd(constantInfo(EdsacChar.of('\0'))));
 		prepareText.add(new InstructionDirect("T1F")); // [1]
 		
-		builtInSubroutine(callText, Global.PRINT_DIGITS);
+		builtInSubroutine(callText, Global.PRINT_DIGITS, x -> x, false);
 		returnFromSubroutineIfMoreThanOrEqualToZero(callText);
 		
 		zeroText.add(new InstructionPrint(constantInfo(EdsacChar.of('0'))));

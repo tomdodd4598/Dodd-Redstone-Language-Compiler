@@ -5,8 +5,8 @@ import java.util.Map.Entry;
 import java.util.function.*;
 import java.util.stream.IntStream;
 
+import drlc.*;
 import drlc.Helpers.Pair;
-import drlc.Main;
 import drlc.intermediate.action.*;
 import drlc.intermediate.component.Function;
 import drlc.intermediate.component.data.*;
@@ -66,13 +66,13 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			
 			for (Action action : body.get(i)) {
 				if (action instanceof AssignmentAction aa) {
-					loadThen(text, false, aa.arg, x -> storeAt(text, aa.target, x));
+					loadThen(text, false, aa.arg, x -> storeAt(text, aa.target, false, x));
 				}
 				
 				else if (action instanceof BinaryOpAction boa) {
 					loadScalar(text, boa.arg1);
 					binaryOp(text, boa.type, boa.arg2);
-					storeScalar(text, boa.target);
+					storeScalar(text, boa.target, false);
 				}
 				
 				else if (action instanceof CallAction ca) {
@@ -96,12 +96,12 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 					
 					for (int j = 0; j < argCount; ++j) {
 						DataId paramId = subroutine.params.get(j).dataId();
-						loadThen(text, false, args.get(j), x -> subroutine.storeAt(text, paramId, x));
+						loadThen(text, false, args.get(j), x -> subroutine.storeAt(text, paramId, false, x));
 					}
 					
 					if (targetSize > 1) {
 						loadScalar(text, target.removeDereference(null));
-						subroutine.storeScalar(text, subroutine.params.get(argCount).dataId());
+						subroutine.storeScalar(text, subroutine.params.get(argCount).dataId(), false);
 					}
 					
 					LowDataInfo returnAddressInfo = returnAddressInfo();
@@ -112,7 +112,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 					text.add(new InstructionWheelerJump(subroutine.function, iwr));
 					
 					if (targetSize == 1) {
-						storeScalar(text, target);
+						storeScalar(text, target, false);
 					}
 				}
 				
@@ -120,7 +120,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 					int acc = 0;
 					for (DataId arg : caa.args) {
 						int offset = acc;
-						loadThen(text, false, arg, x -> storeAt(text, caa.target, x + offset));
+						loadThen(text, false, arg, x -> storeAt(text, caa.target, false, x + offset));
 						acc += arg.typeInfo.getSize();
 					}
 				}
@@ -150,14 +150,14 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 					}
 					else if (size > 1) {
 						DataId target = params.get(params.size() - 1).dataId().addDereference(null);
-						loadThen(text, false, arg, x -> storeAt(text, target, x));
+						loadThen(text, false, arg, x -> storeAt(text, target, false, x));
 					}
 					returnFromSubroutine(text);
 				}
 				
 				else if (action instanceof UnaryOpAction uoa) {
 					unaryOp(text, uoa.type, uoa.arg);
-					storeScalar(text, uoa.target);
+					storeScalar(text, uoa.target, false);
 				}
 				
 				else {
@@ -420,7 +420,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		loadThen(text, false, arg, x -> {});
 	}
 	
-	protected void storeAt(List<Instruction> text, DataId target, int offset) {
+	protected void storeAt(List<Instruction> text, DataId target, boolean clear, int offset) {
 		if (target instanceof TransientDataId) {
 			return;
 		}
@@ -432,15 +432,15 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		}
 		else if (target.dereferenceLevel == 0) {
 			LowDataInfo storeInfo = getDataInfo(target, 0).offsetBy(offset);
-			text.add(new InstructionStore(storeInfo));
+			text.add(clear ? new InstructionStoreAndClear(storeInfo) : new InstructionStore(storeInfo));
 		}
 		else {
 			throw new UnsupportedOperationException(String.format("EDSAC backend does not support dereferenced stores yet! %s", target));
 		}
 	}
 	
-	protected void storeScalar(List<Instruction> text, DataId target) {
-		storeAt(text, target, 0);
+	protected void storeScalar(List<Instruction> text, DataId target, boolean clear) {
+		storeAt(text, target, clear, 0);
 	}
 	
 	protected void binaryOp(List<Instruction> text, BinaryActionType type, DataId arg) {
@@ -468,19 +468,16 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				text.add(new InstructionSubtract(constantInfo(1)));
 				break;
 			case INT_EQUAL_TO_INT:
-				// TODO
-				break;
 			case CHAR_EQUAL_TO_CHAR:
-				// TODO
+				binaryOp(text, BinaryActionType.INT_NOT_EQUAL_TO_INT, arg);
+				unaryOp(text, UnaryActionType.NOT_INT, null);
 				break;
 			case BOOL_NOT_EQUAL_TO_BOOL:
 				binaryOp(text, BinaryActionType.BOOL_XOR_BOOL, arg);
 				break;
 			case INT_NOT_EQUAL_TO_INT:
-				// TODO
-				break;
 			case CHAR_NOT_EQUAL_TO_CHAR:
-				// TODO
+				builtInSubroutine(text, Global.INT_NOT_EQUAL_TO_INT, x -> x, true, () -> loadScalar(text, arg));
 				break;
 			case BOOL_LESS_THAN_BOOL:
 				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
@@ -489,41 +486,46 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				text.add(new InstructionRightShift(16));
 				break;
 			case INT_LESS_THAN_INT:
-				// TODO
+				builtInSubroutine(text, Global.INT_LESS_THAN_INT, x -> x, true, () -> loadScalar(text, arg));
 				break;
 			case NAT_LESS_THAN_NAT:
-				// TODO
-				break;
 			case CHAR_LESS_THAN_CHAR:
-				// TODO
+				text.add(new InstructionAdd(constantInfo(EdsacInt.MIN_VALUE)));
+				builtInSubroutine(text, Global.INT_LESS_THAN_INT, x -> x, true, () -> {
+					loadScalar(text, arg);
+					text.add(new InstructionAdd(constantInfo(EdsacInt.MIN_VALUE)));
+				});
 				break;
 			case BOOL_LESS_OR_EQUAL_BOOL:
 				binaryOp(text, BinaryActionType.BOOL_MORE_THAN_BOOL, arg);
-				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-				text.add(new InstructionSubtract(constantInfo(1)));
-				text.add(new InstructionSubtract(tempDataInfo(0)));
+				unaryOp(text, UnaryActionType.NOT_BOOL, null);
 				break;
 			case INT_LESS_OR_EQUAL_INT:
-				// TODO
+				binaryOp(text, BinaryActionType.INT_MORE_THAN_INT, arg);
+				unaryOp(text, UnaryActionType.NOT_INT, null);
 				break;
 			case NAT_LESS_OR_EQUAL_NAT:
-				// TODO
+				binaryOp(text, BinaryActionType.NAT_MORE_THAN_NAT, arg);
+				unaryOp(text, UnaryActionType.NOT_INT, null);
 				break;
 			case CHAR_LESS_OR_EQUAL_CHAR:
-				// TODO
+				binaryOp(text, BinaryActionType.CHAR_MORE_THAN_CHAR, arg);
+				unaryOp(text, UnaryActionType.NOT_CHAR, null);
 				break;
 			case BOOL_MORE_THAN_BOOL:
 				text.add(new InstructionSubtract(argDataInfo));
 				text.add(new InstructionRightShift(16));
 				break;
 			case INT_MORE_THAN_INT:
-				// TODO
+				builtInSubroutine(text, Global.INT_LESS_THAN_INT, x -> 1 - x, true, () -> loadScalar(text, arg));
 				break;
 			case NAT_MORE_THAN_NAT:
-				// TODO
-				break;
 			case CHAR_MORE_THAN_CHAR:
-				// TODO
+				text.add(new InstructionAdd(constantInfo(EdsacInt.MIN_VALUE)));
+				builtInSubroutine(text, Global.INT_LESS_THAN_INT, x -> 1 - x, true, () -> {
+					loadScalar(text, arg);
+					text.add(new InstructionAdd(constantInfo(EdsacInt.MIN_VALUE)));
+				});
 				break;
 			case BOOL_MORE_OR_EQUAL_BOOL:
 				text.add(new InstructionSubtract(argDataInfo));
@@ -531,13 +533,16 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				text.add(new InstructionRightShift(16));
 				break;
 			case INT_MORE_OR_EQUAL_INT:
-				// TODO
+				binaryOp(text, BinaryActionType.INT_LESS_THAN_INT, arg);
+				unaryOp(text, UnaryActionType.NOT_INT, null);
 				break;
 			case NAT_MORE_OR_EQUAL_NAT:
-				// TODO
+				binaryOp(text, BinaryActionType.NAT_LESS_THAN_NAT, arg);
+				unaryOp(text, UnaryActionType.NOT_INT, null);
 				break;
 			case CHAR_MORE_OR_EQUAL_CHAR:
-				// TODO
+				binaryOp(text, BinaryActionType.CHAR_LESS_THAN_CHAR, arg);
+				unaryOp(text, UnaryActionType.NOT_CHAR, null);
 				break;
 			case INT_PLUS_INT:
 			case CHAR_PLUS_CHAR:
@@ -595,75 +600,74 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				break;
 			case INT_DIVIDE_INT:
 				// TODO
-				break;
+				// break;
 			case NAT_DIVIDE_NAT:
 				// TODO
-				break;
+				// break;
 			case INT_REMAINDER_INT:
 				// TODO
-				break;
+				// break;
 			case NAT_REMAINDER_NAT:
 				// TODO
-				break;
+				// break;
 			case INT_LEFT_SHIFT_INT:
 				// TODO
-				break;
+				// break;
 			case INT_RIGHT_SHIFT_INT:
 				// TODO
-				break;
+				// break;
 			case NAT_RIGHT_SHIFT_INT:
 				// TODO
-				break;
+				// break;
 			case INT_LEFT_ROTATE_INT:
 				// TODO
-				break;
+				// break;
 			case INT_RIGHT_ROTATE_INT:
 				// TODO
-				break;
+				// break;
 			default:
 				throw new UnsupportedOperationException(String.format("EDSAC backend does not support binary op %s yet!", type));
 		}
 	}
 	
 	protected void unaryOp(List<Instruction> text, UnaryActionType type, DataId arg) {
+		if (arg != null) {
+			loadScalar(text, arg);
+		}
 		switch (type) {
 			case MINUS_INT:
-				loadScalar(text, arg);
 				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
 				text.add(new InstructionSubtract(tempDataInfo(0)));
 				break;
 			case NOT_BOOL:
-				loadScalar(text, arg);
 				text.add(new InstructionAdd(constantInfo(1)));
 				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
 				text.add(new InstructionSubtract(tempDataInfo(0)));
 				break;
 			case NOT_INT:
-				loadScalar(text, arg);
 				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
 				text.add(new InstructionSubtract(constantInfo(1)));
 				text.add(new InstructionSubtract(tempDataInfo(0)));
 				break;
 			case NOT_CHAR:
-				loadScalar(text, arg);
 				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
 				text.add(new InstructionAdd(constantInfo(EdsacInt.CHAR_MASK)));
 				text.add(new InstructionSubtract(tempDataInfo(0)));
 				break;
 			default:
-				throw new IllegalArgumentException(String.format("Attempted to add unary op instruction of unknown type! %s %s", type, arg.opErrorString()));
+				throw new IllegalArgumentException(String.format("Attempted to add unary op instruction of unknown type! %s %s", type, arg == null ? Global.TRANSIENT : arg.opErrorString()));
 		}
 	}
 	
-	protected void builtInSubroutine(List<Instruction> text, String name, Runnable... load) {
+	protected void builtInSubroutine(List<Instruction> text, String name, IntUnaryOperator mapping, boolean clear, Runnable... load) {
 		Function builtInFunction = Main.generator.getBuiltInFunction(null, name);
 		EdsacRoutine subroutine = code.getRoutine(builtInFunction);
 		if (!subroutine.params.isEmpty()) {
-			subroutine.storeScalar(text, subroutine.params.get(0).dataId());
+			subroutine.storeScalar(text, subroutine.params.get(mapping.applyAsInt(0)).dataId(), clear);
 		}
 		for (int i = 0; i < load.length; ++i) {
 			load[i].run();
-			subroutine.storeScalar(text, subroutine.params.get(i + 1).dataId());
+			subroutine.storeScalar(text, subroutine.params.get(mapping.applyAsInt(i + 1)).dataId(), clear);
 		}
 		LowDataInfo returnAddressInfo = returnAddressInfo();
 		InstructionWheelerReturn iwr = (InstructionWheelerReturn) code.staticDataMap.get(returnAddressInfo);

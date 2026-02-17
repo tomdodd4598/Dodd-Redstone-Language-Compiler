@@ -49,7 +49,7 @@ public class PrintIntEdsacRoutine extends EdsacRoutine {
 		callText.add(new InstructionAdd(constantInfo(EdsacChar.of('\0'))));
 		callText.add(new InstructionDirect("T1F")); // [1]
 		callText.add(new InstructionDirect("T6F")); // [6]
-		builtInSubroutine(callText, Global.PRINT_DIGITS);
+		builtInSubroutine(callText, Global.PRINT_DIGITS, x -> x, false);
 		returnFromSubroutineIfMoreThanOrEqualToZero(callText);
 		
 		zeroText.add(new InstructionPrint(constantInfo(EdsacChar.of('0'))));

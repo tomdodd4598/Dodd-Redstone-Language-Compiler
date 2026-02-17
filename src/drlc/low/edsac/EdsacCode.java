@@ -70,6 +70,10 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 				return new PrintNatEdsacRoutine(this, intermediateRoutine);
 			case Global.PRINT_CHAR:
 				return new PrintCharEdsacRoutine(this, intermediateRoutine);
+			case Global.INT_NOT_EQUAL_TO_INT:
+				return new IntNotEqualToIntEdsacRoutine(this, intermediateRoutine);
+			case Global.INT_LESS_THAN_INT:
+				return new IntLessThanIntEdsacRoutine(this, intermediateRoutine);
 			// case Global.NAT_RIGHT_SHIFT_INT:
 			// return new NatRightShiftIntEdsacRoutine(this, intermediateRoutine);
 			// case Global.INT_LEFT_ROTATE_INT:
@@ -78,8 +82,9 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 			// return new IntRightRotateIntEdsacRoutine(this, intermediateRoutine);
 			case Global.PRINT_DIGITS:
 				return new PrintDigitsEdsacRoutine(this, intermediateRoutine);
+			default:
+				throw new IllegalArgumentException(String.format("Encountered unsupported built-in subroutine \"%s\"!", name));
 		}
-		throw new IllegalArgumentException(String.format("Encountered unsupported built-in subroutine \"%s\"!", name));
 	}
 	
 	@Override
