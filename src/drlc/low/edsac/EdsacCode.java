@@ -74,12 +74,16 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 				return new IntNotEqualToIntEdsacRoutine(this, intermediateRoutine);
 			case Global.INT_LESS_THAN_INT:
 				return new IntLessThanIntEdsacRoutine(this, intermediateRoutine);
-			// case Global.NAT_RIGHT_SHIFT_INT:
-			// return new NatRightShiftIntEdsacRoutine(this, intermediateRoutine);
-			// case Global.INT_LEFT_ROTATE_INT:
-			// return new IntLeftRotateIntEdsacRoutine(this, intermediateRoutine);
-			// case Global.INT_RIGHT_ROTATE_INT:
-			// return new IntRightRotateIntEdsacRoutine(this, intermediateRoutine);
+			case Global.INT_LEFT_SHIFT_INT:
+				return new IntLeftShiftIntEdsacRoutine(this, intermediateRoutine);
+			case Global.INT_RIGHT_SHIFT_INT:
+				return new IntRightShiftIntEdsacRoutine(this, intermediateRoutine);
+			case Global.NAT_RIGHT_SHIFT_INT:
+				return new NatRightShiftIntEdsacRoutine(this, intermediateRoutine);
+			case Global.INT_LEFT_ROTATE_INT:
+				return new IntLeftRotateIntEdsacRoutine(this, intermediateRoutine);
+			case Global.INT_RIGHT_ROTATE_INT:
+				return new IntRightRotateIntEdsacRoutine(this, intermediateRoutine);
 			case Global.PRINT_DIGITS:
 				return new PrintDigitsEdsacRoutine(this, intermediateRoutine);
 			default:

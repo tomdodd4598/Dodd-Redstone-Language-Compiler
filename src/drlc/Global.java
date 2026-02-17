@@ -101,11 +101,13 @@ public final class Global {
 	
 	public static final @NonNull String INT_NOT_EQUAL_TO_INT = "\\intNotEqualToInt";
 	public static final @NonNull String INT_LESS_THAN_INT = "\\intLessThanInt";
-	public static final @NonNull String INT_LEFT_ROTATE_INT = "\\intLeftRotateInt";
-	public static final @NonNull String INT_RIGHT_ROTATE_INT = "\\intRightRotateInt";
 	public static final @NonNull String NAT_DIVIDE_NAT = "\\natDivideNat";
 	public static final @NonNull String NAT_REMAINDER_NAT = "\\natRemainderNat";
+	public static final @NonNull String INT_LEFT_SHIFT_INT = "\\intLeftShiftInt";
+	public static final @NonNull String INT_RIGHT_SHIFT_INT = "\\intRightShiftInt";
 	public static final @NonNull String NAT_RIGHT_SHIFT_INT = "\\natRightShiftInt";
+	public static final @NonNull String INT_LEFT_ROTATE_INT = "\\intLeftRotateInt";
+	public static final @NonNull String INT_RIGHT_ROTATE_INT = "\\intRightRotateInt";
 	
 	public static final @NonNull String INT_COMPARE_INT = "\\intCompareInt";
 	public static final @NonNull String NAT_COMPARE_NAT = "\\natCompareNat";

@@ -139,13 +139,17 @@ public class EdsacGenerator extends Generator {
 				case Global.INT_LESS_THAN_INT:
 					addBuiltInFunction(name, boolTypeInfo, Helpers.builtInDeclarator("x", intTypeInfo), Helpers.builtInDeclarator("y", intTypeInfo));
 					break;
-				// case Global.NAT_RIGHT_SHIFT_INT:
-				// addBuiltInFunction(name, natTypeInfo, Helpers.builtInDeclarator("x", natTypeInfo), Helpers.builtInDeclarator("y", intTypeInfo));
-				// break;
-				// case Global.INT_LEFT_ROTATE_INT:
-				// case Global.INT_RIGHT_ROTATE_INT:
-				// addBuiltInFunction(name, intTypeInfo, Helpers.builtInDeclarator("x", intTypeInfo), Helpers.builtInDeclarator("y", intTypeInfo));
-				// break;
+				case Global.INT_LEFT_SHIFT_INT:
+				case Global.INT_RIGHT_SHIFT_INT:
+					addBuiltInFunction(name, intTypeInfo, Helpers.builtInDeclarator("x", intTypeInfo), Helpers.builtInDeclarator("y", intTypeInfo));
+					break;
+				case Global.NAT_RIGHT_SHIFT_INT:
+					addBuiltInFunction(name, natTypeInfo, Helpers.builtInDeclarator("x", natTypeInfo), Helpers.builtInDeclarator("y", intTypeInfo));
+					break;
+				case Global.INT_LEFT_ROTATE_INT:
+				case Global.INT_RIGHT_ROTATE_INT:
+					addBuiltInFunction(name, intTypeInfo, Helpers.builtInDeclarator("x", intTypeInfo), Helpers.builtInDeclarator("y", intTypeInfo));
+					break;
 				case Global.PRINT_DIGITS:
 					addBuiltInFunction(name, unitTypeInfo);
 					break;

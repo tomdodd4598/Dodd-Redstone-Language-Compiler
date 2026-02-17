@@ -470,7 +470,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			case INT_EQUAL_TO_INT:
 			case CHAR_EQUAL_TO_CHAR:
 				binaryOp(text, BinaryActionType.INT_NOT_EQUAL_TO_INT, arg);
-				unaryOp(text, UnaryActionType.NOT_INT, null);
+				unaryOp(text, UnaryActionType.NOT_BOOL, null);
 				break;
 			case BOOL_NOT_EQUAL_TO_BOOL:
 				binaryOp(text, BinaryActionType.BOOL_XOR_BOOL, arg);
@@ -502,15 +502,15 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				break;
 			case INT_LESS_OR_EQUAL_INT:
 				binaryOp(text, BinaryActionType.INT_MORE_THAN_INT, arg);
-				unaryOp(text, UnaryActionType.NOT_INT, null);
+				unaryOp(text, UnaryActionType.NOT_BOOL, null);
 				break;
 			case NAT_LESS_OR_EQUAL_NAT:
 				binaryOp(text, BinaryActionType.NAT_MORE_THAN_NAT, arg);
-				unaryOp(text, UnaryActionType.NOT_INT, null);
+				unaryOp(text, UnaryActionType.NOT_BOOL, null);
 				break;
 			case CHAR_LESS_OR_EQUAL_CHAR:
 				binaryOp(text, BinaryActionType.CHAR_MORE_THAN_CHAR, arg);
-				unaryOp(text, UnaryActionType.NOT_CHAR, null);
+				unaryOp(text, UnaryActionType.NOT_BOOL, null);
 				break;
 			case BOOL_MORE_THAN_BOOL:
 				text.add(new InstructionSubtract(argDataInfo));
@@ -534,15 +534,15 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				break;
 			case INT_MORE_OR_EQUAL_INT:
 				binaryOp(text, BinaryActionType.INT_LESS_THAN_INT, arg);
-				unaryOp(text, UnaryActionType.NOT_INT, null);
+				unaryOp(text, UnaryActionType.NOT_BOOL, null);
 				break;
 			case NAT_MORE_OR_EQUAL_NAT:
 				binaryOp(text, BinaryActionType.NAT_LESS_THAN_NAT, arg);
-				unaryOp(text, UnaryActionType.NOT_INT, null);
+				unaryOp(text, UnaryActionType.NOT_BOOL, null);
 				break;
 			case CHAR_MORE_OR_EQUAL_CHAR:
 				binaryOp(text, BinaryActionType.CHAR_LESS_THAN_CHAR, arg);
-				unaryOp(text, UnaryActionType.NOT_CHAR, null);
+				unaryOp(text, UnaryActionType.NOT_BOOL, null);
 				break;
 			case INT_PLUS_INT:
 			case CHAR_PLUS_CHAR:
@@ -598,33 +598,33 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				text.add(new InstructionAddMultiplication(argDataInfo));
 				text.add(new InstructionLeftShift(16));
 				break;
-			case INT_DIVIDE_INT:
-				// TODO
-				// break;
-			case NAT_DIVIDE_NAT:
-				// TODO
-				// break;
-			case INT_REMAINDER_INT:
-				// TODO
-				// break;
-			case NAT_REMAINDER_NAT:
-				// TODO
-				// break;
+			// case INT_DIVIDE_INT:
+			// TODO
+			// break;
+			// case NAT_DIVIDE_NAT:
+			// TODO
+			// break;
+			// case INT_REMAINDER_INT:
+			// TODO
+			// break;
+			// case NAT_REMAINDER_NAT:
+			// TODO
+			// break;
 			case INT_LEFT_SHIFT_INT:
-				// TODO
-				// break;
+				builtInSubroutine(text, Global.INT_LEFT_SHIFT_INT, x -> x, true, () -> loadScalar(text, arg));
+				break;
 			case INT_RIGHT_SHIFT_INT:
-				// TODO
-				// break;
+				builtInSubroutine(text, Global.INT_RIGHT_SHIFT_INT, x -> x, true, () -> loadScalar(text, arg));
+				break;
 			case NAT_RIGHT_SHIFT_INT:
-				// TODO
-				// break;
+				builtInSubroutine(text, Global.NAT_RIGHT_SHIFT_INT, x -> x, true, () -> loadScalar(text, arg));
+				break;
 			case INT_LEFT_ROTATE_INT:
-				// TODO
-				// break;
+				builtInSubroutine(text, Global.INT_LEFT_ROTATE_INT, x -> x, true, () -> loadScalar(text, arg));
+				break;
 			case INT_RIGHT_ROTATE_INT:
-				// TODO
-				// break;
+				builtInSubroutine(text, Global.INT_RIGHT_ROTATE_INT, x -> x, true, () -> loadScalar(text, arg));
+				break;
 			default:
 				throw new UnsupportedOperationException(String.format("EDSAC backend does not support binary op %s yet!", type));
 		}
