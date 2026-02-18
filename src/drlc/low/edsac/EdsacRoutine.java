@@ -446,7 +446,39 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			});
 		}
 		else {
-			throw new UnsupportedOperationException(String.format("EDSAC backend does not support dereferenced loads yet! %s", arg));
+			DataId baseId = arg;
+			for (int i = 0; i < arg.dereferenceLevel; ++i) {
+				baseId = baseId.removeDereference(null);
+			}
+			
+			int section = getSectionIndex(text);
+			LowDataInfo baseInfo = getDataInfo(baseId, 0);
+			IntStream offsets = loadStoreOffsets(arg.typeInfo.getSize(), reverse);
+			
+			offsets.forEach(x -> {
+				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
+				text.add(new InstructionAdd(baseInfo));
+				
+				for (int i = 0; i < arg.dereferenceLevel - 1; ++i) {
+					text.add(new InstructionLeftShift(1));
+					text.add(new InstructionAdd(constantInfo("AF")));
+					Instruction placeholder = new InstructionPlaceholder();
+					text.add(new InstructionDeferredStoreAndClear(function, section, placeholder));
+					text.add(placeholder);
+				}
+				
+				if (x != 0) {
+					text.add(new InstructionAdd(constantInfo(x)));
+				}
+				
+				text.add(new InstructionLeftShift(1));
+				text.add(new InstructionAdd(constantInfo("AF")));
+				Instruction placeholder = new InstructionPlaceholder();
+				text.add(new InstructionDeferredStoreAndClear(function, section, placeholder));
+				text.add(placeholder);
+				
+				consumer.accept(x);
+			});
 		}
 	}
 	
