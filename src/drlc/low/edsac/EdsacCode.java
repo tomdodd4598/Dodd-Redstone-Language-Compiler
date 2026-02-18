@@ -4,15 +4,19 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import drlc.Global;
+import drlc.Helpers.Pair;
+import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.routine.Routine;
-import drlc.low.LowCode;
+import drlc.low.*;
 import drlc.low.edsac.builtin.*;
 import drlc.low.edsac.instruction.Instruction;
+import drlc.low.edsac.instruction.data.InstructionValueData;
 
 public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 	
 	public int addressOffset = 0;
+	public long addressId = 0L;
 	
 	public EdsacCode() {
 		super();
@@ -46,6 +50,8 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 		for (EdsacRoutine routine : routineMap.values()) {
 			routine.generateDataAddresses();
 		}
+		
+		finalizeStaticData();
 		
 		for (EdsacRoutine routine : routineMap.values()) {
 			routine.finalizeInstructions();
@@ -107,6 +113,68 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 				// flag |= EdsacOptimization.compressSuccessiveInstructions(routine);
 			}
 		}
+	}
+	
+	protected void finalizeStaticData() {
+		if (rootAddressMap.isEmpty() || staticDataMap.isEmpty()) {
+			return;
+		}
+		
+		Map<Integer, LowDataInfo> addressInfoMap = new HashMap<>();
+		int start = Integer.MAX_VALUE, end = Integer.MIN_VALUE;
+		for (Pair<DataId, LowDataSpan> pair : rootSpanMap.values()) {
+			LowAddressSlice slice = rootAddressMap.get(pair.right);
+			start = Math.min(start, slice.start);
+			end = Math.max(end, slice.start + slice.size);
+			for (int i = 0; i < slice.size; ++i) {
+				addressInfoMap.put(slice.start + i, new LowDataInfo(this, pair.left, i, pair.right, LowDataType.STATIC));
+			}
+		}
+		if (start == Integer.MAX_VALUE) {
+			return;
+		}
+		
+		List<Map.Entry<LowDataInfo, Instruction>> currentStaticDataEntryList = new ArrayList<>(staticDataMap.entrySet());
+		currentStaticDataEntryList.sort(Comparator.comparingInt(x -> dataAddress(x.getKey())));
+		
+		int explicitEnd = currentStaticDataEntryList.stream().mapToInt(x -> dataAddress(x.getKey()) + x.getValue().size()).max().orElse(start);
+		if (explicitEnd > end) {
+			throw new IllegalArgumentException("Encountered entry past allocated memory in EDSAC static data!");
+		}
+		end = explicitEnd;
+		
+		LinkedHashMap<LowDataInfo, Instruction> nextStaticDataEntryList = new LinkedHashMap<>();
+		int current = start, index = 0;
+		while (current < end) {
+			Map.Entry<LowDataInfo, Instruction> entry = index < currentStaticDataEntryList.size() ? currentStaticDataEntryList.get(index) : null;
+			int next = entry == null ? Integer.MAX_VALUE : dataAddress(entry.getKey());
+			if (next < current) {
+				throw new IllegalArgumentException("Encountered overlapping entries in EDSAC static data!");
+			}
+			
+			if (entry != null && next == current) {
+				Instruction data = entry.getValue();
+				nextStaticDataEntryList.put(entry.getKey(), data);
+				current += data.size();
+				++index;
+			}
+			else {
+				LowDataInfo info = addressInfoMap.get(current);
+				if (info == null) {
+					throw new IllegalArgumentException("Encountered missing address span in EDSAC static data!");
+				}
+				nextStaticDataEntryList.put(info, new InstructionValueData(Arrays.asList(EdsacInt.ZERO)));
+				++current;
+			}
+		}
+		
+		staticDataMap.clear();
+		staticDataMap.putAll(nextStaticDataEntryList);
+	}
+	
+	protected int dataAddress(LowDataInfo dataInfo) {
+		LowAddressSlice slice = rootAddressMap.get(dataInfo.span);
+		return slice.start + dataInfo.offset;
 	}
 	
 	// Static helpers

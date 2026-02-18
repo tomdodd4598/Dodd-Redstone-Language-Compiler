@@ -468,7 +468,11 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 			throw new IllegalArgumentException(String.format("Attempted to add an address store instruction! %s", target));
 		}
 		else {
-			LowDataInfo storeInfo = getDataInfo(target, 0);
+			DataId storeId = target;
+			while (storeId.dereferenceLevel > 0) {
+				storeId = storeId.removeDereference(null);
+			}
+			LowDataInfo storeInfo = getDataInfo(storeId, 0);
 			if (target.dereferenceLevel == 0) {
 				LowDataInfo offsetInfo = storeInfo.offsetBy(offset);
 				text.add(storeInfo.isStackData() ? new InstructionStoreOffset(offsetInfo) : new InstructionStore(offsetInfo));

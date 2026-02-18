@@ -436,7 +436,7 @@ fn main () {
 }
 */
 
-// TESTING TYPEALIASES
+// TESTING TYPE ALIASES
 
 /*
 fn main() {
@@ -524,7 +524,7 @@ fn main() {
 
 // TRIPLE REF TECHNIQUE
 
-/*
+
 struct Thing {
 	item: Chars,
 	next: &mut Thing,
@@ -621,11 +621,11 @@ fn main() {
 	printChars("\nAltered List:\n");
 	start.printList();
 }
-*/
+
 
 // EDSAC SQUARES
 
-
+/*
 fn main() {
 	let mut i = 0;
 	let mut j = 0;
@@ -645,4 +645,34 @@ fn main() {
 		printChar('\n');
 	}
 }
+*/
 
+// EDSAC CUBES
+
+/*
+fn main() {
+	let mut i = 0N;
+	let mut j = 0N;
+	let mut k = 0N;
+	while i < 50 {
+		printNat(i += 1);
+		
+		let l = k;
+		k = j;
+		printChar(' ');
+		printChar(' ');
+		printNat(j = i * i * i);
+		
+		printChar(' ');
+		printChar(' ');
+		printNat(k = j - k);
+		
+		printChar(' ');
+		printChar(' ');
+		printNat(k - l);
+		
+		printChar('\r');
+		printChar('\n');
+	}
+}
+*/

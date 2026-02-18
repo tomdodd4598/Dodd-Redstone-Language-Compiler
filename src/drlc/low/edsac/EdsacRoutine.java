@@ -10,11 +10,13 @@ import drlc.Helpers.Pair;
 import drlc.intermediate.action.*;
 import drlc.intermediate.component.Function;
 import drlc.intermediate.component.data.*;
+import drlc.intermediate.component.value.AddressValue;
 import drlc.intermediate.routine.Routine;
 import drlc.low.*;
 import drlc.low.edsac.instruction.*;
 import drlc.low.edsac.instruction.address.*;
 import drlc.low.edsac.instruction.data.*;
+import drlc.low.edsac.instruction.deferred.InstructionDeferredStoreAndClear;
 import drlc.low.edsac.instruction.jump.*;
 import drlc.low.edsac.instruction.wheeler.*;
 
@@ -23,6 +25,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 	protected static final long WHEELER_STORE_DELTA = 0x18000L;
 	
 	protected Map<Integer, DataId> tempDataMap = new HashMap<>();
+	protected Map<DataId, LowDataInfo> addressDataMap = new HashMap<>();
 	
 	public EdsacRoutine(EdsacCode code, Routine intermediate) {
 		super(code, intermediate);
@@ -217,6 +220,17 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 	}
 	
 	public void finalizeInstructions() {
+		Map<Integer, Map<Instruction, Integer>> sectionOffsetMap = new HashMap<>();
+		for (Entry<Integer, List<Instruction>> entry : sectionTextMap.entrySet()) {
+			Map<Instruction, Integer> offsetMap = new IdentityHashMap<>();
+			int offset = 0;
+			for (Instruction instruction : entry.getValue()) {
+				offsetMap.put(instruction, offset);
+				offset += instruction.size();
+			}
+			sectionOffsetMap.put(entry.getKey(), offsetMap);
+		}
+		
 		for (Entry<Integer, List<Instruction>> entry : sectionTextMap.entrySet()) {
 			int instructionAddress = sectionAddressMap.get(entry.getKey());
 			List<Instruction> section = entry.getValue();
@@ -232,17 +246,25 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 					ij.address = code.textAddressMap.get(function) + sectionAddressMap.get(ij.section);
 				}
 				
+				else if (instruction instanceof InstructionDeferredStoreAndClear idsac) {
+					Integer offset = sectionOffsetMap.get(idsac.section).get(idsac.target);
+					if (offset == null) {
+						throw new IllegalArgumentException("Failed to resolve deferred target instruction!");
+					}
+					idsac.address = textAddress(idsac.function, idsac.section, offset);
+				}
+				
+				else if (instruction instanceof InstructionWheelerJump iwj) {
+					iwj.address = textAddress(iwj.function, -1, 0);
+					iwj.iwr.setAddress(code.textAddressMap.get(function) + instructionAddress + instructionSize);
+				}
+				
 				else if (instruction instanceof InstructionWheelerStore iws) {
 					iws.address = textAddress(iws.function, iws.section, iws.offset);
 				}
 				
 				else if (instruction instanceof InstructionWheelerStoreAndClear iwsac) {
 					iwsac.address = textAddress(iwsac.function, iwsac.section, iwsac.offset);
-				}
-				
-				else if (instruction instanceof InstructionWheelerJump iwj) {
-					iwj.address = textAddress(iwj.function, -1, 0);
-					iwj.iwr.setAddress(code.textAddressMap.get(function) + instructionAddress + instructionSize);
 				}
 				
 				instructionAddress += instructionSize;
@@ -259,6 +281,15 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				}
 			}
 		}
+	}
+	
+	protected int getSectionIndex(List<Instruction> text) {
+		for (Entry<Integer, List<Instruction>> entry : sectionTextMap.entrySet()) {
+			if (entry.getValue() == text) {
+				return entry.getKey();
+			}
+		}
+		throw new IllegalArgumentException("Encountered unexpected text section!");
 	}
 	
 	// Instructions
@@ -350,9 +381,12 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 	}
 	
 	protected LowDataInfo ensureAddressInfo(DataId arg) {
-		LowDataInfo addressInfo = getDataInfo(arg.addDereference(null), 0);
-		LowDataInfo info = getDataInfo(arg, 0);
-		code.staticDataMap.putIfAbsent(info, new InstructionAddressData(addressInfo));
+		LowDataInfo info = addressDataMap.get(arg);
+		if (info == null) {
+			info = getDataInfo(new ValueDataId(new AddressValue(null, arg.typeInfo, code.addressId++)), 0);
+			code.staticDataMap.putIfAbsent(info, new InstructionAddressData(getDataInfo(arg.addDereference(null), 0)));
+			addressDataMap.put(arg, info);
+		}
 		return info;
 	}
 	
@@ -435,7 +469,35 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			text.add(clear ? new InstructionStoreAndClear(storeInfo) : new InstructionStore(storeInfo));
 		}
 		else {
-			throw new UnsupportedOperationException(String.format("EDSAC backend does not support dereferenced stores yet! %s", target));
+			DataId storeId = target;
+			for (int i = 0; i < target.dereferenceLevel; ++i) {
+				storeId = storeId.removeDereference(null);
+			}
+			
+			int section = getSectionIndex(text);
+			LowDataInfo baseInfo = getDataInfo(storeId, 0);
+			
+			text.add(new InstructionStoreAndClear(tempDataInfo(0)));
+			text.add(new InstructionAdd(baseInfo));
+			
+			for (int i = 0; i < target.dereferenceLevel - 1; ++i) {
+				text.add(new InstructionLeftShift(1));
+				text.add(new InstructionAdd(constantInfo("AF")));
+				Instruction placeholder = new InstructionPlaceholder();
+				text.add(new InstructionDeferredStoreAndClear(function, section, placeholder));
+				text.add(placeholder);
+			}
+			
+			if (offset != 0) {
+				text.add(new InstructionAdd(constantInfo(offset)));
+			}
+			
+			text.add(new InstructionLeftShift(1));
+			text.add(new InstructionAdd(constantInfo(clear ? "TF" : "UF")));
+			Instruction placeholder = new InstructionPlaceholder();
+			text.add(new InstructionDeferredStoreAndClear(function, section, placeholder));
+			text.add(new InstructionAdd(tempDataInfo(0)));
+			text.add(placeholder);
 		}
 	}
 	
