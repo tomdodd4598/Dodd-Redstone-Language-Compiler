@@ -7,9 +7,10 @@ public class EdsacChar {
 	public static final EdsacChar LETTER_SHIFT = of('*');
 	public static final EdsacChar FIGURE_SHIFT = of('^');
 	
-	public final byte ascii, code;
+	public final char ascii;
+	public final byte code;
 	
-	private EdsacChar(byte ascii, byte code) {
+	private EdsacChar(char ascii, byte code) {
 		this.ascii = ascii;
 		this.code = code;
 	}
@@ -50,7 +51,7 @@ public class EdsacChar {
 			case 'V', 'v', '=' -> 31;
 			default -> throw new IllegalArgumentException(String.format("Character %s is not supported by EDSAC backend!", Helpers.charToString(value)));
 		};
-		return new EdsacChar((byte) value, code);
+		return new EdsacChar(value, code);
 	}
 	
 	public static EdsacChar of(byte value) {
@@ -85,6 +86,6 @@ public class EdsacChar {
 	
 	@Override
 	public String toString() {
-		return Helpers.charToString((char) ascii);
+		return Helpers.charToString(ascii);
 	}
 }

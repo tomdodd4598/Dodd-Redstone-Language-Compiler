@@ -524,7 +524,7 @@ fn main() {
 
 // TRIPLE REF TECHNIQUE
 
-
+/*
 struct Thing {
 	item: Chars,
 	next: &mut Thing,
@@ -621,7 +621,7 @@ fn main() {
 	printChars("\nAltered List:\n");
 	start.printList();
 }
-
+*/
 
 // EDSAC SQUARES
 
@@ -676,3 +676,17 @@ fn main() {
 	}
 }
 */
+
+fn printChars(chars: Chars) {
+	let mut i = 0N;
+	printNat(chars.len);
+	printChar('\n');
+	while i < chars.len {
+		printChar(chars.ptr[i]);
+		i += 1;
+	}
+}
+
+fn main() {
+	printChars("hello world\n");
+}

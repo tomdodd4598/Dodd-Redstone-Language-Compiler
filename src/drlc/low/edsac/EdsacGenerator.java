@@ -87,7 +87,8 @@ public class EdsacGenerator extends Generator {
 		StringBuilder sb = new StringBuilder();
 		Boolean currentShift = null;
 		for (byte b : raw.getBytes()) {
-			EdsacChar edsacChar = EdsacChar.of((char) b);
+			char c = (char) b;
+			EdsacChar edsacChar = EdsacChar.of(c);
 			if (edsacChar.isLetterShift()) {
 				currentShift = false;
 			}
@@ -96,17 +97,17 @@ public class EdsacGenerator extends Generator {
 			}
 			else if (edsacChar.requiresLetterShift()) {
 				if (currentShift == null || currentShift) {
-					sb.append(EdsacChar.LETTER_SHIFT.code);
+					sb.append(EdsacChar.LETTER_SHIFT.ascii);
 				}
 				currentShift = false;
 			}
 			else if (edsacChar.requiresFigureShift()) {
 				if (currentShift == null || !currentShift) {
-					sb.append(EdsacChar.FIGURE_SHIFT.code);
+					sb.append(EdsacChar.FIGURE_SHIFT.ascii);
 				}
 				currentShift = true;
 			}
-			sb.append(edsacChar.code);
+			sb.append(c);
 		}
 		return sb.toString();
 	}

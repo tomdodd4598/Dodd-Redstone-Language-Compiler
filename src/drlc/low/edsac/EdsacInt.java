@@ -163,7 +163,7 @@ public class EdsacInt {
 	}
 	
 	public byte toCharAscii() {
-		return EdsacChar.of(EdsacOpcodes.getChar(toCharCode())).ascii;
+		return (byte) EdsacChar.of(EdsacOpcodes.getChar(toCharCode())).ascii;
 	}
 	
 	public String toAssembly() {

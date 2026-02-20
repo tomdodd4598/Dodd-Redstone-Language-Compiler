@@ -69,7 +69,9 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			
 			for (Action action : body.get(i)) {
 				if (action instanceof AssignmentAction aa) {
-					loadThen(text, false, aa.arg, x -> storeAt(text, aa.target, false, x));
+					if (!isRootRoutine() || !tryStaticAssignment(aa.target, Arrays.asList(aa.arg), new int[] {0})) {
+						loadThen(text, false, aa.arg, x -> storeAt(text, aa.target, false, x));
+					}
 				}
 				
 				else if (action instanceof BinaryOpAction boa) {
@@ -120,11 +122,17 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				}
 				
 				else if (action instanceof CompoundAssignmentAction caa) {
-					int acc = 0;
-					for (DataId arg : caa.args) {
-						int offset = acc;
-						loadThen(text, false, arg, x -> storeAt(text, caa.target, false, x + offset));
-						acc += arg.typeInfo.getSize();
+					int[] acc = {0}, offsets = caa.args.stream().mapToInt(x -> {
+						int offset = acc[0];
+						acc[0] += x.typeInfo.getSize();
+						return offset;
+					}).toArray();
+					
+					if (!isRootRoutine() || !tryStaticAssignment(caa.target, caa.args, offsets)) {
+						for (int j = 0; j < caa.args.size(); ++j) {
+							int offset = offsets[j];
+							loadThen(text, false, caa.args.get(j), x -> storeAt(text, caa.target, false, x + offset));
+						}
 					}
 				}
 				
@@ -484,6 +492,35 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 	
 	protected void loadScalar(List<Instruction> text, DataId arg) {
 		loadThen(text, false, arg, x -> {});
+	}
+	
+	protected boolean tryStaticAssignment(DataId target, List<DataId> args, int[] offsets) {
+		if (target instanceof TransientDataId || target instanceof ValueDataId || target.dereferenceLevel != 0) {
+			return false;
+		}
+		
+		List<Instruction> data = Helpers.map(args, x -> {
+			Function function = x.getFunction();
+			if (function != null) {
+				return new InstructionSubroutineAddressData(function);
+			}
+			else if (x instanceof ValueDataId valueDataId) {
+				return new InstructionValueData(EdsacCode.raw(valueDataId.value));
+			}
+			else if (x.isAddress()) {
+				return new InstructionAddressData(getDataInfo(x.addDereference(null), 0));
+			}
+			else {
+				return null;
+			}
+		});
+		
+		if (data.stream().anyMatch(x -> x == null)) {
+			return false;
+		}
+		
+		IntStream.range(0, offsets.length).forEach(x -> code.staticDataMap.put(getDataInfo(target, offsets[x]), data.get(x)));
+		return true;
 	}
 	
 	protected void storeAt(List<Instruction> text, DataId target, boolean clear, int offset) {
