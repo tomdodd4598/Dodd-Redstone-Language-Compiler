@@ -1,10 +1,10 @@
 package drlc.low.edsac.instruction;
 
-public class InstructionDirect extends Instruction {
+public class InstructionRaw extends Instruction {
 	
 	protected final String str;
 	
-	public InstructionDirect(String str) {
+	public InstructionRaw(String str) {
 		super();
 		this.str = str;
 	}

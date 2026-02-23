@@ -21,7 +21,7 @@ public class ReadBoolEdsacRoutine extends EdsacRoutine {
 		text.add(new InstructionDial());
 		text.add(new InstructionSubtract(constantInfo(20)));
 		returnFromSubroutineIfMoreThanOrEqualToZero(text);
-		text.add(new InstructionDirect("TF")); // [0]
+		text.add(new InstructionRaw("TF")); // [0]
 		text.add(new InstructionSubtract(constantInfo(1)));
 		returnFromSubroutineIfLessThanZero(text);
 	}

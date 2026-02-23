@@ -77,6 +77,7 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 				}
 				
 				else if (action instanceof BinaryOpAction boa) {
+					// TODO deal with deref'd arg2
 					loadScalar(text, boa.arg1);
 					binaryOp(text, boa.type, boa.arg2);
 					storeScalar(text, boa.target);
@@ -368,14 +369,6 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 	
 	protected void returnFromSubroutine(List<Instruction> text) {
 		text.add(isStackRoutine() ? new InstructionJump(getFinalTextSectionKey()) : new InstructionReturnFromSubroutine());
-	}
-	
-	protected static IntStream loadStoreOffsets(int size, boolean reverse) {
-		IntStream offsets = IntStream.range(0, size);
-		if (reverse) {
-			offsets = offsets.map(x -> size - x - 1);
-		}
-		return offsets;
 	}
 	
 	protected boolean tryStaticAssignment(List<Instruction> text, DataId target, List<DataId> args, int[] offsets) {

@@ -32,26 +32,26 @@ public class IntRightRotateIntEdsacRoutine extends EdsacRoutine {
 		loopText.add(new InstructionJumpIfLessThanZero(5));
 		loopText.add(new InstructionStoreAndClear(y));
 		loopText.add(new InstructionAdd(x));
-		loopText.add(new InstructionDirect("T1F")); // [1]
-		loopText.add(new InstructionDirect("H1F")); // [1]
+		loopText.add(new InstructionRaw("T1F")); // [1]
+		loopText.add(new InstructionRaw("H1F")); // [1]
 		loopText.add(new InstructionAddCollation(constantInfo(1)));
-		loopText.add(new InstructionDirect("TF")); // [0]
-		loopText.add(new InstructionDirect("SF")); // [0]
+		loopText.add(new InstructionRaw("TF")); // [0]
+		loopText.add(new InstructionRaw("SF")); // [0]
 		loopText.add(new InstructionJumpIfLessThanZero(1));
-		loopText.add(new InstructionDirect("TF")); // [0]
+		loopText.add(new InstructionRaw("TF")); // [0]
 		loopText.add(new InstructionJumpIfMoreThanOrEqualToZero(2));
 		
-		signText.add(new InstructionDirect("T4F")); // [4]
+		signText.add(new InstructionRaw("T4F")); // [4]
 		signText.add(new InstructionAdd(constantInfo(EdsacInt.MIN_VALUE)));
-		signText.add(new InstructionDirect("TF")); // [0]
+		signText.add(new InstructionRaw("TF")); // [0]
 		
-		shiftText.add(new InstructionDirect("A1F")); // [1]
+		shiftText.add(new InstructionRaw("A1F")); // [1]
 		shiftText.add(new InstructionRightShift(1));
 		shiftText.add(new InstructionJumpIfMoreThanOrEqualToZero(4));
 		
 		clearText.add(new InstructionSubtract(constantInfo(EdsacInt.MIN_VALUE)));
 		
-		rotateText.add(new InstructionDirect("AF")); // [0]
+		rotateText.add(new InstructionRaw("AF")); // [0]
 		rotateText.add(new InstructionStoreAndClear(x));
 		rotateText.add(new InstructionJumpIfMoreThanOrEqualToZero(0));
 		

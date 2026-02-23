@@ -2,6 +2,7 @@ package drlc.low;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.IntStream;
 
 import drlc.*;
 import drlc.Helpers.Pair;
@@ -101,6 +102,14 @@ public abstract class LowRoutine<CODE extends LowCode<CODE, ROUTINE, INSTRUCTION
 	}
 	
 	// Data
+	
+	protected static IntStream loadStoreOffsets(int size, boolean reverse) {
+		IntStream offsets = IntStream.range(0, size);
+		if (reverse) {
+			offsets = offsets.map(x -> size - x - 1);
+		}
+		return offsets;
+	}
 	
 	protected boolean isTempData(DataId dataId) {
 		return dataId instanceof RegDataId;
@@ -205,5 +214,10 @@ public abstract class LowRoutine<CODE extends LowCode<CODE, ROUTINE, INSTRUCTION
 			case STATIC -> LowCode.dataAddress(code.rootAddressMap, dataInfo);
 			case STACK -> LowCode.dataAddress(dataInfo.routine.localAddressMap, dataInfo);
 		};
+	}
+	
+	protected int textAddress(Function function, int section, int offset) {
+		ROUTINE routine = code.getRoutine(function);
+		return code.textAddressMap.get(function) + routine.sectionAddressMap.get(section) + offset;
 	}
 }

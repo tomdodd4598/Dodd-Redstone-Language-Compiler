@@ -28,24 +28,24 @@ public class IntLessThanIntEdsacRoutine extends EdsacRoutine {
 		
 		entryText.add(new InstructionAdd(x));
 		entryText.add(new InstructionJumpIfLessThanZero(1));
-		entryText.add(new InstructionDirect("TF")); // [0]
+		entryText.add(new InstructionRaw("TF")); // [0]
 		entryText.add(new InstructionAdd(y));
 		entryText.add(new InstructionJumpIfLessThanZero(3));
 		entryText.add(new InstructionJumpIfMoreThanOrEqualToZero(2));
 		
-		negativeText.add(new InstructionDirect("TF")); // [0]
+		negativeText.add(new InstructionRaw("TF")); // [0]
 		negativeText.add(new InstructionAdd(y));
 		negativeText.add(new InstructionJumpIfMoreThanOrEqualToZero(4));
 		
-		subtractText.add(new InstructionDirect("T1F")); // [1]
-		subtractText.add(new InstructionDirect("AF")); // [0]
+		subtractText.add(new InstructionRaw("T1F")); // [1]
+		subtractText.add(new InstructionRaw("AF")); // [0]
 		subtractText.add(new InstructionSubtract(y));
 		subtractText.add(new InstructionJumpIfLessThanZero(4));
 		
-		falseText.add(new InstructionDirect("TF")); // [0]
+		falseText.add(new InstructionRaw("TF")); // [0]
 		returnFromSubroutineIfMoreThanOrEqualToZero(falseText);
 		
-		trueText.add(new InstructionDirect("TF")); // [0]
+		trueText.add(new InstructionRaw("TF")); // [0]
 		trueText.add(new InstructionSubtract(constantInfo(1)));
 		returnFromSubroutineIfLessThanZero(trueText);
 	}

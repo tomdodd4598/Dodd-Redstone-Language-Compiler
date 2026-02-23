@@ -45,15 +45,15 @@ public class PrintIntEdsacRoutine extends EdsacRoutine {
 		callText.add(new InstructionSubtract(constantInfo(1)));
 		callText.add(new InstructionJumpIfLessThanZero(4));
 		callText.add(new InstructionAdd(constantInfo(1)));
-		callText.add(new InstructionDirect("TF")); // [0]
+		callText.add(new InstructionRaw("TF")); // [0]
 		callText.add(new InstructionAdd(constantInfo(EdsacChar.of('\0'))));
-		callText.add(new InstructionDirect("T1F")); // [1]
-		callText.add(new InstructionDirect("T6F")); // [6]
+		callText.add(new InstructionRaw("T1F")); // [1]
+		callText.add(new InstructionRaw("T6F")); // [6]
 		builtInSubroutine(callText, Global.PRINT_DIGITS, x -> x, false);
 		returnFromSubroutineIfMoreThanOrEqualToZero(callText);
 		
 		zeroText.add(new InstructionPrint(constantInfo(EdsacChar.of('0'))));
-		zeroText.add(new InstructionDirect("TF")); // [0]
+		zeroText.add(new InstructionRaw("TF")); // [0]
 		returnFromSubroutineIfMoreThanOrEqualToZero(zeroText);
 	}
 }

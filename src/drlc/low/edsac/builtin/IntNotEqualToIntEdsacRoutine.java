@@ -26,13 +26,13 @@ public class IntNotEqualToIntEdsacRoutine extends EdsacRoutine {
 		falseText.add(new InstructionAdd(x));
 		falseText.add(new InstructionSubtract(y));
 		falseText.add(new InstructionJumpIfLessThanZero(1));
-		falseText.add(new InstructionDirect("TF")); // [0]
-		falseText.add(new InstructionDirect("SF")); // [0]
+		falseText.add(new InstructionRaw("TF")); // [0]
+		falseText.add(new InstructionRaw("SF")); // [0]
 		falseText.add(new InstructionJumpIfLessThanZero(1));
-		falseText.add(new InstructionDirect("TF")); // [0]
+		falseText.add(new InstructionRaw("TF")); // [0]
 		returnFromSubroutineIfMoreThanOrEqualToZero(falseText);
 		
-		trueText.add(new InstructionDirect("TF")); // [0]
+		trueText.add(new InstructionRaw("TF")); // [0]
 		trueText.add(new InstructionSubtract(constantInfo(1)));
 		returnFromSubroutineIfLessThanZero(trueText);
 		

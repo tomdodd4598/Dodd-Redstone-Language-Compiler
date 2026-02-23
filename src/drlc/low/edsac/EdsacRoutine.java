@@ -16,7 +16,7 @@ import drlc.low.*;
 import drlc.low.edsac.instruction.*;
 import drlc.low.edsac.instruction.address.*;
 import drlc.low.edsac.instruction.data.*;
-import drlc.low.edsac.instruction.deferred.InstructionDeferredStoreAndClear;
+import drlc.low.edsac.instruction.deferred.*;
 import drlc.low.edsac.instruction.jump.*;
 import drlc.low.edsac.instruction.wheeler.*;
 
@@ -262,12 +262,12 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 					ij.address = code.textAddressMap.get(function) + sectionAddressMap.get(ij.section);
 				}
 				
-				else if (instruction instanceof InstructionDeferredStoreAndClear idsac) {
-					Integer offset = sectionOffsetMap.get(idsac.section).get(idsac.target);
+				else if (instruction instanceof InstructionDeferred id) {
+					Integer offset = sectionOffsetMap.get(id.section).get(id.target);
 					if (offset == null) {
 						throw new IllegalArgumentException("Failed to resolve deferred target instruction!");
 					}
-					idsac.address = textAddress(idsac.function, idsac.section, offset);
+					id.address = textAddress(id.function, id.section, offset);
 				}
 				
 				else if (instruction instanceof InstructionWheelerJump iwj) {
@@ -297,47 +297,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		throw new IllegalArgumentException("Encountered unexpected text section!");
 	}
 	
-	// Instructions
-	
-	protected void conditionalJump(List<Instruction> text, int section, boolean jumpCondition) {
-		if (jumpCondition) {
-			text.add(new InstructionJumpIfLessThanZero(section));
-		}
-		else {
-			text.add(new InstructionJumpIfMoreThanOrEqualToZero(section));
-		}
-	}
-	
-	protected void jump(List<Instruction> text, int section) {
-		text.add(new InstructionJumpIfMoreThanOrEqualToZero(section));
-		text.add(new InstructionJumpIfLessThanZero(section));
-	}
-	
-	protected void returnFromSubroutineIfMoreThanOrEqualToZero(List<Instruction> text) {
-		text.add(new InstructionJumpIfMoreThanOrEqualToZero(-2));
-	}
-	
-	protected void returnFromSubroutineIfLessThanZero(List<Instruction> text) {
-		text.add(new InstructionJumpIfLessThanZero(-2));
-	}
-	
-	protected void returnFromSubroutine(List<Instruction> text) {
-		returnFromSubroutineIfMoreThanOrEqualToZero(text);
-		returnFromSubroutineIfLessThanZero(text);
-	}
-	
-	protected int textAddress(Function function, int section, int offset) {
-		EdsacRoutine routine = code.getRoutine(function);
-		return code.textAddressMap.get(function) + routine.sectionAddressMap.get(section) + offset;
-	}
-	
-	protected static IntStream loadStoreOffsets(int size, boolean reverse) {
-		IntStream offsets = IntStream.range(0, size);
-		if (reverse) {
-			offsets = offsets.map(x -> size - x - 1);
-		}
-		return offsets;
-	}
+	// Helpers
 	
 	protected LowDataInfo tempDataInfo(int key) {
 		DataId dataId = tempDataMap.get(key);
@@ -422,6 +382,35 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		}
 	}
 	
+	// Instructions
+	
+	protected void conditionalJump(List<Instruction> text, int section, boolean jumpCondition) {
+		if (jumpCondition) {
+			text.add(new InstructionJumpIfLessThanZero(section));
+		}
+		else {
+			text.add(new InstructionJumpIfMoreThanOrEqualToZero(section));
+		}
+	}
+	
+	protected void jump(List<Instruction> text, int section) {
+		text.add(new InstructionJumpIfMoreThanOrEqualToZero(section));
+		text.add(new InstructionJumpIfLessThanZero(section));
+	}
+	
+	protected void returnFromSubroutineIfMoreThanOrEqualToZero(List<Instruction> text) {
+		text.add(new InstructionJumpIfMoreThanOrEqualToZero(-2));
+	}
+	
+	protected void returnFromSubroutineIfLessThanZero(List<Instruction> text) {
+		text.add(new InstructionJumpIfLessThanZero(-2));
+	}
+	
+	protected void returnFromSubroutine(List<Instruction> text) {
+		returnFromSubroutineIfMoreThanOrEqualToZero(text);
+		returnFromSubroutineIfLessThanZero(text);
+	}
+	
 	protected void loadThen(List<Instruction> text, boolean reverse, DataId arg, IntConsumer consumer) {
 		if (arg instanceof TransientDataId) {
 			throw new IllegalArgumentException(String.format("Attempted to add a transient load instruction! %s", arg));
@@ -465,22 +454,14 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				text.add(new InstructionAdd(baseInfo));
 				
 				for (int i = 0; i < arg.dereferenceLevel - 1; ++i) {
-					text.add(new InstructionLeftShift(1));
-					text.add(new InstructionAdd(constantInfo("AF")));
-					Instruction placeholder = new InstructionPlaceholder();
-					text.add(new InstructionDeferredStoreAndClear(function, section, placeholder));
-					text.add(placeholder);
+					dynamicInstruction(text, section, constantInfo("AF"));
 				}
 				
 				if (x != 0) {
 					text.add(new InstructionAdd(constantInfo(x)));
 				}
 				
-				text.add(new InstructionLeftShift(1));
-				text.add(new InstructionAdd(constantInfo("AF")));
-				Instruction placeholder = new InstructionPlaceholder();
-				text.add(new InstructionDeferredStoreAndClear(function, section, placeholder));
-				text.add(placeholder);
+				dynamicInstruction(text, section, constantInfo("AF"));
 				
 				consumer.accept(x);
 			});
@@ -547,28 +528,36 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			text.add(new InstructionAdd(baseInfo));
 			
 			for (int i = 0; i < target.dereferenceLevel - 1; ++i) {
-				text.add(new InstructionLeftShift(1));
-				text.add(new InstructionAdd(constantInfo("AF")));
-				Instruction placeholder = new InstructionPlaceholder();
-				text.add(new InstructionDeferredStoreAndClear(function, section, placeholder));
-				text.add(placeholder);
+				dynamicInstruction(text, section, constantInfo("AF"));
 			}
 			
 			if (offset != 0) {
 				text.add(new InstructionAdd(constantInfo(offset)));
 			}
 			
-			text.add(new InstructionLeftShift(1));
-			text.add(new InstructionAdd(constantInfo(clear ? "TF" : "UF")));
-			Instruction placeholder = new InstructionPlaceholder();
-			text.add(new InstructionDeferredStoreAndClear(function, section, placeholder));
-			text.add(new InstructionAdd(tempDataInfo(0)));
-			text.add(placeholder);
+			dynamicStore(text, section, clear, () -> text.add(new InstructionAdd(tempDataInfo(0))));
 		}
 	}
 	
 	protected void storeScalar(List<Instruction> text, DataId target, boolean clear) {
 		storeAt(text, target, clear, 0);
+	}
+	
+	protected void dynamicInstruction(List<Instruction> text, int section, LowDataInfo base) {
+		text.add(new InstructionLeftShift(1));
+		text.add(new InstructionAdd(base));
+		Instruction placeholder = new InstructionPlaceholder();
+		text.add(new InstructionDeferredStoreAndClear(function, section, placeholder));
+		text.add(placeholder);
+	}
+	
+	protected void dynamicStore(List<Instruction> text, int section, boolean clear, Runnable load) {
+		text.add(new InstructionLeftShift(1));
+		text.add(new InstructionAdd(constantInfo(clear ? "TF" : "UF")));
+		Instruction placeholder = new InstructionPlaceholder();
+		text.add(new InstructionDeferredStoreAndClear(function, section, placeholder));
+		load.run();
+		text.add(placeholder);
 	}
 	
 	protected void binaryOp(List<Instruction> text, BinaryActionType type, DataId arg) {

@@ -4,14 +4,14 @@ import drlc.intermediate.component.Function;
 import drlc.low.edsac.EdsacOpcodes;
 import drlc.low.edsac.instruction.Instruction;
 
-public class InstructionDeferredStoreAndClear extends InstructionDeferred {
+public class InstructionDeferredStore extends InstructionDeferred {
 	
-	public InstructionDeferredStoreAndClear(Function function, int section, Instruction target) {
+	public InstructionDeferredStore(Function function, int section, Instruction target) {
 		super(function, section, target);
 	}
 	
 	@Override
 	protected char opcode() {
-		return EdsacOpcodes.STORE_AND_CLEAR;
+		return EdsacOpcodes.STORE;
 	}
 }
