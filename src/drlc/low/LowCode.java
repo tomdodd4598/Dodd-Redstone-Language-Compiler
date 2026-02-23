@@ -60,4 +60,12 @@ public abstract class LowCode<CODE extends LowCode<CODE, ROUTINE, INSTRUCTION>, 
 	protected abstract ROUTINE getBuiltInRoutine(String name, Routine intermediateRoutine);
 	
 	protected abstract void optimize();
+	
+	public static int dataAddress(Map<LowDataSpan, LowAddressSlice> addressMap, LowDataInfo dataInfo) {
+		return addressMap.get(dataInfo.span).start + dataInfo.offset;
+	}
+	
+	public int staticDataAddress(LowDataInfo dataInfo) {
+		return dataAddress(rootAddressMap, dataInfo);
+	}
 }

@@ -75,8 +75,16 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				}
 				
 				else if (action instanceof BinaryOpAction boa) {
+					DataId arg2;
+					if (boa.arg2.dereferenceLevel > 0) {
+						arg2 = tempDataInfo(2).dataId;
+						loadThen(text, false, boa.arg2, x -> storeAt(text, arg2, true, x));
+					}
+					else {
+						arg2 = boa.arg2;
+					}
 					loadScalar(text, boa.arg1);
-					binaryOp(text, boa.type, boa.arg2);
+					binaryOp(text, boa.type, arg2);
 					storeScalar(text, boa.target, false);
 				}
 				
@@ -183,10 +191,6 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		tempSpanMap.clear();
 		
 		generateParamDataInfo();
-		
-		if (isRootRoutine()) {
-			regenerateDataInfoInternal();
-		}
 	}
 	
 	public void regenerateDataInfo() {
@@ -200,6 +204,10 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 	}
 	
 	public void generateTextAddresses() {
+		if (isRootRoutine()) {
+			regenerateDataInfoInternal();
+		}
+		
 		int sectionAddressOffset = 0;
 		for (Entry<Integer, List<Instruction>> entry : sectionTextMap.entrySet()) {
 			sectionAddressMap.put(entry.getKey(), sectionAddressOffset);
@@ -276,17 +284,6 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				}
 				
 				instructionAddress += instructionSize;
-			}
-		}
-		
-		if (isRootRoutine()) {
-			for (Instruction data : code.staticDataMap.values()) {
-				if (data instanceof InstructionAddressData iad) {
-					iad.address = getAddress(iad.dataInfo);
-				}
-				else if (data instanceof InstructionSubroutineAddressData isad) {
-					isad.setValue(code.textAddressMap.get(isad.function));
-				}
 			}
 		}
 	}
@@ -421,7 +418,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			return getDataInfo(arg, 0);
 		}
 		else {
-			throw new UnsupportedOperationException(String.format("EDSAC backend does not support dereferenced loads yet! %s", arg));
+			throw new IllegalArgumentException(String.format("Attempted to ensure dereferenced data! %s", arg));
 		}
 	}
 	

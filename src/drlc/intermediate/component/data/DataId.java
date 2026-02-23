@@ -92,10 +92,6 @@ public abstract class DataId {
 		return toStringPrefix() + rawString() + Global.TYPE_ANNOTATION_PREFIX + " " + typeInfo.routineString();
 	}
 	
-	public RawDataId raw() {
-		return new RawDataId(this);
-	}
-	
 	public LowDataId low() {
 		return new LowDataId(this);
 	}
@@ -116,18 +112,6 @@ public abstract class DataId {
 		@Override
 		public String toString() {
 			return internal.toString();
-		}
-	}
-	
-	public static class RawDataId extends ReducedDataId {
-		
-		private RawDataId(DataId internal) {
-			super(internal);
-		}
-		
-		@Override
-		public boolean equals(Object obj) {
-			return obj instanceof RawDataId other && internal.equalsOther(other.internal, true, false);
 		}
 	}
 	

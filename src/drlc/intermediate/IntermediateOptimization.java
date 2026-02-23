@@ -9,7 +9,6 @@ import drlc.Main;
 import drlc.intermediate.action.*;
 import drlc.intermediate.component.Variable;
 import drlc.intermediate.component.data.*;
-import drlc.intermediate.component.data.DataId.RawDataId;
 import drlc.intermediate.component.value.Value;
 import drlc.intermediate.routine.Routine;
 
@@ -385,23 +384,22 @@ public class IntermediateOptimization {
 		return flag;
 	}
 	
-	private static void fillReplaceMap(IValueAction iva, int index, boolean lvalues, Map<RawDataId, Pair<RawDataId, Integer>> replacerInfoMap, Map<Integer, Pair<RawDataId, boolean[]>> targetMatchMap) {
+	private static void fillReplaceMap(IValueAction iva, int index, boolean lvalues, Map<DataId, Pair<DataId, Integer>> replacerInfoMap, Map<Integer, Pair<DataId, boolean[]>> targetMatchMap) {
 		for (DataId dataId : iva.dataIds(lvalues)) {
-			RawDataId rawDataId = dataId.raw();
-			if (replacerInfoMap.containsKey(rawDataId)) {
+			if (replacerInfoMap.containsKey(dataId)) {
 				if (dataId.isDereferenced()) {
 					if (iva.canReplaceDataId(lvalues)) {
-						Pair<RawDataId, boolean[]> match = targetMatchMap.get(index);
+						Pair<DataId, boolean[]> match = targetMatchMap.get(index);
 						if (match != null) {
 							match.right[lvalues ? 0 : 1] = true;
 						}
 						else {
-							targetMatchMap.put(index, new Pair<>(rawDataId, new boolean[] {lvalues, !lvalues}));
+							targetMatchMap.put(index, new Pair<>(dataId, new boolean[] {lvalues, !lvalues}));
 						}
 					}
 				}
 				else {
-					replacerInfoMap.remove(rawDataId);
+					replacerInfoMap.remove(dataId);
 				}
 			}
 		}
@@ -410,18 +408,19 @@ public class IntermediateOptimization {
 	public static <T extends Action & IValueAction> boolean simplifyDereferences(Routine routine) {
 		boolean flag = false;
 		for (List<Action> list : routine.body) {
-			Map<RawDataId, Pair<RawDataId, Integer>> replacerInfoMap = new HashMap<>();
+			Map<DataId, Pair<DataId, Integer>> replacerInfoMap = new HashMap<>();
 			for (int i = 0; i < list.size(); ++i) {
 				if (list.get(i) instanceof IValueAction iva) {
 					if (iva instanceof AssignmentAction) {
 						DataId lvalue = iva.lvalues()[0], rvalue = iva.rvalues()[0];
-						if (lvalue.typeInfo.isAddress() && rvalue.typeInfo.isAddress() && !lvalue.isRepeatable(true) && !rvalue.isDereferenced()) {
-							RawDataId rawDeref = lvalue.addDereference(null).raw();
-							if (replacerInfoMap.containsKey(rawDeref)) {
+						int lref = lvalue.typeInfo.getReferenceLevel(), rref = rvalue.typeInfo.getReferenceLevel();
+						if (lvalue.typeInfo.isAddress() && rvalue.typeInfo.isAddress() && lref == rref && lvalue.typeInfo.equalsOther(rvalue.typeInfo, true) && !lvalue.isRepeatable(true) && !rvalue.isDereferenced()) {
+							DataId deref = lvalue.addDereference(null);
+							if (replacerInfoMap.containsKey(deref)) {
 								throw new IllegalArgumentException(String.format("Found unexpected repeated use of register %s! %s", lvalue, iva));
 							}
 							else {
-								replacerInfoMap.put(rawDeref, new Pair<>(rvalue.addDereference(null).raw(), i));
+								replacerInfoMap.put(deref, new Pair<>(rvalue.addDereference(null), i));
 							}
 						}
 					}
@@ -429,7 +428,7 @@ public class IntermediateOptimization {
 			}
 			
 			Set<Integer> replacerIndices = replacerInfoMap.values().stream().map(x -> x.right).collect(Collectors.toSet());
-			Map<Integer, Pair<RawDataId, boolean[]>> targetMatchMap = new TreeMap<>();
+			Map<Integer, Pair<DataId, boolean[]>> targetMatchMap = new TreeMap<>();
 			for (int i = 0; i < list.size(); ++i) {
 				if (!replacerIndices.contains(i)) {
 					Action action = list.get(i);
@@ -440,17 +439,17 @@ public class IntermediateOptimization {
 				}
 			}
 			
-			for (Pair<RawDataId, Integer> info : replacerInfoMap.values()) {
+			for (Pair<DataId, Integer> info : replacerInfoMap.values()) {
 				flag = true;
 				list.set(info.right, new NoOpAction());
 			}
 			
-			for (Entry<Integer, Pair<RawDataId, boolean[]>> entry : targetMatchMap.entrySet()) {
+			for (Entry<Integer, Pair<DataId, boolean[]>> entry : targetMatchMap.entrySet()) {
 				int index = entry.getKey();
-				Pair<RawDataId, boolean[]> match = entry.getValue();
-				Pair<RawDataId, Integer> info = replacerInfoMap.get(match.left);
+				Pair<DataId, boolean[]> match = entry.getValue();
+				Pair<DataId, Integer> info = replacerInfoMap.get(match.left);
 				if (info != null) {
-					DataId target = match.left.internal, replacer = target.getRawReplacer(null, info.left.internal);
+					DataId target = match.left, replacer = target.getRawReplacer(null, info.left);
 					T iva = null;
 					if (replacer != null) {
 						boolean[] arr = match.right;

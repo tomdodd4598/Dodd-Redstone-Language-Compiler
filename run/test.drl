@@ -649,7 +649,7 @@ fn main() {
 
 // EDSAC CUBES
 
-/*
+
 fn main() {
 	let mut i = 0N;
 	let mut j = 0N;
@@ -675,18 +675,4 @@ fn main() {
 		printChar('\n');
 	}
 }
-*/
 
-fn printChars(chars: Chars) {
-	let mut i = 0N;
-	printNat(chars.len);
-	printChar('\n');
-	while i < chars.len {
-		printChar(chars.ptr[i]);
-		i += 1;
-	}
-}
-
-fn main() {
-	printChars("hello world\n");
-}

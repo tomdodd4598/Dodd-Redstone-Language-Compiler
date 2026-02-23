@@ -11,7 +11,7 @@ import drlc.intermediate.routine.Routine;
 import drlc.low.*;
 import drlc.low.edsac.builtin.*;
 import drlc.low.edsac.instruction.Instruction;
-import drlc.low.edsac.instruction.data.InstructionValueData;
+import drlc.low.edsac.instruction.data.*;
 
 public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 	
@@ -51,11 +51,13 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 			routine.generateDataAddresses();
 		}
 		
-		finalizeStaticData();
+		prepareStaticData();
 		
 		for (EdsacRoutine routine : routineMap.values()) {
 			routine.finalizeInstructions();
 		}
+		
+		finalizeStaticData();
 		
 		return true;
 	}
@@ -115,7 +117,7 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 		}
 	}
 	
-	protected void finalizeStaticData() {
+	protected void prepareStaticData() {
 		if (rootAddressMap.isEmpty() || staticDataMap.isEmpty()) {
 			return;
 		}
@@ -135,9 +137,9 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 		}
 		
 		List<Map.Entry<LowDataInfo, Instruction>> currentStaticDataEntryList = new ArrayList<>(staticDataMap.entrySet());
-		currentStaticDataEntryList.sort(Comparator.comparingInt(x -> dataAddress(x.getKey())));
+		currentStaticDataEntryList.sort(Comparator.comparingInt(x -> staticDataAddress(x.getKey())));
 		
-		int explicitEnd = currentStaticDataEntryList.stream().mapToInt(x -> dataAddress(x.getKey()) + x.getValue().size()).max().orElse(start);
+		int explicitEnd = currentStaticDataEntryList.stream().mapToInt(x -> staticDataAddress(x.getKey()) + x.getValue().size()).max().orElse(start);
 		if (explicitEnd > end) {
 			throw new IllegalArgumentException("Encountered entry past allocated memory in EDSAC static data!");
 		}
@@ -147,7 +149,7 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 		int current = start, index = 0;
 		while (current < end) {
 			Map.Entry<LowDataInfo, Instruction> entry = index < currentStaticDataEntryList.size() ? currentStaticDataEntryList.get(index) : null;
-			int next = entry == null ? Integer.MAX_VALUE : dataAddress(entry.getKey());
+			int next = entry == null ? Integer.MAX_VALUE : staticDataAddress(entry.getKey());
 			if (next < current) {
 				throw new IllegalArgumentException("Encountered overlapping entries in EDSAC static data!");
 			}
@@ -172,9 +174,16 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 		staticDataMap.putAll(nextStaticDataEntryList);
 	}
 	
-	protected int dataAddress(LowDataInfo dataInfo) {
-		LowAddressSlice slice = rootAddressMap.get(dataInfo.span);
-		return slice.start + dataInfo.offset;
+	protected void finalizeStaticData() {
+		for (Instruction data : staticDataMap.values()) {
+			if (data instanceof InstructionAddressData iad) {
+				iad.address = staticDataAddress(iad.dataInfo);
+			}
+			
+			else if (data instanceof InstructionSubroutineAddressData isad) {
+				isad.setValue(textAddressMap.get(isad.function));
+			}
+		}
 	}
 	
 	// Static helpers

@@ -201,13 +201,9 @@ public abstract class LowRoutine<CODE extends LowCode<CODE, ROUTINE, INSTRUCTION
 	
 	protected int getAddress(LowDataInfo dataInfo) {
 		return switch (dataInfo.type) {
-			case TEMP -> dataAddress(dataInfo.routine.tempAddressMap, dataInfo);
-			case STATIC -> dataAddress(code.rootAddressMap, dataInfo);
-			case STACK -> dataAddress(dataInfo.routine.localAddressMap, dataInfo);
+			case TEMP -> LowCode.dataAddress(dataInfo.routine.tempAddressMap, dataInfo);
+			case STATIC -> LowCode.dataAddress(code.rootAddressMap, dataInfo);
+			case STACK -> LowCode.dataAddress(dataInfo.routine.localAddressMap, dataInfo);
 		};
-	}
-	
-	protected static int dataAddress(Map<LowDataSpan, LowAddressSlice> addressMap, LowDataInfo dataInfo) {
-		return addressMap.get(dataInfo.span).start + dataInfo.offset;
 	}
 }

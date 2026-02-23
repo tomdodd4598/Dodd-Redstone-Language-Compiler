@@ -54,6 +54,10 @@ public class BinaryOpAction extends Action implements IValueAction {
 		BinaryActionType commutatedType = type.commutated();
 		return commutatedType == null ? null : commutatedType.action(null, target, arg1, arg2);
 	}
+
+	private boolean canReplaceWith(DataId replacement) {
+		return target.dereferenceLevel == replacement.dereferenceLevel && target.typeInfo.equalsOther(replacement.typeInfo, true);
+	}
 	
 	@Override
 	public DataId[] lvalues() {
@@ -257,7 +261,7 @@ public class BinaryOpAction extends Action implements IValueAction {
 				case INT_MORE_OR_EQUAL_INT:
 					return left.longValue(null) == Long.MAX_VALUE ? new AssignmentAction(null, target, Main.generator.trueValue.dataId()) : null;
 				case INT_PLUS_INT:
-					return left.longValue(null) == 0 ? new AssignmentAction(null, target, arg2) : null;
+					return left.longValue(null) == 0 && canReplaceWith(arg2) ? new AssignmentAction(null, target, arg2) : null;
 				case INT_AND_INT: {
 					long longValue = left.longValue(null);
 					if (longValue == 0) {
@@ -354,7 +358,7 @@ public class BinaryOpAction extends Action implements IValueAction {
 				case CHAR_MORE_OR_EQUAL_CHAR:
 					return Main.generator.getCharCodeSigned(left.byteValue(null)) == -1 ? new AssignmentAction(null, target, Main.generator.trueValue.dataId()) : null;
 				case CHAR_PLUS_CHAR:
-					return Main.generator.getCharCodeSigned(left.byteValue(null)) == 0 ? new AssignmentAction(null, target, arg2) : null;
+					return Main.generator.getCharCodeSigned(left.byteValue(null)) == 0 && canReplaceWith(arg2) ? new AssignmentAction(null, target, arg2) : null;
 				case CHAR_AND_CHAR: {
 					int codeSigned = Main.generator.getCharCodeSigned(left.byteValue(null));
 					if (codeSigned == 0) {
@@ -420,7 +424,7 @@ public class BinaryOpAction extends Action implements IValueAction {
 				case INT_XOR_INT:
 					return commutated(target, arg2, arg1).simplify();
 				case INT_MINUS_INT:
-					return right.longValue(null) == 0 ? new AssignmentAction(null, target, arg1) : null;
+					return right.longValue(null) == 0 && canReplaceWith(arg1) ? new AssignmentAction(null, target, arg1) : null;
 				case INT_MULTIPLY_INT:
 					return commutated(target, arg2, arg1).simplify();
 				case INT_DIVIDE_INT: {
