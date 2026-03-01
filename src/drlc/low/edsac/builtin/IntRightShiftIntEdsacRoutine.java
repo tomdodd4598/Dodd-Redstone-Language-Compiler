@@ -23,16 +23,16 @@ public class IntRightShiftIntEdsacRoutine extends EdsacRoutine {
 		
 		LowDataInfo x = getDataInfo(params.get(0).dataId(), 0), y = getDataInfo(params.get(1).dataId(), 0);
 		
-		loopText.add(new InstructionAdd(y));
-		loopText.add(new InstructionSubtract(constantInfo(1)));
+		addData(loopText, y);
+		loopText.add(new InstructionSubtract(constantDataInfo(1)));
 		loopText.add(new InstructionJumpIfLessThanZero(1));
-		loopText.add(new InstructionStoreAndClear(y));
-		loopText.add(new InstructionAdd(x));
+		storeData(loopText, y, true);
+		addData(loopText, x);
 		loopText.add(new InstructionRightShift(1));
-		loopText.add(new InstructionStoreAndClear(x));
+		storeData(loopText, x, true);
 		loopText.add(new InstructionJumpIfMoreThanOrEqualToZero(0));
 		
-		returnText.add(new InstructionAdd(x));
+		addData(returnText, x);
 		returnFromSubroutine(returnText);
 	}
 }

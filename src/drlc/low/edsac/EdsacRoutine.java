@@ -22,17 +22,14 @@ import drlc.low.edsac.instruction.wheeler.*;
 
 public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instruction> {
 	
-	protected static final long WHEELER_STORE_DELTA = 0x18000L;
+	protected static final long MAX_ADDRESS = 0x7FFL, WHEELER_STORE_DELTA = 0x18000L;
 	
 	protected Map<Integer, DataId> tempDataMap = new HashMap<>();
 	protected Map<DataId, LowDataInfo> addressDataMap = new HashMap<>();
+	protected Map<Instruction, InstructionReturnAddressData> returnAddressMap = new IdentityHashMap<>();
 	
 	public EdsacRoutine(EdsacCode code, Routine intermediate) {
 		super(code, intermediate);
-		
-		if (isStackRoutine()) {
-			throw new IllegalArgumentException(String.format("Recursive routine \"%s\" is not supported by EDSAC backend!", intermediate));
-		}
 	}
 	
 	public boolean generateInstructions() {
@@ -41,7 +38,17 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		}
 		generated = true;
 		
-		if (!isRootRoutine()) {
+		if (isRootRoutine()) {
+			List<Instruction> initText = new ArrayList<>();
+			sectionTextMap.put(-1, initText);
+			
+			initText.add(new InstructionRaw("TF"));
+			initText.add(new InstructionAdd(constantDataInfo(MAX_ADDRESS)));
+			initText.add(new InstructionStoreAndClear(stackPointerInfo()));
+			initText.add(new InstructionAdd(constantDataInfo(MAX_ADDRESS)));
+			initText.add(new InstructionStoreAndClear(basePointerInfo()));
+		}
+		else if (!isStackRoutine()) {
 			List<Instruction> returnText = new ArrayList<>();
 			sectionTextMap.put(-2, returnText);
 			
@@ -52,11 +59,69 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			sectionTextMap.put(-1, patchText);
 			
 			patchText.add(new InstructionWheelerStore(function, -2, 0));
-			patchText.add(new InstructionAdd(constantInfo(WHEELER_STORE_DELTA)));
+			patchText.add(new InstructionAdd(constantDataInfo(WHEELER_STORE_DELTA)));
 			patchText.add(new InstructionWheelerStoreAndClear(function, -2, 1));
 		}
 		
 		generateInstructionsInternal();
+		
+		if (isStackRoutine()) {
+			List<Instruction> returnText = new ArrayList<>();
+			sectionTextMap.put(-2, returnText);
+			
+			storeData(returnText, scratchInfo(), true);
+			
+			returnText.add(new InstructionRaw("TF"));
+			returnText.add(new InstructionAdd(basePointerInfo()));
+			returnText.add(new InstructionStoreAndClear(stackPointerInfo()));
+			
+			returnText.add(new InstructionRaw("TF"));
+			returnText.add(new InstructionAdd(stackPointerInfo()));
+			dynamicInstruction(returnText, -2, constantDataInfo("AF"));
+			returnText.add(new InstructionStoreAndClear(basePointerInfo()));
+			
+			adjustStackPointer(returnText, 1);
+			
+			returnText.add(new InstructionRaw("TF"));
+			returnText.add(new InstructionAdd(stackPointerInfo()));
+			dynamicInstruction(returnText, -2, constantDataInfo("AF"));
+			Instruction placeholderE = new InstructionPlaceholder();
+			patchInstruction(returnText, -2, constantDataInfo("EF"), placeholderE);
+			
+			returnText.add(new InstructionRaw("TF"));
+			returnText.add(new InstructionAdd(stackPointerInfo()));
+			dynamicInstruction(returnText, -2, constantDataInfo("AF"));
+			Instruction placeholderG = new InstructionPlaceholder();
+			patchInstruction(returnText, -2, constantDataInfo("GF"), placeholderG);
+			
+			loadData(returnText, scratchInfo());
+			returnText.add(placeholderE);
+			returnText.add(placeholderG);
+			
+			int stackSize = getStackSize();
+			if (stackSize < 0) {
+				throw new IllegalArgumentException(String.format("Stack-based subroutine \"%s\" has unexpected stack size %s!", function, stackSize));
+			}
+			
+			List<Instruction> prologueText = new ArrayList<>();
+			sectionTextMap.put(-1, prologueText);
+			
+			prologueText.add(new InstructionRaw("TF"));
+			prologueText.add(new InstructionAdd(stackPointerInfo()));
+			prologueText.add(new InstructionSubtract(constantDataInfo(1)));
+			prologueText.add(new InstructionStoreAndClear(stackPointerInfo()));
+			prologueText.add(new InstructionAdd(stackPointerInfo()));
+			dynamicStore(prologueText, -1, false, () -> {
+				prologueText.add(new InstructionRaw("TF"));
+				prologueText.add(new InstructionAdd(basePointerInfo()));
+			});
+			
+			prologueText.add(new InstructionRaw("TF"));
+			prologueText.add(new InstructionAdd(stackPointerInfo()));
+			prologueText.add(new InstructionStoreAndClear(basePointerInfo()));
+			
+			adjustStackPointer(prologueText, -stackSize);
+		}
 		
 		return true;
 	}
@@ -76,7 +141,12 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				
 				else if (action instanceof BinaryOpAction boa) {
 					DataId arg2;
-					if (boa.arg2.dereferenceLevel > 0) {
+					boolean arg2StackAddress = false;
+					if (boa.arg2.isAddress()) {
+						LowDataInfo baseInfo = getDataInfo(boa.arg2.addDereference(null), 0);
+						arg2StackAddress = baseInfo.isStackData();
+					}
+					if (boa.arg2.dereferenceLevel > 0 || arg2StackAddress) {
 						arg2 = tempDataInfo(2).dataId;
 						loadThen(text, false, boa.arg2, x -> storeAt(text, arg2, true, x));
 					}
@@ -93,38 +163,73 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 					List<DataId> args = ca.args;
 					
 					Function callerFunction = caller.getFunction();
-					if (callerFunction == null) {
-						throw new UnsupportedOperationException("EDSAC backend does not support indirect calls yet!");
-					}
-					
-					EdsacRoutine subroutine = code.getRoutine(callerFunction);
-					if (subroutine == null) {
-						throw new IllegalArgumentException(String.format("Encountered unknown subroutine \"%s\"!", callerFunction));
-					}
+					EdsacRoutine subroutine = callerFunction == null ? null : code.getRoutine(callerFunction);
+					boolean indirectCall = subroutine == null;
+					boolean isStackRoutine = indirectCall || subroutine.isStackRoutine();
 					
 					int targetSize = target.typeInfo.getSize(), argCount = args.size();
-					if (targetSize > 1) {
-						throw new UnsupportedOperationException("EDSAC backend does not support compound returns yet!");
+					
+					if (isStackRoutine) {
+						int section = getSectionIndex(text);
+						if (targetSize > 1) {
+							loadScalar(text, target.removeDereference(null));
+							pushAccumulator(text, section);
+						}
+						for (int j = argCount - 1; j >= 0; --j) {
+							loadThen(text, true, args.get(j), x -> pushAccumulator(text, section));
+						}
+						
+						InstructionReturnAddressData irad = new InstructionReturnAddressData();
+						LowDataInfo returnAddressDataInfo = returnAddressDataInfo(irad);
+						text.add(new InstructionRaw("TF"));
+						text.add(new InstructionAdd(returnAddressDataInfo));
+						pushAccumulator(text, section);
+						
+						if (indirectCall) {
+							loadScalar(text, caller);
+						}
+						else {
+							loadData(text, ensureFunctionInfo(callerFunction, caller));
+						}
+						
+						Instruction placeholder = new InstructionPlaceholder();
+						patchInstruction(text, section, constantDataInfo("EF"), placeholder);
+						text.add(placeholder);
+						returnAddressMap.put(placeholder, irad);
+						
+						if (targetSize == 1) {
+							storeScalar(text, target, false);
+						}
+						
+						int delta = Helpers.sumToInt(args, x -> x.typeInfo.getSize()) + 1 + (targetSize > 1 ? 1 : 0);
+						if (delta > 0) {
+							adjustStackPointer(text, delta);
+						}
+					}
+					else {
+						if (subroutine == null) {
+							throw new IllegalArgumentException(String.format("Encountered unknown subroutine \"%s\"!", callerFunction));
+						}
+						
+						for (int j = 0; j < argCount; ++j) {
+							DataId paramId = subroutine.params.get(j).dataId();
+							loadThen(text, false, args.get(j), x -> subroutine.storeAt(text, paramId, false, x));
+						}
+						
+						if (targetSize > 1) {
+							loadScalar(text, target.removeDereference(null));
+							subroutine.storeScalar(text, subroutine.params.get(argCount).dataId(), false);
+						}
+						
+						LowDataInfo returnAddressDataInfo = returnAddressDataInfo(new InstructionWheelerReturn());
+						InstructionWheelerReturn iwr = (InstructionWheelerReturn) code.staticDataMap.get(returnAddressDataInfo);
+						
+						text.add(new InstructionStoreAndClear(scratchInfo()));
+						text.add(new InstructionAdd(returnAddressDataInfo));
+						text.add(new InstructionWheelerJump(subroutine.function, iwr));
 					}
 					
-					for (int j = 0; j < argCount; ++j) {
-						DataId paramId = subroutine.params.get(j).dataId();
-						loadThen(text, false, args.get(j), x -> subroutine.storeAt(text, paramId, false, x));
-					}
-					
-					if (targetSize > 1) {
-						loadScalar(text, target.removeDereference(null));
-						subroutine.storeScalar(text, subroutine.params.get(argCount).dataId(), false);
-					}
-					
-					LowDataInfo returnAddressInfo = returnAddressInfo();
-					InstructionWheelerReturn iwr = (InstructionWheelerReturn) code.staticDataMap.get(returnAddressInfo);
-					
-					text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-					text.add(new InstructionAdd(returnAddressInfo));
-					text.add(new InstructionWheelerJump(subroutine.function, iwr));
-					
-					if (targetSize == 1) {
+					if (targetSize == 1 && !isStackRoutine) {
 						storeScalar(text, target, false);
 					}
 				}
@@ -197,10 +302,6 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		if (!isRootRoutine()) {
 			regenerateDataInfoInternal();
 		}
-		
-		if (isStackRoutine()) {
-			
-		}
 	}
 	
 	public void generateTextAddresses() {
@@ -219,13 +320,29 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 	
 	public void generateDataAddresses() {
 		int dataAddressOffset = 0;
-		for (Pair<DataId, LowDataSpan> pair : localSpanMap.values()) {
-			dataAddressOffset += addAddressEntry(localAddressMap, pair.right, dataAddressOffset, x -> x + code.addressOffset);
+		if (isStackRoutine()) {
+			int paramAddressOffset = 0;
+			for (Pair<DataId, LowDataSpan> pair : localSpanMap.values()) {
+				if (pair.right.id < 0) {
+					paramAddressOffset += addAddressEntry(localAddressMap, pair.right, paramAddressOffset, x -> x + 2);
+				}
+				else {
+					dataAddressOffset += addAddressEntry(localAddressMap, pair.right, dataAddressOffset, x -> -x - 1);
+				}
+			}
+			for (Pair<DataId, LowDataSpan> pair : tempSpanMap.values()) {
+				dataAddressOffset += addAddressEntry(tempAddressMap, pair.right, dataAddressOffset, x -> -x - 1);
+			}
 		}
-		for (Pair<DataId, LowDataSpan> pair : tempSpanMap.values()) {
-			dataAddressOffset += addAddressEntry(tempAddressMap, pair.right, dataAddressOffset, x -> x + code.addressOffset);
+		else {
+			for (Pair<DataId, LowDataSpan> pair : localSpanMap.values()) {
+				dataAddressOffset += addAddressEntry(localAddressMap, pair.right, dataAddressOffset, x -> x + code.addressOffset);
+			}
+			for (Pair<DataId, LowDataSpan> pair : tempSpanMap.values()) {
+				dataAddressOffset += addAddressEntry(tempAddressMap, pair.right, dataAddressOffset, x -> x + code.addressOffset);
+			}
+			code.addressOffset += dataAddressOffset;
 		}
-		code.addressOffset += dataAddressOffset;
 	}
 	
 	protected static int addAddressEntry(Map<LowDataSpan, LowAddressSlice> addressMap, LowDataSpan span, int addressOffset, IntUnaryOperator function) {
@@ -253,6 +370,11 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			for (int i = 0; i < section.size(); ++i) {
 				Instruction instruction = section.get(i);
 				int instructionSize = instruction.size();
+				
+				InstructionReturnAddressData rad = returnAddressMap.get(instruction);
+				if (rad != null) {
+					rad.setAddress(code.textAddressMap.get(function) + instructionAddress + instructionSize);
+				}
 				
 				if (instruction instanceof InstructionAddress ia) {
 					ia.address = getAddress(ia.dataInfo);
@@ -302,34 +424,34 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 	protected LowDataInfo tempDataInfo(int key) {
 		DataId dataId = tempDataMap.get(key);
 		if (dataId == null) {
-			tempDataMap.put(key, dataId = function.scope.nextLocalDataId(intermediate, Main.generator.intTypeInfo));
+			tempDataMap.put(key, dataId = function.functionScope.nextLocalDataId(intermediate, Main.generator.intTypeInfo));
 		}
 		return getDataInfo(dataId, 0);
 	}
 	
-	protected LowDataInfo constantInfo(long value) {
+	protected LowDataInfo constantDataInfo(long value) {
 		ValueDataId valueDataId = intValueDataId(value);
 		LowDataInfo info = getDataInfo(valueDataId, 0);
 		code.staticDataMap.putIfAbsent(info, new InstructionValueData(EdsacCode.raw(valueDataId.value)));
 		return info;
 	}
 	
-	protected LowDataInfo constantInfo(EdsacInt value) {
-		return constantInfo(value.toLong());
+	protected LowDataInfo constantDataInfo(EdsacInt value) {
+		return constantDataInfo(value.toLong());
 	}
 	
-	protected LowDataInfo constantInfo(EdsacChar value) {
-		return constantInfo(value.toInt());
+	protected LowDataInfo constantDataInfo(EdsacChar value) {
+		return constantDataInfo(value.toInt());
 	}
 	
-	protected LowDataInfo constantInfo(String str) {
-		return constantInfo(EdsacInt.of(str));
+	protected LowDataInfo constantDataInfo(String str) {
+		return constantDataInfo(EdsacInt.of(str));
 	}
 	
-	protected LowDataInfo returnAddressInfo() {
-		DataId dataId = function.scope.nextLocalDataId(intermediate, Main.generator.intTypeInfo);
+	protected LowDataInfo returnAddressDataInfo(Instruction returnAddressInstruction) {
+		DataId dataId = Main.generator.nextGlobalDataId(Main.generator.intTypeInfo);
 		LowDataInfo info = getDataInfo(dataId, 0);
-		code.staticDataMap.putIfAbsent(info, new InstructionWheelerReturn());
+		code.staticDataMap.putIfAbsent(info, returnAddressInstruction);
 		return info;
 	}
 	
@@ -411,8 +533,204 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		returnFromSubroutineIfLessThanZero(text);
 	}
 	
+	protected LowDataInfo basePointerInfo() {
+		return getDataInfo(code.basePointerDataId(), 0);
+	}
+	
+	protected LowDataInfo stackPointerInfo() {
+		return getDataInfo(code.stackPointerDataId(), 0);
+	}
+	
+	protected LowDataInfo scratchInfo() {
+		return getDataInfo(code.scratchDataId(), 0);
+	}
+	
+	protected void patchInstruction(List<Instruction> text, int section, LowDataInfo base, Instruction placeholder) {
+		text.add(new InstructionLeftShift(1));
+		text.add(new InstructionAdd(base));
+		text.add(new InstructionDeferredStoreAndClear(function, section, placeholder));
+	}
+	
+	protected void dynamicInstruction(List<Instruction> text, int section, LowDataInfo base) {
+		Instruction placeholder = new InstructionPlaceholder();
+		patchInstruction(text, section, base, placeholder);
+		text.add(placeholder);
+	}
+	
+	protected void dynamicStore(List<Instruction> text, int section, boolean clear, Runnable load) {
+		text.add(new InstructionLeftShift(1));
+		text.add(new InstructionAdd(constantDataInfo(clear ? "TF" : "UF")));
+		Instruction placeholder = new InstructionPlaceholder();
+		text.add(new InstructionDeferredStoreAndClear(function, section, placeholder));
+		load.run();
+		text.add(placeholder);
+	}
+	
+	protected void loadData(List<Instruction> text, LowDataInfo info) {
+		if (info.isStackData()) {
+			int section = getSectionIndex(text);
+			text.add(new InstructionRaw("TF"));
+			text.add(new InstructionAdd(basePointerInfo()));
+			text.add(new InstructionAddStackTargetOffset(info));
+			dynamicInstruction(text, section, constantDataInfo("AF"));
+		}
+		else {
+			text.add(new InstructionRaw("TF"));
+			text.add(new InstructionAdd(info));
+		}
+	}
+	
+	protected void storeData(List<Instruction> text, LowDataInfo info, boolean clear) {
+		if (info.isStackData()) {
+			int section = getSectionIndex(text);
+			text.add(new InstructionStoreAndClear(scratchInfo()));
+			text.add(new InstructionRaw("TF"));
+			text.add(new InstructionAdd(basePointerInfo()));
+			text.add(new InstructionAddStackTargetOffset(info));
+			dynamicStore(text, section, clear, () -> {
+				text.add(new InstructionRaw("TF"));
+				text.add(new InstructionAdd(scratchInfo()));
+			});
+		}
+		else {
+			text.add(clear ? new InstructionStoreAndClear(info) : new InstructionStore(info));
+		}
+	}
+	
+	protected void addData(List<Instruction> text, LowDataInfo info) {
+		if (info.isStackData()) {
+			int section = getSectionIndex(text);
+			text.add(new InstructionStoreAndClear(scratchInfo()));
+			text.add(new InstructionRaw("TF"));
+			text.add(new InstructionAdd(basePointerInfo()));
+			text.add(new InstructionAddStackTargetOffset(info));
+			Instruction placeholder = new InstructionPlaceholder();
+			patchInstruction(text, section, constantDataInfo("AF"), placeholder);
+			text.add(new InstructionRaw("TF"));
+			text.add(new InstructionAdd(scratchInfo()));
+			text.add(placeholder);
+		}
+		else {
+			text.add(new InstructionAdd(info));
+		}
+	}
+	
+	protected void subtractData(List<Instruction> text, LowDataInfo info) {
+		if (info.isStackData()) {
+			int section = getSectionIndex(text);
+			text.add(new InstructionStoreAndClear(scratchInfo()));
+			text.add(new InstructionRaw("TF"));
+			text.add(new InstructionAdd(basePointerInfo()));
+			text.add(new InstructionAddStackTargetOffset(info));
+			Instruction placeholder = new InstructionPlaceholder();
+			patchInstruction(text, section, constantDataInfo("SF"), placeholder);
+			text.add(new InstructionRaw("TF"));
+			text.add(new InstructionAdd(scratchInfo()));
+			text.add(placeholder);
+		}
+		else {
+			text.add(new InstructionSubtract(info));
+		}
+	}
+	
+	protected void loadMultiplierData(List<Instruction> text, LowDataInfo info) {
+		if (info.isStackData()) {
+			int section = getSectionIndex(text);
+			storeData(text, scratchInfo(), true);
+			text.add(new InstructionRaw("TF"));
+			text.add(new InstructionAdd(basePointerInfo()));
+			text.add(new InstructionAddStackTargetOffset(info));
+			dynamicInstruction(text, section, constantDataInfo("HF"));
+			loadData(text, scratchInfo());
+		}
+		else {
+			text.add(new InstructionLoadMultiplier(info));
+		}
+	}
+	
+	protected void addCollationData(List<Instruction> text, LowDataInfo info) {
+		if (info.isStackData()) {
+			int section = getSectionIndex(text);
+			text.add(new InstructionStoreAndClear(scratchInfo()));
+			text.add(new InstructionRaw("TF"));
+			text.add(new InstructionAdd(basePointerInfo()));
+			text.add(new InstructionAddStackTargetOffset(info));
+			Instruction placeholder = new InstructionPlaceholder();
+			patchInstruction(text, section, constantDataInfo("CF"), placeholder);
+			text.add(new InstructionRaw("TF"));
+			text.add(new InstructionAdd(scratchInfo()));
+			text.add(placeholder);
+		}
+		else {
+			text.add(new InstructionAddCollation(info));
+		}
+	}
+	
+	protected void addMultiplicationData(List<Instruction> text, LowDataInfo info) {
+		if (info.isStackData()) {
+			int section = getSectionIndex(text);
+			text.add(new InstructionStoreAndClear(scratchInfo()));
+			text.add(new InstructionRaw("TF"));
+			text.add(new InstructionAdd(basePointerInfo()));
+			text.add(new InstructionAddStackTargetOffset(info));
+			Instruction placeholder = new InstructionPlaceholder();
+			patchInstruction(text, section, constantDataInfo("VF"), placeholder);
+			text.add(new InstructionRaw("TF"));
+			text.add(new InstructionAdd(scratchInfo()));
+			text.add(placeholder);
+		}
+		else {
+			text.add(new InstructionAddMultiplication(info));
+		}
+	}
+	
+	protected void printData(List<Instruction> text, LowDataInfo info) {
+		if (info.isStackData()) {
+			int section = getSectionIndex(text);
+			text.add(new InstructionRaw("TF"));
+			text.add(new InstructionAdd(basePointerInfo()));
+			text.add(new InstructionAddStackTargetOffset(info));
+			dynamicInstruction(text, section, constantDataInfo("OF"));
+		}
+		else {
+			text.add(new InstructionPrint(info));
+		}
+	}
+	
+	protected void adjustStackPointer(List<Instruction> text, int delta) {
+		if (delta == 0) {
+			return;
+		}
+		
+		text.add(new InstructionRaw("TF"));
+		text.add(new InstructionAdd(stackPointerInfo()));
+		if (delta > 0) {
+			text.add(new InstructionAdd(constantDataInfo(delta)));
+		}
+		else {
+			text.add(new InstructionSubtract(constantDataInfo(-delta)));
+		}
+		text.add(new InstructionStoreAndClear(stackPointerInfo()));
+	}
+	
+	protected void pushAccumulator(List<Instruction> text, int section) {
+		storeData(text, scratchInfo(), true);
+		text.add(new InstructionAdd(stackPointerInfo()));
+		text.add(new InstructionSubtract(constantDataInfo(1)));
+		text.add(new InstructionStoreAndClear(stackPointerInfo()));
+		text.add(new InstructionAdd(stackPointerInfo()));
+		dynamicStore(text, section, false, () -> loadData(text, scratchInfo()));
+	}
+	
 	protected void loadThen(List<Instruction> text, boolean reverse, DataId arg, IntConsumer consumer) {
-		if (arg instanceof TransientDataId) {
+		Function function = arg.getFunction();
+		if (function != null) {
+			LowDataInfo info = ensureFunctionInfo(function, arg);
+			text.add(new InstructionStoreAndClear(scratchInfo()));
+			text.add(new InstructionAdd(info));
+			consumer.accept(0);
+		}
+		else if (arg instanceof TransientDataId) {
 			throw new IllegalArgumentException(String.format("Attempted to add a transient load instruction! %s", arg));
 		}
 		else if (arg instanceof ValueDataId valueDataId) {
@@ -420,22 +738,37 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			LowDataInfo baseInfo = ensureValueInfo(valueDataId);
 			IntStream offsets = loadStoreOffsets(values.size(), reverse);
 			offsets.forEach(x -> {
-				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
+				text.add(new InstructionStoreAndClear(scratchInfo()));
 				text.add(new InstructionAdd(baseInfo.offsetBy(x)));
 				consumer.accept(x);
 			});
 		}
 		else if (arg.isAddress()) {
-			text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-			text.add(new InstructionAdd(ensureAddressInfo(arg)));
+			DataId baseId = arg.addDereference(null);
+			LowDataInfo baseInfo = getDataInfo(baseId, 0);
+			text.add(new InstructionStoreAndClear(scratchInfo()));
+			if (baseInfo.isStackData()) {
+				text.add(new InstructionAdd(basePointerInfo()));
+				text.add(new InstructionAddStackTargetOffset(baseInfo));
+			}
+			else {
+				text.add(new InstructionAdd(ensureAddressInfo(arg)));
+			}
 			consumer.accept(0);
 		}
 		else if (arg.dereferenceLevel == 0) {
 			IntStream offsets = loadStoreOffsets(arg.typeInfo.getSize(), reverse);
 			LowDataInfo loadInfo = getDataInfo(arg, 0);
 			offsets.forEach(x -> {
-				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-				text.add(new InstructionAdd(loadInfo.offsetBy(x)));
+				text.add(new InstructionStoreAndClear(scratchInfo()));
+				if (loadInfo.isStackData()) {
+					text.add(new InstructionAdd(basePointerInfo()));
+					text.add(new InstructionAddStackTargetOffset(loadInfo.offsetBy(x)));
+					dynamicInstruction(text, getSectionIndex(text), constantDataInfo("AF"));
+				}
+				else {
+					text.add(new InstructionAdd(loadInfo.offsetBy(x)));
+				}
 				consumer.accept(x);
 			});
 		}
@@ -450,18 +783,25 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			IntStream offsets = loadStoreOffsets(arg.typeInfo.getSize(), reverse);
 			
 			offsets.forEach(x -> {
-				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-				text.add(new InstructionAdd(baseInfo));
+				text.add(new InstructionStoreAndClear(scratchInfo()));
+				if (baseInfo.isStackData()) {
+					text.add(new InstructionAdd(basePointerInfo()));
+					text.add(new InstructionAddStackTargetOffset(baseInfo));
+					dynamicInstruction(text, section, constantDataInfo("AF"));
+				}
+				else {
+					text.add(new InstructionAdd(baseInfo));
+				}
 				
 				for (int i = 0; i < arg.dereferenceLevel - 1; ++i) {
-					dynamicInstruction(text, section, constantInfo("AF"));
+					dynamicInstruction(text, section, constantDataInfo("AF"));
 				}
 				
 				if (x != 0) {
-					text.add(new InstructionAdd(constantInfo(x)));
+					text.add(new InstructionAdd(constantDataInfo(x)));
 				}
 				
-				dynamicInstruction(text, section, constantInfo("AF"));
+				dynamicInstruction(text, section, constantDataInfo("AF"));
 				
 				consumer.accept(x);
 			});
@@ -477,7 +817,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			return false;
 		}
 		
-		List<Instruction> data = Helpers.map(args, x -> {
+		List<Instruction> instructionList = Helpers.map(args, x -> {
 			Function function = x.getFunction();
 			if (function != null) {
 				return new InstructionSubroutineAddressData(function);
@@ -493,11 +833,11 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			}
 		});
 		
-		if (data.stream().anyMatch(x -> x == null)) {
+		if (instructionList.stream().anyMatch(x -> x == null)) {
 			return false;
 		}
 		
-		IntStream.range(0, offsets.length).forEach(x -> code.staticDataMap.put(getDataInfo(target, offsets[x]), data.get(x)));
+		IntStream.range(0, offsets.length).forEach(x -> code.staticDataMap.put(getDataInfo(target, offsets[x]), instructionList.get(x)));
 		return true;
 	}
 	
@@ -513,7 +853,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		}
 		else if (target.dereferenceLevel == 0) {
 			LowDataInfo storeInfo = getDataInfo(target, 0).offsetBy(offset);
-			text.add(clear ? new InstructionStoreAndClear(storeInfo) : new InstructionStore(storeInfo));
+			storeData(text, storeInfo, clear);
 		}
 		else {
 			DataId storeId = target;
@@ -524,40 +864,30 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			int section = getSectionIndex(text);
 			LowDataInfo baseInfo = getDataInfo(storeId, 0);
 			
-			text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-			text.add(new InstructionAdd(baseInfo));
+			storeData(text, scratchInfo(), true);
+			if (baseInfo.isStackData()) {
+				text.add(new InstructionAdd(basePointerInfo()));
+				text.add(new InstructionAddStackTargetOffset(baseInfo));
+				dynamicInstruction(text, section, constantDataInfo("AF"));
+			}
+			else {
+				text.add(new InstructionAdd(baseInfo));
+			}
 			
 			for (int i = 0; i < target.dereferenceLevel - 1; ++i) {
-				dynamicInstruction(text, section, constantInfo("AF"));
+				dynamicInstruction(text, section, constantDataInfo("AF"));
 			}
 			
 			if (offset != 0) {
-				text.add(new InstructionAdd(constantInfo(offset)));
+				text.add(new InstructionAdd(constantDataInfo(offset)));
 			}
 			
-			dynamicStore(text, section, clear, () -> text.add(new InstructionAdd(tempDataInfo(0))));
+			dynamicStore(text, section, clear, () -> loadData(text, scratchInfo()));
 		}
 	}
 	
 	protected void storeScalar(List<Instruction> text, DataId target, boolean clear) {
 		storeAt(text, target, clear, 0);
-	}
-	
-	protected void dynamicInstruction(List<Instruction> text, int section, LowDataInfo base) {
-		text.add(new InstructionLeftShift(1));
-		text.add(new InstructionAdd(base));
-		Instruction placeholder = new InstructionPlaceholder();
-		text.add(new InstructionDeferredStoreAndClear(function, section, placeholder));
-		text.add(placeholder);
-	}
-	
-	protected void dynamicStore(List<Instruction> text, int section, boolean clear, Runnable load) {
-		text.add(new InstructionLeftShift(1));
-		text.add(new InstructionAdd(constantInfo(clear ? "TF" : "UF")));
-		Instruction placeholder = new InstructionPlaceholder();
-		text.add(new InstructionDeferredStoreAndClear(function, section, placeholder));
-		load.run();
-		text.add(placeholder);
 	}
 	
 	protected void binaryOp(List<Instruction> text, BinaryActionType type, DataId arg) {
@@ -578,11 +908,11 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		LowDataInfo argDataInfo = ensureDataInfo(arg);
 		switch (type) {
 			case BOOL_EQUAL_TO_BOOL:
-				text.add(new InstructionAdd(argDataInfo));
-				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-				text.add(new InstructionLoadMultiplier(tempDataInfo(0)));
-				text.add(new InstructionAddCollation(constantInfo(1)));
-				text.add(new InstructionSubtract(constantInfo(1)));
+				addData(text, argDataInfo);
+				storeData(text, scratchInfo(), true);
+				loadMultiplierData(text, scratchInfo());
+				text.add(new InstructionAddCollation(constantDataInfo(1)));
+				text.add(new InstructionSubtract(constantDataInfo(1)));
 				break;
 			case INT_EQUAL_TO_INT:
 			case CHAR_EQUAL_TO_CHAR:
@@ -597,9 +927,9 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				builtInSubroutine(text, Global.INT_NOT_EQUAL_TO_INT, x -> x, true, () -> loadScalar(text, arg));
 				break;
 			case BOOL_LESS_THAN_BOOL:
-				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-				text.add(new InstructionAdd(argDataInfo));
-				text.add(new InstructionSubtract(tempDataInfo(0)));
+				storeData(text, tempDataInfo(0), true);
+				addData(text, argDataInfo);
+				subtractData(text, tempDataInfo(0));
 				text.add(new InstructionRightShift(16));
 				break;
 			case INT_LESS_THAN_INT:
@@ -607,10 +937,10 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				break;
 			case NAT_LESS_THAN_NAT:
 			case CHAR_LESS_THAN_CHAR:
-				text.add(new InstructionAdd(constantInfo(EdsacInt.MIN_VALUE)));
+				text.add(new InstructionAdd(constantDataInfo(EdsacInt.MIN_VALUE)));
 				builtInSubroutine(text, Global.INT_LESS_THAN_INT, x -> x, true, () -> {
 					loadScalar(text, arg);
-					text.add(new InstructionAdd(constantInfo(EdsacInt.MIN_VALUE)));
+					text.add(new InstructionAdd(constantDataInfo(EdsacInt.MIN_VALUE)));
 				});
 				break;
 			case BOOL_LESS_OR_EQUAL_BOOL:
@@ -630,7 +960,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				unaryOp(text, UnaryActionType.NOT_BOOL, null);
 				break;
 			case BOOL_MORE_THAN_BOOL:
-				text.add(new InstructionSubtract(argDataInfo));
+				subtractData(text, argDataInfo);
 				text.add(new InstructionRightShift(16));
 				break;
 			case INT_MORE_THAN_INT:
@@ -638,15 +968,15 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				break;
 			case NAT_MORE_THAN_NAT:
 			case CHAR_MORE_THAN_CHAR:
-				text.add(new InstructionAdd(constantInfo(EdsacInt.MIN_VALUE)));
+				text.add(new InstructionAdd(constantDataInfo(EdsacInt.MIN_VALUE)));
 				builtInSubroutine(text, Global.INT_LESS_THAN_INT, x -> 1 - x, true, () -> {
 					loadScalar(text, arg);
-					text.add(new InstructionAdd(constantInfo(EdsacInt.MIN_VALUE)));
+					text.add(new InstructionAdd(constantDataInfo(EdsacInt.MIN_VALUE)));
 				});
 				break;
 			case BOOL_MORE_OR_EQUAL_BOOL:
-				text.add(new InstructionSubtract(argDataInfo));
-				text.add(new InstructionSubtract(constantInfo(1)));
+				subtractData(text, argDataInfo);
+				text.add(new InstructionSubtract(constantDataInfo(1)));
 				text.add(new InstructionRightShift(16));
 				break;
 			case INT_MORE_OR_EQUAL_INT:
@@ -663,56 +993,56 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 				break;
 			case INT_PLUS_INT:
 			case CHAR_PLUS_CHAR:
-				text.add(new InstructionAdd(argDataInfo));
+				addData(text, argDataInfo);
 				break;
 			case BOOL_AND_BOOL:
 			case INT_AND_INT:
 			case CHAR_AND_CHAR:
-				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-				text.add(new InstructionLoadMultiplier(tempDataInfo(0)));
-				text.add(new InstructionAddCollation(argDataInfo));
+				storeData(text, scratchInfo(), true);
+				loadMultiplierData(text, scratchInfo());
+				addCollationData(text, argDataInfo);
 				break;
 			case BOOL_OR_BOOL:
-				text.add(new InstructionAdd(argDataInfo));
+				addData(text, argDataInfo);
 				text.add(new InstructionRightShift(16));
 				break;
 			case INT_OR_INT:
 			case CHAR_OR_CHAR:
-				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-				text.add(new InstructionLoadMultiplier(tempDataInfo(0)));
-				text.add(new InstructionAddCollation(argDataInfo));
-				text.add(new InstructionStoreAndClear(tempDataInfo(1)));
-				text.add(new InstructionAdd(tempDataInfo(0)));
-				text.add(new InstructionAdd(argDataInfo));
-				text.add(new InstructionSubtract(tempDataInfo(1)));
+				storeData(text, tempDataInfo(0), true);
+				loadMultiplierData(text, tempDataInfo(0));
+				addCollationData(text, argDataInfo);
+				storeData(text, tempDataInfo(1), true);
+				addData(text, tempDataInfo(0));
+				addData(text, argDataInfo);
+				subtractData(text, tempDataInfo(1));
 				break;
 			case BOOL_XOR_BOOL:
-				text.add(new InstructionAdd(argDataInfo));
-				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-				text.add(new InstructionLoadMultiplier(tempDataInfo(0)));
-				text.add(new InstructionAddCollation(constantInfo(1)));
-				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-				text.add(new InstructionSubtract(tempDataInfo(0)));
+				addData(text, argDataInfo);
+				storeData(text, scratchInfo(), true);
+				loadMultiplierData(text, scratchInfo());
+				text.add(new InstructionAddCollation(constantDataInfo(1)));
+				storeData(text, scratchInfo(), true);
+				subtractData(text, scratchInfo());
 				break;
 			case INT_XOR_INT:
 			case CHAR_XOR_CHAR:
-				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-				text.add(new InstructionLoadMultiplier(tempDataInfo(0)));
-				text.add(new InstructionAddCollation(argDataInfo));
+				storeData(text, tempDataInfo(0), true);
+				loadMultiplierData(text, tempDataInfo(0));
+				addCollationData(text, argDataInfo);
 				text.add(new InstructionLeftShift(1));
-				text.add(new InstructionStoreAndClear(tempDataInfo(1)));
-				text.add(new InstructionAdd(tempDataInfo(0)));
-				text.add(new InstructionAdd(argDataInfo));
-				text.add(new InstructionSubtract(tempDataInfo(1)));
+				storeData(text, tempDataInfo(1), true);
+				addData(text, tempDataInfo(0));
+				addData(text, argDataInfo);
+				subtractData(text, tempDataInfo(1));
 				break;
 			case INT_MINUS_INT:
 			case CHAR_MINUS_CHAR:
-				text.add(new InstructionSubtract(argDataInfo));
+				subtractData(text, argDataInfo);
 				break;
 			case INT_MULTIPLY_INT:
-				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-				text.add(new InstructionLoadMultiplier(tempDataInfo(0)));
-				text.add(new InstructionAddMultiplication(argDataInfo));
+				storeData(text, scratchInfo(), true);
+				loadMultiplierData(text, scratchInfo());
+				addMultiplicationData(text, argDataInfo);
 				text.add(new InstructionLeftShift(16));
 				break;
 			// case INT_DIVIDE_INT:
@@ -753,23 +1083,23 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		}
 		switch (type) {
 			case MINUS_INT:
-				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-				text.add(new InstructionSubtract(tempDataInfo(0)));
+				storeData(text, scratchInfo(), true);
+				subtractData(text, scratchInfo());
 				break;
 			case NOT_BOOL:
-				text.add(new InstructionAdd(constantInfo(1)));
-				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-				text.add(new InstructionSubtract(tempDataInfo(0)));
+				text.add(new InstructionAdd(constantDataInfo(1)));
+				storeData(text, scratchInfo(), true);
+				subtractData(text, scratchInfo());
 				break;
 			case NOT_INT:
-				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-				text.add(new InstructionSubtract(constantInfo(1)));
-				text.add(new InstructionSubtract(tempDataInfo(0)));
+				storeData(text, scratchInfo(), true);
+				text.add(new InstructionSubtract(constantDataInfo(1)));
+				subtractData(text, scratchInfo());
 				break;
 			case NOT_CHAR:
-				text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-				text.add(new InstructionAdd(constantInfo(EdsacInt.CHAR_MASK)));
-				text.add(new InstructionSubtract(tempDataInfo(0)));
+				storeData(text, scratchInfo(), true);
+				text.add(new InstructionAdd(constantDataInfo(EdsacInt.CHAR_MASK)));
+				subtractData(text, scratchInfo());
 				break;
 			default:
 				throw new IllegalArgumentException(String.format("Attempted to add unary op instruction of unknown type! %s %s", type, arg == null ? Global.TRANSIENT : arg.opErrorString()));
@@ -786,10 +1116,10 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 			load[i].run();
 			subroutine.storeScalar(text, subroutine.params.get(mapping.applyAsInt(i + 1)).dataId(), clear);
 		}
-		LowDataInfo returnAddressInfo = returnAddressInfo();
-		InstructionWheelerReturn iwr = (InstructionWheelerReturn) code.staticDataMap.get(returnAddressInfo);
-		text.add(new InstructionStoreAndClear(tempDataInfo(0)));
-		text.add(new InstructionAdd(returnAddressInfo));
+		LowDataInfo returnAddressDataInfo = returnAddressDataInfo(new InstructionWheelerReturn());
+		InstructionWheelerReturn iwr = (InstructionWheelerReturn) code.staticDataMap.get(returnAddressDataInfo);
+		text.add(new InstructionStoreAndClear(scratchInfo()));
+		text.add(new InstructionAdd(returnAddressDataInfo));
 		text.add(new InstructionWheelerJump(subroutine.function, iwr));
 		intermediate.onRequiresNesting();
 	}

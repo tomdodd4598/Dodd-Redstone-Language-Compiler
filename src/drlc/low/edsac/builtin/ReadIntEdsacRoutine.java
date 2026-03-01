@@ -20,9 +20,9 @@ public class ReadIntEdsacRoutine extends EdsacRoutine {
 		
 		text.add(new InstructionDial());
 		text.add(new InstructionRightShift(1));
-		text.add(new InstructionSubtract(constantInfo(10)));
+		text.add(new InstructionSubtract(constantDataInfo(10)));
 		returnFromSubroutineIfMoreThanOrEqualToZero(text);
-		text.add(new InstructionAdd(constantInfo(10)));
+		text.add(new InstructionAdd(constantDataInfo(10)));
 		returnFromSubroutineIfMoreThanOrEqualToZero(text);
 	}
 }

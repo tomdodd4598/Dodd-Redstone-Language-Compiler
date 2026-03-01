@@ -27,6 +27,16 @@ public abstract class InstructionAddressOffset extends Instruction implements II
 	}
 	
 	@Override
+	public boolean isUnknownMemoryAccess() {
+		return false;
+	}
+	
+	@Override
+	public boolean isLoadStoreBarrier() {
+		return false;
+	}
+	
+	@Override
 	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		return null;
 	}

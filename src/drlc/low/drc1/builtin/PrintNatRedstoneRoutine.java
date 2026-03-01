@@ -27,9 +27,9 @@ public class PrintNatRedstoneRoutine extends RedstoneRoutine {
 		sectionTextMap.put(3, callText);
 		
 		DataId x = params.get(0).dataId();
-		DataId t = function.scope.nextLocalDataId(intermediate, x.typeInfo);
-		DataId b = function.scope.nextLocalDataId(intermediate, x.typeInfo);
-		DataId c = function.scope.nextLocalDataId(intermediate, x.typeInfo);
+		DataId t = function.functionScope.nextLocalDataId(intermediate, x.typeInfo);
+		DataId b = function.functionScope.nextLocalDataId(intermediate, x.typeInfo);
+		DataId c = function.functionScope.nextLocalDataId(intermediate, x.typeInfo);
 		
 		loadScalar(positiveText, x);
 		positiveText.add(new InstructionSetIsLessThanZero());

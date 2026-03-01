@@ -20,6 +20,16 @@ public class InstructionOutput extends Instruction {
 	}
 	
 	@Override
+	public boolean isUnknownMemoryAccess() {
+		return false;
+	}
+	
+	@Override
+	public boolean isLoadStoreBarrier() {
+		return false;
+	}
+	
+	@Override
 	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		return null;
 	}

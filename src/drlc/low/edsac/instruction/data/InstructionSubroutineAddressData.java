@@ -13,6 +13,10 @@ public class InstructionSubroutineAddressData extends InstructionData {
 		this.function = function;
 	}
 	
+	public int getValue() {
+		return value;
+	}
+	
 	public void setValue(int value) {
 		if (this.value == null) {
 			this.value = value;

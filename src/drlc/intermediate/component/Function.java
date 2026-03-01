@@ -30,7 +30,8 @@ public class Function {
 	protected Boolean required = null;
 	protected List<Function> callers = new ArrayList<>();
 	
-	public Scope scope = null;
+	public Scope definitionScope = null;
+	public Scope functionScope = null;
 	
 	@SuppressWarnings("null")
 	public @NonNull FunctionItemValue value = null;
@@ -75,27 +76,27 @@ public class Function {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, scope);
+		return Objects.hash(name, definitionScope);
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Function other) {
-			return name.equals(other.name) && Objects.equals(scope, other.scope) && returnTypeInfo.equals(other.returnTypeInfo) && paramTypeInfos.equals(other.paramTypeInfos);
+			return name.equals(other.name) && Objects.equals(definitionScope, other.definitionScope) && returnTypeInfo.equals(other.returnTypeInfo) && paramTypeInfos.equals(other.paramTypeInfos);
 		}
 		return false;
 	}
 	
 	@Override
 	public String toString() {
-		return Helpers.scopeStringPrefix(scope) + Global.FN + " " + name + Helpers.listString(params) + " " + Global.ARROW + " " + returnTypeInfo;
+		return Helpers.scopeStringPrefix(definitionScope) + Global.FN + " " + name + Helpers.listString(params) + " " + Global.ARROW + " " + returnTypeInfo;
 	}
 	
 	public String routineString() {
-		return Helpers.scopeStringPrefix(scope) + Global.FN + " " + name + Helpers.listString(Helpers.map(params, DeclaratorInfo::routineString)) + " " + Global.ARROW + " " + returnTypeInfo.routineString();
+		return Helpers.scopeStringPrefix(definitionScope) + Global.FN + " " + name + Helpers.listString(Helpers.map(params, DeclaratorInfo::routineString)) + " " + Global.ARROW + " " + returnTypeInfo.routineString();
 	}
 	
 	public String asmString() {
-		return Helpers.scopeStringPrefix(scope) + name;
+		return Helpers.scopeStringPrefix(definitionScope) + name;
 	}
 }

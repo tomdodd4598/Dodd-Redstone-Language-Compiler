@@ -380,8 +380,8 @@ public class Scope {
 			throw Helpers.nodeError(node, "Name \"%s\" already used in this scope!", name);
 		}
 		
-		if (function.scope == null) {
-			function.scope = this;
+		if (function.definitionScope == null) {
+			function.definitionScope = this;
 		}
 		functionHierarchy.put(name, function, true);
 		

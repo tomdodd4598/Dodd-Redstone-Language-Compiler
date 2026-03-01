@@ -1,40 +1,77 @@
 nesting fn root() -> Int:
+{dec}:
+	static \r0: [Char; 5]
+	static \r1: [Char; 4]
 {0}:
+	\r0 = $['f', 'a', 'c', 't', '(']
+	\r1 = $[')', ' ', '=', ' ']
 	%0 = call $main()
 	exit $0
 
-nesting fn main() -> ():
+nesting fn printChars(<9> chars: Chars {&mut Char, Nat}) -> ():
 {dec}:
 	<10> i: Nat
-	<10> j: Nat
-	<10> k: Nat
-	<13> l: Nat
 {0}:
 	<10> i = $0
-	<10> j = $0
-	<10> k = $0
 	jmp 2
 {1}:
+	%0 = &<9> chars + $0
+	%1 = *%0
+	%2 = %1 + <10> i
+	%3 = *%2
+	%4 = call builtin $printChar(%3)
 	<10> i = <10> i + $1
-	%0 = call builtin $printNat(<10> i)
-	<13> l = <10> k
-	<10> k = <10> j
-	%1 = call builtin $printChar($' ')
-	%2 = call builtin $printChar($' ')
-	%3 = <10> i * <10> i
-	<10> j = %3 * <10> i
-	%4 = call builtin $printNat(<10> j)
-	%5 = call builtin $printChar($' ')
-	%6 = call builtin $printChar($' ')
-	<10> k = <10> j - <10> k
-	%7 = call builtin $printNat(<10> k)
-	%8 = call builtin $printChar($' ')
-	%9 = call builtin $printChar($' ')
-	%10 = <10> k - <13> l
-	%11 = call builtin $printNat(%10)
-	%12 = call builtin $printChar($'\r')
-	%13 = call builtin $printChar($'\n')
+	%5 = <10> i
 {2}:
-	%t = <10> i < $50
+	%6 = &<9> chars + $8
+	%7 = *%6
+	%t = %7 > <10> i
+	cj 1
+	ret $()
+
+stack fn fact(<19> n: Int) -> (Int, Int):
+{dec}:
+	<22> \r0: Int
+{0}:
+	%0 = <19> n
+	%t = <19> n == $0
+	cnj 1
+	<22> \r0 = $1
+	jmp 2
+{1}:
+	%2 = <19> n
+	%3 = <19> n - $1
+	%4 = call $fact(%3)
+	%5 = &%4 + $8
+	%6 = *%5
+	<22> \r0 = %6 * %2
+{2}:
+	%7 = (%0, <22> \r0)
+	ret %7
+
+nesting fn main() -> ():
+{dec}:
+	<29> i: Int
+	<32> x: (Int, Int)
+{0}:
+	<29> i = $0
+	jmp 2
+{1}:
+	<32> x = call $fact(<29> i)
+	%0 = (&\r0, $5)
+	%1 = call $printChars(%0)
+	%2 = &<32> x + $0
+	%3 = *%2
+	%4 = call builtin $printInt(%3)
+	%5 = (&\r1, $4)
+	%6 = call $printChars(%5)
+	%7 = &<32> x + $8
+	%8 = *%7
+	%9 = call builtin $printInt(%8)
+	%10 = call builtin $printChar($'\n')
+	<29> i = <29> i + $1
+	%11 = <29> i
+{2}:
+	%t = <29> i <= $5
 	cj 1
 	ret $()

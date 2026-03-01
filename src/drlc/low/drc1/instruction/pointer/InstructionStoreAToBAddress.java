@@ -21,6 +21,16 @@ public class InstructionStoreAToBAddress extends Instruction {
 	}
 	
 	@Override
+	public boolean isUnknownMemoryAccess() {
+		return true;
+	}
+	
+	@Override
+	public boolean isLoadStoreBarrier() {
+		return true;
+	}
+	
+	@Override
 	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		return null;
 	}

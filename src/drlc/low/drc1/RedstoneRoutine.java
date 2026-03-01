@@ -204,7 +204,7 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 		}
 		
 		if (isStackRoutine()) {
-			short stackSize = (short) (spanMapSize(localSpanMap) + spanMapSize(tempSpanMap) - Helpers.sumToInt(params, x -> x.getTypeInfo().getSize()));
+			short stackSize = (short) getStackSize();
 			if (stackSize < 0) {
 				throw new IllegalArgumentException(String.format("Stack-based subroutine \"%s\" has unexpected stack size %s!", function, stackSize));
 			}
@@ -376,7 +376,7 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 			return false;
 		}
 		
-		List<Instruction> data = Helpers.map(args, x -> {
+		List<Instruction> instructionList = Helpers.map(args, x -> {
 			Function function = x.getFunction();
 			if (function != null) {
 				return new InstructionSubroutineAddressData(function);
@@ -392,11 +392,11 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 			}
 		});
 		
-		if (data.stream().anyMatch(x -> x == null)) {
+		if (instructionList.stream().anyMatch(x -> x == null)) {
 			return false;
 		}
 		
-		IntStream.range(0, offsets.length).forEach(x -> code.staticDataMap.put(getDataInfo(target, offsets[x]), data.get(x)));
+		IntStream.range(0, offsets.length).forEach(x -> code.staticDataMap.put(getDataInfo(target, offsets[x]), instructionList.get(x)));
 		return true;
 	}
 	

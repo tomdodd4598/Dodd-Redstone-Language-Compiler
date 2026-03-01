@@ -23,8 +23,8 @@ public class IntNotEqualToIntEdsacRoutine extends EdsacRoutine {
 		
 		LowDataInfo x = getDataInfo(params.get(0).dataId(), 0), y = getDataInfo(params.get(1).dataId(), 0);
 		
-		falseText.add(new InstructionAdd(x));
-		falseText.add(new InstructionSubtract(y));
+		addData(falseText, x);
+		subtractData(falseText, y);
 		falseText.add(new InstructionJumpIfLessThanZero(1));
 		falseText.add(new InstructionRaw("TF")); // [0]
 		falseText.add(new InstructionRaw("SF")); // [0]
@@ -33,7 +33,7 @@ public class IntNotEqualToIntEdsacRoutine extends EdsacRoutine {
 		returnFromSubroutineIfMoreThanOrEqualToZero(falseText);
 		
 		trueText.add(new InstructionRaw("TF")); // [0]
-		trueText.add(new InstructionSubtract(constantInfo(1)));
+		trueText.add(new InstructionSubtract(constantDataInfo(1)));
 		returnFromSubroutineIfLessThanZero(trueText);
 		
 	}

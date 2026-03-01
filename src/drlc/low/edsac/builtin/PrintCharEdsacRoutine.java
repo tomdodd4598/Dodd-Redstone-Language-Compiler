@@ -6,7 +6,6 @@ import drlc.intermediate.routine.Routine;
 import drlc.low.LowDataInfo;
 import drlc.low.edsac.*;
 import drlc.low.edsac.instruction.Instruction;
-import drlc.low.edsac.instruction.address.InstructionPrint;
 
 public class PrintCharEdsacRoutine extends EdsacRoutine {
 	
@@ -21,7 +20,7 @@ public class PrintCharEdsacRoutine extends EdsacRoutine {
 		
 		LowDataInfo info = getDataInfo(params.get(0).dataId(), 0);
 		
-		text.add(new InstructionPrint(info));
+		printData(text, info);
 		returnFromSubroutineIfMoreThanOrEqualToZero(text);
 	}
 }

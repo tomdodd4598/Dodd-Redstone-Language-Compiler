@@ -1,9 +1,10 @@
 package drlc.low.edsac;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import drlc.Global;
+import drlc.*;
 import drlc.Helpers.Pair;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.value.*;
@@ -11,12 +12,15 @@ import drlc.intermediate.routine.Routine;
 import drlc.low.*;
 import drlc.low.edsac.builtin.*;
 import drlc.low.edsac.instruction.Instruction;
+import drlc.low.edsac.instruction.address.InstructionAddStackTargetOffset;
 import drlc.low.edsac.instruction.data.*;
 
 public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 	
 	public int addressOffset = 0;
 	public long addressId = 0L;
+	
+	protected DataId basePointerDataId = null, stackPointerDataId = null, scratchDataId = null;
 	
 	public EdsacCode() {
 		super();
@@ -48,7 +52,17 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 		}
 		
 		for (EdsacRoutine routine : routineMap.values()) {
-			routine.generateDataAddresses();
+			if (routine.isStackRoutine()) {
+				routine.generateDataAddresses();
+			}
+		}
+		
+		generateStackTargetOffsets();
+		
+		for (EdsacRoutine routine : routineMap.values()) {
+			if (!routine.isStackRoutine()) {
+				routine.generateDataAddresses();
+			}
 		}
 		
 		prepareStaticData();
@@ -67,6 +81,8 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 		switch (name) {
 			case Global.READ_BOOL:
 				return new ReadBoolEdsacRoutine(this, intermediateRoutine);
+			case Global.READ_CHAR:
+				return new ReadCharEdsacRoutine(this, intermediateRoutine);
 			case Global.READ_INT:
 			case Global.READ_NAT:
 				return new ReadIntEdsacRoutine(this, intermediateRoutine);
@@ -117,6 +133,27 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 		}
 	}
 	
+	public DataId basePointerDataId() {
+		if (basePointerDataId == null) {
+			basePointerDataId = Main.generator.nextGlobalDataId(Main.generator.intTypeInfo);
+		}
+		return basePointerDataId;
+	}
+	
+	public DataId stackPointerDataId() {
+		if (stackPointerDataId == null) {
+			stackPointerDataId = Main.generator.nextGlobalDataId(Main.generator.intTypeInfo);
+		}
+		return stackPointerDataId;
+	}
+	
+	public DataId scratchDataId() {
+		if (scratchDataId == null) {
+			scratchDataId = Main.generator.nextGlobalDataId(Main.generator.intTypeInfo);
+		}
+		return scratchDataId;
+	}
+	
 	protected void prepareStaticData() {
 		if (rootAddressMap.isEmpty() || staticDataMap.isEmpty()) {
 			return;
@@ -136,7 +173,7 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 			return;
 		}
 		
-		List<Map.Entry<LowDataInfo, Instruction>> currentStaticDataEntryList = new ArrayList<>(staticDataMap.entrySet());
+		List<Entry<LowDataInfo, Instruction>> currentStaticDataEntryList = new ArrayList<>(staticDataMap.entrySet());
 		currentStaticDataEntryList.sort(Comparator.comparingInt(x -> staticDataAddress(x.getKey())));
 		
 		int explicitEnd = currentStaticDataEntryList.stream().mapToInt(x -> staticDataAddress(x.getKey()) + x.getValue().size()).max().orElse(start);
@@ -145,19 +182,19 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 		}
 		end = explicitEnd;
 		
-		LinkedHashMap<LowDataInfo, Instruction> nextStaticDataEntryList = new LinkedHashMap<>();
+		Map<LowDataInfo, Instruction> nextStaticDataEntryList = new LinkedHashMap<>();
 		int current = start, index = 0;
 		while (current < end) {
-			Map.Entry<LowDataInfo, Instruction> entry = index < currentStaticDataEntryList.size() ? currentStaticDataEntryList.get(index) : null;
+			Entry<LowDataInfo, Instruction> entry = index < currentStaticDataEntryList.size() ? currentStaticDataEntryList.get(index) : null;
 			int next = entry == null ? Integer.MAX_VALUE : staticDataAddress(entry.getKey());
 			if (next < current) {
 				throw new IllegalArgumentException("Encountered overlapping entries in EDSAC static data!");
 			}
 			
 			if (entry != null && next == current) {
-				Instruction data = entry.getValue();
-				nextStaticDataEntryList.put(entry.getKey(), data);
-				current += data.size();
+				Instruction instruction = entry.getValue();
+				nextStaticDataEntryList.put(entry.getKey(), instruction);
+				current += instruction.size();
 				++index;
 			}
 			else {
@@ -181,7 +218,24 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 			}
 			
 			else if (data instanceof InstructionSubroutineAddressData isad) {
-				isad.setValue(textAddressMap.get(isad.function));
+				int address = textAddressMap.get(isad.function);
+				EdsacRoutine routine = routineMap.get(isad.function);
+				if (routine != null && routine.isStackRoutine()) {
+					address += routine.sectionAddressMap.get(-1);
+				}
+				isad.setValue(address);
+			}
+		}
+	}
+	
+	protected void generateStackTargetOffsets() {
+		for (EdsacRoutine routine : routineMap.values()) {
+			for (List<Instruction> section : routine.sectionTextMap.values()) {
+				for (Instruction instruction : section) {
+					if (instruction instanceof InstructionAddStackTargetOffset iasto) {
+						iasto.dataInfo = routine.constantDataInfo(routine.getAddress(iasto.stackTargetDataInfo));
+					}
+				}
 			}
 		}
 	}

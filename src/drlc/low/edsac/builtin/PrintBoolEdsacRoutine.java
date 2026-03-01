@@ -23,13 +23,13 @@ public class PrintBoolEdsacRoutine extends EdsacRoutine {
 		
 		LowDataInfo info = getDataInfo(params.get(0).dataId(), 0);
 		
-		trueText.add(new InstructionPrint(constantInfo(EdsacChar.LETTER_SHIFT)));
-		trueText.add(new InstructionAdd(info));
+		trueText.add(new InstructionPrint(constantDataInfo(EdsacChar.LETTER_SHIFT)));
+		addData(trueText, info);
 		trueText.add(new InstructionJumpIfMoreThanOrEqualToZero(1));
-		"TRUE".chars().forEach(c -> trueText.add(new InstructionPrint(constantInfo(EdsacChar.of((char) c)))));
+		"TRUE".chars().forEach(c -> trueText.add(new InstructionPrint(constantDataInfo(EdsacChar.of((char) c)))));
 		returnFromSubroutineIfLessThanZero(trueText);
 		
-		"FALSE".chars().forEach(c -> falseText.add(new InstructionPrint(constantInfo(EdsacChar.of((char) c)))));
+		"FALSE".chars().forEach(c -> falseText.add(new InstructionPrint(constantDataInfo(EdsacChar.of((char) c)))));
 		returnFromSubroutineIfMoreThanOrEqualToZero(falseText);
 	}
 }

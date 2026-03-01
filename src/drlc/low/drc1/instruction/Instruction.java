@@ -12,6 +12,10 @@ public abstract class Instruction extends LowInstruction {
 	
 	public abstract boolean isCurrentRegisterValueUsed();
 	
+	public abstract boolean isUnknownMemoryAccess();
+	
+	public abstract boolean isLoadStoreBarrier();
+	
 	/** Ignores code sectioning! */
 	public abstract Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection);
 	

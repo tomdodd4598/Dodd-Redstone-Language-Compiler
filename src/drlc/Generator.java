@@ -9,7 +9,7 @@ import drlc.intermediate.*;
 import drlc.intermediate.action.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
-import drlc.intermediate.component.data.DataId;
+import drlc.intermediate.component.data.*;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.routine.Routine;
@@ -100,6 +100,7 @@ public abstract class Generator {
 		Main.rootScope.addRoutine(null, new Routine(function));
 		
 		Scope functionScope = new FunctionScope(null, Main.rootScope);
+		function.functionScope = functionScope;
 		for (DeclaratorInfo param : params) {
 			param.variable.scope = functionScope;
 		}
@@ -169,6 +170,10 @@ public abstract class Generator {
 	
 	public @NonNull CharTypeInfo charTypeInfo(Boolean... referenceMutability) {
 		return new CharTypeInfo(null, Arrays.asList(referenceMutability));
+	}
+	
+	public @NonNull VariableDataId nextGlobalDataId(@NonNull TypeInfo typeInfo) {
+		return Main.rootScope.nextLocalDataId(Main.rootRoutine, typeInfo);
 	}
 	
 	// Binary Ops

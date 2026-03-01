@@ -23,8 +23,8 @@ public class IntCompareIntRedstoneRoutine extends RedstoneRoutine {
 		sectionTextMap.put(1, elseText);
 		
 		DataId x = params.get(0).dataId(), y = params.get(1).dataId();
-		DataId a = function.scope.nextLocalDataId(intermediate, x.typeInfo);
-		DataId b = function.scope.nextLocalDataId(intermediate, x.typeInfo);
+		DataId a = function.functionScope.nextLocalDataId(intermediate, x.typeInfo);
+		DataId b = function.functionScope.nextLocalDataId(intermediate, x.typeInfo);
 		
 		loadScalar(ifText, x);
 		ifText.add(new InstructionSetIsMoreThanOrEqualToZero());

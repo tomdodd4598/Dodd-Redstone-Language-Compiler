@@ -24,6 +24,16 @@ public class InstructionLoadBasePointer extends Instruction {
 	}
 	
 	@Override
+	public boolean isUnknownMemoryAccess() {
+		return false;
+	}
+	
+	@Override
+	public boolean isLoadStoreBarrier() {
+		return false;
+	}
+	
+	@Override
 	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		if (sameSection && (next instanceof InstructionMoveStackPointerToBasePointer || next instanceof InstructionLoadBasePointer)) {
 			return next;

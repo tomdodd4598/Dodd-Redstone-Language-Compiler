@@ -83,6 +83,7 @@ public class Main {
 		generator.init();
 		
 		Function rootFunction = new Function(null, Global.ROOT, false, generator.rootReturnTypeInfo, new ArrayList<>(), false, true);
+		rootFunction.functionScope = rootScope;
 		rootFunction.setRequired();
 		rootScope.addFunction(null, rootFunction);
 		

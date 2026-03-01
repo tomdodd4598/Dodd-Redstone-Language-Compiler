@@ -19,10 +19,10 @@ public class ReadBoolEdsacRoutine extends EdsacRoutine {
 		sectionTextMap.put(0, text);
 		
 		text.add(new InstructionDial());
-		text.add(new InstructionSubtract(constantInfo(20)));
+		text.add(new InstructionSubtract(constantDataInfo(20)));
 		returnFromSubroutineIfMoreThanOrEqualToZero(text);
 		text.add(new InstructionRaw("TF")); // [0]
-		text.add(new InstructionSubtract(constantInfo(1)));
+		text.add(new InstructionSubtract(constantDataInfo(1)));
 		returnFromSubroutineIfLessThanZero(text);
 	}
 }

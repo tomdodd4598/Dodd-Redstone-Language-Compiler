@@ -76,6 +76,7 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 		@NonNull TypeInfo returnType = returnTypeNode != null ? returnTypeNode.getTypeInfo() : Main.generator.unitTypeInfo;
 		
 		function = scope.function = new Function(this, name, false, returnType, Helpers.map(parameterNodes, x -> x.declaratorInfo), closure, scope.parent.isModule);
+		function.functionScope = scope;
 		scope.parent.addFunction(this, function);
 		
 		routine = new Routine(function);

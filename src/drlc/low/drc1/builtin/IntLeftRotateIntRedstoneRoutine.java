@@ -22,7 +22,7 @@ public class IntLeftRotateIntRedstoneRoutine extends RedstoneRoutine {
 		// (x << y) | (x >>> (-y))
 		
 		DataId x = params.get(0).dataId(), y = params.get(1).dataId();
-		DataId t = function.scope.nextLocalDataId(intermediate, x.typeInfo);
+		DataId t = function.functionScope.nextLocalDataId(intermediate, x.typeInfo);
 		
 		unaryOp(text, UnaryActionType.MINUS_INT, y);
 		storeScalar(text, t);

@@ -63,7 +63,7 @@ public class StringExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
-		@NonNull DataId arrayDataId = Main.rootScope.nextLocalDataId(Main.rootRoutine, stringValue.typeInfo);
+		@NonNull DataId arrayDataId = Main.generator.nextGlobalDataId(stringValue.typeInfo);
 		Main.rootRoutine.addValueAssignmentAction(this, arrayDataId, stringValue);
 		
 		@NonNull DataId ptrDataId = routine.nextRegId(Main.generator.charTypeInfo(false));

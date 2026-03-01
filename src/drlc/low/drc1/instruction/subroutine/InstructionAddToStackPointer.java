@@ -28,6 +28,16 @@ public class InstructionAddToStackPointer extends Instruction {
 	}
 	
 	@Override
+	public boolean isUnknownMemoryAccess() {
+		return false;
+	}
+	
+	@Override
+	public boolean isLoadStoreBarrier() {
+		return false;
+	}
+	
+	@Override
 	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		if (sameSection && value != null) {
 			if (next instanceof InstructionAddToStackPointer add) {

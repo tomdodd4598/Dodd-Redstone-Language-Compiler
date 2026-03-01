@@ -41,7 +41,7 @@ public abstract class LowRoutine<CODE extends LowCode<CODE, ROUTINE, INSTRUCTION
 		
 		TypeInfo returnType = function.returnTypeInfo;
 		if (returnType.getSize() > 1) {
-			params.add(function.scope.nextLocalDeclarator(intermediate, returnType.addressOf(null, true)));
+			params.add(function.functionScope.nextLocalDeclarator(intermediate, returnType.addressOf(null, true)));
 		}
 		
 		if (isRootRoutine()) {
@@ -116,10 +116,18 @@ public abstract class LowRoutine<CODE extends LowCode<CODE, ROUTINE, INSTRUCTION
 	}
 	
 	protected boolean isStackData(DataId dataId) {
-		if (dataId instanceof VariableDataId variableDataId && variableDataId.variable.modifier._static) {
+		if (dataId instanceof ValueDataId) {
 			return false;
 		}
-		return isStackRoutine();
+		else if (dataId instanceof VariableDataId variableDataId && variableDataId.variable.modifier._static) {
+			return false;
+		}
+		else if (dataId.scope == Main.rootScope) {
+			return false;
+		}
+		else {
+			return isStackRoutine();
+		}
 	}
 	
 	protected LowDataType getDataType(DataId dataId) {
@@ -208,7 +216,11 @@ public abstract class LowRoutine<CODE extends LowCode<CODE, ROUTINE, INSTRUCTION
 		return Helpers.sumToInt(spanMap.keySet(), x -> x.internal.typeInfo.getSize());
 	}
 	
-	protected int getAddress(LowDataInfo dataInfo) {
+	protected int getStackSize() {
+		return spanMapSize(localSpanMap) + spanMapSize(tempSpanMap) - Helpers.sumToInt(params, x -> x.getTypeInfo().getSize());
+	}
+	
+	public int getAddress(LowDataInfo dataInfo) {
 		return switch (dataInfo.type) {
 			case TEMP -> LowCode.dataAddress(dataInfo.routine.tempAddressMap, dataInfo);
 			case STATIC -> LowCode.dataAddress(code.rootAddressMap, dataInfo);
@@ -216,7 +228,7 @@ public abstract class LowRoutine<CODE extends LowCode<CODE, ROUTINE, INSTRUCTION
 		};
 	}
 	
-	protected int textAddress(Function function, int section, int offset) {
+	public int textAddress(Function function, int section, int offset) {
 		ROUTINE routine = code.getRoutine(function);
 		return code.textAddressMap.get(function) + routine.sectionAddressMap.get(section) + offset;
 	}

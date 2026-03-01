@@ -352,60 +352,42 @@ fn main() {
 // TESTING FUNCTION POINTERS
 
 /*
-let mut binary_op = &mut subtract;
-
-fn get_op_ptr() -> &mut &mut fn(Int, Int) -> Int {
-	return &mut binary_op;
-}
+let mut binary_op = &mut add;
 
 fn main() {
-	let mut print: fn(Bool);
+	let mut print = printInt;
 	
-	let i1 = 12;
-	let i2 = 4;
+	let mut x = 3;
+	let mut y = 5;
+	let mut z = 0;
 	
-	let mut s = false;
-	
-	print = printBool;
-	do_binary_op(&mut s, *choose_ptr(false, &i1, &i2), *choose_ptr(true, &i1, &i2), binary_op);
-	print(s);
+	call_binary_op(&mut z, x, y, binary_op);
+	print(z);
 	printChar('\n');
 	
-	if s {
-		**get_op_ptr() = divide;
+	let b = z > 0;
+	if b {
+		*binary_op = subtract;
+		z = x;
+		x = y;
+		y = z;
 	}
 	
-	do_binary_op(&mut s, *choose_ptr(!s, &i1, &i2), *choose_ptr(s, &i1, &i2), binary_op);
-	print(s);
+	call_binary_op(&mut z, x, y, binary_op);
+	print(z);
 	printChar('\n');
 }
 
-fn add(a: Int, b: Int) -> Int {
-	return a + b;
+fn add(x: Int, y: Int) -> Int {
+	return x + y;
 }
 
-fn subtract(a: Int, b: Int) -> Int {
-	return a - b;
+fn subtract(x: Int, y: Int) -> Int {
+	return x - y;
 }
 
-fn multiply(a: Int, b: Int) -> Int {
-	return a * b;
-}
-
-fn divide(a: Int, b: Int) -> Int {
-	return a / b;
-}
-
-fn choose_ptr(cond: Bool, p1: &Int, p2: &Int) -> &Int {
-	return cond ? p1 : p2;
-}
-
-fn do_binary_op(loc: &mut Bool, a: Int, b: Int, bin_op: &fn(Int, Int) -> Int) {
-	*loc = int_to_bool(bin_op(a, b));
-}
-
-fn int_to_bool(x: Int) -> Bool {
-	return x != 0;
+fn call_binary_op(z: &mut Int, x: Int, y: Int, f: &fn(Int, Int) -> Int) {
+	*z = f(x, y);
 }
 */
 
@@ -461,7 +443,15 @@ alias PosPtr = &Pos;
 
 // TESTING COMPOUND RETURNS
 
-/*
+
+fn printChars(chars: Chars) {
+	let mut i = 0N;
+	while i < chars.len {
+		printChar(chars.ptr[i]);
+		i += 1;
+	}
+}
+
 fn fact(n: Int) -> (Int, Int) {
 	return (n, n == 0 ? 1 : n * fact(n - 1).1);
 }
@@ -470,17 +460,15 @@ fn main() {
 	let mut i = 0;
 	while i <= 5 {
 		let x = fact(i);
+		printChars("fact(");
 		printInt(x.0);
-		printChar(' ');
-		printChar('-');
-		printChar('>');
-		printChar(' ');
+		printChars(") = ");
 		printInt(x.1);
 		printChar('\n');
 		i += 1;
 	}
 }
-*/
+
 
 // TESTING PRINTING
 
@@ -517,8 +505,10 @@ fn main() {
 	let p = &mut 0;
 	let f = |x: Int| { *p += x; };
 	printInt(*p);
+	printChar('\n');
 	f(5);
 	printInt(*p);
+	printChar('\n');
 }
 */
 
@@ -649,7 +639,7 @@ fn main() {
 
 // EDSAC CUBES
 
-
+/*
 fn main() {
 	let mut i = 0N;
 	let mut j = 0N;
@@ -675,4 +665,4 @@ fn main() {
 		printChar('\n');
 	}
 }
-
+*/

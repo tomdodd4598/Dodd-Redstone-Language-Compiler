@@ -1,5 +1,3 @@
-EDSAC backend
-
 Add move semantics
 
 Add 'macro! name(...) { ... }' syntax

@@ -120,7 +120,7 @@ public class Routine {
 					if (aa.arg instanceof ValueDataId valueData) {
 						if (valueData.value instanceof FunctionItemValue functionItemValue) {
 							Function function = functionItemValue.typeInfo.function;
-							if (function.scope.functionExists(function.name, false) && !Main.rootScope.routineExists(function)) {
+							if (function.definitionScope.functionExists(function.name, false) && !Main.rootScope.routineExists(function)) {
 								throw Helpers.error("Function \"%s\" was not defined! %s", function, aa);
 							}
 						}
@@ -232,10 +232,10 @@ public class Routine {
 	}
 	
 	public void onNonLocalFunctionItemExpression(ASTNode<?> node, Function function) {
-		if (!isRootRoutine() && !function.builtIn) {
+		function.setRequired();
+		if (!function.builtIn && !isRootRoutine()) {
 			onRequiresStack();
 		}
-		function.setRequired();
 		if (Main.rootScope.routineExists(function)) {
 			Main.rootScope.getRoutine(node, function).onRequiresStack();
 		}

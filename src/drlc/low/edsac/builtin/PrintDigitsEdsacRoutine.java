@@ -23,13 +23,13 @@ public class PrintDigitsEdsacRoutine extends EdsacRoutine {
 		sectionTextMap.put(3, skipText);
 		sectionTextMap.put(4, continueText);
 		
-		entryText.add(new InstructionLoadMultiplier(constantInfo("J995F")));
+		entryText.add(new InstructionLoadMultiplier(constantDataInfo("J995F")));
 		entryText.add(new InstructionRaw("VF")); // [0]
 		entryText.add(new InstructionRaw("T4D")); // [5,4]
-		entryText.add(new InstructionAdd(constantInfo("VF")));
+		entryText.add(new InstructionAdd(constantDataInfo("VF")));
 		entryText.add(new InstructionRaw("TF")); // [0]
-		entryText.add(new InstructionLoadMultiplier(constantInfo("JF")));
-		entryText.add(new InstructionSubtract(constantInfo("TF")));
+		entryText.add(new InstructionLoadMultiplier(constantDataInfo("JF")));
+		entryText.add(new InstructionSubtract(constantDataInfo("TF")));
 		
 		digitText.add(new InstructionRaw("T7F")); // [7]
 		digitText.add(new InstructionRaw("V4D")); // [5,4]
@@ -46,7 +46,7 @@ public class PrintDigitsEdsacRoutine extends EdsacRoutine {
 		returnText.add(new InstructionRaw("L4F")); // [4]
 		returnText.add(new InstructionRaw("T4D")); // [5,4]
 		returnText.add(new InstructionRaw("A7F")); // [7]
-		returnText.add(new InstructionSubtract(constantInfo("VF")));
+		returnText.add(new InstructionSubtract(constantDataInfo("VF")));
 		returnText.add(new InstructionJumpIfLessThanZero(1));
 		returnFromSubroutineIfMoreThanOrEqualToZero(returnText);
 		
@@ -57,7 +57,7 @@ public class PrintDigitsEdsacRoutine extends EdsacRoutine {
 		skipText.add(new InstructionJumpIfMoreThanOrEqualToZero(4));
 		skipText.add(new InstructionRaw("T6F")); // [6]
 		skipText.add(new InstructionRaw("T6F")); // [6]
-		skipText.add(new InstructionAdd(constantInfo(EdsacChar.of('0'))));
+		skipText.add(new InstructionAdd(constantDataInfo(EdsacChar.of('0'))));
 		skipText.add(new InstructionRaw("T1F")); // [1]
 		
 		continueText.add(new InstructionRaw("A8D")); // [9,8]

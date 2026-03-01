@@ -25,8 +25,8 @@ public class PrintDigitsRedstoneRoutine extends RedstoneRoutine {
 		sectionTextMap.put(2, returnText);
 		
 		DataId x = params.get(0).dataId(), t = params.get(1).dataId(), b = params.get(2).dataId();
-		DataId d = function.scope.nextLocalDataId(intermediate, x.typeInfo);
-		DataId m = function.scope.nextLocalDataId(intermediate, x.typeInfo);
+		DataId d = function.functionScope.nextLocalDataId(intermediate, x.typeInfo);
+		DataId m = function.functionScope.nextLocalDataId(intermediate, x.typeInfo);
 		
 		loadScalar(loopText, x);
 		binaryOp(loopText, BinaryActionType.INT_DIVIDE_INT, t);

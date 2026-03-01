@@ -25,6 +25,16 @@ public class InstructionCallSubroutine extends Instruction {
 	}
 	
 	@Override
+	public boolean isUnknownMemoryAccess() {
+		return false;
+	}
+	
+	@Override
+	public boolean isLoadStoreBarrier() {
+		return true;
+	}
+	
+	@Override
 	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		return null;
 	}

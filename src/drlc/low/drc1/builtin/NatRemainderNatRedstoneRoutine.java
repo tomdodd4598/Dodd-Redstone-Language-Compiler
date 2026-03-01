@@ -26,7 +26,7 @@ public class NatRemainderNatRedstoneRoutine extends RedstoneRoutine {
 		sectionTextMap.put(4, elseSubtractText);
 		
 		DataId x = params.get(0).dataId(), y = params.get(1).dataId();
-		DataId t = function.scope.nextLocalDataId(intermediate, x.typeInfo);
+		DataId t = function.functionScope.nextLocalDataId(intermediate, x.typeInfo);
 		
 		loadScalar(setupText, y);
 		setupText.add(new InstructionAndImmediate((short) 32768));

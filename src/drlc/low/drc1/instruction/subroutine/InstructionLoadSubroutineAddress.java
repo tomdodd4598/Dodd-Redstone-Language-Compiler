@@ -35,6 +35,16 @@ public class InstructionLoadSubroutineAddress extends Instruction {
 	}
 	
 	@Override
+	public boolean isUnknownMemoryAccess() {
+		return false;
+	}
+	
+	@Override
+	public boolean isLoadStoreBarrier() {
+		return false;
+	}
+	
+	@Override
 	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		if (sameSection && next instanceof InstructionLoadSubroutineAddress) {
 			return next;
