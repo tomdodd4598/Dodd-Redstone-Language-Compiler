@@ -7,7 +7,7 @@ public class InstructionHalt extends InstructionImmediate {
 	public InstructionHalt() {
 		super(0L);
 	}
-
+	
 	@Override
 	public boolean isLoadStoreBarrier() {
 		return true;

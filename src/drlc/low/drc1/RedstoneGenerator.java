@@ -11,7 +11,7 @@ import drlc.intermediate.routine.Routine;
 
 public abstract class RedstoneGenerator extends Generator {
 	
-	protected RedstoneCode code = new RedstoneCode(false);
+	protected RedstoneCode code = new RedstoneCode(false, true);
 	
 	public RedstoneGenerator(String outputFile) {
 		super(outputFile);
@@ -251,9 +251,19 @@ public abstract class RedstoneGenerator extends Generator {
 	}
 	
 	public void generateInternal() {
-		if (!code.generate()) {
-			code = new RedstoneCode(true);
-			code.generate();
+		RedstoneCode shortCode = new RedstoneCode(false, true);
+		code = shortCode;
+		if (shortCode.generate()) {
+			code = shortCode;
+		}
+		else {
+			RedstoneCode mixedTextFirstCode = new RedstoneCode(true, true);
+			code = mixedTextFirstCode;
+			mixedTextFirstCode.generate();
+			RedstoneCode mixedDataFirstCode = new RedstoneCode(true, false);
+			code = mixedDataFirstCode;
+			mixedDataFirstCode.generate();
+			code = mixedDataFirstCode.addressOffset < mixedTextFirstCode.addressOffset ? mixedDataFirstCode : mixedTextFirstCode;
 		}
 	}
 }

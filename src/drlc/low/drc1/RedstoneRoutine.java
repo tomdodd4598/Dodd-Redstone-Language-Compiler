@@ -254,7 +254,7 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 		int sectionAddressOffset = 0;
 		for (Entry<Integer, List<Instruction>> entry : sectionTextMap.entrySet()) {
 			sectionAddressMap.put(entry.getKey(), sectionAddressOffset);
-			sectionAddressOffset += entry.getValue().stream().mapToInt(x -> x.size(code.longAddress)).sum();
+			sectionAddressOffset += entry.getValue().stream().mapToInt(x -> x.size(code.mixedWidth)).sum();
 		}
 		code.textAddressMap.put(function, code.addressOffset);
 		code.addressOffset += sectionAddressOffset;
@@ -300,7 +300,7 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 			List<Instruction> section = entry.getValue();
 			for (int i = 0; i < section.size(); ++i) {
 				Instruction instruction = section.get(i);
-				int instructionSize = instruction.size(code.longAddress);
+				int instructionSize = instruction.size(code.mixedWidth);
 				
 				if (instruction instanceof InstructionAddress ia) {
 					ia.address = (short) getAddress(ia.dataInfo);

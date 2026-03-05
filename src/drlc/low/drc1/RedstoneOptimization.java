@@ -177,23 +177,23 @@ public class RedstoneOptimization {
 				}
 				if (instruction instanceof InstructionJump ij) {
 					incomingJumpSections.add(ij.section);
-						if (ij.section <= entry.getKey()) {
-							hasBackwardEdge = true;
-						}
-					}
-					if ((instruction instanceof InstructionStore || instruction instanceof InstructionStoreOffset) && instruction.getDataInfo() != null) {
-						LowDataInfo data = instruction.getDataInfo();
-						if (data.span.size <= 1 && data.isStackData() && !requiredStoreData.contains(data)) {
-							removableStoreMap.put(data, new Pair<>(instruction, entry.getKey()));
-						}
-					}
-					else if (instruction.getDataInfo() != null) {
-						if (removableStoreMap.containsKey(instruction.getDataInfo())) {
-							removableStoreMap.remove(instruction.getDataInfo());
-							requiredStoreData.add(instruction.getDataInfo());
-						}
+					if (ij.section <= entry.getKey()) {
+						hasBackwardEdge = true;
 					}
 				}
+				if ((instruction instanceof InstructionStore || instruction instanceof InstructionStoreOffset) && instruction.getDataInfo() != null) {
+					LowDataInfo data = instruction.getDataInfo();
+					if (data.span.size <= 1 && data.isStackData() && !requiredStoreData.contains(data)) {
+						removableStoreMap.put(data, new Pair<>(instruction, entry.getKey()));
+					}
+				}
+				else if (instruction.getDataInfo() != null) {
+					if (removableStoreMap.containsKey(instruction.getDataInfo())) {
+						removableStoreMap.remove(instruction.getDataInfo());
+						requiredStoreData.add(instruction.getDataInfo());
+					}
+				}
+			}
 		}
 		
 		if (!hasUnknownMemoryAccess) {

@@ -17,7 +17,7 @@ public abstract class InstructionDeferred extends Instruction {
 		this.section = section;
 		this.target = target;
 	}
-
+	
 	@Override
 	public boolean isAccumulatorUsed() {
 		return true;
@@ -47,17 +47,17 @@ public abstract class InstructionDeferred extends Instruction {
 	public LowDataInfo getWriteDataInfo() {
 		return null;
 	}
-
+	
 	@Override
 	public boolean isLoadStoreBarrier() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isUnknownMemoryAccess() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isProtected() {
 		return true;

@@ -9,12 +9,12 @@ public class InstructionDeferredStoreAndClear extends InstructionDeferred {
 	public InstructionDeferredStoreAndClear(Function function, int section, Instruction target) {
 		super(function, section, target);
 	}
-
+	
 	@Override
 	public boolean isAccumulatorModified() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isAccumulatorCleared() {
 		return true;

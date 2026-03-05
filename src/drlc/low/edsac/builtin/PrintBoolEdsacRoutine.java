@@ -6,7 +6,7 @@ import drlc.intermediate.routine.Routine;
 import drlc.low.LowDataInfo;
 import drlc.low.edsac.*;
 import drlc.low.edsac.instruction.Instruction;
-import drlc.low.edsac.instruction.address.*;
+import drlc.low.edsac.instruction.address.InstructionPrint;
 import drlc.low.edsac.instruction.jump.InstructionJumpIfMoreThanOrEqualToZero;
 
 public class PrintBoolEdsacRoutine extends EdsacRoutine {

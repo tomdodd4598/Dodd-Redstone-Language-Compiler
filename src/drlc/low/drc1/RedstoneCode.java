@@ -7,21 +7,27 @@ import drlc.Global;
 import drlc.intermediate.component.Function;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.routine.Routine;
-import drlc.low.LowCode;
+import drlc.low.*;
 import drlc.low.drc1.builtin.*;
 import drlc.low.drc1.instruction.Instruction;
+import drlc.low.drc1.instruction.address.InstructionAddress;
+import drlc.low.drc1.instruction.data.InstructionValueData;
+import drlc.low.drc1.instruction.jump.InstructionJump;
+import drlc.low.drc1.instruction.subroutine.*;
 
 public class RedstoneCode extends LowCode<RedstoneCode, RedstoneRoutine, Instruction> {
 	
 	public boolean requiresStack = false;
 	
-	public final boolean longAddress;
+	public final boolean mixedWidth;
+	public final boolean textFirst;
 	
 	public int addressOffset = 0;
 	
-	public RedstoneCode(boolean longAddress) {
+	public RedstoneCode(boolean mixedWidth, boolean textFirst) {
 		super();
-		this.longAddress = longAddress;
+		this.mixedWidth = mixedWidth;
+		this.textFirst = textFirst;
 	}
 	
 	@Override
@@ -42,7 +48,9 @@ public class RedstoneCode extends LowCode<RedstoneCode, RedstoneRoutine, Instruc
 	public boolean generate() {
 		addRoutines();
 		
-		while (new ArrayList<>(routineMap.values()).stream().mapToInt(x -> x.generateInstructions() ? 1 : 0).sum() > 0);
+		while (new ArrayList<>(routineMap.values()).stream().mapToInt(x -> x.generateInstructions() ? 1 : 0).sum() > 0) {
+			;
+		}
 		
 		optimize();
 		
@@ -54,20 +62,19 @@ public class RedstoneCode extends LowCode<RedstoneCode, RedstoneRoutine, Instruc
 			routine.regenerateDataInfo();
 		}
 		
-		for (RedstoneRoutine routine : routineMap.values()) {
-			routine.generateTextAddresses();
+		if (mixedWidth) {
+			resetLongAddressInstructions();
+			boolean changed = true;
+			while (changed) {
+				regenerateAddresses();
+				changed = promoteLongAddressInstructions();
+			}
 		}
-		
-		for (RedstoneRoutine routine : routineMap.values()) {
-			routine.generateDataAddresses();
-		}
-		
-		if (!longAddress && addressOffset > BYTE_MASK) {
-			return false;
-		}
-		
-		for (RedstoneRoutine routine : routineMap.values()) {
-			routine.finalizeInstructions();
+		else {
+			regenerateAddresses();
+			if (addressOffset > BYTE_MASK) {
+				return false;
+			}
 		}
 		
 		return true;
@@ -121,6 +128,150 @@ public class RedstoneCode extends LowCode<RedstoneCode, RedstoneRoutine, Instruc
 				flag |= RedstoneOptimization.compressSuccessiveInstructions(routine);
 			}
 		}
+	}
+	
+	protected void regenerateAddresses() {
+		clearAddressingState();
+		
+		if (textFirst) {
+			for (RedstoneRoutine routine : routineMap.values()) {
+				routine.generateTextAddresses();
+			}
+			for (RedstoneRoutine routine : routineMap.values()) {
+				routine.generateDataAddresses();
+			}
+		}
+		else {
+			for (RedstoneRoutine routine : routineMap.values()) {
+				if (routine.isRootRoutine()) {
+					routine.generateTextAddresses();
+				}
+			}
+			for (RedstoneRoutine routine : routineMap.values()) {
+				routine.generateDataAddresses();
+			}
+			for (RedstoneRoutine routine : routineMap.values()) {
+				if (!routine.isRootRoutine()) {
+					routine.generateTextAddresses();
+				}
+			}
+		}
+		
+		for (RedstoneRoutine routine : routineMap.values()) {
+			routine.finalizeInstructions();
+		}
+	}
+	
+	protected void clearAddressingState() {
+		addressOffset = 0;
+		textAddressMap.clear();
+		rootAddressMap.clear();
+		
+		for (RedstoneRoutine routine : routineMap.values()) {
+			routine.sectionAddressMap.clear();
+			routine.localAddressMap.clear();
+			routine.tempAddressMap.clear();
+		}
+	}
+	
+	protected void resetLongAddressInstructions() {
+		for (RedstoneRoutine routine : routineMap.values()) {
+			for (List<Instruction> section : routine.sectionTextMap.values()) {
+				for (Instruction instruction : section) {
+					if (instruction instanceof InstructionAddress ia) {
+						ia.longAddress = false;
+					}
+					else if (instruction instanceof InstructionJump ij) {
+						ij.longAddress = false;
+					}
+					else if (instruction instanceof InstructionLoadSubroutineAddress ilsa) {
+						ilsa.longAddress = false;
+					}
+					else if (instruction instanceof InstructionCallSubroutine ics) {
+						ics.longAddress = false;
+					}
+				}
+			}
+		}
+	}
+	
+	protected boolean promoteLongAddressInstructions() {
+		boolean changed = false;
+		for (RedstoneRoutine routine : routineMap.values()) {
+			for (List<Instruction> section : routine.sectionTextMap.values()) {
+				for (Instruction instruction : section) {
+					if (instruction instanceof InstructionAddress ia) {
+						if (!ia.longAddress && ia.address != null && isLong(ia.address)) {
+							ia.longAddress = true;
+							changed = true;
+						}
+					}
+					else if (instruction instanceof InstructionJump ij) {
+						if (!ij.longAddress && ij.address != null && isLong(ij.address)) {
+							ij.longAddress = true;
+							changed = true;
+						}
+					}
+					else if (instruction instanceof InstructionLoadSubroutineAddress ilsa) {
+						if (!ilsa.longAddress && ilsa.value != null && isLong(ilsa.value)) {
+							ilsa.longAddress = true;
+							changed = true;
+						}
+					}
+					else if (instruction instanceof InstructionCallSubroutine ics) {
+						if (!ics.longAddress && ics.returnAddress != null && isLong(ics.returnAddress)) {
+							ics.longAddress = true;
+							changed = true;
+						}
+					}
+				}
+			}
+		}
+		return changed;
+	}
+	
+	public List<Instruction> getStaticDataInAddressOrder(boolean includeUninitialized) {
+		List<Map.Entry<LowDataInfo, Instruction>> entries = new ArrayList<>(staticDataMap.entrySet());
+		entries.sort(Comparator.comparingInt(x -> x.getKey().routine.getAddress(x.getKey())));
+		
+		if (!includeUninitialized) {
+			return entries.stream().map(Map.Entry::getValue).collect(Collectors.toList());
+		}
+		
+		Map<Integer, Instruction> instructionMap = new HashMap<>();
+		for (Map.Entry<LowDataInfo, Instruction> entry : entries) {
+			instructionMap.put(entry.getKey().routine.getAddress(entry.getKey()), entry.getValue());
+		}
+		
+		List<LowAddressSlice> slices = new ArrayList<>(rootAddressMap.values());
+		slices.sort(Comparator.comparingInt(x -> x.start));
+		
+		List<Instruction> instructionList = new ArrayList<>();
+		InstructionValueData zeroData = new InstructionValueData(Arrays.asList((short) 0));
+		for (LowAddressSlice slice : slices) {
+			int current = slice.start, end = slice.start + slice.size;
+			while (current < end) {
+				Instruction instruction = instructionMap.get(current);
+				if (instruction != null) {
+					instructionList.add(instruction);
+					current += instruction.size(mixedWidth);
+				}
+				else {
+					instructionList.add(zeroData);
+					++current;
+				}
+			}
+		}
+		return instructionList;
+	}
+	
+	public List<Map.Entry<Integer, Instruction>> getInitializedStaticDataEntriesInAddressOrder() {
+		List<Map.Entry<Integer, Instruction>> entries = new ArrayList<>();
+		for (Map.Entry<LowDataInfo, Instruction> entry : staticDataMap.entrySet()) {
+			entries.add(new AbstractMap.SimpleEntry<>(entry.getKey().routine.getAddress(entry.getKey()), entry.getValue()));
+		}
+		entries.sort(Comparator.comparingInt(Map.Entry::getKey));
+		return entries;
 	}
 	
 	// Static helpers

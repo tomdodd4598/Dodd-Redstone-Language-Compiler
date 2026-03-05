@@ -13,12 +13,12 @@ public abstract class InstructionJump extends Instruction {
 		super();
 		this.section = section;
 	}
-
+	
 	@Override
 	public boolean isAccumulatorUsed() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isLoadStoreBarrier() {
 		return true;

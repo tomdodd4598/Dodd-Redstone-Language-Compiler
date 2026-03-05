@@ -13,7 +13,7 @@ public class InstructionStore extends InstructionAddress {
 	public boolean isDataFromMemory() {
 		return false;
 	}
-
+	
 	@Override
 	public boolean isAccumulatorUsed() {
 		return true;

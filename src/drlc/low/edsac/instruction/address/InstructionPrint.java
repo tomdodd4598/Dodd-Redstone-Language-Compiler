@@ -28,7 +28,7 @@ public class InstructionPrint extends InstructionAddress {
 	public boolean isDataToMemory() {
 		return false;
 	}
-
+	
 	@Override
 	public boolean isLoadStoreBarrier() {
 		return true;

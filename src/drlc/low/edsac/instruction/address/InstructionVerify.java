@@ -28,12 +28,12 @@ public class InstructionVerify extends InstructionAddress {
 	public boolean isDataToMemory() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isLoadStoreBarrier() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isUnknownMemoryAccess() {
 		return true;

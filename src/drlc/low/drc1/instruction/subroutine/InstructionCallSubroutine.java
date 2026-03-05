@@ -8,6 +8,7 @@ public class InstructionCallSubroutine extends Instruction {
 	
 	public final boolean indirectCall;
 	public Short returnAddress;
+	public boolean longAddress = false;
 	
 	public InstructionCallSubroutine(boolean indirectCall) {
 		super();
@@ -41,12 +42,12 @@ public class InstructionCallSubroutine extends Instruction {
 	
 	@Override
 	public int size(boolean longAddress) {
-		return longAddress ? 2 : 1;
+		return longAddress && this.longAddress ? 2 : 1;
 	}
 	
 	@Override
 	public String[] toBinary(boolean longAddress) {
-		if (longAddress) {
+		if (longAddress && this.longAddress) {
 			return new String[] {RedstoneOpcodes.get(RedstoneMnemonics.CALLF) + Global.ZERO_8, Helpers.toBinary(returnAddress, 16)};
 		}
 		else {
@@ -56,6 +57,6 @@ public class InstructionCallSubroutine extends Instruction {
 	
 	@Override
 	public String toAssembly(boolean longAddress) {
-		return longAddress ? RedstoneMnemonics.CALLF : RedstoneMnemonics.CALL;
+		return longAddress && this.longAddress ? RedstoneMnemonics.CALLF : RedstoneMnemonics.CALL;
 	}
 }

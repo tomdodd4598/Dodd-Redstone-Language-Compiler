@@ -6,7 +6,7 @@ import drlc.intermediate.routine.Routine;
 import drlc.low.LowDataInfo;
 import drlc.low.edsac.*;
 import drlc.low.edsac.instruction.*;
-import drlc.low.edsac.instruction.address.*;
+import drlc.low.edsac.instruction.address.InstructionSubtract;
 import drlc.low.edsac.instruction.jump.*;
 
 public class NatRightShiftIntEdsacRoutine extends EdsacRoutine {

@@ -13,17 +13,17 @@ public class InstructionStoreAndClear extends InstructionAddress {
 	public boolean isDataFromMemory() {
 		return false;
 	}
-
+	
 	@Override
 	public boolean isAccumulatorUsed() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isAccumulatorModified() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isAccumulatorCleared() {
 		return true;

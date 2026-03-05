@@ -8,7 +8,8 @@ import drlc.low.drc1.instruction.Instruction;
 public class InstructionLoadSubroutineAddress extends Instruction {
 	
 	public final Function function;
-	protected Short value;
+	public Short value;
+	public boolean longAddress = false;
 	
 	public InstructionLoadSubroutineAddress(Function function) {
 		super();
@@ -16,12 +17,7 @@ public class InstructionLoadSubroutineAddress extends Instruction {
 	}
 	
 	public void setValue(short value) {
-		if (this.value == null) {
-			this.value = value;
-		}
-		else {
-			throw new UnsupportedOperationException(String.format("Attempted to modify non-null immediate call address!"));
-		}
+		this.value = value;
 	}
 	
 	@Override
@@ -54,12 +50,12 @@ public class InstructionLoadSubroutineAddress extends Instruction {
 	
 	@Override
 	public int size(boolean longAddress) {
-		return longAddress ? 2 : 1;
+		return longAddress && this.longAddress ? 2 : 1;
 	}
 	
 	@Override
 	public String[] toBinary(boolean longAddress) {
-		if (longAddress) {
+		if (longAddress && this.longAddress) {
 			return new String[] {RedstoneOpcodes.get(RedstoneMnemonics.LDALI) + Global.ZERO_8, Helpers.toBinary(value, 16)};
 		}
 		else {
@@ -69,11 +65,12 @@ public class InstructionLoadSubroutineAddress extends Instruction {
 	
 	@Override
 	public String toAssembly(boolean longAddress) {
-		if (longAddress) {
-			return RedstoneMnemonics.LDALI + '\t' + Helpers.toHex(value, 4) + '\t' + function.asmString();
+		String hex = Helpers.toHex(value, longAddress ? 4 : 2);
+		if (longAddress && this.longAddress) {
+			return RedstoneMnemonics.LDALI + '\t' + hex + '\t' + function.asmString();
 		}
 		else {
-			return RedstoneMnemonics.LDAI + '\t' + Helpers.toHex(value, 2) + '\t' + function.asmString();
+			return RedstoneMnemonics.LDAI + '\t' + hex + '\t' + function.asmString();
 		}
 	}
 }

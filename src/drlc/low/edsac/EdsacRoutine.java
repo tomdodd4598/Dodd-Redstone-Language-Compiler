@@ -363,8 +363,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		for (Entry<Integer, List<Instruction>> entry : sectionTextMap.entrySet()) {
 			int instructionAddress = sectionAddressMap.get(entry.getKey());
 			List<Instruction> section = entry.getValue();
-			for (int i = 0; i < section.size(); ++i) {
-				Instruction instruction = section.get(i);
+			for (Instruction instruction : section) {
 				int instructionSize = instruction.size();
 				
 				InstructionReturnAddressData rad = returnAddressMap.get(instruction);

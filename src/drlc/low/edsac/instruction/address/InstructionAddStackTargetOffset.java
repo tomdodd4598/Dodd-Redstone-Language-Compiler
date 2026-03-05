@@ -10,7 +10,7 @@ public class InstructionAddStackTargetOffset extends InstructionAdd {
 		super(stackTargetDataInfo);
 		this.stackTargetDataInfo = stackTargetDataInfo;
 	}
-
+	
 	@Override
 	public LowDataInfo getReadDataInfo() {
 		return null;

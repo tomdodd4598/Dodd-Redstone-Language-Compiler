@@ -23,12 +23,12 @@ public abstract class InstructionAddress extends Instruction {
 	public void regenerateDataInfo() {
 		dataInfo = dataInfo.getRegeneratedDataInfo();
 	}
-
+	
 	@Override
 	public LowDataInfo getReadDataInfo() {
 		return isDataFromMemory() ? dataInfo : null;
 	}
-
+	
 	@Override
 	public LowDataInfo getWriteDataInfo() {
 		return isDataToMemory() ? dataInfo : null;

@@ -11,17 +11,17 @@ public class InstructionClearAccumulator extends Instruction {
 	public InstructionClearAccumulator() {
 		super();
 	}
-
+	
 	@Override
 	public boolean isAccumulatorUsed() {
 		return false;
 	}
-
+	
 	@Override
 	public boolean isAccumulatorModified() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isAccumulatorCleared() {
 		return true;
@@ -61,7 +61,7 @@ public class InstructionClearAccumulator extends Instruction {
 	public boolean isProtected() {
 		return false;
 	}
-
+	
 	@Override
 	public String toAssembly(Integer offset) {
 		return EdsacOpcodes.STORE_AND_CLEAR + EdsacCode.instructionArgument(address) + suffix(EdsacOpcodes.SHORT, offset);

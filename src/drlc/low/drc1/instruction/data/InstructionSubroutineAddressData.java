@@ -14,12 +14,7 @@ public class InstructionSubroutineAddressData extends InstructionData {
 	}
 	
 	public void setValue(short value) {
-		if (this.value == null) {
-			this.value = value;
-		}
-		else {
-			throw new UnsupportedOperationException(String.format("Attempted to modify non-null immediate call address!"));
-		}
+		this.value = value;
 	}
 	
 	@Override

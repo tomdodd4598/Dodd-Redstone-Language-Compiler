@@ -17,7 +17,7 @@ public class InstructionWheelerStore extends Instruction {
 		this.section = section;
 		this.offset = offset;
 	}
-
+	
 	@Override
 	public boolean isAccumulatorUsed() {
 		return true;
@@ -47,17 +47,17 @@ public class InstructionWheelerStore extends Instruction {
 	public LowDataInfo getWriteDataInfo() {
 		return null;
 	}
-
+	
 	@Override
 	public boolean isLoadStoreBarrier() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isUnknownMemoryAccess() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isProtected() {
 		return true;

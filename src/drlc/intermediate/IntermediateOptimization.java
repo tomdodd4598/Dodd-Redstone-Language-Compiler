@@ -495,8 +495,8 @@ public class IntermediateOptimization {
 		}
 		
 		for (List<Action> list : body) {
-			for (int i = 0; i < list.size(); ++i) {
-				if (list.get(i) instanceof IValueAction iva) {
+			for (Action element : list) {
+				if (element instanceof IValueAction iva) {
 					for (DataId id : iva.lvalues()) {
 						if (id instanceof RegDataId regDataId) {
 							if (regDataId.dereferenceLevel != 0) {
@@ -526,8 +526,8 @@ public class IntermediateOptimization {
 		Map<Long, Long> regIdMap = new TreeMap<>();
 		long count = 0;
 		for (List<Action> list : body) {
-			for (int i = 0; i < list.size(); ++i) {
-				if (list.get(i) instanceof IValueAction iva) {
+			for (Action element : list) {
+				if (element instanceof IValueAction iva) {
 					for (DataId[] arr : Arrays.asList(iva.lvalues(), iva.rvalues())) {
 						for (DataId id : arr) {
 							if (id instanceof RegDataId regDataId) {

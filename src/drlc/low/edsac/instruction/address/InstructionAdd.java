@@ -14,23 +14,23 @@ public class InstructionAdd extends InstructionAddress {
 	public boolean isDataFromMemory() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isAccumulatorUsed() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isAccumulatorModified() {
 		return true;
 	}
-
+	
 	@Override
 	public Instruction getReplacement(EdsacRoutine routine) {
 		Long value = routine.scalarValue(dataInfo);
 		return value != null && value == 0 ? new InstructionNoOp() : null;
 	}
-
+	
 	@Override
 	public Instruction getCompressedWithNextInstruction(EdsacRoutine routine, Instruction next, boolean sameSection) {
 		LowDataInfo secondInfo;

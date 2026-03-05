@@ -20,7 +20,7 @@ public class InstructionWheelerReturn extends Instruction {
 			throw new UnsupportedOperationException(String.format("Attempted to modify non-null immediate return address!"));
 		}
 	}
-
+	
 	@Override
 	public boolean isAccumulatorUsed() {
 		return true;
@@ -50,17 +50,17 @@ public class InstructionWheelerReturn extends Instruction {
 	public LowDataInfo getWriteDataInfo() {
 		return null;
 	}
-
+	
 	@Override
 	public boolean isLoadStoreBarrier() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isUnknownMemoryAccess() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isProtected() {
 		return true;

@@ -54,7 +54,7 @@ public class BinaryOpAction extends Action implements IValueAction {
 		BinaryActionType commutatedType = type.commutated();
 		return commutatedType == null ? null : commutatedType.action(null, target, arg1, arg2);
 	}
-
+	
 	private boolean canReplaceWith(DataId replacement) {
 		return target.dereferenceLevel == replacement.dereferenceLevel && target.typeInfo.equalsOther(replacement.typeInfo, true);
 	}

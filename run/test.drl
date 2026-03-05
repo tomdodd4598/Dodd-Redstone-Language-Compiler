@@ -548,7 +548,7 @@ fn main() {
 
 // TRIPLE REF TECHNIQUE
 
-/*
+
 struct Thing {
 	item: Chars,
 	next: &mut Thing,
@@ -645,7 +645,7 @@ fn main() {
 	printChars("\nAltered List:\n");
 	start.printList();
 }
-*/
+
 
 // EDSAC SQUARES
 
@@ -673,7 +673,7 @@ fn main() {
 
 // QUICKSORT
 
-
+/*
 fn main() {
 	let mut arr = [4, 7, 5, 4, 2, 6, 1, 8, 3];
 	
@@ -725,4 +725,4 @@ fn subsort(ptr: &mut Int, len: Nat) -> Nat {
 	
 	return i;
 }
-
+*/

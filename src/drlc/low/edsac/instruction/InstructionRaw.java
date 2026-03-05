@@ -41,12 +41,12 @@ public class InstructionRaw extends Instruction {
 	public LowDataInfo getWriteDataInfo() {
 		return null;
 	}
-
+	
 	@Override
 	public boolean isUnknownMemoryAccess() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isLoadStoreBarrier() {
 		return true;
@@ -61,7 +61,7 @@ public class InstructionRaw extends Instruction {
 	public boolean isProtected() {
 		return false;
 	}
-
+	
 	@Override
 	public String toAssembly(Integer offset) {
 		return str;

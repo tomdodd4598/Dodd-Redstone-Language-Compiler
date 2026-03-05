@@ -9,6 +9,7 @@ public abstract class InstructionAddress extends Instruction {
 	
 	public LowDataInfo dataInfo;
 	public Short address;
+	public boolean longAddress = false;
 	
 	public InstructionAddress(LowDataInfo dataInfo) {
 		super();
@@ -48,11 +49,11 @@ public abstract class InstructionAddress extends Instruction {
 	
 	@Override
 	public int size(boolean longAddress) {
-		return longAddress ? 2 : 1;
+		return longAddress && this.longAddress ? 2 : 1;
 	}
 	
 	protected String[] toBinary(boolean longAddress, String mnemonic, String longMnemonic) {
-		if (longAddress) {
+		if (longAddress && this.longAddress) {
 			return new String[] {RedstoneOpcodes.get(longMnemonic) + Global.ZERO_8, Helpers.toBinary(address, 16)};
 		}
 		else {
@@ -61,11 +62,12 @@ public abstract class InstructionAddress extends Instruction {
 	}
 	
 	protected String toAssembly(boolean longAddress, String mnemonic, String longMnemonic) {
-		if (longAddress) {
-			return longMnemonic + '\t' + Helpers.toHex(address, 4);
+		String hex = Helpers.toHex(address, longAddress ? 4 : 2);
+		if (longAddress && this.longAddress) {
+			return longMnemonic + '\t' + hex;
 		}
 		else {
-			return mnemonic + '\t' + Helpers.toHex(address, 2);
+			return mnemonic + '\t' + hex;
 		}
 	}
 }

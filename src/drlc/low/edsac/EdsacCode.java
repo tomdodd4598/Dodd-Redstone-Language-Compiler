@@ -36,7 +36,9 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 	public boolean generate() {
 		addRoutines();
 		
-		while (new ArrayList<>(routineMap.values()).stream().mapToInt(x -> x.generateInstructions() ? 1 : 0).sum() > 0);
+		while (new ArrayList<>(routineMap.values()).stream().mapToInt(x -> x.generateInstructions() ? 1 : 0).sum() > 0) {
+			;
+		}
 		
 		optimize();
 		

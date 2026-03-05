@@ -15,7 +15,7 @@ public class InstructionWheelerJump extends Instruction {
 		this.function = function;
 		this.iwr = iwr;
 	}
-
+	
 	@Override
 	public boolean isAccumulatorUsed() {
 		return true;
@@ -45,17 +45,17 @@ public class InstructionWheelerJump extends Instruction {
 	public LowDataInfo getWriteDataInfo() {
 		return null;
 	}
-
+	
 	@Override
 	public boolean isLoadStoreBarrier() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isUnknownMemoryAccess() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isProtected() {
 		return true;
