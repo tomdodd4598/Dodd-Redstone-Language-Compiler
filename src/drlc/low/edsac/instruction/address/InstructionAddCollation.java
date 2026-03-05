@@ -13,6 +13,16 @@ public class InstructionAddCollation extends InstructionAddress {
 	public boolean isDataFromMemory() {
 		return true;
 	}
+
+	@Override
+	public boolean isAccumulatorUsed() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccumulatorModified() {
+		return true;
+	}
 	
 	@Override
 	public boolean isDataToMemory() {

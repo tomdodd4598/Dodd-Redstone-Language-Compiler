@@ -28,11 +28,11 @@ public class PrintNatEdsacRoutine extends EdsacRoutine {
 		sectionTextMap.put(6, callText);
 		sectionTextMap.put(7, zeroText);
 		
-		LowDataInfo info = getDataInfo(params.get(0).dataId(), 0);
+		LowDataInfo x = getDataInfo(params.get(0).dataId(), 0);
 		
 		entryText.add(new InstructionPrint(constantDataInfo(EdsacChar.FIGURE_SHIFT)));
 		entryText.add(new InstructionRaw("T6F")); // [6]
-		addData(entryText, info);
+		addData(entryText, x);
 		entryText.add(new InstructionJumpIfMoreThanOrEqualToZero(1));
 		entryText.add(new InstructionAdd(constantDataInfo(31072)));
 		entryText.add(new InstructionJumpIfLessThanZero(2));
@@ -49,16 +49,16 @@ public class PrintNatEdsacRoutine extends EdsacRoutine {
 		lowText.add(new InstructionJumpIfMoreThanOrEqualToZero(5));
 		
 		highText.add(new InstructionAdd(constantDataInfo(40000)));
-		storeData(highText, info, true);
+		storeData(highText, x, true);
 		highText.add(new InstructionAdd(constantDataInfo(EdsacChar.of('5'))));
 		highText.add(new InstructionRaw("T7F")); // [7]
-		addData(highText, info);
+		addData(highText, x);
 		
-		storeData(loopText, info, true);
+		storeData(loopText, x, true);
 		loopText.add(new InstructionRaw("A7F")); // [7]
 		loopText.add(new InstructionAdd(constantDataInfo(EdsacChar.of('1'))));
 		loopText.add(new InstructionRaw("T7F")); // [7]
-		addData(loopText, info);
+		addData(loopText, x);
 		loopText.add(new InstructionSubtract(constantDataInfo(10000)));
 		loopText.add(new InstructionJumpIfMoreThanOrEqualToZero(3));
 		
@@ -70,7 +70,7 @@ public class PrintNatEdsacRoutine extends EdsacRoutine {
 		prepareText.add(new InstructionAdd(constantDataInfo(EdsacChar.of('\0'))));
 		prepareText.add(new InstructionRaw("T1F")); // [1]
 		
-		builtInSubroutine(callText, Global.PRINT_DIGITS, x -> x, false);
+		builtInSubroutine(callText, Global.PRINT_DIGITS, y -> y, false);
 		returnFromSubroutineIfMoreThanOrEqualToZero(callText);
 		
 		zeroText.add(new InstructionPrint(constantDataInfo(EdsacChar.of('0'))));

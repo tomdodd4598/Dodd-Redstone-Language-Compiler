@@ -2,9 +2,8 @@ package drlc.low.drc1.instruction.data;
 
 import drlc.Helpers;
 import drlc.low.LowDataInfo;
-import drlc.low.instruction.IInstructionAddressData;
 
-public class InstructionAddressData extends InstructionData implements IInstructionAddressData {
+public class InstructionAddressData extends InstructionData {
 	
 	public LowDataInfo dataInfo;
 	public Short address;

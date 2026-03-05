@@ -15,7 +15,27 @@ public class InstructionVerify extends InstructionAddress {
 	}
 	
 	@Override
+	public boolean isAccumulatorUsed() {
+		return false;
+	}
+	
+	@Override
+	public boolean isAccumulatorModified() {
+		return false;
+	}
+	
+	@Override
 	public boolean isDataToMemory() {
+		return true;
+	}
+
+	@Override
+	public boolean isLoadStoreBarrier() {
+		return true;
+	}
+
+	@Override
+	public boolean isUnknownMemoryAccess() {
 		return true;
 	}
 	

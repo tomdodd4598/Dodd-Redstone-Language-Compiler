@@ -2,9 +2,8 @@ package drlc.low.drc1.instruction.address;
 
 import drlc.low.LowDataInfo;
 import drlc.low.drc1.RedstoneMnemonics;
-import drlc.low.instruction.address.IInstructionStoreAddress;
 
-public class InstructionStore extends InstructionAddress implements IInstructionStoreAddress {
+public class InstructionStore extends InstructionAddress {
 	
 	public InstructionStore(LowDataInfo dataInfo) {
 		super(dataInfo);
@@ -21,8 +20,13 @@ public class InstructionStore extends InstructionAddress implements IInstruction
 	}
 	
 	@Override
-	public LowDataInfo getStoredData() {
-		return dataInfo;
+	public boolean isDataFromMemory() {
+		return false;
+	}
+	
+	@Override
+	public boolean isDataToMemory() {
+		return true;
 	}
 	
 	@Override

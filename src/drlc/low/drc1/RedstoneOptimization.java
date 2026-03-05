@@ -6,11 +6,11 @@ import java.util.Map.Entry;
 import drlc.Helpers.Pair;
 import drlc.low.LowDataInfo;
 import drlc.low.drc1.instruction.*;
+import drlc.low.drc1.instruction.address.*;
+import drlc.low.drc1.instruction.address.offset.*;
 import drlc.low.drc1.instruction.immediate.*;
 import drlc.low.drc1.instruction.jump.*;
 import drlc.low.drc1.instruction.subroutine.InstructionReturnFromSubroutine;
-import drlc.low.instruction.IInstructionLoad;
-import drlc.low.instruction.address.*;
 
 public class RedstoneOptimization {
 	
@@ -114,7 +114,7 @@ public class RedstoneOptimization {
 					continue;
 				}
 				if (instruction.isCurrentRegisterValueModified()) {
-					if (instruction instanceof IInstructionLoad) {
+					if (instruction instanceof InstructionLoadImmediate || instruction instanceof InstructionLoadA || instruction instanceof InstructionLoadAOffset) {
 						if (removableLoad != null) {
 							flag = true;
 							replaceWithNoOp(section, removableLoad);
@@ -131,8 +131,9 @@ public class RedstoneOptimization {
 								loadedData.clear();
 							}
 						}
-						else if (instruction instanceof IInstructionLoadAddress load) {
-							if (loadedData.contains(load.getLoadedData())) {
+						else if (instruction instanceof InstructionLoadA || instruction instanceof InstructionLoadAOffset) {
+							LowDataInfo loadData = instruction.getDataInfo();
+							if (loadedData.contains(loadData)) {
 								flag = true;
 								section.set(i, new InstructionNoOp());
 								break;
@@ -140,7 +141,7 @@ public class RedstoneOptimization {
 							else {
 								loadedImmediate = null;
 								loadedData.clear();
-								loadedData.add(load.getLoadedData());
+								loadedData.add(loadData);
 							}
 						}
 						removableLoad = instruction;
@@ -152,8 +153,8 @@ public class RedstoneOptimization {
 					}
 				}
 				else if (instruction.isCurrentRegisterValueUsed()) {
-					if (instruction instanceof IInstructionStoreAddress store) {
-						loadedData.add(store.getStoredData());
+					if ((instruction instanceof InstructionStore || instruction instanceof InstructionStoreOffset) && instruction.getDataInfo() != null) {
+						loadedData.add(instruction.getDataInfo());
 					}
 					removableLoad = null;
 				}
@@ -176,23 +177,23 @@ public class RedstoneOptimization {
 				}
 				if (instruction instanceof InstructionJump ij) {
 					incomingJumpSections.add(ij.section);
-					if (ij.section <= entry.getKey()) {
-						hasBackwardEdge = true;
+						if (ij.section <= entry.getKey()) {
+							hasBackwardEdge = true;
+						}
+					}
+					if ((instruction instanceof InstructionStore || instruction instanceof InstructionStoreOffset) && instruction.getDataInfo() != null) {
+						LowDataInfo data = instruction.getDataInfo();
+						if (data.span.size <= 1 && data.isStackData() && !requiredStoreData.contains(data)) {
+							removableStoreMap.put(data, new Pair<>(instruction, entry.getKey()));
+						}
+					}
+					else if (instruction.getDataInfo() != null) {
+						if (removableStoreMap.containsKey(instruction.getDataInfo())) {
+							removableStoreMap.remove(instruction.getDataInfo());
+							requiredStoreData.add(instruction.getDataInfo());
+						}
 					}
 				}
-				if (instruction instanceof IInstructionStoreAddress store) {
-					LowDataInfo data = store.getStoredData();
-					if (data.span.size <= 1 && data.isStackData() && !requiredStoreData.contains(data)) {
-						removableStoreMap.put(data, new Pair<>(instruction, entry.getKey()));
-					}
-				}
-				else if (instruction instanceof IInstructionAddress instructionAddress) {
-					if (removableStoreMap.containsKey(instructionAddress.getDataInfo())) {
-						removableStoreMap.remove(instructionAddress.getDataInfo());
-						requiredStoreData.add(instructionAddress.getDataInfo());
-					}
-				}
-			}
 		}
 		
 		if (!hasUnknownMemoryAccess) {
@@ -204,57 +205,65 @@ public class RedstoneOptimization {
 		
 		for (Entry<Integer, List<Instruction>> entry : routine.sectionTextMap.entrySet()) {
 			List<Instruction> section = entry.getValue();
-			IInstructionStoreAddress removableStore = null;
+			Instruction removableStore = null;
+			LowDataInfo removableStoreData = null;
 			int removableStoreIndex = 0;
 			Set<LowDataInfo> loadedData = new HashSet<>();
 			for (int i = 0; i < section.size(); ++i) {
 				Instruction instruction = section.get(i);
 				if (instruction.isLoadStoreBarrier()) {
 					removableStore = null;
+					removableStoreData = null;
 					loadedData.clear();
 					continue;
 				}
 				if (instruction.isCurrentRegisterValueModified()) {
 					loadedData.clear();
-					if (instruction instanceof IInstructionLoad) {
-						if (instruction instanceof IInstructionLoadAddress load) {
-							if (removableStore != null && !loadedData.contains(removableStore.getStoredData()) && removableStore.getStoredData().equalsOther(load.getLoadedData(), true)) {
+					if (instruction instanceof InstructionLoadImmediate || instruction instanceof InstructionLoadA || instruction instanceof InstructionLoadAOffset) {
+						if ((instruction instanceof InstructionLoadA || instruction instanceof InstructionLoadAOffset) && instruction.getDataInfo() != null) {
+							LowDataInfo loadData = instruction.getDataInfo();
+							if (removableStoreData != null && !loadedData.contains(removableStoreData) && removableStoreData.equalsOther(loadData, true)) {
 								removableStore = null;
+								removableStoreData = null;
 							}
-							loadedData.add(load.getLoadedData());
+							loadedData.add(loadData);
 						}
 					}
 					else {
 						removableStore = null;
+						removableStoreData = null;
 					}
 				}
 				else if (instruction.isCurrentRegisterValueUsed()) {
-					if (instruction instanceof IInstructionStoreAddress store) {
-						if (removableStore != null && removableStore.getStoredData().equalsOther(store.getStoredData(), true)) {
+					if ((instruction instanceof InstructionStore || instruction instanceof InstructionStoreOffset) && instruction.getDataInfo() != null) {
+						LowDataInfo storeData = instruction.getDataInfo();
+						if (removableStoreData != null && removableStoreData.equalsOther(storeData, true)) {
 							flag = true;
-							replaceWithNoOp(section, (Instruction) removableStore);
+							replaceWithNoOp(section, removableStore);
 							break;
 						}
-						else if (loadedData.contains(store.getStoredData())) {
+						else if (loadedData.contains(storeData)) {
 							flag = true;
 							section.set(i, new InstructionNoOp());
 							break;
 						}
 						else {
-							removableStore = store;
+							removableStore = instruction;
+							removableStoreData = storeData;
 							removableStoreIndex = i;
-							loadedData.add(store.getStoredData());
+							loadedData.add(storeData);
 						}
 					}
 					else {
-						if (removableStore != null && !loadedData.contains(removableStore.getStoredData())) {
+						if (removableStoreData != null && !loadedData.contains(removableStoreData)) {
 							removableStore = null;
+							removableStoreData = null;
 						}
 					}
 				}
 			}
 			
-			if (!flag && removableStore != null && routine.isStackRoutine() && removableStore.getStoredData().isStackData() && !hasBackwardEdge && !incomingJumpSections.contains(entry.getKey())) {
+			if (!flag && removableStore != null && removableStoreData != null && routine.isStackRoutine() && removableStoreData.isStackData() && !hasBackwardEdge && !incomingJumpSections.contains(entry.getKey())) {
 				Boolean necessaryRoutineEndStore = null;
 				int endSection = routine.getFinalTextSectionKey();
 				for (int i = 0; i < section.size(); ++i) {
@@ -275,7 +284,7 @@ public class RedstoneOptimization {
 				}
 				if ((necessaryRoutineEndStore == null && entry.getKey() == endSection - 1) || (necessaryRoutineEndStore != null && !necessaryRoutineEndStore)) {
 					flag = true;
-					replaceWithNoOp(section, (Instruction) removableStore);
+					replaceWithNoOp(section, removableStore);
 					break;
 				}
 			}
@@ -290,15 +299,15 @@ public class RedstoneOptimization {
 		for (Entry<Integer, List<Instruction>> entry : routine.sectionTextMap.entrySet()) {
 			List<Instruction> section = entry.getValue();
 			for (int i = 0; i < section.size(); ++i) {
-				if (section.get(i) instanceof IInstructionAddress instructionAddress) {
-					LowDataInfo info = instructionAddress.getDataInfo();
+				LowDataInfo info = section.get(i).getDataInfo();
+				if (info != null) {
 					if (info.span.size <= 1 && info.isTempData()) {
 						if (!loadStoreMap.containsKey(info)) {
 							loadStoreMap.put(info, new boolean[] {false, false});
 						}
 						boolean[] loadStore = loadStoreMap.get(info);
-						loadStore[0] |= instructionAddress.isDataFromMemory();
-						loadStore[1] |= instructionAddress.isDataToMemory();
+						loadStore[0] |= section.get(i).isDataFromMemory();
+						loadStore[1] |= section.get(i).isDataToMemory();
 						if (!sectionIndexMap.containsKey(info)) {
 							sectionIndexMap.put(info, new LinkedHashSet<>());
 						}

@@ -11,8 +11,6 @@ import drlc.intermediate.component.data.*;
 import drlc.intermediate.component.data.DataId.LowDataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.routine.Routine;
-import drlc.low.instruction.*;
-import drlc.low.instruction.address.IInstructionAddress;
 
 public abstract class LowRoutine<CODE extends LowCode<CODE, ROUTINE, INSTRUCTION>, ROUTINE extends LowRoutine<CODE, ROUTINE, INSTRUCTION>, INSTRUCTION extends LowInstruction> {
 	
@@ -72,9 +70,7 @@ public abstract class LowRoutine<CODE extends LowCode<CODE, ROUTINE, INSTRUCTION
 				Entry<LowDataInfo, INSTRUCTION> entry = iter.next();
 				iter.remove();
 				INSTRUCTION data = entry.getValue();
-				if (data instanceof IInstructionAddressData iad) {
-					iad.regenerateDataInfo();
-				}
+				data.regenerateDataInfo();
 				regeneratedMap.put(entry.getKey().getRegeneratedDataInfo(), data);
 			}
 			code.staticDataMap.putAll(regeneratedMap);
@@ -82,9 +78,7 @@ public abstract class LowRoutine<CODE extends LowCode<CODE, ROUTINE, INSTRUCTION
 		
 		for (List<INSTRUCTION> section : sectionTextMap.values()) {
 			for (INSTRUCTION instruction : section) {
-				if (instruction instanceof IInstructionAddress instructionAddress) {
-					instructionAddress.regenerateDataInfo();
-				}
+				instruction.regenerateDataInfo();
 			}
 		}
 	}

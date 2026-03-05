@@ -47,6 +47,40 @@ fn main() {
 }
 */
 
+// TREE FACTORIAL
+
+/*
+fn fact(n: Int) -> Int {
+	return n <= 1 ? 1 : prod(1, n);
+}
+
+fn prod(a: Int, b: Int) -> Int {
+	if b > a {
+		let m = a + ((b - a) >> 1);
+		return prod(a, m) * prod(m + 1, b);
+	}
+	else {
+		return a;
+	}
+}
+
+fn main() {
+	let static mut f = 1;
+	let static mut i = 0;
+	
+	fn update() {
+		i += 1;
+		f = fact(i);
+	}
+	
+	while f > 0 {
+		printInt(f);
+		printChar('\n');
+		update();
+	}
+}
+*/
+
 // ITERATIVE FIBONACCI
 
 /*
@@ -104,19 +138,19 @@ fn main() {
 
 /*
 fn ackermann(m: Nat, n: Nat) -> Nat {
-    if m == 0 {
-        return n + 1;
-    }
+	if m == 0 {
+		return n + 1;
+	}
 	else if n == 0 {
-        return ackermann(m - 1, 1);
-    }
+		return ackermann(m - 1, 1);
+	}
 	else {
-        return ackermann(m - 1, ackermann(m, n - 1));
-    }
+		return ackermann(m - 1, ackermann(m, n - 1));
+	}
 }
 
 fn main() {
-    let mut m = 0N;
+	let mut m = 0N;
 	while m < 4 {
 		let mut n = 0N;
 		while n < 7 {
@@ -443,7 +477,7 @@ alias PosPtr = &Pos;
 
 // TESTING COMPOUND RETURNS
 
-
+/*
 fn printChars(chars: Chars) {
 	let mut i = 0N;
 	while i < chars.len {
@@ -468,7 +502,7 @@ fn main() {
 		i += 1;
 	}
 }
-
+*/
 
 // TESTING PRINTING
 
@@ -637,32 +671,58 @@ fn main() {
 }
 */
 
-// EDSAC CUBES
+// QUICKSORT
 
-/*
+
 fn main() {
+	let mut arr = [4, 7, 5, 4, 2, 6, 1, 8, 3];
+	
+	quicksort(&mut arr[0], 9);
+	
 	let mut i = 0N;
-	let mut j = 0N;
-	let mut k = 0N;
-	while i < 50 {
-		printNat(i += 1);
-		
-		let l = k;
-		k = j;
+	while i < 9 {
+		printInt(arr[i]);
 		printChar(' ');
-		printChar(' ');
-		printNat(j = i * i * i);
-		
-		printChar(' ');
-		printChar(' ');
-		printNat(k = j - k);
-		
-		printChar(' ');
-		printChar(' ');
-		printNat(k - l);
-		
-		printChar('\r');
-		printChar('\n');
+		i += 1;
 	}
+	printChar('\n');
 }
-*/
+
+fn quicksort(ptr: &mut Int, len: Nat) {
+	if len < 2 {
+		return;
+	}
+
+	let i = subsort(ptr, len);
+	quicksort(ptr, i);
+	quicksort(ptr + i, len - i);
+}
+
+fn subsort(ptr: &mut Int, len: Nat) -> Nat {
+	let pivot = ptr[len >> 1];
+	let mut i = 0N;
+	let mut j = len - 1;
+	
+	loop {
+		while ptr[i] < pivot {
+			i += 1;
+		}
+		while ptr[j] > pivot {
+			j -= 1;
+		}
+
+		if i >= j {
+			break;
+		}
+
+		let temp = ptr[i];
+		ptr[i] = ptr[j];
+		ptr[j] = temp;
+		
+		i += 1;
+		j -= 1;
+	}
+	
+	return i;
+}
+

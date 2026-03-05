@@ -25,18 +25,18 @@ public class PrintIntEdsacRoutine extends EdsacRoutine {
 		sectionTextMap.put(3, callText);
 		sectionTextMap.put(4, zeroText);
 		
-		LowDataInfo info = getDataInfo(params.get(0).dataId(), 0);
+		LowDataInfo x = getDataInfo(params.get(0).dataId(), 0);
 		
 		entryText.add(new InstructionPrint(constantDataInfo(EdsacChar.FIGURE_SHIFT)));
-		addData(entryText, info);
+		addData(entryText, x);
 		entryText.add(new InstructionJumpIfMoreThanOrEqualToZero(3));
 		
 		minusText.add(new InstructionPrint(constantDataInfo(EdsacChar.of('-'))));
 		minusText.add(new InstructionSubtract(constantDataInfo(1)));
 		minusText.add(new InstructionJumpIfMoreThanOrEqualToZero(2));
 		minusText.add(new InstructionAdd(constantDataInfo(1)));
-		storeData(minusText, info, true);
-		subtractData(minusText, info);
+		storeData(minusText, x, true);
+		subtractData(minusText, x);
 		minusText.add(new InstructionJumpIfMoreThanOrEqualToZero(3));
 		
 		minimumText.add(new InstructionPrint(constantDataInfo(EdsacChar.of('6'))));
@@ -49,7 +49,7 @@ public class PrintIntEdsacRoutine extends EdsacRoutine {
 		callText.add(new InstructionAdd(constantDataInfo(EdsacChar.of('\0'))));
 		callText.add(new InstructionRaw("T1F")); // [1]
 		callText.add(new InstructionRaw("T6F")); // [6]
-		builtInSubroutine(callText, Global.PRINT_DIGITS, x -> x, false);
+		builtInSubroutine(callText, Global.PRINT_DIGITS, y -> y, false);
 		returnFromSubroutineIfMoreThanOrEqualToZero(callText);
 		
 		zeroText.add(new InstructionPrint(constantDataInfo(EdsacChar.of('0'))));

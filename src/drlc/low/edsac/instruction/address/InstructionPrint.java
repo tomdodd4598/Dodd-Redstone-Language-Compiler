@@ -15,8 +15,23 @@ public class InstructionPrint extends InstructionAddress {
 	}
 	
 	@Override
+	public boolean isAccumulatorUsed() {
+		return false;
+	}
+	
+	@Override
+	public boolean isAccumulatorModified() {
+		return false;
+	}
+	
+	@Override
 	public boolean isDataToMemory() {
 		return false;
+	}
+
+	@Override
+	public boolean isLoadStoreBarrier() {
+		return true;
 	}
 	
 	@Override

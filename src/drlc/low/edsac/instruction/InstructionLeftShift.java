@@ -23,6 +23,26 @@ public class InstructionLeftShift extends InstructionImmediate {
 			shift[count] = remainder;
 		}
 	}
+
+	@Override
+	public boolean isAccumulatorUsed() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccumulatorModified() {
+		return true;
+	}
+
+	@Override
+	public Instruction getReplacement(EdsacRoutine routine) {
+		return value == 0 ? new InstructionNoOp() : null;
+	}
+
+	@Override
+	public Instruction getCompressedWithNextInstruction(EdsacRoutine routine, Instruction next, boolean sameSection) {
+		return next instanceof InstructionLeftShift nextLeft ? new InstructionLeftShift(value + nextLeft.value) : null;
+	}
 	
 	@Override
 	public int size() {

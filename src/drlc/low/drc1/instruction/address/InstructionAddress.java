@@ -4,9 +4,8 @@ import drlc.*;
 import drlc.low.LowDataInfo;
 import drlc.low.drc1.RedstoneOpcodes;
 import drlc.low.drc1.instruction.Instruction;
-import drlc.low.instruction.address.IInstructionAddress;
 
-public abstract class InstructionAddress extends Instruction implements IInstructionAddress {
+public abstract class InstructionAddress extends Instruction {
 	
 	public LowDataInfo dataInfo;
 	public Short address;
@@ -40,6 +39,12 @@ public abstract class InstructionAddress extends Instruction implements IInstruc
 	public Instruction getCompressedWithNextInstruction(Instruction next, boolean sameSection) {
 		return null;
 	}
+	
+	@Override
+	public abstract boolean isDataFromMemory();
+	
+	@Override
+	public abstract boolean isDataToMemory();
 	
 	@Override
 	public int size(boolean longAddress) {

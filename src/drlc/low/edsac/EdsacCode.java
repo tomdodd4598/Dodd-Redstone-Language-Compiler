@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import drlc.*;
 import drlc.Helpers.Pair;
 import drlc.intermediate.component.data.DataId;
+import drlc.intermediate.component.data.DataId.LowDataId;
 import drlc.intermediate.component.value.*;
 import drlc.intermediate.routine.Routine;
 import drlc.low.*;
@@ -20,7 +21,7 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 	public int addressOffset = 0;
 	public long addressId = 0L;
 	
-	protected DataId basePointerDataId = null, stackPointerDataId = null, scratchDataId = null;
+	protected final Map<Object, DataId> utilityDataIdMap = new LinkedHashMap<>();
 	
 	public EdsacCode() {
 		super();
@@ -38,6 +39,8 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 		while (new ArrayList<>(routineMap.values()).stream().mapToInt(x -> x.generateInstructions() ? 1 : 0).sum() > 0);
 		
 		optimize();
+		
+		pruneStaticData();
 		
 		for (EdsacRoutine routine : routineMap.values()) {
 			routine.prepareDataInfoRegeneration();
@@ -121,37 +124,103 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 			boolean flag = true;
 			while (flag) {
 				flag = EdsacOptimization.removeNoOps(routine);
-				// flag |= EdsacOptimization.removeDeadInstructions(routine);
-				// flag |= EdsacOptimization.simplifyImmediateInstructions(routine);
-				// flag |= EdsacOptimization.removeUnnecessaryLoads(routine);
-				// flag |= EdsacOptimization.removeUnnecessaryStores(routine);
-				// flag |= EdsacOptimization.removeUnusedTemporaryData(routine);
-				// flag |= EdsacOptimization.removeUnnecessaryJumps(routine);
-				// flag |= EdsacOptimization.simplifyConditionalJumps(routine);
-				// flag |= EdsacOptimization.compressSuccessiveInstructions(routine);
+				flag |= EdsacOptimization.removeDeadInstructions(routine);
+				flag |= EdsacOptimization.simplifyImmediateInstructions(routine);
+				flag |= EdsacOptimization.removeUnnecessaryLoads(routine);
+				flag |= EdsacOptimization.removeUnnecessaryStores(routine);
+				flag |= EdsacOptimization.removeUnusedTemporaryData(routine);
+				flag |= EdsacOptimization.removeUnnecessaryJumps(routine);
+				flag |= EdsacOptimization.simplifyConditionalJumps(routine);
+				flag |= EdsacOptimization.compressSuccessiveInstructions(routine);
 			}
 		}
 	}
 	
-	public DataId basePointerDataId() {
-		if (basePointerDataId == null) {
-			basePointerDataId = Main.generator.nextGlobalDataId(Main.generator.intTypeInfo);
+	protected void pruneStaticData() {
+		Set<LowDataId> liveStaticDataIds = new LinkedHashSet<>();
+		Deque<LowDataId> queue = new ArrayDeque<>();
+		
+		for (EdsacRoutine routine : routineMap.values()) {
+			for (List<Instruction> section : routine.sectionTextMap.values()) {
+				for (Instruction instruction : section) {
+					LowDataInfo dataInfo = instruction.getDataInfo();
+					if (dataInfo != null) {
+						addLiveStaticDataId(liveStaticDataIds, queue, dataInfo);
+					}
+				}
+			}
 		}
-		return basePointerDataId;
+		
+		while (!queue.isEmpty()) {
+			LowDataId lowDataId = queue.removeFirst();
+			for (Entry<LowDataInfo, Instruction> entry : staticDataMap.entrySet()) {
+				if (entry.getKey().dataId.low().equals(lowDataId) && entry.getValue() instanceof InstructionAddressData addressData) {
+					addLiveStaticDataId(liveStaticDataIds, queue, addressData.dataInfo);
+				}
+			}
+		}
+		
+		Iterator<Entry<LowDataInfo, Instruction>> staticDataIter = staticDataMap.entrySet().iterator();
+		while (staticDataIter.hasNext()) {
+			Entry<LowDataInfo, Instruction> entry = staticDataIter.next();
+			if (!liveStaticDataIds.contains(entry.getKey().dataId.low())) {
+				staticDataIter.remove();
+			}
+		}
+		
+		Iterator<Entry<LowDataId, Pair<DataId, LowDataSpan>>> spanIter = rootSpanMap.entrySet().iterator();
+		while (spanIter.hasNext()) {
+			Entry<LowDataId, Pair<DataId, LowDataSpan>> entry = spanIter.next();
+			if (!liveStaticDataIds.contains(entry.getKey())) {
+				spanIter.remove();
+			}
+		}
+		
+		Set<LowDataSpan> liveStaticSpans = new HashSet<>();
+		for (Pair<DataId, LowDataSpan> pair : rootSpanMap.values()) {
+			liveStaticSpans.add(pair.right);
+		}
+		
+		Iterator<Entry<LowDataSpan, LowAddressSlice>> addressIter = rootAddressMap.entrySet().iterator();
+		while (addressIter.hasNext()) {
+			Entry<LowDataSpan, LowAddressSlice> entry = addressIter.next();
+			if (!liveStaticSpans.contains(entry.getKey())) {
+				addressIter.remove();
+			}
+		}
+	}
+	
+	private void addLiveStaticDataId(Set<LowDataId> liveStaticDataIds, Deque<LowDataId> queue, LowDataInfo info) {
+		if (info != null && info.type == LowDataType.STATIC) {
+			LowDataId lowDataId = info.dataId.low();
+			if (liveStaticDataIds.add(lowDataId)) {
+				queue.addLast(lowDataId);
+			}
+		}
+	}
+	
+	protected DataId builtinDataId(Object key) {
+		return utilityDataIdMap.computeIfAbsent(key, k -> Main.generator.nextGlobalDataId(Main.generator.intTypeInfo));
+	}
+	
+	public DataId basePointerDataId() {
+		return builtinDataId("BP");
 	}
 	
 	public DataId stackPointerDataId() {
-		if (stackPointerDataId == null) {
-			stackPointerDataId = Main.generator.nextGlobalDataId(Main.generator.intTypeInfo);
-		}
-		return stackPointerDataId;
+		return builtinDataId("SP");
 	}
 	
-	public DataId scratchDataId() {
-		if (scratchDataId == null) {
-			scratchDataId = Main.generator.nextGlobalDataId(Main.generator.intTypeInfo);
-		}
-		return scratchDataId;
+	public DataId clearDataId() {
+		return builtinDataId("CLEAR");
+	}
+	
+	public DataId scratchDataId(int index) {
+		return builtinDataId(index);
+	}
+	
+	protected boolean isScratchDataId(DataId dataId) {
+		return utilityDataIdMap.entrySet().stream().anyMatch(x -> x.getKey() instanceof Integer && x.getValue().equals(dataId));
 	}
 	
 	protected void prepareStaticData() {

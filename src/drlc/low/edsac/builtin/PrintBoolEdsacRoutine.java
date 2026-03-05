@@ -21,10 +21,10 @@ public class PrintBoolEdsacRoutine extends EdsacRoutine {
 		sectionTextMap.put(0, trueText);
 		sectionTextMap.put(1, falseText);
 		
-		LowDataInfo info = getDataInfo(params.get(0).dataId(), 0);
+		LowDataInfo x = getDataInfo(params.get(0).dataId(), 0);
 		
 		trueText.add(new InstructionPrint(constantDataInfo(EdsacChar.LETTER_SHIFT)));
-		addData(trueText, info);
+		addData(trueText, x);
 		trueText.add(new InstructionJumpIfMoreThanOrEqualToZero(1));
 		"TRUE".chars().forEach(c -> trueText.add(new InstructionPrint(constantDataInfo(EdsacChar.of((char) c)))));
 		returnFromSubroutineIfLessThanZero(trueText);

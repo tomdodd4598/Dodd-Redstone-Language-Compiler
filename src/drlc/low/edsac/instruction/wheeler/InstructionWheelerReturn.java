@@ -1,5 +1,6 @@
 package drlc.low.edsac.instruction.wheeler;
 
+import drlc.low.LowDataInfo;
 import drlc.low.edsac.*;
 import drlc.low.edsac.instruction.Instruction;
 
@@ -18,6 +19,56 @@ public class InstructionWheelerReturn extends Instruction {
 		else {
 			throw new UnsupportedOperationException(String.format("Attempted to modify non-null immediate return address!"));
 		}
+	}
+
+	@Override
+	public boolean isAccumulatorUsed() {
+		return true;
+	}
+	
+	@Override
+	public boolean isAccumulatorModified() {
+		return false;
+	}
+	
+	@Override
+	public boolean isAccumulatorCleared() {
+		return false;
+	}
+	
+	@Override
+	public Instruction getReplacement(EdsacRoutine routine) {
+		return null;
+	}
+	
+	@Override
+	public LowDataInfo getReadDataInfo() {
+		return null;
+	}
+	
+	@Override
+	public LowDataInfo getWriteDataInfo() {
+		return null;
+	}
+
+	@Override
+	public boolean isLoadStoreBarrier() {
+		return true;
+	}
+
+	@Override
+	public boolean isUnknownMemoryAccess() {
+		return true;
+	}
+
+	@Override
+	public boolean isProtected() {
+		return true;
+	}
+	
+	@Override
+	public Instruction getCompressedWithNextInstruction(EdsacRoutine routine, Instruction next, boolean sameSection) {
+		return null;
 	}
 	
 	@Override

@@ -29,6 +29,26 @@ public class InstructionRightShift extends InstructionImmediate {
 			shift[count + 1] = remainder - 12;
 		}
 	}
+
+	@Override
+	public boolean isAccumulatorUsed() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccumulatorModified() {
+		return true;
+	}
+
+	@Override
+	public Instruction getReplacement(EdsacRoutine routine) {
+		return value == 0 ? new InstructionNoOp() : null;
+	}
+
+	@Override
+	public Instruction getCompressedWithNextInstruction(EdsacRoutine routine, Instruction next, boolean sameSection) {
+		return next instanceof InstructionRightShift nextRight ? new InstructionRightShift(value + nextRight.value) : null;
+	}
 	
 	@Override
 	public int size() {

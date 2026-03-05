@@ -3,9 +3,8 @@ package drlc.low.edsac.instruction.address;
 import drlc.low.LowDataInfo;
 import drlc.low.edsac.*;
 import drlc.low.edsac.instruction.Instruction;
-import drlc.low.instruction.address.IInstructionAddress;
 
-public abstract class InstructionAddress extends Instruction implements IInstructionAddress {
+public abstract class InstructionAddress extends Instruction {
 	
 	public LowDataInfo dataInfo;
 	public Integer address;
@@ -24,6 +23,52 @@ public abstract class InstructionAddress extends Instruction implements IInstruc
 	public void regenerateDataInfo() {
 		dataInfo = dataInfo.getRegeneratedDataInfo();
 	}
+
+	@Override
+	public LowDataInfo getReadDataInfo() {
+		return isDataFromMemory() ? dataInfo : null;
+	}
+
+	@Override
+	public LowDataInfo getWriteDataInfo() {
+		return isDataToMemory() ? dataInfo : null;
+	}
+	
+	@Override
+	public boolean isAccumulatorCleared() {
+		return false;
+	}
+	
+	@Override
+	public Instruction getReplacement(EdsacRoutine routine) {
+		return null;
+	}
+	
+	@Override
+	public boolean isUnknownMemoryAccess() {
+		return false;
+	}
+	
+	@Override
+	public boolean isLoadStoreBarrier() {
+		return false;
+	}
+	
+	@Override
+	public Instruction getCompressedWithNextInstruction(EdsacRoutine routine, Instruction next, boolean sameSection) {
+		return null;
+	}
+	
+	@Override
+	public boolean isProtected() {
+		return false;
+	}
+	
+	@Override
+	public abstract boolean isDataFromMemory();
+	
+	@Override
+	public abstract boolean isDataToMemory();
 	
 	protected abstract char opcode();
 	

@@ -1,34 +1,30 @@
-package drlc.low.edsac.instruction.wheeler;
+package drlc.low.edsac.instruction.address;
 
-import drlc.intermediate.component.Function;
 import drlc.low.LowDataInfo;
 import drlc.low.edsac.*;
 import drlc.low.edsac.instruction.Instruction;
 
-public class InstructionWheelerJump extends Instruction {
+public class InstructionClearAccumulator extends Instruction {
 	
-	public final Function function;
-	public final InstructionWheelerReturn iwr;
 	public Integer address;
 	
-	public InstructionWheelerJump(Function function, InstructionWheelerReturn iwr) {
-		this.function = function;
-		this.iwr = iwr;
+	public InstructionClearAccumulator() {
+		super();
 	}
 
 	@Override
 	public boolean isAccumulatorUsed() {
-		return true;
+		return false;
 	}
-	
+
 	@Override
 	public boolean isAccumulatorModified() {
-		return false;
+		return true;
 	}
-	
+
 	@Override
 	public boolean isAccumulatorCleared() {
-		return false;
+		return true;
 	}
 	
 	@Override
@@ -45,20 +41,15 @@ public class InstructionWheelerJump extends Instruction {
 	public LowDataInfo getWriteDataInfo() {
 		return null;
 	}
-
-	@Override
-	public boolean isLoadStoreBarrier() {
-		return true;
-	}
-
+	
 	@Override
 	public boolean isUnknownMemoryAccess() {
-		return true;
+		return false;
 	}
-
+	
 	@Override
-	public boolean isProtected() {
-		return true;
+	public boolean isLoadStoreBarrier() {
+		return false;
 	}
 	
 	@Override
@@ -67,7 +58,12 @@ public class InstructionWheelerJump extends Instruction {
 	}
 	
 	@Override
+	public boolean isProtected() {
+		return false;
+	}
+
+	@Override
 	public String toAssembly(Integer offset) {
-		return EdsacOpcodes.JUMP_IF_MORE_THAN_OR_EQUAL_TO_ZERO + EdsacCode.instructionArgument(address) + suffix(EdsacOpcodes.SHORT, offset);
+		return EdsacOpcodes.STORE_AND_CLEAR + EdsacCode.instructionArgument(address) + suffix(EdsacOpcodes.SHORT, offset);
 	}
 }

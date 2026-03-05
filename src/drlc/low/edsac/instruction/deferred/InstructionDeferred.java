@@ -1,6 +1,7 @@
 package drlc.low.edsac.instruction.deferred;
 
 import drlc.intermediate.component.Function;
+import drlc.low.LowDataInfo;
 import drlc.low.edsac.*;
 import drlc.low.edsac.instruction.Instruction;
 
@@ -15,6 +16,56 @@ public abstract class InstructionDeferred extends Instruction {
 		this.function = function;
 		this.section = section;
 		this.target = target;
+	}
+
+	@Override
+	public boolean isAccumulatorUsed() {
+		return true;
+	}
+	
+	@Override
+	public boolean isAccumulatorModified() {
+		return false;
+	}
+	
+	@Override
+	public boolean isAccumulatorCleared() {
+		return false;
+	}
+	
+	@Override
+	public Instruction getReplacement(EdsacRoutine routine) {
+		return null;
+	}
+	
+	@Override
+	public LowDataInfo getReadDataInfo() {
+		return null;
+	}
+	
+	@Override
+	public LowDataInfo getWriteDataInfo() {
+		return null;
+	}
+
+	@Override
+	public boolean isLoadStoreBarrier() {
+		return true;
+	}
+
+	@Override
+	public boolean isUnknownMemoryAccess() {
+		return true;
+	}
+
+	@Override
+	public boolean isProtected() {
+		return true;
+	}
+	
+	@Override
+	public Instruction getCompressedWithNextInstruction(EdsacRoutine routine, Instruction next, boolean sameSection) {
+		return null;
 	}
 	
 	protected abstract char opcode();

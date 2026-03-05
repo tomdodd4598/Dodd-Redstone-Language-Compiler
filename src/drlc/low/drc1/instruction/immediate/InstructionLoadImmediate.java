@@ -2,9 +2,8 @@ package drlc.low.drc1.instruction.immediate;
 
 import drlc.low.drc1.*;
 import drlc.low.drc1.instruction.Instruction;
-import drlc.low.instruction.IInstructionLoad;
 
-public class InstructionLoadImmediate extends InstructionImmediate implements IInstructionLoad {
+public class InstructionLoadImmediate extends InstructionImmediate {
 	
 	public InstructionLoadImmediate(short value) {
 		super(value);

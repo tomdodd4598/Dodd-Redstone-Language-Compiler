@@ -2,9 +2,8 @@ package drlc.low.edsac.instruction.data;
 
 import drlc.low.LowDataInfo;
 import drlc.low.edsac.EdsacInt;
-import drlc.low.instruction.IInstructionAddressData;
 
-public class InstructionAddressData extends InstructionData implements IInstructionAddressData {
+public class InstructionAddressData extends InstructionData {
 	
 	public LowDataInfo dataInfo;
 	public Integer address;

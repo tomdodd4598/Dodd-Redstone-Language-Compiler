@@ -1,77 +1,100 @@
 nesting fn root() -> Int:
-{dec}:
-	static \r0: [Char; 5]
-	static \r1: [Char; 4]
 {0}:
-	\r0 = $['f', 'a', 'c', 't', '(']
-	\r1 = $[')', ' ', '=', ' ']
 	%0 = call $main()
 	exit $0
 
-nesting fn printChars(<9> chars: Chars {&mut Char, Nat}) -> ():
+nesting fn main() -> ():
 {dec}:
+	<10> arr: [Int; 9]
 	<10> i: Nat
 {0}:
+	<10> arr = $[4, 7, 5, 4, 2, 6, 1, 8, 3]
+	%0 = $0 + &<10> arr
+	%1 = call $quicksort(%0, $9)
 	<10> i = $0
 	jmp 2
 {1}:
-	%0 = &<9> chars + $0
-	%1 = *%0
-	%2 = %1 + <10> i
-	%3 = *%2
-	%4 = call builtin $printChar(%3)
+	%2 = <10> i * $8
+	%3 = %2 + &<10> arr
+	%4 = *%3
+	%5 = call builtin $printInt(%4)
+	%6 = call builtin $printChar($' ')
 	<10> i = <10> i + $1
-	%5 = <10> i
+	%7 = <10> i
 {2}:
-	%6 = &<9> chars + $8
-	%7 = *%6
-	%t = %7 > <10> i
+	%t = <10> i < $9
 	cj 1
+	%9 = call builtin $printChar($'\n')
 	ret $()
 
-stack fn fact(<19> n: Int) -> (Int, Int):
+stack fn quicksort(<23> ptr: &Int, <23> len: Nat) -> ():
 {dec}:
-	<22> \r0: Int
+	<24> i: Nat
 {0}:
-	%0 = <19> n
-	%t = <19> n == $0
+	%t = <23> len < $2
 	cnj 1
-	<22> \r0 = $1
-	jmp 2
-{1}:
-	%2 = <19> n
-	%3 = <19> n - $1
-	%4 = call $fact(%3)
-	%5 = &%4 + $8
-	%6 = *%5
-	<22> \r0 = %6 * %2
-{2}:
-	%7 = (%0, <22> \r0)
-	ret %7
-
-nesting fn main() -> ():
-{dec}:
-	<29> i: Int
-	<32> x: (Int, Int)
-{0}:
-	<29> i = $0
-	jmp 2
-{1}:
-	<32> x = call $fact(<29> i)
-	%0 = (&\r0, $5)
-	%1 = call $printChars(%0)
-	%2 = &<32> x + $0
-	%3 = *%2
-	%4 = call builtin $printInt(%3)
-	%5 = (&\r1, $4)
-	%6 = call $printChars(%5)
-	%7 = &<32> x + $8
-	%8 = *%7
-	%9 = call builtin $printInt(%8)
-	%10 = call builtin $printChar($'\n')
-	<29> i = <29> i + $1
-	%11 = <29> i
-{2}:
-	%t = <29> i <= $5
-	cj 1
 	ret $()
+{1}:
+	<24> i = call $subsort(<23> ptr, <23> len)
+	%1 = call $quicksort(<23> ptr, <24> i)
+	%2 = <24> i * $8
+	%3 = %2 + <23> ptr
+	%4 = <23> len - <24> i
+	%5 = call $quicksort(%3, %4)
+	ret $()
+
+leaf fn subsort(<33> ptr: &Int, <33> len: Nat) -> Nat:
+{dec}:
+	<34> pivot: Int
+	<34> i: Nat
+	<34> j: Nat
+	<39> temp: Int
+{0}:
+	%0 = <33> len >> $1
+	%1 = %0 * $8
+	%2 = %1 + <33> ptr
+	<34> pivot = *%2
+	<34> i = $0
+	<34> j = <33> len - $1
+{1}:
+	jmp 3
+{2}:
+	<34> i = <34> i + $1
+	%3 = <34> i
+{3}:
+	%4 = <34> i * $8
+	%5 = %4 + <33> ptr
+	%6 = *%5
+	%t = %6 < <34> pivot
+	cj 2
+	jmp 5
+{4}:
+	<34> j = <34> j - $1
+	%8 = <34> j
+{5}:
+	%9 = <34> j * $8
+	%10 = %9 + <33> ptr
+	%11 = *%10
+	%t = %11 > <34> pivot
+	cj 4
+	%t = <34> i >= <34> j
+	cnj 6
+	jmp 7
+{6}:
+	%14 = <34> i * $8
+	%15 = %14 + <33> ptr
+	<39> temp = *%15
+	%16 = <34> j * $8
+	%17 = %16 + <33> ptr
+	%18 = *%17
+	%19 = <34> i * $8
+	%20 = %19 + <33> ptr
+	*%20 = %18
+	%21 = <34> j * $8
+	%22 = %21 + <33> ptr
+	*%22 = <39> temp
+	<34> i = <34> i + $1
+	<34> j = <34> j - $1
+	jmp 1
+{7}:
+	ret <34> i

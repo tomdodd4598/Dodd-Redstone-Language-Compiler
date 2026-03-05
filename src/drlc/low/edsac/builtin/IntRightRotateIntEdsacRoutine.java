@@ -32,26 +32,26 @@ public class IntRightRotateIntEdsacRoutine extends EdsacRoutine {
 		loopText.add(new InstructionJumpIfLessThanZero(5));
 		storeData(loopText, y, true);
 		addData(loopText, x);
-		loopText.add(new InstructionRaw("T1F")); // [1]
-		loopText.add(new InstructionRaw("H1F")); // [1]
+		storeData(loopText, scratchDataInfo(0), true);
+		loadMultiplierData(loopText, scratchDataInfo(0));
 		loopText.add(new InstructionAddCollation(constantDataInfo(1)));
-		loopText.add(new InstructionRaw("TF")); // [0]
-		loopText.add(new InstructionRaw("SF")); // [0]
+		storeData(loopText, scratchDataInfo(1), true);
+		subtractData(loopText, scratchDataInfo(1));
 		loopText.add(new InstructionJumpIfLessThanZero(1));
-		loopText.add(new InstructionRaw("TF")); // [0]
+		storeData(loopText, scratchDataInfo(1), true);
 		loopText.add(new InstructionJumpIfMoreThanOrEqualToZero(2));
 		
-		signText.add(new InstructionRaw("T4F")); // [4]
+		clearAccumulator(signText);
 		signText.add(new InstructionAdd(constantDataInfo(EdsacInt.MIN_VALUE)));
-		signText.add(new InstructionRaw("TF")); // [0]
+		storeData(signText, scratchDataInfo(1), true);
 		
-		shiftText.add(new InstructionRaw("A1F")); // [1]
+		addData(shiftText, scratchDataInfo(0));
 		shiftText.add(new InstructionRightShift(1));
 		shiftText.add(new InstructionJumpIfMoreThanOrEqualToZero(4));
 		
 		clearText.add(new InstructionSubtract(constantDataInfo(EdsacInt.MIN_VALUE)));
 		
-		rotateText.add(new InstructionRaw("AF")); // [0]
+		addData(rotateText, scratchDataInfo(1));
 		storeData(rotateText, x, true);
 		rotateText.add(new InstructionJumpIfMoreThanOrEqualToZero(0));
 		

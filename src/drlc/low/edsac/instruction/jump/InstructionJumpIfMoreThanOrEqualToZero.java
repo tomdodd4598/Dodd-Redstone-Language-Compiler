@@ -2,7 +2,7 @@ package drlc.low.edsac.instruction.jump;
 
 import drlc.low.edsac.EdsacOpcodes;
 
-public class InstructionJumpIfMoreThanOrEqualToZero extends InstructionJump {
+public class InstructionJumpIfMoreThanOrEqualToZero extends InstructionConditionalJump {
 	
 	public InstructionJumpIfMoreThanOrEqualToZero(int section) {
 		super(section);

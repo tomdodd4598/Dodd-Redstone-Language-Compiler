@@ -5,8 +5,8 @@ import java.util.*;
 import drlc.intermediate.routine.Routine;
 import drlc.low.LowDataInfo;
 import drlc.low.edsac.*;
-import drlc.low.edsac.instruction.*;
-import drlc.low.edsac.instruction.address.*;
+import drlc.low.edsac.instruction.Instruction;
+import drlc.low.edsac.instruction.address.InstructionSubtract;
 import drlc.low.edsac.instruction.jump.InstructionJumpIfLessThanZero;
 
 public class IntNotEqualToIntEdsacRoutine extends EdsacRoutine {
@@ -26,13 +26,13 @@ public class IntNotEqualToIntEdsacRoutine extends EdsacRoutine {
 		addData(falseText, x);
 		subtractData(falseText, y);
 		falseText.add(new InstructionJumpIfLessThanZero(1));
-		falseText.add(new InstructionRaw("TF")); // [0]
-		falseText.add(new InstructionRaw("SF")); // [0]
+		storeData(falseText, scratchDataInfo(0), true);
+		subtractData(falseText, scratchDataInfo(0));
 		falseText.add(new InstructionJumpIfLessThanZero(1));
-		falseText.add(new InstructionRaw("TF")); // [0]
+		clearAccumulator(falseText);
 		returnFromSubroutineIfMoreThanOrEqualToZero(falseText);
 		
-		trueText.add(new InstructionRaw("TF")); // [0]
+		clearAccumulator(trueText);
 		trueText.add(new InstructionSubtract(constantDataInfo(1)));
 		returnFromSubroutineIfLessThanZero(trueText);
 		

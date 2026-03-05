@@ -10,7 +10,6 @@ import drlc.intermediate.component.Function;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.data.DataId.LowDataId;
 import drlc.intermediate.routine.Routine;
-import drlc.low.instruction.LowInstruction;
 
 public abstract class LowCode<CODE extends LowCode<CODE, ROUTINE, INSTRUCTION>, ROUTINE extends LowRoutine<CODE, ROUTINE, INSTRUCTION>, INSTRUCTION extends LowInstruction> {
 	

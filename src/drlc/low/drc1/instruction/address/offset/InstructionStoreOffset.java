@@ -2,9 +2,8 @@ package drlc.low.drc1.instruction.address.offset;
 
 import drlc.low.LowDataInfo;
 import drlc.low.drc1.RedstoneMnemonics;
-import drlc.low.instruction.address.IInstructionStoreAddress;
 
-public class InstructionStoreOffset extends InstructionAddressOffset implements IInstructionStoreAddress {
+public class InstructionStoreOffset extends InstructionAddressOffset {
 	
 	public InstructionStoreOffset(LowDataInfo dataInfo) {
 		super(dataInfo);
@@ -21,8 +20,13 @@ public class InstructionStoreOffset extends InstructionAddressOffset implements 
 	}
 	
 	@Override
-	public LowDataInfo getStoredData() {
-		return dataInfo;
+	public boolean isDataFromMemory() {
+		return false;
+	}
+	
+	@Override
+	public boolean isDataToMemory() {
+		return true;
 	}
 	
 	@Override
