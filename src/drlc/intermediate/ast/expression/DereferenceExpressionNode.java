@@ -113,11 +113,6 @@ public class DereferenceExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public boolean isMutableReference() {
-		return super.isMutableReference() && expressionNode.isMutableReference();
-	}
-	
-	@Override
 	public boolean getIsLvalue() {
 		return isLvalue;
 	}

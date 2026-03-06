@@ -155,7 +155,7 @@ public class MemberExpressionNode extends ExpressionNode {
 	
 	@Override
 	public boolean isMutableLvalue() {
-		return expressionNode.isMutableLvalue() || expressionNode.isMutableReference();
+		return expressionNode.isMutableLvalue() || expressionNode.getTypeInfo().canMutablyDereference();
 	}
 	
 	@Override

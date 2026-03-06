@@ -68,9 +68,12 @@ public abstract class TypeInfo {
 		return getReferenceLevel() > 0;
 	}
 	
+	public boolean canMutablyDereference() {
+		return isAddress() && referenceMutability.get(0);
+	}
+	
 	public boolean isMutableReference() {
-		int referenceLevel = getReferenceLevel();
-		return referenceLevel > 0 && referenceMutability.get(referenceLevel - 1);
+		return isAddress() && referenceMutability.get(getReferenceLevel() - 1);
 	}
 	
 	public boolean isWord() {

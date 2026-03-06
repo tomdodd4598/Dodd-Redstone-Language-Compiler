@@ -212,11 +212,6 @@ public class IndexExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public boolean isMutableReference() {
-		return super.isMutableReference() && (baseIsArray || baseExpressionNode.isMutableReference());
-	}
-	
-	@Override
 	public boolean getIsLvalue() {
 		return isLvalue;
 	}
