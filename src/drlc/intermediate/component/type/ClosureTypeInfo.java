@@ -2,7 +2,7 @@ package drlc.intermediate.component.type;
 
 import java.util.*;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
@@ -22,13 +22,35 @@ public class ClosureTypeInfo extends CompoundTypeInfo {
 		return new ClosureTypeInfo(node, referenceMutability, function);
 	}
 	
+	public boolean canCoerceToFunctionType(TypeInfo otherInfo) {
+		if (!(otherInfo instanceof FunctionTypeInfo functionTypeInfo) || count != 0 || isAddress()) {
+			return false;
+		}
+		
+		FunctionItemTypeInfo functionItemTypeInfo = function.value.typeInfo;
+		if (functionItemTypeInfo.canImplicitCastTo(otherInfo)) {
+			return true;
+		}
+		
+		if (function.inferReturnType && !function.defined) {
+			FunctionPointerTypeInfo functionPointerTypeInfo = functionItemTypeInfo.functionPointerTypeInfo;
+			return functionPointerTypeInfo.getArgTypeInfos().equals(functionTypeInfo.getArgTypeInfos()) && functionPointerTypeInfo.canImplicitCastToReferenceMutability(otherInfo);
+		}
+		
+		return false;
+	}
+	
+	public @Nullable TypeInfo getFunctionTypeCoercion(@Nullable TypeInfo targetType) {
+		return targetType != null && canCoerceToFunctionType(targetType) ? targetType : null;
+	}
+	
 	@Override
 	public boolean canImplicitCastTo(TypeInfo otherInfo) {
 		if (otherInfo instanceof ClosureTypeInfo closureTypeInfo) {
 			return super.canImplicitCastTo(otherInfo) && function.equals(closureTypeInfo.function);
 		}
 		else {
-			return false;
+			return canCoerceToFunctionType(otherInfo);
 		}
 	}
 	

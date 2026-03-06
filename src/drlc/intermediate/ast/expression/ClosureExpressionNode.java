@@ -19,7 +19,9 @@ public class ClosureExpressionNode extends ExpressionNode {
 	public @NonNull Function function = null;
 	
 	@SuppressWarnings("null")
-	public @NonNull ClosureTypeInfo typeInfo = null;
+	public @NonNull TypeInfo typeInfo = null;
+	
+	public @Nullable TypeInfo targetTypeInfo = null;
 	
 	public ClosureExpressionNode(Source source, @NonNull FunctionDefinitionNode functionNode) {
 		super(source);
@@ -51,7 +53,8 @@ public class ClosureExpressionNode extends ExpressionNode {
 	public void defineExpressions(ASTNode<?> parent) {
 		functionNode.defineExpressions(this);
 		
-		setTypeInfo(null);
+		setTypeInfo = false;
+		setTypeInfo(targetTypeInfo);
 	}
 	
 	@Override
@@ -74,8 +77,12 @@ public class ClosureExpressionNode extends ExpressionNode {
 	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
 		functionNode.generateIntermediate(this);
-		
-		routine.addCompoundAssignmentAction(this, dataId = routine.nextRegId(typeInfo), Helpers.map(function.captures, Variable::dataId));
+		if (function.captures.isEmpty() && typeInfo instanceof FunctionTypeInfo functionTypeInfo) {
+			routine.addValueAssignmentAction(this, dataId = routine.nextRegId(functionTypeInfo), function.value);
+		}
+		else {
+			routine.addCompoundAssignmentAction(this, dataId = routine.nextRegId(typeInfo), Helpers.map(function.captures, Variable::dataId));
+		}
 	}
 	
 	@Override
@@ -85,7 +92,11 @@ public class ClosureExpressionNode extends ExpressionNode {
 	
 	@Override
 	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
-		typeInfo = new ClosureTypeInfo(this, new ArrayList<>(), function);
+		targetTypeInfo = targetType;
+		
+		ClosureTypeInfo closureTypeInfo = new ClosureTypeInfo(this, new ArrayList<>(), function);
+		TypeInfo coercionTypeInfo = closureTypeInfo.getFunctionTypeCoercion(targetType);
+		typeInfo = coercionTypeInfo == null ? closureTypeInfo : coercionTypeInfo;
 	}
 	
 	@Override

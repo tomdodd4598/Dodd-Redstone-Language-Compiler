@@ -25,6 +25,8 @@ public class Function {
 	
 	public final boolean closure;
 	
+	public boolean inferReturnType = false;
+	
 	public boolean defined = false;
 	
 	protected Boolean required = null;

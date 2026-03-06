@@ -1142,16 +1142,8 @@ public abstract class Generator {
 	
 	public @Nullable Value<?> typeCast(ASTNode<?> node, @NonNull TypeInfo castType, @NonNull Value<?> value) {
 		TypeInfo typeInfo = value.typeInfo;
-		if (typeInfo instanceof ClosureTypeInfo closureTypeInfo) {
-			if (typeInfo.isAddress()) {
-				return null;
-			}
-			else if (closureTypeInfo.count == 0) {
-				FunctionItemValue functionItemValue = closureTypeInfo.function.value;
-				if (functionItemValue.typeInfo.copy(node, closureTypeInfo.referenceMutability).canImplicitCastTo(castType)) {
-					return functionItemValue;
-				}
-			}
+		if (typeInfo instanceof ClosureTypeInfo closureTypeInfo && closureTypeInfo.canCoerceToFunctionType(castType)) {
+			return closureTypeInfo.function.value;
 		}
 		else if (typeInfo.canImplicitCastTo(castType)) {
 			return value;
@@ -1225,23 +1217,9 @@ public abstract class Generator {
 	}
 	
 	public void typeCastAction(ASTNode<?> node, Scope scope, @NonNull Routine routine, @NonNull TypeInfo castType, @NonNull TypeInfo typeInfo, DataId target, DataId arg) {
-		if (typeInfo instanceof ClosureTypeInfo closureTypeInfo) {
-			if (closureTypeInfo.count == 0) {
-				FunctionItemValue functionItemValue = closureTypeInfo.function.value;
-				if (functionItemValue.typeInfo.copy(node, closureTypeInfo.referenceMutability).canImplicitCastTo(castType)) {
-					if (closureTypeInfo.isAddress()) {
-						@NonNull TypeInfo rawCastType = castType.copy(node);
-						@NonNull DataId dataId = closureTypeInfo.isAddress() ? scope.nextLocalDataId(routine, rawCastType) : routine.nextRegId(rawCastType);
-						routine.addValueAssignmentAction(node, dataId, functionItemValue);
-						dataId = routine.addSelfAddressAssignmentAction(node, scope, closureTypeInfo.getReferenceLevel(), dataId);
-						routine.addAssignmentAction(node, target, dataId);
-					}
-					else {
-						routine.addValueAssignmentAction(node, target, functionItemValue);
-					}
-					return;
-				}
-			}
+		if (typeInfo instanceof ClosureTypeInfo closureTypeInfo && closureTypeInfo.canCoerceToFunctionType(castType)) {
+			routine.addValueAssignmentAction(node, target, closureTypeInfo.function.value);
+			return;
 		}
 		else if (typeInfo.canImplicitCastTo(castType)) {
 			routine.addAssignmentAction(node, target, arg);

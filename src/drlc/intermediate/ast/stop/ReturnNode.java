@@ -56,15 +56,16 @@ public class ReturnNode extends StopNode {
 	@Override
 	public void defineExpressions(ASTNode<?> parent) {
 		expectedTypeInfo = routine.getReturnTypeInfo();
+		boolean inferReturnType = closureDefinition != null || routine.function.inferReturnType;
 		
 		if (expressionNode != null) {
-			expressionNode.setTypeInfo(closureDefinition == null ? expectedTypeInfo : null);
+			expressionNode.setTypeInfo(inferReturnType ? null : expectedTypeInfo);
 			
 			expressionNode.defineExpressions(this);
 		}
 		
-		if (closureDefinition != null) {
-			closureDefinition.function.updateReturnType(expressionNode.getTypeInfo());
+		if (inferReturnType && expressionNode != null) {
+			(closureDefinition == null ? routine.function : closureDefinition.function).updateReturnType(expressionNode.getTypeInfo());
 			
 			expectedTypeInfo = routine.getReturnTypeInfo();
 		}
@@ -72,6 +73,7 @@ public class ReturnNode extends StopNode {
 	
 	@Override
 	public void checkTypes(ASTNode<?> parent) {
+		@NonNull TypeInfo expectedTypeInfo = routine.getReturnTypeInfo();
 		if (expressionNode != null) {
 			expressionNode.checkTypes(this);
 			

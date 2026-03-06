@@ -76,6 +76,7 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 		@NonNull TypeInfo returnType = returnTypeNode != null ? returnTypeNode.getTypeInfo() : Main.generator.unitTypeInfo;
 		
 		function = scope.function = new Function(this, name, false, returnType, Helpers.map(parameterNodes, x -> x.declaratorInfo), closure, scope.parent.isModule);
+		function.inferReturnType = closure && returnTypeNode == null;
 		function.functionScope = scope;
 		scope.parent.addFunction(this, function);
 		
@@ -107,6 +108,11 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 			returnTypeNode.defineExpressions(this);
 		}
 		bodyNode.defineExpressions(this);
+		
+		@NonNull TypeInfo returnType = routine.getReturnTypeInfo();
+		if (!returnType.equals(Main.generator.unitTypeInfo) && !scope.hasDefiniteReturn()) {
+			throw error("Function \"%s\" does not always return value of expected type \"%s\"!", name, returnType);
+		}
 	}
 	
 	@Override

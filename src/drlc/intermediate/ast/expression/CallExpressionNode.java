@@ -58,9 +58,10 @@ public class CallExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void defineExpressions(ASTNode<?> parent) {
-		setTypeInfo(null);
-		
 		callerExpressionNode.defineExpressions(this);
+		
+		setTypeInfo = false;
+		setTypeInfo(null);
 		
 		for (ExpressionNode argExpressionNode : argExpressionNodes) {
 			argExpressionNode.defineExpressions(this);
@@ -135,9 +136,11 @@ public class CallExpressionNode extends ExpressionNode {
 		
 		@NonNull TypeInfo callerExpressionType = callerExpressionNode.getTypeInfo();
 		@NonNull DataId callerDataId = routine.addSelfDereferenceAssignmentAction(this, callerExpressionType.getReferenceLevel(), callerExpressionNode.dataId);
-		if (callerExpressionType instanceof ClosureTypeInfo) {
-			args.add(callerDataId);
-			callerDataId = ((ClosureTypeInfo) callerExpressionType).function.value.dataId();
+		if (callerExpressionType instanceof ClosureTypeInfo closureTypeInfo) {
+			if (closureTypeInfo.count > 0) {
+				args.add(callerDataId);
+			}
+			callerDataId = closureTypeInfo.function.value.dataId();
 		}
 		routine.addCallAction(this, scope, callerExpressionNode.getDirectFunction(), dataId = routine.nextRegId(functionTypeInfo.returnTypeInfo), callerDataId, args);
 	}

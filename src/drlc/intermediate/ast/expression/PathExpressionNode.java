@@ -5,7 +5,7 @@ import org.eclipse.jdt.annotation.*;
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
-import drlc.intermediate.component.type.TypeInfo;
+import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.*;
 
 public class PathExpressionNode extends ExpressionNode {
@@ -90,6 +90,9 @@ public class PathExpressionNode extends ExpressionNode {
 			if (isLvalue) {
 				routine.addAddressVariableAssignmentAction(this, dataId = routine.nextRegId(typeInfo.addressOf(this, true)), variable);
 			}
+			else if (typeInfo instanceof FunctionTypeInfo && variable.typeInfo instanceof ClosureTypeInfo closureTypeInfo && closureTypeInfo.canCoerceToFunctionType(typeInfo)) {
+				routine.addValueAssignmentAction(this, dataId = routine.nextRegId(typeInfo), closureTypeInfo.function.value);
+			}
 			else {
 				routine.addVariableAssignmentAction(this, dataId = routine.nextRegId(typeInfo), variable);
 			}
@@ -110,6 +113,12 @@ public class PathExpressionNode extends ExpressionNode {
 		}
 		else {
 			typeInfo = variable.typeInfo;
+			if (!isLvalue && typeInfo instanceof ClosureTypeInfo closureTypeInfo) {
+				TypeInfo coercionTypeInfo = closureTypeInfo.getFunctionTypeCoercion(targetType);
+				if (coercionTypeInfo != null) {
+					typeInfo = coercionTypeInfo;
+				}
+			}
 		}
 	}
 	
