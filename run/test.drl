@@ -548,7 +548,7 @@ fn main() {
 
 // TRIPLE REF TECHNIQUE
 
-
+/*
 struct Thing {
 	item: Chars,
 	next: &mut Thing,
@@ -645,7 +645,7 @@ fn main() {
 	printChars("\nAltered List:\n");
 	start.printList();
 }
-
+*/
 
 // EDSAC SQUARES
 
@@ -726,3 +726,209 @@ fn subsort(ptr: &mut Int, len: Nat) -> Nat {
 	return i;
 }
 */
+
+// ITERATOR CHAIN
+
+/*
+struct Pos {
+	x: Int,
+	y: Int,
+}
+
+let mut arr = [
+	Pos { -1, 1 }, Pos { 0, 1 }, Pos { 1, 1 },
+	Pos { -1, 0 }, Pos { 0, 0 }, Pos { 1, 0 },
+	Pos { -1, -1 }, Pos { 0, -1 }, Pos { 1, -1 },
+];
+
+struct Iter {
+	begin: &Pos,
+	end: &Pos,
+}
+
+fn validIter(this: &Iter) -> Bool {
+	return this.begin < this.end;
+}
+
+fn peekIter(this: &Iter) -> Pos {
+	return *this.begin;
+}
+
+fn stepIter(this: &mut Iter) {
+	this.begin += 1;
+}
+
+fn nextIter(this: &mut Iter) -> Pos {
+	let next = this.begin;
+	this.stepIter();
+	return *next;
+}
+
+struct Filter {
+	iter: Iter,
+	predicate: fn(Pos) -> Bool,
+}
+
+fn prepareFilter(this: &mut Filter) {
+	while this.iter.validIter() {
+		let candidate = this.iter.peekIter();
+		if (this.predicate)(candidate) {
+			break;
+		}
+		this.iter.stepIter();
+	}
+}
+
+fn validFilter(this: &mut Filter) -> Bool {
+	this.prepareFilter();
+	return this.iter.validIter();
+}
+
+fn nextFilter(this: &mut Filter) -> Pos {
+	this.prepareFilter();
+	return this.iter.nextIter();
+}
+
+struct Map {
+	iter: Filter,
+	mapper: fn(Pos) -> Int,
+}
+
+fn validMap(this: &mut Map) -> Bool {
+	return this.iter.validFilter();
+}
+
+fn nextMap(this: &mut Map) -> Int {
+	return (this.mapper)(this.iter.nextFilter());
+}
+
+fn foreachMap(this: &mut Map, f: fn(Int)) {
+	while this.validMap() {
+		f(this.nextMap());
+	}
+}
+
+fn main() {
+	let begin = &arr[0];
+	let mut map = Map { Filter { Iter { begin, begin + 9 }, |pos: Pos| pos.x != 0 && pos.y != 0 }, |pos: Pos| pos.x + pos.y };
+	map.foreachMap(|x: Int| { printInt(x); printChar('\n'); });
+}
+*/
+
+// PROJECT EULER PYTHAGORAS
+
+/*
+const SUM = 1000;
+
+fn main() {
+	let mut m = 2;
+	while m < 32 {
+		let mut n = 1;
+		while n < m {
+			let a = m * m - n * n;
+			let b = 2 * m * n;
+			let c = m * m + n * n;
+			let p = |op: Char, result: Int| {
+				printInt(a);
+				printChar(op);
+				printInt(b);
+				printChar(op);
+				printInt(c);
+				printChar('=');
+				printInt(result);
+				printChar('\n');
+			};
+			if a + b + c == SUM {
+				p('+', SUM);
+				p('*', a * b * c);
+				return;
+			}
+			n += 1;
+		}
+		m += 1;
+	}
+}
+*/
+
+// NILAKANTHA PI
+
+const TERMS = 5;
+
+struct Fraction {
+	num: Int,
+	den: Int,
+}
+
+fn gcd(a: Int, b: Int) -> Int {
+	let mut x = a < 0 ? -a : a;
+	let mut y = b < 0 ? -b : b;
+	if x == 0 {
+		return y;
+	}
+	if y == 0 {
+		return x;
+	}
+	while x != y {
+		if x > y {
+			x -= y;
+		}
+		else {
+			y -= x;
+		}
+	}
+	return x;
+}
+
+fn divInt(a: Int, b: Int) -> Int {
+	let mut x = a;
+	let mut q = 0;
+	while x >= b {
+		x -= b;
+		q += 1;
+	}
+	return q;
+}
+
+fn reduceFraction(this: &mut Fraction) {
+	let num = this.num;
+	let den = this.den;
+	let d = gcd(num, den);
+	if d > 1 {
+		this.num = num < 0 ? -divInt(-num, d) : divInt(num, d);
+		this.den = divInt(den, d);
+	}
+}
+
+fn addFraction(this: &mut Fraction, other: Fraction) {
+	let d = gcd(this.den, other.den);
+	let left = divInt(other.den, d);
+	let right = divInt(this.den, d);
+	this.num = this.num * left + other.num * right;
+	this.den *= left;
+	this.reduceFraction();
+}
+
+fn term(a: Int, sign: Int) -> Fraction {
+	let mut term = Fraction { 4 * sign, a * (a + 1) * (a + 2) };
+	term.reduceFraction();
+	return term;
+}
+
+fn main() {
+	let mut pi = Fraction { 3, 1 };
+	let mut a = 2;
+	let mut sign = 1;
+	
+	let mut i = 0;
+	while i < TERMS {
+		pi.addFraction(term(a, sign));
+		a += 2;
+		sign = -sign;
+		i += 1;
+	}
+	
+	printInt(pi.num);
+	printChar('/');
+	printInt(pi.den);
+	printChar('\n');
+}

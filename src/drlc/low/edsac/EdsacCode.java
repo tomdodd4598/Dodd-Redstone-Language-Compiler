@@ -285,7 +285,7 @@ public class EdsacCode extends LowCode<EdsacCode, EdsacRoutine, Instruction> {
 	protected void finalizeStaticData() {
 		for (Instruction data : staticDataMap.values()) {
 			if (data instanceof InstructionAddressData iad) {
-				iad.address = staticDataAddress(iad.dataInfo);
+				iad.address = iad.dataInfo.routine.getAddress(iad.dataInfo);
 			}
 			
 			else if (data instanceof InstructionSubroutineAddressData isad) {
