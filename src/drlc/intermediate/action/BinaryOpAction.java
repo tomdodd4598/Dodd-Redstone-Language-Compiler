@@ -133,6 +133,11 @@ public class BinaryOpAction extends Action implements IValueAction {
 	@Override
 	public Action foldRvalues() {
 		if (arg1 instanceof ValueDataId valueDataId1 && arg2 instanceof ValueDataId valueDataId2) {
+			boolean leftAddress = valueDataId1.value.typeInfo.isAddress();
+			boolean rightAddress = valueDataId2.value.typeInfo.isAddress();
+			if ((type.equals(BinaryActionType.INT_PLUS_INT) && (leftAddress || rightAddress)) || (type.equals(BinaryActionType.INT_MINUS_INT) && leftAddress)) {
+				return null;
+			}
 			return new AssignmentAction(null, target, Main.generator.binaryOp(null, valueDataId1.value, type.opType, valueDataId2.value).dataId());
 		}
 		else {
@@ -299,7 +304,7 @@ public class BinaryOpAction extends Action implements IValueAction {
 					}
 				}
 				case INT_MINUS_INT:
-					return left.longValue(null) == 0 ? UnaryActionType.MINUS_INT.action(null, target, arg2) : null;
+					return !left.typeInfo.isAddress() && left.longValue(null) == 0 ? UnaryActionType.MINUS_INT.action(null, target, arg2) : null;
 				case INT_MULTIPLY_INT: {
 					long longValue = left.longValue(null);
 					if (longValue == 0) {

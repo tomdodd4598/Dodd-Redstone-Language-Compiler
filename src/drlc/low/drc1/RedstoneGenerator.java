@@ -59,7 +59,7 @@ public abstract class RedstoneGenerator extends Generator {
 	
 	@Override
 	public @NonNull Function getBuiltInFunction(ASTNode<?> node, String name) {
-		if (!Main.rootScope.functionExists(name, false)) {
+		if (!Main.rootScope.declaredFunctionExists(name, false)) {
 			switch (name) {
 				case Global.INT_LEFT_ROTATE_INT:
 				case Global.INT_RIGHT_ROTATE_INT:

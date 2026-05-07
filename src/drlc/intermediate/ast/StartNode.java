@@ -22,8 +22,25 @@ public class StartNode extends ASTNode<Scope> {
 	}
 	
 	@Override
+	public void declareImports(ASTNode<?> parent) {
+		moduleNode.declareImports(this);
+	}
+	
+	@Override
+	public void declareTypes(ASTNode<?> parent) {
+		moduleNode.declareTypes(this);
+	}
+	
+	@Override
 	public void defineTypes(ASTNode<?> parent) {
 		moduleNode.defineTypes(this);
+	}
+	
+	@Override
+	public void declareFunctions(ASTNode<?> parent) {
+		routine = Main.rootRoutine;
+		
+		moduleNode.declareFunctions(this);
 	}
 	
 	@Override
@@ -39,6 +56,11 @@ public class StartNode extends ASTNode<Scope> {
 	}
 	
 	@Override
+	public void checkImports(ASTNode<?> parent) {
+		moduleNode.checkImports(this);
+	}
+	
+	@Override
 	public void checkTypes(ASTNode<?> parent) {
 		moduleNode.checkTypes(this);
 	}
@@ -46,11 +68,6 @@ public class StartNode extends ASTNode<Scope> {
 	@Override
 	public void foldConstants(ASTNode<?> parent) {
 		moduleNode.foldConstants(this);
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		moduleNode.trackFunctions(this);
 	}
 	
 	@Override

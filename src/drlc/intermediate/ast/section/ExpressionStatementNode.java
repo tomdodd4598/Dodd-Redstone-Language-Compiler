@@ -56,11 +56,6 @@ public class ExpressionStatementNode extends RuntimeSectionNode<Scope> {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		expressionNode.trackFunctions(this);
-	}
-	
-	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
 		expressionNode.generateIntermediate(this);
 	}

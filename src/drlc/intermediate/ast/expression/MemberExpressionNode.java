@@ -35,7 +35,7 @@ public class MemberExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, null, parent.scope, true);
+		scope = new Scope(this, null, parent.scope, false);
 		
 		expressionNode.setScopes(this);
 	}
@@ -81,11 +81,6 @@ public class MemberExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		expressionNode.trackFunctions(this);
-	}
-	
-	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
 		expressionNode.generateIntermediate(this);
 		
@@ -107,7 +102,11 @@ public class MemberExpressionNode extends ExpressionNode {
 		DataId target = routine.nextRegId(addressTypeInfo);
 		DataId indexId = Main.generator.natValue(getMemberInfo().offset).dataId();
 		
-		routine.addBinaryOpAction(this, Main.generator.natTypeInfo, BinaryOpType.PLUS, Main.generator.natTypeInfo, target, baseDataId, indexId);
+		DataId baseWordDataId = routine.nextRegId(Main.generator.natTypeInfo);
+		routine.addTypeCastAction(this, scope, Main.generator.natTypeInfo, baseDataId.typeInfo, baseWordDataId, baseDataId);
+		DataId targetWordDataId = routine.nextRegId(Main.generator.natTypeInfo);
+		routine.addBinaryOpAction(this, Main.generator.natTypeInfo, BinaryOpType.PLUS, Main.generator.natTypeInfo, targetWordDataId, baseWordDataId, indexId);
+		routine.addTypeCastAction(this, scope, addressTypeInfo, Main.generator.natTypeInfo, target, targetWordDataId);
 		
 		if (isLvalue) {
 			dataId = target;
@@ -138,7 +137,7 @@ public class MemberExpressionNode extends ExpressionNode {
 			@Nullable Value<?> baseConstantValue = expressionNode.getConstantValue();
 			if (baseConstantValue != null && !baseConstantValue.typeInfo.isAddress()) {
 				@NonNull MemberInfo memberInfo = getMemberInfo();
-				constantValue = baseConstantValue.atOffset(this, memberInfo.offset, memberInfo.typeInfo);
+				constantValue = baseConstantValue.atIndex(this, memberInfo.index);
 			}
 		}
 	}
@@ -155,7 +154,8 @@ public class MemberExpressionNode extends ExpressionNode {
 	
 	@Override
 	public boolean isMutableLvalue() {
-		return expressionNode.isMutableLvalue() || expressionNode.getTypeInfo().canMutablyDereference();
+		@NonNull TypeInfo expressionTypeInfo = expressionNode.getTypeInfo();
+		return expressionTypeInfo.isAddress() ? expressionTypeInfo.canMutablyDereference() : expressionNode.isMutableLvalue();
 	}
 	
 	@Override
@@ -166,6 +166,11 @@ public class MemberExpressionNode extends ExpressionNode {
 	@Override
 	public void setIsLvalue() {
 		isLvalue = true;
+	}
+	
+	@Override
+	public void checkIsReadable(ASTNode<?> parent) {
+		expressionNode.checkIsReadable(parent);
 	}
 	
 	public @NonNull MemberInfo getMemberInfo() {

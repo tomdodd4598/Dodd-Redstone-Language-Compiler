@@ -61,7 +61,7 @@ public class RegDataId extends DataId {
 	
 	@Override
 	public int hashCode(boolean reduced) {
-		return Objects.hash(Global.REG, scope, reduced ? 0 : dereferenceLevel, reduced ? null : typeInfo);
+		return Objects.hash(Global.REG, scope, regId, reduced ? 0 : dereferenceLevel, reduced ? null : typeInfo);
 	}
 	
 	@Override

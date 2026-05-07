@@ -57,11 +57,6 @@ public class StringExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		
-	}
-	
-	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
 		@NonNull DataId arrayDataId = Main.generator.nextGlobalDataId(stringValue.typeInfo);
 		Main.rootRoutine.addValueAssignmentAction(this, arrayDataId, stringValue);

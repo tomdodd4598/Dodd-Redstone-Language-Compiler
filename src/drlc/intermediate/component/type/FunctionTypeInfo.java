@@ -6,6 +6,7 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.TypeDef;
 
 public abstract class FunctionTypeInfo extends TypeInfo {
 	

@@ -1,11 +1,13 @@
 package drlc.intermediate.component.value;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.Function;
 import drlc.intermediate.component.type.FunctionItemTypeInfo;
 import drlc.intermediate.scope.Scope;
 
@@ -38,5 +40,15 @@ public class FunctionItemValue extends Value<FunctionItemTypeInfo> {
 	@Override
 	public String valueString() {
 		return Helpers.scopeStringPrefix(scope) + name;
+	}
+	
+	@Override
+	public @NonNull Function getDirectFunction() {
+		return typeInfo.function;
+	}
+	
+	@Override
+	public void forEachFunction(Consumer<Function> consumer) {
+		consumer.accept(typeInfo.function);
 	}
 }

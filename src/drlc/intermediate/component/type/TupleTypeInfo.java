@@ -12,7 +12,6 @@ public class TupleTypeInfo extends CompoundTypeInfo {
 	
 	protected Map<String, MemberInfo> memberMap = new HashMap<>();
 	
-	@SuppressWarnings("null")
 	public TupleTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos) {
 		super(node, referenceMutability, typeInfos);
 		
@@ -21,7 +20,12 @@ public class TupleTypeInfo extends CompoundTypeInfo {
 			@NonNull String name = Integer.toString(i);
 			@NonNull TypeInfo typeInfo = typeInfos.get(i);
 			memberMap.put(name, new MemberInfo(name, typeInfo, i, offset));
-			offset += typeInfo.getSize();
+			try {
+				offset = Math.addExact(offset, typeInfo.getSize());
+			}
+			catch (ArithmeticException e) {
+				throw Helpers.nodeError(node, "Offset of tuple type \"%s\" at position %d is too large!", rawString(), i);
+			}
 		}
 	}
 	

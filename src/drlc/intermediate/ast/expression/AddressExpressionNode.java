@@ -26,7 +26,7 @@ public class AddressExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, null, parent.scope, true);
+		scope = new Scope(this, null, parent.scope, false);
 		
 		expressionNode.setScopes(this);
 	}
@@ -48,6 +48,7 @@ public class AddressExpressionNode extends ExpressionNode {
 		setTypeInfo(null);
 		
 		expressionNode.defineExpressions(this);
+		expressionNode.checkIsReadable(this);
 		
 		if (expressionNode.isValidLvalue()) {
 			expressionNode.setIsLvalue();
@@ -66,11 +67,6 @@ public class AddressExpressionNode extends ExpressionNode {
 	@Override
 	public void foldConstants(ASTNode<?> parent) {
 		expressionNode.foldConstants(this);
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		expressionNode.trackFunctions(this);
 	}
 	
 	@Override

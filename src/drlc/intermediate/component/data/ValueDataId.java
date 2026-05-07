@@ -7,7 +7,7 @@ import org.eclipse.jdt.annotation.*;
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Function;
-import drlc.intermediate.component.value.*;
+import drlc.intermediate.component.value.Value;
 
 public class ValueDataId extends DataId {
 	
@@ -24,8 +24,13 @@ public class ValueDataId extends DataId {
 	}
 	
 	@Override
-	public @Nullable Function getFunction() {
-		return value instanceof FunctionItemValue functionItemValue ? functionItemValue.typeInfo.function : null;
+	public @Nullable Function getDirectFunction() {
+		return value.getDirectFunction();
+	}
+	
+	@Override
+	public void forEachFunction(java.util.function.Consumer<Function> consumer) {
+		value.forEachFunction(consumer);
 	}
 	
 	@Override

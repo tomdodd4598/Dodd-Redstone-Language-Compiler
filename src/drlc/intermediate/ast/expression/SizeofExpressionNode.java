@@ -58,11 +58,6 @@ public class SizeofExpressionNode extends ExpressionNode {
 		typeNode.foldConstants(this);
 	}
 	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		typeNode.trackFunctions(this);
-	}
-	
 	@SuppressWarnings("null")
 	@Override
 	public void generateIntermediate(ASTNode<?> parent) {

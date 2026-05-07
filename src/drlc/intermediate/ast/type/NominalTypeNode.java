@@ -6,8 +6,7 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.component.Path;
-import drlc.intermediate.component.type.TypeDef;
+import drlc.intermediate.component.*;
 
 public class NominalTypeNode extends TypeNode {
 	
@@ -47,11 +46,6 @@ public class NominalTypeNode extends TypeNode {
 	
 	@Override
 	public void foldConstants(ASTNode<?> parent) {
-		
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
 		
 	}
 	

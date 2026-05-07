@@ -6,7 +6,7 @@ import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Function;
 import drlc.intermediate.component.type.TypeInfo;
-import drlc.intermediate.component.value.*;
+import drlc.intermediate.component.value.Value;
 import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.Scope;
 
@@ -56,14 +56,6 @@ public class ValueExpressionNode extends ConstantExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		Function directFunction = getDirectFunction();
-		if (directFunction != null) {
-			routine.onNonLocalFunctionItemExpression(this, directFunction);
-		}
-	}
-	
-	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
 		routine.addValueAssignmentAction(this, dataId = routine.nextRegId(getTypeInfo()), value);
 	}
@@ -91,9 +83,7 @@ public class ValueExpressionNode extends ConstantExpressionNode {
 	@Override
 	public @Nullable Function getDirectFunction() {
 		if (!setDirectFunction) {
-			if (value instanceof FunctionItemValue) {
-				directFunction = ((FunctionItemValue) value).typeInfo.function;
-			}
+			directFunction = value.getDirectFunction();
 			setDirectFunction = true;
 		}
 		return directFunction;

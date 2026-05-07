@@ -46,6 +46,65 @@ public class IntermediateOptimization {
 		return flag;
 	}
 	
+	public static boolean removeUnreachableSections(Routine routine) {
+		List<List<Action>> body = routine.body;
+		int prevSize = body.size();
+		if (prevSize <= 0) {
+			return false;
+		}
+		Set<Integer> reachableSections = routine.getReachableSections();
+		
+		boolean flag = false;
+		boolean[] removed = new boolean[prevSize];
+		int removedCount = 0;
+		for (int i = 0; i < prevSize; ++i) {
+			if (!reachableSections.contains(i)) {
+				flag = true;
+				removed[i] = true;
+				++removedCount;
+			}
+		}
+		
+		if (!flag) {
+			return false;
+		}
+		
+		int[] removedBefore = new int[prevSize + 1];
+		int count = 0;
+		for (int i = 0; i < prevSize; ++i) {
+			removedBefore[i] = count;
+			if (removed[i]) {
+				++count;
+			}
+		}
+		removedBefore[prevSize] = count;
+		
+		List<List<Action>> newBody = new ArrayList<>(prevSize - removedCount);
+		for (int i = 0; i < prevSize; ++i) {
+			if (!removed[i]) {
+				newBody.add(body.get(i));
+			}
+		}
+		body.clear();
+		body.addAll(newBody);
+		
+		for (List<Action> list : body) {
+			for (int i = 0; i < list.size(); ++i) {
+				if (list.get(i) instanceof IJumpAction jump) {
+					int target = jump.getTarget();
+					if (target < 0 || target > prevSize) {
+						throw new IllegalArgumentException(String.format("Found unexpected jump target %d while removing unreachable sections from routine \"%s\" with %d sections!", target, routine, prevSize));
+					}
+					int newTarget = target - removedBefore[target];
+					if (newTarget != target) {
+						list.set(i, jump.copy(newTarget));
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
 	public static boolean removeEmptySections(Routine routine) {
 		boolean flag = false;
 		List<List<Action>> body = routine.body;
@@ -87,7 +146,10 @@ public class IntermediateOptimization {
 			for (int i = 0; i < list.size(); ++i) {
 				if (list.get(i) instanceof IJumpAction jump) {
 					int target = jump.getTarget();
-					int newTarget = target - removedBefore[target <= prevSize ? target : prevSize];
+					if (target < 0 || target > prevSize) {
+						throw new IllegalArgumentException(String.format("Found unexpected jump target %d while removing empty sections from routine \"%s\" with %d sections!", target, routine, prevSize));
+					}
+					int newTarget = target - removedBefore[target];
 					if (newTarget != target) {
 						list.set(i, jump.copy(newTarget));
 					}
@@ -163,12 +225,24 @@ public class IntermediateOptimization {
 		return flag;
 	}
 	
-	private static boolean fillCompressMap(IValueAction iva, int index, boolean lvalues, Map<DataId, Integer> map) {
+	private static boolean fillCompressMap(IValueAction iva, int index, boolean lvalues, Map<DataId, Integer> map, Set<DataId> repeatedDataIds) {
 		boolean added = false;
 		for (DataId dataId : iva.dataIds(lvalues)) {
 			if (dataId.isCompressable()) {
-				if (!dataId.isRepeatable(lvalues) && map.containsKey(dataId)) {
-					throw new IllegalArgumentException(String.format("Found unexpected repeated use of data ID %s! %s", dataId, iva));
+				if (repeatedDataIds.contains(dataId)) {
+					continue;
+				}
+				else if (map.containsKey(dataId)) {
+					if (!lvalues && iva instanceof CompoundAssignmentAction && map.get(dataId) == index) {
+						continue;
+					}
+					else if (!dataId.isRepeatable(lvalues)) {
+						throw new IllegalArgumentException(String.format("Found unexpected repeated use of data ID %s! %s", dataId, iva));
+					}
+					else {
+						map.remove(dataId);
+						repeatedDataIds.add(dataId);
+					}
 				}
 				else {
 					added = true;
@@ -256,6 +330,10 @@ public class IntermediateOptimization {
 		return false;
 	}
 	
+	private static boolean canRetarget(DataId target, DataId arg) {
+		return target.typeInfo.equalsOther(arg.typeInfo, true) || (target.typeInfo.isAddress() && arg.typeInfo.isWord());
+	}
+	
 	private static boolean compressInternal(List<Action> list, Map<DataId, Integer> lMap, Map<DataId, Integer> rMap, boolean lvalues) {
 		boolean flag = false;
 		Map<DataId, Integer> otherMap = lvalues ? lMap : rMap;
@@ -263,15 +341,31 @@ public class IntermediateOptimization {
 		for (Entry<DataId, Integer> entry : currentMap.entrySet()) {
 			DataId dataId = entry.getKey();
 			int actionIndex = entry.getValue();
-			IValueAction action = (IValueAction) list.get(actionIndex);
+			if (!(list.get(actionIndex) instanceof IValueAction action)) {
+				continue;
+			}
 			if (otherMap.containsKey(dataId)) {
 				int otherIndex = otherMap.get(dataId);
-				IValueAction other = (IValueAction) list.get(otherIndex);
+				if (!(list.get(otherIndex) instanceof IValueAction other)) {
+					continue;
+				}
 				if (other.canReplaceDataId(lvalues)) {
-					if (action.canRemove(false)) {
+					if (actionIndex + 1 == otherIndex && dataId instanceof RegDataId regDataId && regDataId.dereferenceLevel == 0 && action instanceof AssignmentAction from && other instanceof AssignmentAction to && to.target.dereferenceLevel == 0 && dataId.equals(to.arg)) {
+						flag = true;
+						list.set(actionIndex, new NoOpAction());
+						list.set(otherIndex, new AssignmentAction(null, to.target, from.arg));
+					}
+					else if (actionIndex + 1 == otherIndex && dataId instanceof RegDataId regDataId && regDataId.dereferenceLevel == 0 && action.canReplaceLvalue() && (action instanceof BinaryOpAction || action instanceof UnaryOpAction) && other instanceof AssignmentAction to && to.target.dereferenceLevel == 0 && dataId.equals(to.arg) && canRetarget(to.target, dataId)) {
+						flag = true;
+						list.set(actionIndex, action.replaceLvalue(dataId, to.target));
+						list.set(otherIndex, new NoOpAction());
+					}
+					else if (action.canRemove(false)) {
 						DataId replacer = action.getDataIdReplacer(lvalues);
-						if (replacer instanceof VariableDataId variableDataId && !variableDataId.isAddress() && hasInterveningAssignment(list, actionIndex, otherIndex, variableDataId.variable)) {
-							continue;
+						if (replacer instanceof VariableDataId variableDataId) {
+							if (!variableDataId.isAddress() && hasInterveningAssignment(list, actionIndex, otherIndex, variableDataId.variable)) {
+								continue;
+							}
 						}
 						Action replacement = other.replaceDataId(lvalues, dataId, replacer);
 						if (replacement != null) {
@@ -295,6 +389,11 @@ public class IntermediateOptimization {
 						list.set(actionIndex, new NoOpAction());
 						list.set(otherIndex, new CompoundAssignmentAction(null, to.target, args));
 					}
+					else if (actionIndex + 1 == otherIndex && action.canRemove(true) && action instanceof CompoundAssignmentAction from && other instanceof AssignmentAction to && to.canRemove(false) && dataId.equals(to.arg) && from.args.stream().noneMatch(to.target::equals)) {
+						flag = true;
+						list.set(actionIndex, new CompoundAssignmentAction(null, to.target, new ArrayList<>(from.args)));
+						list.set(otherIndex, new NoOpAction());
+					}
 				}
 			}
 		}
@@ -305,16 +404,17 @@ public class IntermediateOptimization {
 		boolean flag = false;
 		for (List<Action> list : routine.body) {
 			Map<DataId, Integer> lMap = new LinkedHashMap<>(), rMap = new LinkedHashMap<>();
+			Set<DataId> repeatedLDataIds = new HashSet<>(), repeatedRDataIds = new HashSet<>();
 			for (int i = 0; i < list.size(); ++i) {
 				Action action = list.get(i);
 				if (action instanceof IValueAction iva) {
-					fillCompressMap(iva, i, true, lMap);
-					fillCompressMap(iva, i, false, rMap);
+					fillCompressMap(iva, i, true, lMap, repeatedLDataIds);
+					fillCompressMap(iva, i, false, rMap, repeatedRDataIds);
 				}
 			}
 			
 			if (!Collections.disjoint(lMap.keySet(), rMap.keySet())) {
-				flag |= compressInternal(list, lMap, rMap, false) || compressInternal(list, lMap, rMap, true);
+				flag |= compressInternal(list, lMap, rMap, false);
 			}
 		}
 		return flag;
@@ -384,22 +484,65 @@ public class IntermediateOptimization {
 		return flag;
 	}
 	
-	private static void fillReplaceMap(IValueAction iva, int index, boolean lvalues, Map<DataId, Pair<DataId, Integer>> replacerInfoMap, Map<Integer, Pair<DataId, boolean[]>> targetMatchMap) {
+	private static boolean usesDirectRegId(DataId dataId, long regId) {
+		return dataId instanceof RegDataId regDataId && regDataId.dereferenceLevel == 0 && regDataId.regId == regId;
+	}
+	
+	private static boolean writesDirectRegId(IValueAction iva, long regId) {
+		for (DataId dataId : iva.lvalues()) {
+			if (usesDirectRegId(dataId, regId)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private static boolean writesDirectVariable(IValueAction iva, Variable variable) {
+		for (DataId dataId : iva.lvalues()) {
+			if (dataId instanceof VariableDataId variableDataId && variableDataId.dereferenceLevel == 0 && variableDataId.variable.equals(variable)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private static boolean invalidatesDereferenceReplacer(IValueAction iva, DataId dataId) {
+		if (dataId instanceof RegDataId regDataId) {
+			return writesDirectRegId(iva, regDataId.regId);
+		}
+		else if (dataId instanceof VariableDataId variableDataId) {
+			return variableDataId.dereferenceLevel > 0 && writesDirectVariable(iva, variableDataId.variable);
+		}
+		else {
+			return true;
+		}
+	}
+	
+	private static void invalidateDereferenceReplacers(IValueAction iva, int index, Map<DataId, Pair<DataId, Integer>> replacerInfoMap) {
+		Iterator<Entry<DataId, Pair<DataId, Integer>>> iterator = replacerInfoMap.entrySet().iterator();
+		while (iterator.hasNext()) {
+			Entry<DataId, Pair<DataId, Integer>> entry = iterator.next();
+			DataId target = entry.getKey(), replacer = entry.getValue().left;
+			if (index <= entry.getValue().right) {
+				continue;
+			}
+			else if (invalidatesDereferenceReplacer(iva, target) || invalidatesDereferenceReplacer(iva, replacer)) {
+				iterator.remove();
+			}
+		}
+	}
+	
+	private static void fillReplaceMap(IValueAction iva, int index, boolean lvalues, Map<DataId, Pair<DataId, Integer>> replacerInfoMap, Map<Integer, Map<DataId, Pair<DataId, boolean[]>>> targetMatchMap) {
 		for (DataId dataId : iva.dataIds(lvalues)) {
-			if (replacerInfoMap.containsKey(dataId)) {
-				if (dataId.isDereferenced()) {
+			Pair<DataId, Integer> info = replacerInfoMap.get(dataId);
+			if (info != null) {
+				if (dataId.isDereferenced() && index > info.right) {
 					if (iva.canReplaceDataId(lvalues)) {
-						Pair<DataId, boolean[]> match = targetMatchMap.get(index);
-						if (match != null) {
-							match.right[lvalues ? 0 : 1] = true;
-						}
-						else {
-							targetMatchMap.put(index, new Pair<>(dataId, new boolean[] {lvalues, !lvalues}));
-						}
+						Map<DataId, Pair<DataId, boolean[]>> matchMap = targetMatchMap.computeIfAbsent(index, k -> new LinkedHashMap<>());
+						Pair<DataId, boolean[]> match = matchMap.computeIfAbsent(dataId, k -> new Pair<>(info.left, new boolean[] {false, false}));
+						boolean[] arr = match.right;
+						arr[lvalues ? 0 : 1] = true;
 					}
-				}
-				else {
-					replacerInfoMap.remove(dataId);
 				}
 			}
 		}
@@ -414,13 +557,22 @@ public class IntermediateOptimization {
 					if (iva instanceof AssignmentAction) {
 						DataId lvalue = iva.lvalues()[0], rvalue = iva.rvalues()[0];
 						int lref = lvalue.typeInfo.getReferenceLevel(), rref = rvalue.typeInfo.getReferenceLevel();
-						if (lvalue.typeInfo.isAddress() && rvalue.typeInfo.isAddress() && lref == rref && lvalue.typeInfo.equalsOther(rvalue.typeInfo, true) && !lvalue.isRepeatable(true) && !rvalue.isDereferenced()) {
+						if (lvalue instanceof RegDataId lreg && lreg.dereferenceLevel == 0 && !rvalue.isDereferenced() && lvalue.typeInfo.isAddress()) {
 							DataId deref = lvalue.addDereference(null);
-							if (replacerInfoMap.containsKey(deref)) {
-								throw new IllegalArgumentException(String.format("Found unexpected repeated use of register %s! %s", lvalue, iva));
+							DataId replacer = null;
+							if (rvalue.typeInfo.isAddress() && lref == rref && lvalue.typeInfo.equalsOther(rvalue.typeInfo, true)) {
+								replacer = rvalue.addDereference(null);
 							}
-							else {
-								replacerInfoMap.put(deref, new Pair<>(rvalue.addDereference(null), i));
+							else if (rvalue instanceof RegDataId rreg && rvalue.typeInfo.isWord()) {
+								replacer = new RegDataId(deref.dereferenceLevel, deref.typeInfo, rreg.regId);
+							}
+							if (replacer != null) {
+								if (replacerInfoMap.containsKey(deref)) {
+									throw new IllegalArgumentException(String.format("Found unexpected repeated use of register %s! %s", lvalue, iva));
+								}
+								else {
+									replacerInfoMap.put(deref, new Pair<>(replacer, i));
+								}
 							}
 						}
 					}
@@ -428,11 +580,12 @@ public class IntermediateOptimization {
 			}
 			
 			Set<Integer> replacerIndices = replacerInfoMap.values().stream().map(x -> x.right).collect(Collectors.toSet());
-			Map<Integer, Pair<DataId, boolean[]>> targetMatchMap = new TreeMap<>();
+			Map<Integer, Map<DataId, Pair<DataId, boolean[]>>> targetMatchMap = new TreeMap<>();
 			for (int i = 0; i < list.size(); ++i) {
 				if (!replacerIndices.contains(i)) {
 					Action action = list.get(i);
 					if (action instanceof IValueAction iva) {
+						invalidateDereferenceReplacers(iva, i, replacerInfoMap);
 						fillReplaceMap(iva, i, true, replacerInfoMap, targetMatchMap);
 						fillReplaceMap(iva, i, false, replacerInfoMap, targetMatchMap);
 					}
@@ -444,28 +597,31 @@ public class IntermediateOptimization {
 				list.set(info.right, new NoOpAction());
 			}
 			
-			for (Entry<Integer, Pair<DataId, boolean[]>> entry : targetMatchMap.entrySet()) {
+			for (Entry<Integer, Map<DataId, Pair<DataId, boolean[]>>> entry : targetMatchMap.entrySet()) {
 				int index = entry.getKey();
-				Pair<DataId, boolean[]> match = entry.getValue();
-				Pair<DataId, Integer> info = replacerInfoMap.get(match.left);
-				if (info != null) {
-					DataId target = match.left, replacer = target.getRawReplacer(null, info.left);
-					T iva = null;
-					if (replacer != null) {
-						boolean[] arr = match.right;
-						iva = (T) list.get(index);
-						if (arr[0]) {
-							flag = true;
-							iva = iva.replaceLvalue(target, replacer);
-						}
-						if (arr[1]) {
-							flag = true;
-							iva = iva.replaceRvalue(target, replacer);
-						}
-					}
-					if (iva == null) {
+				Map<DataId, Pair<DataId, boolean[]>> matchMap = entry.getValue();
+				T iva = (T) list.get(index);
+				boolean changed = false;
+				for (Entry<DataId, Pair<DataId, boolean[]>> matchEntry : matchMap.entrySet()) {
+					DataId target = matchEntry.getKey();
+					Pair<DataId, boolean[]> match = matchEntry.getValue();
+					DataId replacer = target.getRawReplacer(null, match.left);
+					if (replacer == null) {
 						throw new IllegalArgumentException(String.format("Unexpectedly failed to replace data ID %s! %s", target, list.get(index)));
 					}
+					boolean[] arr = match.right;
+					if (arr[0]) {
+						flag = true;
+						iva = iva.replaceLvalue(target, replacer);
+						changed = true;
+					}
+					if (arr[1]) {
+						flag = true;
+						iva = iva.replaceRvalue(target, replacer);
+						changed = true;
+					}
+				}
+				if (changed) {
 					list.set(index, iva);
 				}
 			}
@@ -494,8 +650,10 @@ public class IntermediateOptimization {
 			}
 		}
 		
-		for (List<Action> list : body) {
-			for (Action element : list) {
+		for (int i = 0; i < body.size(); ++i) {
+			List<Action> list = body.get(i);
+			for (int j = 0; j < list.size(); ++j) {
+				Action element = list.get(j);
 				if (element instanceof IValueAction iva) {
 					for (DataId id : iva.lvalues()) {
 						if (id instanceof RegDataId regDataId) {

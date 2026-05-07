@@ -42,7 +42,7 @@ public class ConstantDefinitionNode extends StaticSectionNode<Scope> {
 		
 		@Nullable Value<?> constantValue = constantExpressionNode.getConstantValue(typeNode == null ? null : typeNode.getTypeInfo());
 		if (constantValue != null && (typeNode == null || constantValue.typeInfo.canImplicitCastTo(typeNode.getTypeInfo()))) {
-			scope.addConstant(this, new Constant(name, constantValue));
+			scope.addConstant(this, name, new Constant(name, constantValue));
 		}
 		else {
 			if (typeNode == null) {
@@ -71,11 +71,6 @@ public class ConstantDefinitionNode extends StaticSectionNode<Scope> {
 	
 	@Override
 	public void foldConstants(ASTNode<?> parent) {
-		
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
 		
 	}
 	

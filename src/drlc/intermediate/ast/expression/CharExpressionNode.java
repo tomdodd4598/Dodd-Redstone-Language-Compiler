@@ -47,11 +47,6 @@ public class CharExpressionNode extends ConstantExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		
-	}
-	
-	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
 		routine.addValueAssignmentAction(this, dataId = routine.nextRegId(Main.generator.charTypeInfo), value);
 	}

@@ -28,6 +28,11 @@ public class UseDeclarationNode extends StaticSectionNode<Scope> {
 	}
 	
 	@Override
+	public void declareImports(ASTNode<?> parent) {
+		useTreeNode.declareImports(this);
+	}
+	
+	@Override
 	public void defineTypes(ASTNode<?> parent) {
 		useTreeNode.defineTypes(this);
 	}
@@ -45,6 +50,11 @@ public class UseDeclarationNode extends StaticSectionNode<Scope> {
 	}
 	
 	@Override
+	public void checkImports(ASTNode<?> parent) {
+		useTreeNode.checkImports(this);
+	}
+	
+	@Override
 	public void checkTypes(ASTNode<?> parent) {
 		useTreeNode.checkTypes(this);
 	}
@@ -52,11 +62,6 @@ public class UseDeclarationNode extends StaticSectionNode<Scope> {
 	@Override
 	public void foldConstants(ASTNode<?> parent) {
 		useTreeNode.foldConstants(this);
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		useTreeNode.trackFunctions(this);
 	}
 	
 	@Override

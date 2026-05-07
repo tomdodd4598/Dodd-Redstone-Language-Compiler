@@ -11,6 +11,7 @@ import drlc.intermediate.component.*;
 import drlc.intermediate.component.data.VariableDataId;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.component.value.FunctionItemValue;
+import drlc.intermediate.module.*;
 import drlc.intermediate.routine.Routine;
 
 public class Scope {
@@ -22,88 +23,95 @@ public class Scope {
 	
 	public final @NonNull String name;
 	public final @Nullable Scope parent;
-	public final boolean pseudo;
+	public final boolean concrete;
 	
 	public final boolean isModule;
 	
-	public final Map<String, Scope> childMap = new LinkedHashMap<>();
+	protected final Map<String, Scope> childMap = new LinkedHashMap<>();
+	protected final Map<String, Scope> moduleMap = new LinkedHashMap<>();
 	
-	protected final Hierarchy<String, Scope> constantShadowHierarchy;
+	public final List<NominalImport> nominalImports = new ArrayList<>();
+	public final List<WildcardImport> wildcardImports = new ArrayList<>();
 	
-	public final Hierarchy<String, TypeDef> typeDefHierarchy;
-	public final Hierarchy<String, TypeInfo> typeAliasHierarchy;
+	protected final Hierarchy<String, TypeEntry> typeEntryHierarchy;
 	
-	public final Hierarchy<String, Constant> constantHierarchy;
-	public final Hierarchy<String, Variable> variableHierarchy;
-	public final Hierarchy<String, Function> functionHierarchy;
+	protected final Hierarchy<String, ValueEntry> valueEntryHierarchy;
 	
-	public boolean definiteLocalReturn = false;
-	public boolean definiteExecution = true, potentialOuterMultipleExecution = false;
+	protected final Hierarchy<String, Function> functionHierarchy;
+	
+	public boolean definiteLocalReturn = false, definiteExecution = true, potentialOuterMultipleExecution = false;
 	
 	protected final Set<Variable> initializationSet = new HashSet<>();
 	
-	public Scope(ASTNode<?> node, @Nullable String name, @Nullable Scope parent, boolean pseudo) {
+	public Scope(ASTNode<?> node, @Nullable String name, @Nullable Scope parent, boolean concrete) {
 		this.name = name == null ? "\\" + globalId : name;
 		this.parent = parent;
-		this.pseudo = pseudo;
+		this.concrete = concrete;
 		isModule = name != null;
 		
 		if (parent == null) {
-			constantShadowHierarchy = new Hierarchy<>(null);
+			typeEntryHierarchy = new Hierarchy<>(null);
 			
-			typeDefHierarchy = new Hierarchy<>(null);
-			typeAliasHierarchy = new Hierarchy<>(null);
+			valueEntryHierarchy = new Hierarchy<>(null);
 			
-			constantHierarchy = new Hierarchy<>(null);
-			variableHierarchy = new Hierarchy<>(null);
 			functionHierarchy = new Hierarchy<>(null);
 		}
 		else {
+			if (isModule) {
+				parent.addModule(node, this.name, this);
+			}
 			parent.addChild(node, this.name, this);
 			
-			constantShadowHierarchy = new Hierarchy<>(parent.constantShadowHierarchy);
+			typeEntryHierarchy = new Hierarchy<>(parent.typeEntryHierarchy);
 			
-			typeDefHierarchy = new Hierarchy<>(parent.typeDefHierarchy);
-			typeAliasHierarchy = new Hierarchy<>(parent.typeAliasHierarchy);
+			valueEntryHierarchy = new Hierarchy<>(parent.valueEntryHierarchy);
 			
-			constantHierarchy = new Hierarchy<>(parent.constantHierarchy);
-			variableHierarchy = new Hierarchy<>(parent.variableHierarchy);
 			functionHierarchy = new Hierarchy<>(parent.functionHierarchy);
 		}
 	}
 	
-	public boolean childExists(String name) {
-		return childMap.containsKey(name);
-	}
-	
-	public @NonNull Scope getChild(ASTNode<?> node, String name) {
-		Scope scope = childMap.get(name);
-		if (scope == null) {
-			throw Helpers.nodeError(node, "Module \"%s\" not defined in this scope!", name);
+	private void addChild(ASTNode<?> node, @NonNull String name, @NonNull Scope scope) {
+		if (childMap.containsKey(name)) {
+			throw Helpers.nodeError(node, "Scope name \"%s\" already used in this scope!", name);
 		}
-		return scope;
+		childMap.put(name, scope);
 	}
 	
-	public void addChild(ASTNode<?> node, @NonNull String name, @NonNull Scope scope) {
-		if (childExists(name)) {
+	public void addModule(ASTNode<?> node, @NonNull String name, @NonNull Scope scope) {
+		if (moduleMap.containsKey(name)) {
 			throw Helpers.nodeError(node, "Module name \"%s\" already used in this scope!", name);
 		}
 		else if (name.equals(Global.ROOT)) {
 			throw Helpers.nodeError(node, "Root import must be aliased!");
 		}
-		childMap.put(name, scope);
+		moduleMap.put(name, scope);
 	}
 	
 	public boolean isSubScopeOf(Scope other) {
-		return equals(other) || other.childMap.values().stream().anyMatch(x -> isSubScopeOf(x));
+		Deque<Scope> stack = new ArrayDeque<>();
+		Set<Scope> visited = new HashSet<>();
+		stack.push(other);
+		while (!stack.isEmpty()) {
+			Scope current = stack.pop();
+			if (!visited.add(current)) {
+				continue;
+			}
+			if (equals(current)) {
+				return true;
+			}
+			for (Scope child : current.childMap.values()) {
+				stack.push(child);
+			}
+		}
+		return false;
 	}
 	
 	public void pathAction(ASTNode<?> node, @NonNull Path path, java.util.function.BiConsumer<Scope, String> consumer) {
-		consumer.accept(getPathScope(node, path), path.name);
+		consumer.accept(getPathScope(node, path, null), path.name);
 	}
 	
 	public <T> T pathGet(ASTNode<?> node, @NonNull Path path, java.util.function.BiFunction<Scope, String, T> function) {
-		return function.apply(getPathScope(node, path), path.name);
+		return function.apply(getPathScope(node, path, null), path.name);
 	}
 	
 	public @Nullable FunctionScope getContextFunctionScope() {
@@ -120,7 +128,7 @@ public class Scope {
 	
 	public @NonNull DeclaratorInfo nextLocalDeclarator(Routine routine, @NonNull TypeInfo typeInfo) {
 		DeclaratorInfo declarator = new DeclaratorInfo(new Variable("\\r" + nextLocalId(), new VariableModifier(routine.isRootRoutine(), true), typeInfo));
-		addVariable(null, declarator.variable);
+		addVariable(null, declarator.variable.name, declarator.variable);
 		routine.declaratorList.add(declarator);
 		return declarator;
 	}
@@ -131,44 +139,30 @@ public class Scope {
 	
 	// Contains
 	
-	public boolean typeDefExists(String name, boolean shallow) {
-		return typeDefHierarchy.containsKey(name, shallow);
+	public boolean declaredFunctionExists(String name, boolean shallow) {
+		return tryGetDeclaredFunction(name, shallow) != null;
 	}
 	
-	public boolean typeAliasExists(String name, boolean shallow) {
-		return typeAliasHierarchy.containsKey(name, shallow);
+	public boolean definesLocalFunction(@NonNull Function function) {
+		return functionHierarchy.get(function.name, true) == function;
 	}
 	
-	public boolean constantExists(String name, boolean shallow) {
-		Constant constant = constantHierarchy.get(name, shallow);
-		Scope shadowScope;
-		return constant != null && ((shadowScope = constantShadowHierarchy.get(name, shallow)) == null || !shadowScope.isSubScopeOf(constant.scope));
+	private boolean localTypeNameCollision(String name) {
+		return typeEntryHierarchy.containsKey(name, true);
 	}
 	
-	public boolean variableExists(String name, boolean shallow) {
-		return variableHierarchy.containsKey(name, shallow);
-	}
-	
-	public boolean functionExists(String name, boolean shallow) {
-		return functionHierarchy.containsKey(name, shallow);
-	}
-	
-	public boolean typeNameCollision(String name) {
-		return typeDefExists(name, true) || typeAliasExists(name, true);
-	}
-	
-	public boolean valueNameCollision(String name) {
-		return constantExists(name, true) || variableExists(name, true) || functionExists(name, true);
+	private boolean localValueNameCollision(String name) {
+		return valueEntryHierarchy.containsKey(name, true) || functionHierarchy.containsKey(name, true);
 	}
 	
 	// Getters
 	
-	public @NonNull Scope getCurrentModule() {
-		return isModule ? this : (parent == null ? Main.rootScope : parent.getCurrentModule());
+	public @NonNull Scope getConcreteScope() {
+		return concrete ? this : (parent == null ? Main.rootScope : parent.getConcreteScope());
 	}
 	
-	public @NonNull Scope getConcreteScope() {
-		return !pseudo ? this : (parent == null ? Main.rootScope : parent.getConcreteScope());
+	public @NonNull Scope getCurrentModule() {
+		return isModule ? this : (parent == null ? Main.rootScope : parent.getCurrentModule());
 	}
 	
 	public @NonNull Scope getSuperModule(ASTNode<?> node) {
@@ -179,15 +173,40 @@ public class Scope {
 		return module.parent.getCurrentModule();
 	}
 	
-	@SuppressWarnings("null")
-	public @NonNull Scope getPathScope(ASTNode<?> node, @NonNull Path path) {
+	public @NonNull Scope getPathScope(ASTNode<?> node, @NonNull Path path, @Nullable NominalImport excludedImport) {
+		Scope pathScope = findPathScope(node, path, excludedImport);
+		if (pathScope == null) {
+			throw Helpers.nodeError(node, "Could not resolve path \"%s\"!", path);
+		}
+		return pathScope;
+	}
+	
+	public @Nullable Scope tryGetPathScope(ASTNode<?> node, @NonNull Path path, @Nullable NominalImport excludedImport) {
+		return findPathScope(node, path, excludedImport);
+	}
+	
+	private @Nullable Scope findPathScope(ASTNode<?> node, @NonNull Path path, @Nullable NominalImport excludedImport) {
 		if (path.prefix.isEmpty()) {
 			return this;
 		}
 		
+		boolean seenStandardSegment = false;
+		for (String segment : path.prefix) {
+			boolean specialSegment = segment.equals(Global.ROOT) || segment.equals(Global.SELF) || segment.equals(Global.SUPER);
+			if (specialSegment) {
+				if (seenStandardSegment) {
+					throw Helpers.nodeError(node, "Special path segment \"%s\" must appear before standard path segments in path \"%s\"!", segment, path);
+				}
+			}
+			else {
+				seenStandardSegment = true;
+			}
+		}
+		
 		String first = path.segments.get(0);
-		@NonNull Scope pathScope = getConcreteScope();
-		if (!pathScope.childExists(first.equals(Global.SELF) ? path.segments.get(1) : first)) {
+		String localFirst = first.equals(Global.SELF) && path.segments.size() > 1 ? path.segments.get(1) : first;
+		Scope pathScope = getConcreteScope();
+		if (pathScope.tryGetLocalModule(node, localFirst, excludedImport) == null) {
 			pathScope = getCurrentModule();
 		}
 		
@@ -201,116 +220,254 @@ public class Scope {
 			else if (segment.equals(Global.SELF)) {
 				pathScope = pathScope.getCurrentModule();
 			}
-			else if (pathScope.childExists(segment)) {
-				pathScope = pathScope.childMap.get(segment);
-			}
 			else {
-				String scopeDescription = pathScope.isModule ? "\"" + pathScope.name + "\"" : "this scope";
-				throw Helpers.nodeError(node, "Could not find \"%s\" in %s!", segment, scopeDescription);
+				Scope nextPathScope = pathScope.tryGetLocalModule(node, segment, excludedImport);
+				if (nextPathScope == null) {
+					return null;
+				}
+				pathScope = nextPathScope;
 			}
 		}
 		return pathScope;
 	}
 	
 	public @NonNull TypeDef getTypeDef(ASTNode<?> node, String name, boolean shallow) {
-		TypeDef typeDef = typeDefHierarchy.get(name, shallow);
-		if (typeDef == null) {
+		TypeEntry typeEntry = tryGetTypeEntry(node, name, shallow);
+		if (!(typeEntry instanceof NominalTypeEntry nominalTypeEntry)) {
 			throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", name);
 		}
-		return typeDef;
-	}
-	
-	public @NonNull TypeInfo getTypeAlias(ASTNode<?> node, String name, boolean shallow) {
-		TypeInfo typeInfo = typeAliasHierarchy.get(name, shallow);
-		if (typeInfo == null) {
-			throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", name);
-		}
-		return typeInfo;
+		return nominalTypeEntry.getTypeDef();
 	}
 	
 	public @NonNull TypeInfo getTypeInfo(ASTNode<?> node, String name, boolean shallow) {
-		TypeDef typeDef = typeDefHierarchy.get(name, shallow);
-		if (typeDef == null) {
-			TypeInfo typeInfo = typeAliasHierarchy.get(name, shallow);
-			if (typeInfo == null) {
-				throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", name);
-			}
-			return typeInfo;
+		TypeEntry typeEntry = tryGetTypeEntry(node, name, shallow);
+		if (typeEntry == null) {
+			throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", name);
 		}
-		return typeDef.getTypeInfo(node, new ArrayList<>(), this);
+		return typeEntry.getTypeInfo(node);
 	}
 	
 	public void collectTypeDefs(ASTNode<?> node, String name, Set<TypeDef> typeDefs) {
-		TypeDef typeDef = typeDefHierarchy.get(name, false);
-		if (typeDef == null) {
-			TypeInfo typeInfo = typeAliasHierarchy.get(name, false);
-			if (typeInfo == null) {
-				throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", name);
-			}
-			else {
-				typeInfo.collectTypeDefs(typeDefs);
-			}
+		TypeEntry typeEntry = tryGetTypeEntry(node, name, false);
+		if (typeEntry == null) {
+			throw Helpers.nodeError(node, "Type \"%s\" not defined in this scope!", name);
 		}
-		else {
-			typeDefs.add(typeDef);
-		}
+		typeEntry.getTypeInfo(node).collectTypeDefs(typeDefs);
 	}
 	
-	@SuppressWarnings("null")
+	public @Nullable Constant tryGetConstant(ASTNode<?> node, String name, boolean shallow) {
+		ValueEntry valueEntry = tryGetValueEntry(node, name, shallow);
+		return valueEntry instanceof Constant constant ? constant : null;
+	}
+	
 	public @NonNull Constant getConstant(ASTNode<?> node, String name, boolean shallow) {
-		if (!constantExists(name, shallow)) {
+		Constant constant = tryGetConstant(node, name, shallow);
+		if (constant == null) {
 			throw Helpers.nodeError(node, "Constant \"%s\" not defined in this scope!", name);
 		}
-		return constantHierarchy.get(name, shallow);
+		return constant;
+	}
+	
+	public @Nullable Variable tryGetVariable(ASTNode<?> node, String name, boolean shallow) {
+		ValueEntry valueEntry = tryGetValueEntry(node, name, shallow);
+		return valueEntry instanceof Variable variable ? variable : null;
 	}
 	
 	public @NonNull Variable getVariable(ASTNode<?> node, String name, boolean shallow) {
-		Variable variable = variableHierarchy.get(name, shallow);
+		Variable variable = tryGetVariable(node, name, shallow);
 		if (variable == null) {
 			throw Helpers.nodeError(node, "Variable \"%s\" not defined in this scope!", name);
 		}
 		return variable;
 	}
 	
-	public @NonNull Function getFunction(ASTNode<?> node, String name, boolean shallow) {
-		Function function = functionHierarchy.get(name, shallow);
+	public @NonNull Function getDeclaredFunction(ASTNode<?> node, String name, boolean shallow) {
+		Function function = tryGetDeclaredFunction(name, shallow);
 		if (function == null) {
 			throw Helpers.nodeError(node, "Function \"%s\" not defined in this scope!", name);
 		}
 		return function;
 	}
 	
-	// Adders
-	
-	public void addConstantShadow(String name) {
-		constantShadowHierarchy.put(name, this, true);
+	public @Nullable Scope tryGetLocalModule(ASTNode<?> node, String name, @Nullable NominalImport excludedImport) {
+		Scope moduleResolution = moduleMap.get(name);
+		for (NominalImport nominalImport : nominalImports) {
+			if (nominalImport == excludedImport) {
+				continue;
+			}
+			Scope module = nominalImport.tryResolveModuleAsLocalName(node, name);
+			if (module != null) {
+				moduleResolution = mergeModuleResolution(node, moduleResolution, module, name);
+			}
+		}
+		for (WildcardImport wildcardImport : wildcardImports) {
+			moduleResolution = mergeModuleResolution(node, moduleResolution, wildcardImport.tryGetModule(node, name), name);
+		}
+		return moduleResolution;
 	}
 	
-	public void addTypeDef(ASTNode<?> node, @NonNull TypeDef typeDef) {
-		addTypeDef(node, typeDef.name, typeDef);
+	public @Nullable TypeEntry tryGetLocalTypeEntry(ASTNode<?> node, String name, @Nullable NominalImport excludedImport) {
+		TypeEntry typeResolution = mergeTypeResolution(node, null, typeEntryHierarchy.get(name, true), name);
+		for (NominalImport nominalImport : nominalImports) {
+			if (nominalImport == excludedImport) {
+				continue;
+			}
+			if (nominalImport.matchesImportedLocalName(node, name)) {
+				typeResolution = mergeTypeResolution(node, typeResolution, nominalImport.resolveTypeEntry(node), name);
+			}
+		}
+		for (WildcardImport wildcardImport : wildcardImports) {
+			typeResolution = mergeTypeResolution(node, typeResolution, wildcardImport.tryGetTypeEntry(node, name), name);
+		}
+		return typeResolution;
+	}
+	
+	protected @Nullable TypeEntry tryGetTypeEntry(ASTNode<?> node, String name, boolean shallow) {
+		TypeEntry typeResolution = tryGetLocalTypeEntry(node, name, null);
+		if (typeResolution != null) {
+			return typeResolution;
+		}
+		if (shallow || parent == null) {
+			return null;
+		}
+		return isModule ? Main.rootScope.preludeTypeEntryHierarchy.get(name, true) : parent.tryGetTypeEntry(node, name, false);
+	}
+	
+	public @Nullable ValueEntry tryGetLocalValueEntry(ASTNode<?> node, String name, @Nullable NominalImport excludedImport) {
+		ValueEntry valueResolution = mergeValueResolution(node, null, valueEntryHierarchy.get(name, true), name);
+		for (NominalImport nominalImport : nominalImports) {
+			if (nominalImport == excludedImport) {
+				continue;
+			}
+			if (nominalImport.matchesImportedLocalName(node, name)) {
+				valueResolution = mergeValueResolution(node, valueResolution, nominalImport.resolveValueEntry(node), name);
+			}
+		}
+		for (WildcardImport wildcardImport : wildcardImports) {
+			valueResolution = mergeValueResolution(node, valueResolution, wildcardImport.tryGetValueEntry(node, name), name);
+		}
+		return valueResolution;
+	}
+	
+	protected @Nullable ValueEntry tryGetValueEntry(ASTNode<?> node, String name, boolean shallow) {
+		ValueEntry valueResolution = tryGetLocalValueEntry(node, name, null);
+		if (valueResolution != null) {
+			return valueResolution;
+		}
+		if (shallow || parent == null) {
+			return null;
+		}
+		return isModule ? Main.rootScope.preludeValueEntryHierarchy.get(name, true) : parent.tryGetValueEntry(node, name, false);
+	}
+	
+	public void collectLocalModuleNames(ASTNode<?> node, Set<String> names, Set<WildcardImport> visited) {
+		names.addAll(moduleMap.keySet());
+		for (NominalImport nominalImport : nominalImports) {
+			Scope module = nominalImport.tryResolveModule(node);
+			if (module != null) {
+				names.add(nominalImport.resolveModuleLocalName(module));
+			}
+		}
+		for (WildcardImport wildcardImport : wildcardImports) {
+			wildcardImport.collectModuleNames(node, names, visited);
+		}
+	}
+	
+	public void collectLocalTypeNames(ASTNode<?> node, Set<String> names, Set<WildcardImport> visited) {
+		typeEntryHierarchy.forEachLocal((k, v) -> names.add(k));
+		for (NominalImport nominalImport : nominalImports) {
+			if (nominalImport.tryResolveTypeEntry(node) != null) {
+				names.add(nominalImport.resolveLocalName(node));
+			}
+		}
+		for (WildcardImport wildcardImport : wildcardImports) {
+			wildcardImport.collectTypeNames(node, names, visited);
+		}
+	}
+	
+	public void collectLocalValueNames(ASTNode<?> node, Set<String> names, Set<WildcardImport> visited) {
+		valueEntryHierarchy.forEachLocal((k, v) -> names.add(k));
+		for (NominalImport nominalImport : nominalImports) {
+			if (nominalImport.tryResolveValueEntry(node) != null) {
+				names.add(nominalImport.resolveLocalName(node));
+			}
+		}
+		for (WildcardImport wildcardImport : wildcardImports) {
+			wildcardImport.collectValueNames(node, names, visited);
+		}
+	}
+	
+	public @Nullable Function tryGetDeclaredFunction(String name, boolean shallow) {
+		Function function = functionHierarchy.get(name, true);
+		if (function != null) {
+			return function;
+		}
+		if (shallow || parent == null) {
+			return null;
+		}
+		return isModule ? Main.rootScope.preludeFunctionHierarchy.get(name, true) : parent.tryGetDeclaredFunction(name, false);
+	}
+	
+	private Scope mergeModuleResolution(ASTNode<?> node, Scope resolution, Scope candidate, String name) {
+		if (candidate == null) {
+			return resolution;
+		}
+		if (resolution != null) {
+			if (resolution == candidate) {
+				return resolution;
+			}
+			throw Helpers.nodeError(node, "Module name \"%s\" is ambiguous in this scope!", name);
+		}
+		return candidate;
+	}
+	
+	private TypeEntry mergeTypeResolution(ASTNode<?> node, TypeEntry resolution, TypeEntry candidate, String name) {
+		if (candidate == null) {
+			return resolution;
+		}
+		if (resolution != null) {
+			if (resolution == candidate) {
+				return resolution;
+			}
+			throw Helpers.nodeError(node, "Type name \"%s\" is ambiguous in this scope!", name);
+		}
+		return candidate;
+	}
+	
+	private ValueEntry mergeValueResolution(ASTNode<?> node, ValueEntry resolution, ValueEntry candidate, String name) {
+		if (candidate == null) {
+			return resolution;
+		}
+		if (resolution != null) {
+			if (resolution == candidate) {
+				return resolution;
+			}
+			throw Helpers.nodeError(node, "Name \"%s\" is ambiguous in this scope!", name);
+		}
+		return candidate;
 	}
 	
 	public void addTypeDef(ASTNode<?> node, @NonNull String name, @NonNull TypeDef typeDef) {
-		if (typeNameCollision(name)) {
+		if (localTypeNameCollision(name)) {
 			throw Helpers.nodeError(node, "Type name \"%s\" already used in this scope!", name);
 		}
 		
 		if (typeDef.scope == null) {
 			typeDef.scope = this;
 		}
-		typeDefHierarchy.put(name, typeDef, true);
+		typeEntryHierarchy.put(name, typeDef, true);
 	}
 	
-	@SuppressWarnings("null")
 	public void addStructTypeDef(ASTNode<?> node, @NonNull String name, List<TypeInfo> typeInfos, List<String> memberNames) {
 		int typeInfoCount = typeInfos.size(), memberNameCount = memberNames.size();
 		if (typeInfoCount != memberNames.size()) {
-			throw Helpers.nodeError(node, "Struct \"%s\" requires %d member names but received %d!", typeInfoCount, memberNameCount);
+			throw Helpers.nodeError(node, "Struct \"%s\" requires %d member names but received %d!", name, typeInfoCount, memberNameCount);
 		}
 		
 		Map<String, MemberInfo> memberMap = new LinkedHashMap<>();
-		@NonNull TypeDef typeDef = new TypeDef(name, 0, memberMap, (n, r, s) -> new StructTypeInfo(n, r, typeInfos, s, name));
-		Main.rootScope.addTypeDef(node, typeDef);
+		final TypeDef[] typeDefHolder = new TypeDef[1];
+		@NonNull TypeDef typeDef = typeDefHolder[0] = new TypeDef(name, 0, memberMap, (n, r) -> new StructTypeInfo(n, r, typeInfos, typeDefHolder[0]));
+		Main.rootScope.addTypeDef(node, typeDef.name, typeDef);
 		
 		Set<TypeDef> typeDefs = new HashSet<>();
 		for (TypeInfo typeInfo : typeInfos) {
@@ -320,7 +477,16 @@ public class Scope {
 			throw Helpers.nodeError(node, "Struct \"%s\" can not directly contain itself!", name);
 		}
 		
-		typeDef.size = Helpers.sumToInt(typeInfos, TypeInfo::getSize);
+		try {
+			int size = 0;
+			for (TypeInfo typeInfo : typeInfos) {
+				size = Math.addExact(size, typeInfo.getSize());
+			}
+			typeDef.size = size;
+		}
+		catch (ArithmeticException e) {
+			throw Helpers.nodeError(node, "Size of struct \"%s\" is too large!", name);
+		}
 		
 		int offset = 0;
 		for (int i = 0; i < typeInfoCount; ++i) {
@@ -331,52 +497,57 @@ public class Scope {
 			else {
 				@NonNull TypeInfo typeInfo = typeInfos.get(i);
 				memberMap.put(memberName, new MemberInfo(memberName, typeInfo, i, offset));
-				offset += typeInfo.getSize();
+				try {
+					offset = Math.addExact(offset, typeInfo.getSize());
+				}
+				catch (ArithmeticException e) {
+					throw Helpers.nodeError(node, "Offset of member \"%s\" in struct \"%s\" is too large!", memberName, name);
+				}
 			}
 		}
 	}
 	
-	public void addTypeAlias(ASTNode<?> node, @NonNull String name, @NonNull TypeInfo typeInfo) {
-		if (typeNameCollision(name)) {
+	public void addTypeAliasEntry(ASTNode<?> node, @NonNull String name, @NonNull TypeAliasEntry typeAliasEntry) {
+		if (localTypeNameCollision(name)) {
 			throw Helpers.nodeError(node, "Type name \"%s\" already used in this scope!", name);
 		}
-		typeAliasHierarchy.put(name, typeInfo, true);
+		
+		typeEntryHierarchy.put(name, typeAliasEntry, true);
 	}
 	
-	public void addConstant(ASTNode<?> node, @NonNull Constant constant) {
-		addConstant(node, constant.name, constant);
+	public void addDirectTypeName(ASTNode<?> node, @NonNull String name, @NonNull TypeInfo typeInfo) {
+		if (localTypeNameCollision(name)) {
+			throw Helpers.nodeError(node, "Type name \"%s\" already used in this scope!", name);
+		}
+		
+		typeEntryHierarchy.put(name, new DirectTypeEntry(typeInfo), true);
 	}
 	
 	public void addConstant(ASTNode<?> node, @NonNull String name, @NonNull Constant constant) {
-		if (valueNameCollision(name)) {
+		if (localValueNameCollision(name)) {
 			throw Helpers.nodeError(node, "Name \"%s\" already used in this scope!", name);
 		}
 		
 		if (constant.scope == null) {
 			constant.scope = this;
 		}
-		constantHierarchy.put(name, constant, true);
-	}
-	
-	public void addVariable(ASTNode<?> node, @NonNull Variable variable) {
-		addVariable(node, variable.name, variable);
+		valueEntryHierarchy.put(name, constant, true);
 	}
 	
 	public void addVariable(ASTNode<?> node, @NonNull String name, @NonNull Variable variable) {
-		if (valueNameCollision(name)) {
+		if (localValueNameCollision(name)) {
 			throw Helpers.nodeError(node, "Name \"%s\" already used in this scope!", name);
 		}
 		
 		if (variable.scope == null) {
 			variable.scope = this;
 		}
-		variableHierarchy.put(name, variable, true);
-		addConstantShadow(name);
+		valueEntryHierarchy.put(name, variable, true);
 	}
 	
 	public void addFunction(ASTNode<?> node, @NonNull Function function) {
 		String name = function.name;
-		if (valueNameCollision(name)) {
+		if (localValueNameCollision(name)) {
 			throw Helpers.nodeError(node, "Name \"%s\" already used in this scope!", name);
 		}
 		
@@ -392,13 +563,25 @@ public class Scope {
 		if (constant.scope == null) {
 			constant.scope = this;
 		}
-		constantHierarchy.put(name, constant, true);
+		valueEntryHierarchy.put(name, constant, true);
 	}
 	
 	// Control flow
 	
 	public boolean hasDefiniteReturn() {
-		return definiteLocalReturn || childMap.values().stream().anyMatch(x -> x.definiteExecution && x.hasDefiniteReturn());
+		return hasDefiniteReturnInternal(new HashSet<>());
+	}
+	
+	protected boolean hasDefiniteReturnInternal(Set<Scope> path) {
+		if (!path.add(this)) {
+			return false;
+		}
+		try {
+			return definiteLocalReturn || childMap.values().stream().anyMatch(x -> x.definiteExecution && x.hasDefiniteReturnInternal(path));
+		}
+		finally {
+			path.remove(this);
+		}
 	}
 	
 	protected @Nullable Scope potentialMultipleExecutionScope() {
@@ -427,19 +610,35 @@ public class Scope {
 	}
 	
 	public boolean isVariablePotentiallyInitialized(Variable variable) {
-		return variable.scope.isVariablePotentiallyInitializedInternal(variable, this);
+		return variable.scope.isVariablePotentiallyInitializedInternal(variable, this, new HashSet<>());
 	}
 	
 	public boolean isVariableDefinitelyInitialized(Variable variable) {
-		return variable.scope.isVariableDefinitelyInitializedInternal(variable, this);
+		return variable.scope.isVariableDefinitelyInitializedInternal(variable, this, new HashSet<>());
 	}
 	
-	protected boolean isVariablePotentiallyInitializedInternal(Variable variable, Scope location) {
-		return initializationSet.contains(variable) || childMap.values().stream().anyMatch(x -> x.isVariablePotentiallyInitializedInternal(variable, location));
+	protected boolean isVariablePotentiallyInitializedInternal(Variable variable, Scope location, Set<Scope> path) {
+		if (!path.add(this)) {
+			return false;
+		}
+		try {
+			return initializationSet.contains(variable) || childMap.values().stream().anyMatch(x -> x.isVariablePotentiallyInitializedInternal(variable, location, path));
+		}
+		finally {
+			path.remove(this);
+		}
 	}
 	
-	protected boolean isVariableDefinitelyInitializedInternal(Variable variable, Scope location) {
-		return initializationSet.contains(variable) || childMap.values().stream().anyMatch(x -> (x.definiteExecution || location.isSubScopeOf(x)) && x.isVariableDefinitelyInitializedInternal(variable, location));
+	protected boolean isVariableDefinitelyInitializedInternal(Variable variable, Scope location, Set<Scope> path) {
+		if (!path.add(this)) {
+			return false;
+		}
+		try {
+			return initializationSet.contains(variable) || childMap.values().stream().anyMatch(x -> (x.definiteExecution || location.isSubScopeOf(x)) && x.isVariableDefinitelyInitializedInternal(variable, location, path));
+		}
+		finally {
+			path.remove(this);
+		}
 	}
 	
 	// Environment capture
@@ -451,13 +650,17 @@ public class Scope {
 			if (!function.closure) {
 				throw Helpers.nodeError(node, "Attempted to capture variable \"%s\" in non-closure function!", variable.name);
 			}
-			Variable copy = variable.copy();
-			functionScope.addVariable(node, copy);
-			if (isVariableDefinitelyInitialized(variable)) {
-				functionScope.initializationSet.add(copy);
+			DeclaratorInfo capturedParam = function.getCapturedParam(variable);
+			Variable capturedVariable = capturedParam == null ? null : capturedParam.variable;
+			if (capturedVariable == null) {
+				capturedVariable = variable.copy();
+				functionScope.addVariable(node, capturedVariable.name, capturedVariable);
+				function.addCapture(variable, new DeclaratorInfo(capturedVariable));
 			}
-			functionScope.function.addCapture(variable, new DeclaratorInfo(copy));
-			return copy;
+			if (isVariableDefinitelyInitialized(variable)) {
+				functionScope.initializationSet.add(capturedVariable);
+			}
+			return capturedVariable;
 		}
 		else {
 			return variable;

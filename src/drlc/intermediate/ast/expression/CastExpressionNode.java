@@ -5,6 +5,7 @@ import org.eclipse.jdt.annotation.*;
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.type.TypeNode;
+import drlc.intermediate.component.Function;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;
 import drlc.intermediate.scope.Scope;
@@ -24,7 +25,7 @@ public class CastExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, null, parent.scope, true);
+		scope = new Scope(this, null, parent.scope, false);
 		
 		typeNode.setScopes(this);
 		expressionNode.setScopes(this);
@@ -70,12 +71,6 @@ public class CastExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		typeNode.trackFunctions(this);
-		expressionNode.trackFunctions(this);
-	}
-	
-	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
 		typeNode.generateIntermediate(this);
 		expressionNode.generateIntermediate(this);
@@ -112,5 +107,10 @@ public class CastExpressionNode extends ExpressionNode {
 	@Override
 	public boolean isStatic() {
 		return expressionNode.isStatic();
+	}
+	
+	@Override
+	public @Nullable Function getDirectFunction() {
+		return expressionNode.getDirectFunction();
 	}
 }

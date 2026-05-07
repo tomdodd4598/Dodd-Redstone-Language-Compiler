@@ -75,13 +75,6 @@ public class ExitNode extends StopNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		if (expressionNode != null) {
-			expressionNode.trackFunctions(this);
-		}
-	}
-	
-	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
 		if (expressionNode != null) {
 			expressionNode.generateIntermediate(this);

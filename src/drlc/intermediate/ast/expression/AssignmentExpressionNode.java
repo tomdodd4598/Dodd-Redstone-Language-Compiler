@@ -28,7 +28,7 @@ public class AssignmentExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, null, parent.scope, true);
+		scope = new Scope(this, null, parent.scope, false);
 		
 		rvalueExpressionNode.setScopes(this);
 		lvalueExpressionNode.setScopes(this);
@@ -63,6 +63,12 @@ public class AssignmentExpressionNode extends ExpressionNode {
 		if (!lvalueExpressionNode.isValidLvalue()) {
 			throw error("Attempted to assign to invalid lvalue expression!");
 		}
+		if (assignmentOpType.binaryOpType != null) {
+			lvalueExpressionNode.checkIsReadable(this);
+		}
+		else {
+			lvalueExpressionNode.checkIsReadableForPlainAssignment(this);
+		}
 		lvalueExpressionNode.checkIsAssignable(this);
 		lvalueExpressionNode.initialize(this);
 	}
@@ -91,12 +97,6 @@ public class AssignmentExpressionNode extends ExpressionNode {
 		if (constantRvalueExpressionNode != null) {
 			rvalueExpressionNode = constantRvalueExpressionNode;
 		}
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		rvalueExpressionNode.trackFunctions(this);
-		lvalueExpressionNode.trackFunctions(this);
 	}
 	
 	@Override

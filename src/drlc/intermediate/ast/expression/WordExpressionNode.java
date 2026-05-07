@@ -51,11 +51,6 @@ public class WordExpressionNode extends ExpressionNode {
 		
 	}
 	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		
-	}
-	
 	@SuppressWarnings("null")
 	@Override
 	public void generateIntermediate(ASTNode<?> parent) {

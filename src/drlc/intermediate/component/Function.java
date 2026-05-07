@@ -2,7 +2,7 @@ package drlc.intermediate.component;
 
 import java.util.*;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
@@ -26,11 +26,11 @@ public class Function {
 	public final boolean closure;
 	
 	public boolean inferReturnType = false;
+	protected boolean hasInferredReturnType = false;
 	
 	public boolean defined = false;
 	
 	protected Boolean required = null;
-	protected List<Function> callers = new ArrayList<>();
 	
 	public Scope definitionScope = null;
 	public Scope functionScope = null;
@@ -56,12 +56,8 @@ public class Function {
 		required = false;
 	}
 	
-	public void addCaller(Function function) {
-		callers.add(function);
-	}
-	
-	public boolean isRequired() {
-		return required != null ? required : callers.stream().anyMatch(Main.rootScope::routineExists);
+	public boolean isExplicitlyRequired() {
+		return Boolean.TRUE.equals(required);
 	}
 	
 	public void addCapture(Variable variable, DeclaratorInfo copy) {
@@ -71,9 +67,27 @@ public class Function {
 		captureTypeInfos.add(variable.typeInfo);
 	}
 	
-	public void updateReturnType(@NonNull TypeInfo returnType) {
-		returnTypeInfo = returnType;
-		value.typeInfo.updateReturnType(returnType);
+	public @Nullable DeclaratorInfo getCapturedParam(Variable variable) {
+		int index = captures.indexOf(variable);
+		return index < 0 ? null : params.get(params.size() - captures.size() + index);
+	}
+	
+	public void updateReturnType(ASTNode<?> node, @NonNull TypeInfo returnType) {
+		@NonNull TypeInfo updatedReturnType = returnType;
+		if (inferReturnType) {
+			if (!hasInferredReturnType) {
+				hasInferredReturnType = true;
+			}
+			else {
+				@Nullable TypeInfo mergedReturnType = Helpers.getImplicitCastJoin(returnTypeInfo, returnType);
+				if (mergedReturnType == null) {
+					throw Helpers.nodeError(node, "Inferred return types \"%s\" and \"%s\" are incompatible for function \"%s\"!", returnTypeInfo, returnType, name);
+				}
+				updatedReturnType = mergedReturnType;
+			}
+		}
+		returnTypeInfo = updatedReturnType;
+		value.typeInfo.updateReturnType(updatedReturnType);
 	}
 	
 	@Override
@@ -84,7 +98,7 @@ public class Function {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Function other) {
-			return name.equals(other.name) && Objects.equals(definitionScope, other.definitionScope) && returnTypeInfo.equals(other.returnTypeInfo) && paramTypeInfos.equals(other.paramTypeInfos);
+			return name.equals(other.name) && Objects.equals(definitionScope, other.definitionScope);
 		}
 		return false;
 	}

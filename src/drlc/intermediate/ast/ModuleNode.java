@@ -27,9 +27,32 @@ public class ModuleNode extends ASTNode<Scope> {
 	}
 	
 	@Override
+	public void declareImports(ASTNode<?> parent) {
+		for (StaticSectionNode<?> sectionNode : sectionNodes) {
+			sectionNode.declareImports(this);
+		}
+	}
+	
+	@Override
+	public void declareTypes(ASTNode<?> parent) {
+		for (StaticSectionNode<?> sectionNode : sectionNodes) {
+			sectionNode.declareTypes(this);
+		}
+	}
+	
+	@Override
 	public void defineTypes(ASTNode<?> parent) {
 		for (StaticSectionNode<?> sectionNode : sectionNodes) {
 			sectionNode.defineTypes(this);
+		}
+	}
+	
+	@Override
+	public void declareFunctions(ASTNode<?> parent) {
+		routine = parent.routine;
+		
+		for (StaticSectionNode<?> sectionNode : sectionNodes) {
+			sectionNode.declareFunctions(this);
 		}
 	}
 	
@@ -50,6 +73,13 @@ public class ModuleNode extends ASTNode<Scope> {
 	}
 	
 	@Override
+	public void checkImports(ASTNode<?> parent) {
+		for (StaticSectionNode<?> sectionNode : sectionNodes) {
+			sectionNode.checkImports(this);
+		}
+	}
+	
+	@Override
 	public void checkTypes(ASTNode<?> parent) {
 		for (StaticSectionNode<?> sectionNode : sectionNodes) {
 			sectionNode.checkTypes(this);
@@ -60,13 +90,6 @@ public class ModuleNode extends ASTNode<Scope> {
 	public void foldConstants(ASTNode<?> parent) {
 		for (StaticSectionNode<?> sectionNode : sectionNodes) {
 			sectionNode.foldConstants(this);
-		}
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		for (StaticSectionNode<?> sectionNode : sectionNodes) {
-			sectionNode.trackFunctions(this);
 		}
 	}
 	

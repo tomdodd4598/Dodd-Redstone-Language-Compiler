@@ -6,7 +6,8 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.component.type.*;
+import drlc.intermediate.component.TypeDef;
+import drlc.intermediate.component.type.StructTypeInfo;
 
 public class StructValue extends CompoundValue<StructTypeInfo> {
 	

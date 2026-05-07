@@ -7,9 +7,10 @@ import org.eclipse.jdt.annotation.NonNull;
 import drlc.Global;
 import drlc.intermediate.component.data.VariableDataId;
 import drlc.intermediate.component.type.TypeInfo;
+import drlc.intermediate.module.ValueEntry;
 import drlc.intermediate.scope.Scope;
 
-public class Variable {
+public class Variable implements ValueEntry {
 	
 	public final @NonNull String name;
 	public final @NonNull VariableModifier modifier;

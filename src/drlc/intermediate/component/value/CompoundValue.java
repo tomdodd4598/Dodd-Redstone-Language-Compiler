@@ -31,7 +31,6 @@ public abstract class CompoundValue<T extends CompoundTypeInfo> extends Value<T>
 		}
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull Value<?> atIndex(ASTNode<?> node, int index) {
 		return values.get(index);
@@ -40,6 +39,13 @@ public abstract class CompoundValue<T extends CompoundTypeInfo> extends Value<T>
 	@Override
 	public int hashCode() {
 		return Objects.hash(typeInfo, values);
+	}
+	
+	@Override
+	public void forEachFunction(java.util.function.Consumer<drlc.intermediate.component.Function> consumer) {
+		for (Value<?> value : values) {
+			value.forEachFunction(consumer);
+		}
 	}
 	
 	@Override

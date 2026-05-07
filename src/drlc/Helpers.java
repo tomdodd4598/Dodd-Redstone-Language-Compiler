@@ -14,7 +14,8 @@ import org.eclipse.jdt.annotation.*;
 import drlc.intermediate.ast.*;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.type.TypeInfo;
-import drlc.intermediate.scope.Scope;
+import drlc.intermediate.module.ModuleOrigin;
+import drlc.intermediate.scope.*;
 import drlc.lexer.*;
 import drlc.node.*;
 import drlc.node.Node;
@@ -24,22 +25,83 @@ public class Helpers {
 	
 	public static final int ASCII_MASK = 0x7F;
 	
-	public static @NonNull String readFile(String fileName) throws RuntimeException {
+	public static @NonNull String readFile(String fileName) throws IOException {
 		try {
 			return new String(Files.readAllBytes(Paths.get(fileName)), Charset.defaultCharset());
 		}
-		catch (Exception e) {
-			throw new RuntimeException(String.format("Failed to read file \"%s\"!", fileName));
+		catch (IOException | SecurityException | InvalidPathException e) {
+			throw new IOException(String.format("Failed to read file \"%s\"!", fileName), e);
 		}
 	}
 	
-	public static void writeFile(String fileName, String contents) throws RuntimeException {
+	public static void writeFile(String fileName, String contents) throws IOException {
 		try (PrintWriter out = new PrintWriter(fileName)) {
 			out.print(contents);
 		}
-		catch (Exception e) {
-			throw new RuntimeException(String.format("Failed to write file \"%s\"!", fileName));
+		catch (FileNotFoundException | SecurityException e) {
+			throw new IOException(String.format("Failed to write file \"%s\"!", fileName), e);
 		}
+	}
+	
+	public static @NonNull String canonicalFileName(String fileName) throws IOException {
+		try {
+			return Paths.get(fileName).toAbsolutePath().normalize().toString().replace('\\', '/');
+		}
+		catch (InvalidPathException | SecurityException e) {
+			throw new IOException(String.format("Failed to resolve file path \"%s\"!", fileName), e);
+		}
+	}
+	
+	public static @NonNull String resolveSubModuleFileName(String parentModuleFileName, boolean rootParent, String moduleName) throws IOException {
+		parentModuleFileName = canonicalFileName(parentModuleFileName);
+		
+		int slashIndex = parentModuleFileName.lastIndexOf('/');
+		String parentDirectory = slashIndex < 0 ? "" : parentModuleFileName.substring(0, slashIndex);
+		String parentBaseName = slashIndex < 0 ? parentModuleFileName : parentModuleFileName.substring(slashIndex + 1);
+		
+		int index = parentBaseName.lastIndexOf('.');
+		String moduleExtension = index < 0 ? "" : parentBaseName.substring(index);
+		
+		String childFileName;
+		if (rootParent) {
+			childFileName = (parentDirectory.isEmpty() ? "" : (parentDirectory + "/")) + moduleName + moduleExtension;
+		}
+		else {
+			String moduleDirectory = (parentDirectory.isEmpty() ? "" : (parentDirectory + "/")) + (index < 0 ? parentBaseName : parentBaseName.substring(0, index));
+			childFileName = moduleDirectory + "/" + moduleName + moduleExtension;
+		}
+		
+		return canonicalFileName(childFileName);
+	}
+	
+	public static @NonNull Pair<String, String> resolveSubModuleFilePair(ASTNode<?> node, @NonNull ModuleScope parentModuleScope, String moduleName) {
+		String parentFileName = Main.scopeFileMap.get(parentModuleScope);
+		if (parentFileName == null) {
+			throw nodeError(node, "Could not resolve parent module file for module \"%s\"!", moduleName);
+		}
+		
+		try {
+			String fileName = resolveSubModuleFileName(parentFileName, parentModuleScope.equals(Main.rootScope), moduleName);
+			return new Pair<>(parentFileName, fileName);
+		}
+		catch (IOException e) {
+			throw nodeError(node, e, "Failed to resolve submodule file for module \"%s\"!", moduleName);
+		}
+	}
+	
+	public static void registerModuleFileParent(ASTNode<?> node, String fileName, String parentFileName) {
+		if (!Main.fileParentMap.containsKey(fileName)) {
+			Main.fileParentMap.put(fileName, parentFileName);
+		}
+		else if (!Objects.equals(Main.fileParentMap.get(fileName), parentFileName)) {
+			throw nodeError(node, "Module \"%s\" was already registered in a different module namespace!", fileName);
+		}
+	}
+	
+	public static void registerModuleFile(String fileName, @NonNull ModuleScope scope, @NonNull ModuleOrigin origin) {
+		Main.fileScopeMap.put(fileName, scope);
+		Main.fileOriginMap.put(fileName, origin);
+		Main.scopeFileMap.put(scope, fileName);
 	}
 	
 	public static Lexer stringLexer(String str) {
@@ -47,6 +109,7 @@ public class Helpers {
 	}
 	
 	public static StartNode getAST(String fileName) throws IOException {
+		fileName = canonicalFileName(fileName);
 		String contents = Helpers.readFile(fileName);
 		Lexer lexer = Helpers.stringLexer(contents);
 		
@@ -162,6 +225,23 @@ public class Helpers {
 		}
 	}
 	
+	public static long parseSignedLong(String str) {
+		try {
+			return parseBigInt(str).longValueExact();
+		}
+		catch (ArithmeticException e) {
+			throw error("Integer literal \"%s\" is out of range for signed 64-bit integer!", str);
+		}
+	}
+	
+	public static long parseUnsignedLong(String str) {
+		BigInteger value = parseBigInt(str);
+		if (value.signum() < 0 || value.bitLength() > Long.SIZE) {
+			throw error("Integer literal \"%s\" is out of range for unsigned 64-bit integer!", str);
+		}
+		return value.longValue();
+	}
+	
 	public static String substring(String[] lines, int minLine, int minPos, int maxLine, int maxPos) {
 		if (minLine == maxLine) {
 			return lines[minLine].substring(minPos, maxPos);
@@ -225,16 +305,24 @@ public class Helpers {
 	}
 	
 	public static RuntimeException sourceError(Source source, String s, Object... args) {
+		return sourceError(source, null, s, args);
+	}
+	
+	public static RuntimeException sourceError(Source source, Throwable cause, String s, Object... args) {
 		StringBuilder sb = new StringBuilder(String.format(s, args));
 		if (source != null && source.parseNodes.length > 0) {
 			Pair<String, String> info = sourceInfo(source);
 			sb.append("\n\n").append(info.left).append("\n\n").append(info.right).append("\n");
 		}
-		return new IllegalArgumentException(sb.toString());
+		return new IllegalArgumentException(sb.toString(), cause);
 	}
 	
 	public static RuntimeException nodeError(ASTNode<?> node, String s, Object... args) {
-		return sourceError(node == null ? null : node.source, s, args);
+		return nodeError(node, null, s, args);
+	}
+	
+	public static RuntimeException nodeError(ASTNode<?> node, Throwable cause, String s, Object... args) {
+		return sourceError(node == null ? null : node.source, cause, s, args);
 	}
 	
 	public static RuntimeException error(String s, Object... args) {
@@ -340,7 +428,19 @@ public class Helpers {
 		return (value < 0 ? "-0x" : "0x") + upperCase(String.format("%" + length + "s", Long.toHexString(Math.abs(value))).replace(' ', '0'));
 	}
 	
-	public static @Nullable TypeInfo getCommonTypeInfo(ASTNode<?> node, List<TypeInfo> typeInfos) {
+	public static @Nullable TypeInfo getImplicitCastJoin(@NonNull TypeInfo leftType, @NonNull TypeInfo rightType) {
+		if (leftType.canImplicitCastTo(rightType)) {
+			return rightType;
+		}
+		else if (rightType.canImplicitCastTo(leftType)) {
+			return leftType;
+		}
+		else {
+			return null;
+		}
+	}
+	
+	public static @Nullable TypeInfo getStructuralCommonType(ASTNode<?> node, List<TypeInfo> typeInfos) {
 		if (typeInfos.isEmpty()) {
 			return null;
 		}
@@ -353,6 +453,10 @@ public class Helpers {
 		
 		List<Boolean> commonReferenceMutability = IntStream.range(0, firstReferenceLevel).mapToObj(x -> typeInfos.stream().allMatch(y -> y.referenceMutability.get(x))).collect(Collectors.toList());
 		return firstTypeInfo.copy(node, commonReferenceMutability);
+	}
+	
+	public static @Nullable TypeInfo getCommonTypeInfo(ASTNode<?> node, List<TypeInfo> typeInfos) {
+		return getStructuralCommonType(node, typeInfos);
 	}
 	
 	public static class Pair<L, R> {

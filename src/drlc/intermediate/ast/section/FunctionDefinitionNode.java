@@ -64,13 +64,15 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 		bodyNode.defineTypes(this);
 	}
 	
+	@SuppressWarnings("unused")
 	@Override
-	public void declareExpressions(ASTNode<?> parent) {
-		for (DeclaratorNode parameterNode : parameterNodes) {
-			parameterNode.declareExpressions(this);
+	public void declareFunctions(ASTNode<?> parent) {
+		if (function != null) {
+			return;
 		}
-		if (returnTypeNode != null) {
-			returnTypeNode.declareExpressions(this);
+		
+		for (DeclaratorNode parameterNode : parameterNodes) {
+			parameterNode.declareFunctionParameter();
 		}
 		
 		@NonNull TypeInfo returnType = returnTypeNode != null ? returnTypeNode.getTypeInfo() : Main.generator.unitTypeInfo;
@@ -89,8 +91,22 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 		if (returnTypeNode != null) {
 			returnTypeNode.routine = routine;
 		}
+	}
+	
+	@Override
+	public void declareExpressions(ASTNode<?> parent) {
+		declareFunctions(parent);
+		
+		for (DeclaratorNode parameterNode : parameterNodes) {
+			parameterNode.declareExpressions(this);
+		}
+		if (returnTypeNode != null) {
+			returnTypeNode.declareExpressions(this);
+		}
 		
 		bodyNode.declareExpressions(this);
+		
+		@NonNull TypeInfo returnType = returnTypeNode != null ? returnTypeNode.getTypeInfo() : Main.generator.unitTypeInfo;
 		
 		if (!returnType.equals(Main.generator.unitTypeInfo) && !scope.hasDefiniteReturn()) {
 			throw error("Function \"%s\" does not always return value of expected type \"%s\"!", name, returnType);
@@ -135,17 +151,6 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 			returnTypeNode.foldConstants(this);
 		}
 		bodyNode.foldConstants(this);
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		for (DeclaratorNode parameterNode : parameterNodes) {
-			parameterNode.trackFunctions(this);
-		}
-		if (returnTypeNode != null) {
-			returnTypeNode.trackFunctions(this);
-		}
-		bodyNode.trackFunctions(this);
 	}
 	
 	@Override

@@ -11,7 +11,7 @@ public class FunctionScope extends Scope {
 	public @NonNull Function function = null;
 	
 	public FunctionScope(ASTNode<?> node, @Nullable Scope parent) {
-		super(node, null, parent, false);
+		super(node, null, parent, true);
 		definiteExecution = false;
 		potentialOuterMultipleExecution = true;
 	}

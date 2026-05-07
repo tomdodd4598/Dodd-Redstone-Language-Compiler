@@ -102,6 +102,14 @@ public abstract class ExpressionNode extends ASTNode<Scope> {
 		throw error("Attempted to set invalid expression as lvalue!");
 	}
 	
+	public void checkIsReadable(ASTNode<?> parent) {
+		
+	}
+	
+	public void checkIsReadableForPlainAssignment(ASTNode<?> parent) {
+		checkIsReadable(parent);
+	}
+	
 	public void checkIsAssignable(ASTNode<?> parent) {
 		if (!isMutableLvalue()) {
 			throw Helpers.nodeError(parent, "Attempted to assign to immutable lvalue expression!");

@@ -68,13 +68,6 @@ public class ClosureExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		functionNode.trackFunctions(this);
-		
-		routine.onNonLocalFunctionItemExpression(this, function);
-	}
-	
-	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
 		functionNode.generateIntermediate(this);
 		if (function.captures.isEmpty() && typeInfo instanceof FunctionTypeInfo functionTypeInfo) {

@@ -29,7 +29,7 @@ public class ArrayListExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, null, parent.scope, true);
+		scope = new Scope(this, null, parent.scope, false);
 		
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.setScopes(this);
@@ -83,13 +83,6 @@ public class ArrayListExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		for (ExpressionNode expressionNode : expressionNodes) {
-			expressionNode.trackFunctions(this);
-		}
-	}
-	
-	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.generateIntermediate(this);
@@ -131,7 +124,7 @@ public class ArrayListExpressionNode extends ExpressionNode {
 		List<TypeInfo> expressionTypes = Helpers.map(expressionNodes, ExpressionNode::getTypeInfo);
 		
 		if (elementTargetType == null) {
-			elementTargetType = Helpers.getCommonTypeInfo(this, expressionTypes);
+			elementTargetType = Helpers.getStructuralCommonType(this, expressionTypes);
 		}
 		
 		if (elementTargetType != null) {

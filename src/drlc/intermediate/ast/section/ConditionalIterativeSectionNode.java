@@ -6,6 +6,7 @@ import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.expression.*;
 import drlc.intermediate.component.type.TypeInfo;
+import drlc.intermediate.component.value.Value;
 import drlc.intermediate.scope.IterativeScope;
 
 public class ConditionalIterativeSectionNode extends IterativeSectionNode {
@@ -24,7 +25,7 @@ public class ConditionalIterativeSectionNode extends IterativeSectionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new IterativeScope(this, null, parent.scope, false, _do, label);
+		scope = new IterativeScope(this, null, parent.scope, true, _do, label);
 		
 		expressionNode.setScopes(this);
 		bodyNode.setScopes(this);
@@ -66,18 +67,24 @@ public class ConditionalIterativeSectionNode extends IterativeSectionNode {
 	@Override
 	public void foldConstants(ASTNode<?> parent) {
 		expressionNode.foldConstants(this);
-		bodyNode.foldConstants(this);
 		
 		@Nullable ConstantExpressionNode constantExpressionNode = expressionNode.constantExpressionNode();
 		if (constantExpressionNode != null) {
 			expressionNode = constantExpressionNode;
 		}
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		expressionNode.trackFunctions(this);
-		bodyNode.trackFunctions(this);
+		
+		@Nullable Value<?> conditionConstantValue = expressionNode.getConstantValue();
+		Boolean conditionConstant = null;
+		if (Main.generator.trueValue.equals(conditionConstantValue)) {
+			conditionConstant = true;
+		}
+		else if (Main.generator.falseValue.equals(conditionConstantValue)) {
+			conditionConstant = false;
+		}
+		
+		if (conditionConstant == null || _do || conditionConstant != until) {
+			bodyNode.foldConstants(this);
+		}
 	}
 	
 	@Override

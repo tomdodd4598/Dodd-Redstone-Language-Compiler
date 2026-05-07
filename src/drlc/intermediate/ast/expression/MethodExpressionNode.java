@@ -34,7 +34,7 @@ public class MethodExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, null, parent.scope, true);
+		scope = new Scope(this, null, parent.scope, false);
 		
 		receiverExpressionNode.setScopes(this);
 		
@@ -134,15 +134,6 @@ public class MethodExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		receiverExpressionNode.trackFunctions(this);
-		
-		for (ExpressionNode argExpressionNode : argExpressionNodes) {
-			argExpressionNode.trackFunctions(this);
-		}
-	}
-	
-	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
 		receiverExpressionNode.generateIntermediate(this);
 		
@@ -218,9 +209,14 @@ public class MethodExpressionNode extends ExpressionNode {
 		return receiverExpressionNode.isStatic() && argExpressionNodes.stream().allMatch(ExpressionNode::isStatic);
 	}
 	
+	@SuppressWarnings({"null", "unused"})
 	protected void setInternal() {
 		if (!setInternal) {
-			function = scope.pathGet(this, path, (x, name) -> x.getFunction(this, name, false));
+			@NonNull Value<?> methodValue = scope.pathGet(this, path, (x, name) -> x.getConstant(this, name, false).value);
+			function = methodValue.getDirectFunction();
+			if (function == null) {
+				throw error("Attempted to use non-function value \"%s\" as method!", methodValue.typeInfo);
+			}
 		}
 		setInternal = true;
 	}

@@ -1,5 +1,6 @@
 package drlc.low.edsac;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -24,7 +25,7 @@ public class EdsacGenerator extends Generator {
 	}
 	
 	@Override
-	public void generate() {
+	public void generate() throws IOException {
 		generateInternal();
 		
 		StringBuilder sb = new StringBuilder();
@@ -134,7 +135,7 @@ public class EdsacGenerator extends Generator {
 	
 	@Override
 	public @NonNull Function getBuiltInFunction(ASTNode<?> node, String name) {
-		if (!Main.rootScope.functionExists(name, false)) {
+		if (!Main.rootScope.declaredFunctionExists(name, false)) {
 			switch (name) {
 				case Global.INT_NOT_EQUAL_TO_INT:
 				case Global.INT_LESS_THAN_INT:

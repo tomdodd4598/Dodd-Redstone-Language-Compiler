@@ -53,7 +53,6 @@ public class Visitor extends AnalysisAdapter {
 		return new Source(fileName, contents, parseNodes);
 	}
 	
-	@SuppressWarnings("null")
 	protected <T> @NonNull T traverse(Node node, Deque<T> stack) {
 		node.apply(this);
 		return stack.pop();
@@ -250,7 +249,6 @@ public class Visitor extends AnalysisAdapter {
 		return new VariableModifier(_static, mut);
 	}
 	
-	@SuppressWarnings("null")
 	protected @NonNull String text(Token token) {
 		return token.getText();
 	}
@@ -259,7 +257,6 @@ public class Visitor extends AnalysisAdapter {
 		return token == null ? null : text(token);
 	}
 	
-	@SuppressWarnings("null")
 	protected @NonNull List<String> pathPrefix(List<PPathPrefix> pathPrefix) {
 		return Helpers.map(pathPrefix, x -> trim(((APathPrefix) x).getPathSegment()));
 	}
@@ -295,7 +292,6 @@ public class Visitor extends AnalysisAdapter {
 		return text(token).equals(Global.UNTIL);
 	}
 	
-	@SuppressWarnings("null")
 	protected <T> @NonNull String trim(T node) {
 		return node.toString().trim();
 	}
@@ -895,17 +891,35 @@ public class Visitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAIntScalar(AIntScalar node) {
-		expressionStack.push(new IntExpressionNode(source(node), Helpers.parseBigInt(text(node.getIntValue())).longValue()));
+		String valueString = text(node.getIntValue());
+		try {
+			expressionStack.push(new IntExpressionNode(source(node), Helpers.parseSignedLong(valueString)));
+		}
+		catch (IllegalArgumentException e) {
+			throw Helpers.sourceError(source(node), e.getMessage());
+		}
 	}
 	
 	@Override
 	public void caseANatScalar(ANatScalar node) {
-		expressionStack.push(new NatExpressionNode(source(node), Helpers.parseBigInt(text(node.getNatValue())).longValue()));
+		String valueString = text(node.getNatValue());
+		try {
+			expressionStack.push(new NatExpressionNode(source(node), Helpers.parseUnsignedLong(valueString)));
+		}
+		catch (IllegalArgumentException e) {
+			throw Helpers.sourceError(source(node), e.getMessage());
+		}
 	}
 	
 	@Override
 	public void caseAWordScalar(AWordScalar node) {
-		expressionStack.push(new WordExpressionNode(source(node), Helpers.parseBigInt(text(node.getWordValue())).longValue()));
+		String valueString = text(node.getWordValue());
+		try {
+			expressionStack.push(new WordExpressionNode(source(node), Helpers.parseUnsignedLong(valueString)));
+		}
+		catch (IllegalArgumentException e) {
+			throw Helpers.sourceError(source(node), e.getMessage());
+		}
 	}
 	
 	@Override

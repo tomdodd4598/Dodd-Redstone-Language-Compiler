@@ -41,11 +41,6 @@ public class EmptySectionNode extends StaticSectionNode<Scope> {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		
-	}
-	
-	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
 		
 	}

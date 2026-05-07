@@ -22,7 +22,7 @@ public class ScopedBodyNode extends RuntimeSectionNode<Scope> {
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, null, parent.scope, false);
+		scope = new Scope(this, null, parent.scope, true);
 		
 		for (RuntimeSectionNode<?> sectionNode : sectionNodes) {
 			sectionNode.setScopes(this);
@@ -81,16 +81,6 @@ public class ScopedBodyNode extends RuntimeSectionNode<Scope> {
 		}
 		if (stopNode != null) {
 			stopNode.foldConstants(this);
-		}
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		for (RuntimeSectionNode<?> sectionNode : sectionNodes) {
-			sectionNode.trackFunctions(this);
-		}
-		if (stopNode != null) {
-			stopNode.trackFunctions(this);
 		}
 	}
 	

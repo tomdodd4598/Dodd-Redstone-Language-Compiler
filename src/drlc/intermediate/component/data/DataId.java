@@ -36,8 +36,20 @@ public abstract class DataId {
 		return dereferenceLevel > 0;
 	}
 	
-	public @Nullable Function getFunction() {
+	public @Nullable Function getDirectFunction() {
 		return null;
+	}
+	
+	@Deprecated
+	public @Nullable Function getFunction() {
+		return getDirectFunction();
+	}
+	
+	public void forEachFunction(java.util.function.Consumer<Function> consumer) {
+		@Nullable Function function = getDirectFunction();
+		if (function != null) {
+			consumer.accept(function);
+		}
 	}
 	
 	protected Long scopeId() {

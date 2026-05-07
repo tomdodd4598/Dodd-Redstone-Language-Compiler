@@ -7,6 +7,7 @@ import drlc.intermediate.action.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.expression.*;
 import drlc.intermediate.component.type.TypeInfo;
+import drlc.intermediate.component.value.Value;
 import drlc.intermediate.scope.ConditionalScope;
 
 public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope> {
@@ -26,7 +27,7 @@ public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope>
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new ConditionalScope(this, null, parent.scope, false, elseNode != null);
+		scope = new ConditionalScope(this, null, parent.scope, true, elseNode != null);
 		
 		expressionNode.setScopes(this);
 		thenNode.setScopes(this);
@@ -88,23 +89,26 @@ public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope>
 	@Override
 	public void foldConstants(ASTNode<?> parent) {
 		expressionNode.foldConstants(this);
-		thenNode.foldConstants(this);
-		if (elseNode != null) {
-			elseNode.foldConstants(this);
-		}
 		
 		@Nullable ConstantExpressionNode constantExpressionNode = expressionNode.constantExpressionNode();
 		if (constantExpressionNode != null) {
 			expressionNode = constantExpressionNode;
 		}
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		expressionNode.trackFunctions(this);
-		thenNode.trackFunctions(this);
-		if (elseNode != null) {
-			elseNode.trackFunctions(this);
+		
+		@Nullable Value<?> conditionConstantValue = expressionNode.getConstantValue();
+		Boolean conditionConstant = null;
+		if (Main.generator.trueValue.equals(conditionConstantValue)) {
+			conditionConstant = true;
+		}
+		else if (Main.generator.falseValue.equals(conditionConstantValue)) {
+			conditionConstant = false;
+		}
+		
+		if (conditionConstant == null || conditionConstant != unless) {
+			thenNode.foldConstants(this);
+		}
+		if (elseNode != null && (conditionConstant == null || conditionConstant == unless)) {
+			elseNode.foldConstants(this);
 		}
 	}
 	

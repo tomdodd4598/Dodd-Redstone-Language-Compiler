@@ -25,7 +25,7 @@ public class DereferenceExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, null, parent.scope, true);
+		scope = new Scope(this, null, parent.scope, false);
 		
 		expressionNode.setScopes(this);
 	}
@@ -57,11 +57,6 @@ public class DereferenceExpressionNode extends ExpressionNode {
 	@Override
 	public void foldConstants(ASTNode<?> parent) {
 		expressionNode.foldConstants(this);
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		expressionNode.trackFunctions(this);
 	}
 	
 	@Override
@@ -120,6 +115,11 @@ public class DereferenceExpressionNode extends ExpressionNode {
 	@Override
 	public void setIsLvalue() {
 		isLvalue = true;
+	}
+	
+	@Override
+	public void checkIsReadable(ASTNode<?> parent) {
+		expressionNode.checkIsReadable(parent);
 	}
 	
 	@Override

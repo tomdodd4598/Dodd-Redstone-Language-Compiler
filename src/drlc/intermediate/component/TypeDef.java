@@ -1,4 +1,4 @@
-package drlc.intermediate.component.type;
+package drlc.intermediate.component;
 
 import java.util.*;
 
@@ -6,10 +6,11 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.Helpers;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.component.*;
+import drlc.intermediate.component.type.TypeInfo;
+import drlc.intermediate.module.NominalTypeEntry;
 import drlc.intermediate.scope.Scope;
 
-public class TypeDef {
+public class TypeDef implements NominalTypeEntry {
 	
 	public final @NonNull String name;
 	public int size;
@@ -25,8 +26,13 @@ public class TypeDef {
 		this.supplier = supplier;
 	}
 	
-	public @NonNull TypeInfo getTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, Scope scope) {
-		return supplier.create(node, referenceMutability, scope);
+	public @NonNull TypeInfo getTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability) {
+		return supplier.create(node, referenceMutability);
+	}
+	
+	@Override
+	public @NonNull TypeDef getTypeDef() {
+		return this;
 	}
 	
 	@Override

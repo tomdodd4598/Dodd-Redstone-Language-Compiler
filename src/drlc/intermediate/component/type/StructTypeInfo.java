@@ -6,20 +6,15 @@ import org.eclipse.jdt.annotation.*;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.component.MemberInfo;
-import drlc.intermediate.scope.Scope;
+import drlc.intermediate.component.*;
 
 public class StructTypeInfo extends CompoundTypeInfo {
 	
 	public final @NonNull TypeDef typeDef;
 	
-	protected StructTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos, @NonNull TypeDef typeDef) {
+	public StructTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos, @NonNull TypeDef typeDef) {
 		super(node, referenceMutability, typeInfos);
 		this.typeDef = typeDef;
-	}
-	
-	public StructTypeInfo(ASTNode<?> node, List<Boolean> referenceMutability, List<TypeInfo> typeInfos, Scope scope, @NonNull String typeDefName) {
-		this(node, referenceMutability, typeInfos, scope.getTypeDef(node, typeDefName, false));
 	}
 	
 	@Override

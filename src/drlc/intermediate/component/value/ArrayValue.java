@@ -31,7 +31,6 @@ public class ArrayValue extends Value<ArrayTypeInfo> {
 		this.values = values;
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public @NonNull Value<?> atIndex(ASTNode<?> node, int index) {
 		return values.get(index);
@@ -40,6 +39,13 @@ public class ArrayValue extends Value<ArrayTypeInfo> {
 	@Override
 	public int hashCode() {
 		return Objects.hash(typeInfo, values);
+	}
+	
+	@Override
+	public void forEachFunction(java.util.function.Consumer<drlc.intermediate.component.Function> consumer) {
+		for (Value<?> value : values) {
+			value.forEachFunction(consumer);
+		}
 	}
 	
 	@Override

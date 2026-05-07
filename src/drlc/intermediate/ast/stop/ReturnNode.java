@@ -65,7 +65,7 @@ public class ReturnNode extends StopNode {
 		}
 		
 		if (inferReturnType && expressionNode != null) {
-			(closureDefinition == null ? routine.function : closureDefinition.function).updateReturnType(expressionNode.getTypeInfo());
+			(closureDefinition == null ? routine.function : closureDefinition.function).updateReturnType(this, expressionNode.getTypeInfo());
 			
 			expectedTypeInfo = routine.getReturnTypeInfo();
 		}
@@ -96,13 +96,6 @@ public class ReturnNode extends StopNode {
 			if (constantExpressionNode != null) {
 				expressionNode = constantExpressionNode;
 			}
-		}
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		if (expressionNode != null) {
-			expressionNode.trackFunctions(this);
 		}
 	}
 	

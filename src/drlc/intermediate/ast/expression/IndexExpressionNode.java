@@ -27,7 +27,7 @@ public class IndexExpressionNode extends ExpressionNode {
 	
 	public @Nullable Value<?> constantValue = null;
 	
-	public @Nullable Integer constantIndex = null;
+	public @Nullable Long constantIndex = null;
 	
 	public boolean setConstantIndex = false;
 	
@@ -41,7 +41,7 @@ public class IndexExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, null, parent.scope, true);
+		scope = new Scope(this, null, parent.scope, false);
 		
 		baseExpressionNode.setScopes(this);
 		indexExpressionNode.setScopes(this);
@@ -68,7 +68,7 @@ public class IndexExpressionNode extends ExpressionNode {
 		baseExpressionNode.defineExpressions(this);
 		indexExpressionNode.defineExpressions(this);
 		
-		if (baseIsArray && baseExpressionNode.isValidLvalue()) {
+		if (baseIsArray && !baseExpressionNode.getTypeInfo().isAddress() && baseExpressionNode.isValidLvalue()) {
 			baseExpressionNode.setIsLvalue();
 		}
 	}
@@ -103,30 +103,16 @@ public class IndexExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		baseExpressionNode.trackFunctions(this);
-		indexExpressionNode.trackFunctions(this);
-	}
-	
-	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
 		baseExpressionNode.generateIntermediate(this);
 		
 		boolean constantArrayIndex = baseIsArray && setConstantIndex();
 		
-		DataId baseDataId;
-		if (baseIsArray && !baseExpressionNode.getIsLvalue()) {
-			DataId temp = scope.nextLocalDataId(routine, baseExpressionNode.getTypeInfo());
-			routine.addAssignmentAction(this, temp, baseExpressionNode.dataId);
-			routine.addAddressAssignmentAction(this, baseDataId = routine.nextRegId(constantArrayIndex ? baseArrayTypeInfo.addressOf(this, true) : addressTypeInfo), temp);
-		}
-		else {
-			baseDataId = baseExpressionNode.dataId;
-		}
+		DataId baseDataId = baseIsArray ? arrayBaseDataId(constantArrayIndex) : baseExpressionNode.dataId;
 		
 		if (constantArrayIndex) {
-			if (constantIndex >= baseArrayTypeInfo.length) {
-				throw error("Attempted to index array value of type \"%s\" at position %d!", baseArrayTypeInfo, constantIndex);
+			if (!constantIndexInBounds()) {
+				throw error("Attempted to index array value of type \"%s\" at position %s!", baseArrayTypeInfo, Long.toUnsignedString(constantIndex));
 			}
 		}
 		else {
@@ -165,8 +151,17 @@ public class IndexExpressionNode extends ExpressionNode {
 		baseExpressionNode.setTypeInfo(null);
 		@NonNull TypeInfo baseExpressionType = baseExpressionNode.getTypeInfo();
 		if (baseExpressionType.isAddress()) {
-			typeInfo = baseExpressionType.dereference(this, 1);
-			addressTypeInfo = baseExpressionType;
+			TypeInfo dereferencedBaseType = baseExpressionType.dereference(this, baseExpressionType.getReferenceLevel());
+			if (dereferencedBaseType.isArray()) {
+				baseArrayTypeInfo = (ArrayTypeInfo) dereferencedBaseType;
+				typeInfo = baseArrayTypeInfo.elementTypeInfo;
+				addressTypeInfo = typeInfo.addressOf(this, true);
+				baseIsArray = true;
+			}
+			else {
+				typeInfo = baseExpressionType.dereference(this, 1);
+				addressTypeInfo = baseExpressionType;
+			}
 		}
 		else if (baseExpressionType.isArray()) {
 			baseArrayTypeInfo = (ArrayTypeInfo) baseExpressionType;
@@ -187,11 +182,10 @@ public class IndexExpressionNode extends ExpressionNode {
 	
 	@Override
 	protected void setConstantValueInternal() {
-		if (setConstantIndex() && !isLvalue) {
+		if (baseIsArray && setConstantIndex() && !isLvalue && constantIndexInBounds()) {
 			@Nullable Value<?> baseConstantValue = baseExpressionNode.getConstantValue();
 			if (baseConstantValue instanceof ArrayValue) {
-				ArrayTypeInfo arrayTypeInfo = (ArrayTypeInfo) baseConstantValue.typeInfo;
-				constantValue = baseConstantValue.atOffset(this, arrayTypeInfo.indexToOffsetShallow(this, constantIndex), arrayTypeInfo.elementTypeInfo);
+				constantValue = baseConstantValue.atIndex(this, constantIndex.intValue());
 			}
 		}
 	}
@@ -208,7 +202,11 @@ public class IndexExpressionNode extends ExpressionNode {
 	
 	@Override
 	public boolean isMutableLvalue() {
-		return baseIsArray ? baseExpressionNode.isMutableLvalue() : baseExpressionNode.isMutableReference();
+		if (!baseIsArray) {
+			return baseExpressionNode.isMutableReference();
+		}
+		@NonNull TypeInfo baseExpressionType = baseExpressionNode.getTypeInfo();
+		return baseExpressionType.isAddress() ? baseExpressionType.canMutablyDereference() : baseExpressionNode.isMutableLvalue();
 	}
 	
 	@Override
@@ -221,14 +219,39 @@ public class IndexExpressionNode extends ExpressionNode {
 		isLvalue = true;
 	}
 	
+	@Override
+	public void checkIsReadable(ASTNode<?> parent) {
+		baseExpressionNode.checkIsReadable(parent);
+	}
+	
 	protected boolean setConstantIndex() {
 		if (!setConstantIndex) {
 			@Nullable Value<?> indexConstantValue = indexExpressionNode.getConstantValue(Main.generator.natTypeInfo);
 			if (indexConstantValue != null) {
-				constantIndex = indexConstantValue.intValue(this);
+				constantIndex = indexConstantValue.longValue(this);
 			}
 		}
 		setConstantIndex = true;
 		return constantIndex != null;
+	}
+	
+	protected boolean constantIndexInBounds() {
+		return baseIsArray && constantIndex != null && Long.compareUnsigned(constantIndex, Integer.toUnsignedLong(baseArrayTypeInfo.length)) < 0;
+	}
+	
+	protected @NonNull DataId arrayBaseDataId(boolean constantArrayIndex) {
+		@NonNull TypeInfo baseExpressionType = baseExpressionNode.getTypeInfo();
+		if (baseExpressionType.isAddress()) {
+			int dereferenceLevel = baseExpressionType.getReferenceLevel() - (baseExpressionNode.getIsLvalue() ? 0 : 1);
+			return routine.addSelfDereferenceAssignmentAction(this, dereferenceLevel, baseExpressionNode.dataId);
+		}
+		if (!baseExpressionNode.getIsLvalue()) {
+			DataId temp = scope.nextLocalDataId(routine, baseExpressionType);
+			routine.addAssignmentAction(this, temp, baseExpressionNode.dataId);
+			DataId baseDataId = routine.nextRegId(constantArrayIndex ? baseArrayTypeInfo.addressOf(this, true) : addressTypeInfo);
+			routine.addAddressAssignmentAction(this, baseDataId, temp);
+			return baseDataId;
+		}
+		return baseExpressionNode.dataId;
 	}
 }

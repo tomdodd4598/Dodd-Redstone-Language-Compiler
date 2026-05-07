@@ -10,7 +10,7 @@ import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.data.*;
 import drlc.intermediate.component.type.TypeInfo;
-import drlc.intermediate.component.value.*;
+import drlc.intermediate.component.value.Value;
 import drlc.intermediate.scope.Scope;
 
 public class Routine {
@@ -93,6 +93,47 @@ public class Routine {
 		}
 	}
 	
+	public Set<Integer> getReachableSections() {
+		int sectionCount = body.size();
+		Set<Integer> reachableSections = new HashSet<>();
+		if (sectionCount <= 0) {
+			return reachableSections;
+		}
+		
+		Deque<Integer> stack = new ArrayDeque<>();
+		stack.push(0);
+		while (!stack.isEmpty()) {
+			int section = stack.pop();
+			if (section < 0 || section >= sectionCount || !reachableSections.add(section)) {
+				continue;
+			}
+			
+			List<Action> list = body.get(section);
+			boolean definiteRedirect = false;
+			for (Action action : list) {
+				if (action instanceof IJumpAction jump) {
+					int target = jump.getTarget();
+					if (target >= 0 && target < sectionCount && !reachableSections.contains(target)) {
+						stack.push(target);
+					}
+				}
+				if (action instanceof IDefiniteRedirectAction) {
+					definiteRedirect = true;
+					break;
+				}
+			}
+			
+			if (!definiteRedirect) {
+				int fallthrough = section + 1;
+				if (fallthrough < sectionCount && !reachableSections.contains(fallthrough)) {
+					stack.push(fallthrough);
+				}
+			}
+		}
+		
+		return reachableSections;
+	}
+	
 	// Finalization
 	
 	public void setTransientRegisters() {
@@ -116,14 +157,13 @@ public class Routine {
 	public void checkFunctionVariableInitialization() {
 		for (List<Action> list : body) {
 			for (Action action : list) {
-				if (action instanceof AssignmentAction aa) {
-					if (aa.arg instanceof ValueDataId valueData) {
-						if (valueData.value instanceof FunctionItemValue functionItemValue) {
-							Function function = functionItemValue.typeInfo.function;
-							if (function.definitionScope.functionExists(function.name, false) && !Main.rootScope.routineExists(function)) {
-								throw Helpers.error("Function \"%s\" was not defined! %s", function, aa);
+				if (action instanceof IValueAction valueAction) {
+					for (DataId rvalue : valueAction.rvalues()) {
+						rvalue.forEachFunction(function -> {
+							if (!function.builtIn && function.definitionScope != null && function.definitionScope.definesLocalFunction(function) && !Main.rootScope.routineExists(function)) {
+								throw Helpers.error("Function \"%s\" was not defined! %s", function, action);
 							}
-						}
+						});
 					}
 				}
 			}
@@ -216,28 +256,11 @@ public class Routine {
 	}
 	
 	public void addCallAction(ASTNode<?> node, Scope scope, Function directFunction, DataId target, DataId caller, List<DataId> args) {
-		if (directFunction != null) {
-			Function contextFunction = scope.getContextFunction();
-			if (contextFunction != null) {
-				directFunction.addCaller(contextFunction);
-			}
-		}
-		
 		if (directFunction != null && directFunction.builtIn) {
 			addAction(new BuiltInCallAction(node, scope, target, caller, args, directFunction));
 		}
 		else {
-			addAction(new CallAction(node, scope, target, caller, args));
-		}
-	}
-	
-	public void onNonLocalFunctionItemExpression(ASTNode<?> node, Function function) {
-		function.setRequired();
-		if (!function.builtIn && !isRootRoutine()) {
-			onRequiresStack();
-		}
-		if (Main.rootScope.routineExists(function)) {
-			Main.rootScope.getRoutine(node, function).onRequiresStack();
+			addAction(new CallAction(node, scope, target, caller, args, directFunction));
 		}
 	}
 	

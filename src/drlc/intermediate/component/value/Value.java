@@ -1,9 +1,10 @@
 package drlc.intermediate.component.value;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.*;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.Function;
 import drlc.intermediate.component.data.ValueDataId;
 import drlc.intermediate.component.type.TypeInfo;
 
@@ -58,10 +59,20 @@ public abstract class Value<T extends TypeInfo> {
 			return this;
 		}
 		else {
+			if (typeInfo.getSize() == 0) {
+				throw Helpers.nodeError(node, "Can not resolve offset %d within zero-sized value of type \"%s\" to expected type \"%s\"!", offset, typeInfo, expectedTypeInfo);
+			}
 			int index = typeInfo.offsetToIndexShallow(node, offset);
-			return atIndex(node, index).atOffset(node, offset - typeInfo.indexToOffsetShallow(node, index), expectedTypeInfo);
+			int indexOffset = typeInfo.indexToOffsetShallow(node, index);
+			return atIndex(node, index).atOffset(node, offset - indexOffset, expectedTypeInfo);
 		}
 	}
+	
+	public @Nullable Function getDirectFunction() {
+		return null;
+	}
+	
+	public void forEachFunction(java.util.function.Consumer<Function> consumer) {}
 	
 	@Override
 	public abstract int hashCode();

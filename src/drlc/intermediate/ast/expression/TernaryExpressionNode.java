@@ -30,7 +30,7 @@ public class TernaryExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new ConditionalScope(this, null, parent.scope, true, true);
+		scope = new ConditionalScope(this, null, parent.scope, false, true);
 		
 		conditionExpressionNode.setScopes(this);
 		trueExpressionNode.setScopes(this);
@@ -88,30 +88,38 @@ public class TernaryExpressionNode extends ExpressionNode {
 	@Override
 	public void foldConstants(ASTNode<?> parent) {
 		conditionExpressionNode.foldConstants(this);
-		trueExpressionNode.foldConstants(this);
-		falseExpressionNode.foldConstants(this);
 		
 		@Nullable ConstantExpressionNode conditionConstantExpressionNode = conditionExpressionNode.constantExpressionNode();
 		if (conditionConstantExpressionNode != null) {
 			conditionExpressionNode = conditionConstantExpressionNode;
 		}
 		
-		@Nullable ConstantExpressionNode trueConstantExpressionNode = trueExpressionNode.constantExpressionNode();
-		if (trueConstantExpressionNode != null) {
-			trueExpressionNode = trueConstantExpressionNode;
+		@Nullable Value<?> conditionConstantValue = conditionExpressionNode.getConstantValue();
+		Boolean conditionConstant = null;
+		if (Main.generator.trueValue.equals(conditionConstantValue)) {
+			conditionConstant = true;
+		}
+		else if (Main.generator.falseValue.equals(conditionConstantValue)) {
+			conditionConstant = false;
 		}
 		
-		@Nullable ConstantExpressionNode falseConstantExpressionNode = falseExpressionNode.constantExpressionNode();
-		if (falseConstantExpressionNode != null) {
-			falseExpressionNode = falseConstantExpressionNode;
+		if (conditionConstant == null || conditionConstant) {
+			trueExpressionNode.foldConstants(this);
+			
+			@Nullable ConstantExpressionNode trueConstantExpressionNode = trueExpressionNode.constantExpressionNode();
+			if (trueConstantExpressionNode != null) {
+				trueExpressionNode = trueConstantExpressionNode;
+			}
 		}
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		conditionExpressionNode.trackFunctions(this);
-		trueExpressionNode.trackFunctions(this);
-		falseExpressionNode.trackFunctions(this);
+		
+		if (conditionConstant == null || !conditionConstant) {
+			falseExpressionNode.foldConstants(this);
+			
+			@Nullable ConstantExpressionNode falseConstantExpressionNode = falseExpressionNode.constantExpressionNode();
+			if (falseConstantExpressionNode != null) {
+				falseExpressionNode = falseConstantExpressionNode;
+			}
+		}
 	}
 	
 	@Override
@@ -154,14 +162,12 @@ public class TernaryExpressionNode extends ExpressionNode {
 			@NonNull TypeInfo trueExpressionType = trueExpressionNode.getTypeInfo();
 			@NonNull TypeInfo falseExpressionType = falseExpressionNode.getTypeInfo();
 			
-			if (trueExpressionType.canImplicitCastTo(falseExpressionType)) {
-				typeInfo = falseExpressionType;
-			}
-			else if (falseExpressionType.canImplicitCastTo(trueExpressionType)) {
-				typeInfo = trueExpressionType;
+			@Nullable TypeInfo mergedTypeInfo = Helpers.getImplicitCastJoin(trueExpressionType, falseExpressionType);
+			if (mergedTypeInfo == null) {
+				throw error("Ternary expression branches have incompatible types \"%s\" and \"%s\"!", trueExpressionType, falseExpressionType);
 			}
 			else {
-				throw error("Ternary expression branches have incompatible types \"%s\" and \"%s\"!", trueExpressionType, falseExpressionType);
+				typeInfo = mergedTypeInfo;
 			}
 		}
 	}

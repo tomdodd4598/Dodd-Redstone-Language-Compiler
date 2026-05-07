@@ -6,6 +6,7 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.TypeDef;
 
 public class ArrayTypeInfo extends TypeInfo {
 	
@@ -38,7 +39,16 @@ public class ArrayTypeInfo extends TypeInfo {
 	
 	@Override
 	public int getSize() {
-		return isAddress() ? Main.generator.getAddressSize() : length * elementTypeInfo.getSize();
+		if (isAddress()) {
+			return Main.generator.getAddressSize();
+		}
+		
+		try {
+			return Math.multiplyExact(length, elementTypeInfo.getSize());
+		}
+		catch (ArithmeticException e) {
+			throw Helpers.error("Size of array type \"%s\" is too large!", rawString());
+		}
 	}
 	
 	@Override
@@ -60,17 +70,31 @@ public class ArrayTypeInfo extends TypeInfo {
 	
 	@Override
 	public int indexToOffsetShallow(ASTNode<?> node, int index) {
-		if (index >= length) {
+		if (index < 0 || index >= length) {
 			throw Helpers.nodeError(node, "Attempted to index array type \"%s\" at position %d!", this, index);
 		}
 		else {
-			return index * elementTypeInfo.getSize();
+			try {
+				return Math.multiplyExact(index, elementTypeInfo.getSize());
+			}
+			catch (ArithmeticException e) {
+				throw Helpers.nodeError(node, "Offset of array type \"%s\" at position %d is too large!", this, index);
+			}
 		}
 	}
 	
 	@Override
 	public int offsetToIndexShallow(ASTNode<?> node, int offset) {
-		int index = offset / elementTypeInfo.getSize();
+		if (offset < 0) {
+			throw Helpers.nodeError(node, "Attempted to index array type \"%s\" at position %d!", this, offset);
+		}
+		
+		int elementSize = elementTypeInfo.getSize();
+		if (elementSize == 0) {
+			throw Helpers.nodeError(node, "Can not index array type \"%s\" with zero-sized element type \"%s\"!", this, elementTypeInfo);
+		}
+		
+		int index = offset / elementSize;
 		if (index >= length) {
 			throw Helpers.nodeError(node, "Attempted to index array type \"%s\" at position %d!", this, index);
 		}

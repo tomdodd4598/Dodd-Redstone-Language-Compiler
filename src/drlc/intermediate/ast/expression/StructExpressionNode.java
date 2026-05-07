@@ -35,7 +35,7 @@ public class StructExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, null, parent.scope, true);
+		scope = new Scope(this, null, parent.scope, false);
 		
 		for (ExpressionNode expressionNode : expressionNodes) {
 			expressionNode.setScopes(this);
@@ -75,7 +75,7 @@ public class StructExpressionNode extends ExpressionNode {
 		
 		int count = expressionNodes.size();
 		for (int i = 0; i < count; ++i) {
-			@SuppressWarnings("null") @NonNull TypeInfo expressionType = sortedExpressionNodes.get(i).getTypeInfo(), memberType = typeInfo.typeInfos.get(i);
+			@NonNull TypeInfo expressionType = sortedExpressionNodes.get(i).getTypeInfo(), memberType = typeInfo.typeInfos.get(i);
 			if (!expressionType.canImplicitCastTo(memberType)) {
 				throw castError("member", expressionType, memberType);
 			}
@@ -97,13 +97,6 @@ public class StructExpressionNode extends ExpressionNode {
 		}
 		
 		setSortedExpressionNodes();
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		for (ExpressionNode expressionNode : expressionNodes) {
-			expressionNode.trackFunctions(this);
-		}
 	}
 	
 	@Override
@@ -136,7 +129,7 @@ public class StructExpressionNode extends ExpressionNode {
 			int count = expressionNodes.size();
 			Set<String> uniqueLabels = new HashSet<>();
 			for (int i = 0; i < count; ++i) {
-				@SuppressWarnings("null") @NonNull String label = labels.get(i);
+				@NonNull String label = labels.get(i);
 				MemberInfo info = typeInfo.getMemberInfo(label);
 				if (info == null) {
 					throw error("Expression of type \"%s\" has no member \"%s\"!", typeInfo, label);
@@ -199,7 +192,7 @@ public class StructExpressionNode extends ExpressionNode {
 			int count = expressionNodes.size();
 			sortedExpressionNodes = new ArrayList<>(Collections.nCopies(count, null));
 			for (int i = 0; i < count; ++i) {
-				@SuppressWarnings("null") MemberInfo info = typeInfo.getMemberInfo(labels.get(i));
+				MemberInfo info = typeInfo.getMemberInfo(labels.get(i));
 				sortedExpressionNodes.set(info.index, expressionNodes.get(i));
 			}
 		}

@@ -2,8 +2,11 @@ package drlc.intermediate.action;
 
 import java.util.*;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.Function;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.scope.Scope;
 
@@ -13,8 +16,9 @@ public class CallAction extends Action implements IValueAction {
 	public final DataId target;
 	public final DataId caller;
 	public final List<DataId> args;
+	public final @Nullable Function directFunction;
 	
-	public CallAction(ASTNode<?> node, Scope scope, DataId target, DataId caller, List<DataId> args) {
+	public CallAction(ASTNode<?> node, Scope scope, DataId target, DataId caller, List<DataId> args, @Nullable Function directFunction) {
 		super(node);
 		if (scope == null) {
 			throw Helpers.nodeError(node, "Function call action scope was null!");
@@ -43,10 +47,33 @@ public class CallAction extends Action implements IValueAction {
 		else {
 			this.args = args;
 		}
+		
+		this.directFunction = directFunction;
 	}
 	
 	protected CallAction copy(ASTNode<?> node, Scope scope, DataId target, DataId caller, List<DataId> args) {
-		return new CallAction(node, scope, target, caller, args);
+		@Nullable Function directFunctionCopy = directFunction;
+		if (directFunctionCopy != null && !caller.equals(this.caller)) {
+			directFunctionCopy = caller.getDirectFunction();
+		}
+		return new CallAction(node, scope, target, caller, args, directFunctionCopy);
+	}
+	
+	public @Nullable Function getDirectFunction() {
+		@Nullable Function directFunction = this.directFunction;
+		@Nullable Function callerDirectFunction = caller.getDirectFunction();
+		if (directFunction == null) {
+			return callerDirectFunction;
+		}
+		if (callerDirectFunction != null && !directFunction.equals(callerDirectFunction)) {
+			return null;
+		}
+		return directFunction;
+	}
+	
+	@Deprecated
+	public @Nullable Function getResolvedFunction() {
+		return getDirectFunction();
 	}
 	
 	@Override
@@ -144,7 +171,7 @@ public class CallAction extends Action implements IValueAction {
 			replaceArgs.add(argResult.dataId);
 		}
 		if (success) {
-			return copy(null, scope, targetResult.dataId, functionResult.dataId, replaceArgs);
+			return new CallAction(null, scope, targetResult.dataId, functionResult.dataId, replaceArgs, directFunction);
 		}
 		else {
 			return null;

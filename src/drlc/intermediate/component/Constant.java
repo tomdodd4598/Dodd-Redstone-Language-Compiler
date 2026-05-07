@@ -5,9 +5,10 @@ import java.util.Objects;
 import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.intermediate.component.value.Value;
+import drlc.intermediate.module.ValueEntry;
 import drlc.intermediate.scope.Scope;
 
-public class Constant {
+public class Constant implements ValueEntry {
 	
 	public final @NonNull String name;
 	public final @NonNull Value<?> value;

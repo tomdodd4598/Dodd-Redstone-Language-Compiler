@@ -6,7 +6,7 @@ import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.type.*;
-import drlc.intermediate.component.value.*;
+import drlc.intermediate.component.value.Value;
 
 public class PathExpressionNode extends ExpressionNode {
 	
@@ -54,8 +54,8 @@ public class PathExpressionNode extends ExpressionNode {
 		if (variable != null) {
 			variable = scope.captureVariable(this, variable);
 			
-			if (!isLvalue && !scope.isVariableDefinitelyInitialized(variable)) {
-				throw Helpers.nodeError(parent, "Attempted to use potentially uninitialized variable \"%s\"!", variable.name);
+			if (!isLvalue) {
+				checkIsReadable(parent);
 			}
 		}
 	}
@@ -68,14 +68,6 @@ public class PathExpressionNode extends ExpressionNode {
 	@Override
 	public void foldConstants(ASTNode<?> parent) {
 		
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		Function directFunction = getDirectFunction();
-		if (directFunction != null) {
-			routine.onNonLocalFunctionItemExpression(this, directFunction);
-		}
 	}
 	
 	@SuppressWarnings("null")
@@ -129,12 +121,10 @@ public class PathExpressionNode extends ExpressionNode {
 	
 	@Override
 	protected void setConstantValueInternal() {
-		if (scope.pathGet(this, path, (x, name) -> x.constantExists(name, false))) {
-			value = scope.pathGet(this, path, (x, name) -> x.getConstant(this, name, false).value);
-		}
-		else {
-			value = null;
-		}
+		value = scope.pathGet(this, path, (x, name) -> {
+			Constant constant = x.tryGetConstant(this, name, false);
+			return constant == null ? null : constant.value;
+		});
 	}
 	
 	@Override
@@ -172,6 +162,18 @@ public class PathExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
+	public void checkIsReadable(ASTNode<?> parent) {
+		if (variable != null && !scope.isVariableDefinitelyInitialized(variable)) {
+			throw Helpers.nodeError(parent, "Attempted to use potentially uninitialized variable \"%s\"!", variable.name);
+		}
+	}
+	
+	@Override
+	public void checkIsReadableForPlainAssignment(ASTNode<?> parent) {
+		
+	}
+	
+	@Override
 	public void initialize(ASTNode<?> parent) {
 		if (variable != null) {
 			scope.onVariableInitialization(parent, variable);
@@ -181,9 +183,7 @@ public class PathExpressionNode extends ExpressionNode {
 	@Override
 	public @Nullable Function getDirectFunction() {
 		if (!setDirectFunction) {
-			if (value instanceof FunctionItemValue) {
-				directFunction = ((FunctionItemValue) value).typeInfo.function;
-			}
+			directFunction = value == null ? null : value.getDirectFunction();
 			setDirectFunction = true;
 		}
 		return directFunction;

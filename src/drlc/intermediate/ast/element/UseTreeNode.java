@@ -16,5 +16,35 @@ public abstract class UseTreeNode extends ASTNode<Scope> {
 		super(source);
 	}
 	
+	@Override
+	public void defineTypes(ASTNode<?> parent) {
+		
+	}
+	
+	@Override
+	public void declareExpressions(ASTNode<?> parent) {
+		routine = parent.routine;
+	}
+	
+	@Override
+	public void defineExpressions(ASTNode<?> parent) {
+		
+	}
+	
+	@Override
+	public void checkTypes(ASTNode<?> parent) {
+		
+	}
+	
+	@Override
+	public void foldConstants(ASTNode<?> parent) {
+		
+	}
+	
+	@Override
+	public void generateIntermediate(ASTNode<?> parent) {
+		
+	}
+	
 	public abstract void buildPath(@NonNull List<String> pathPrefix);
 }

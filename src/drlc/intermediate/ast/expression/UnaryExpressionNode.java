@@ -27,7 +27,7 @@ public class UnaryExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, null, parent.scope, true);
+		scope = new Scope(this, null, parent.scope, false);
 		
 		expressionNode.setScopes(this);
 	}
@@ -64,11 +64,6 @@ public class UnaryExpressionNode extends ExpressionNode {
 		if (constantExpressionNode != null) {
 			expressionNode = constantExpressionNode;
 		}
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		expressionNode.trackFunctions(this);
 	}
 	
 	@Override

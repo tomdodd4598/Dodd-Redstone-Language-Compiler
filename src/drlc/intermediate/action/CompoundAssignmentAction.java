@@ -66,7 +66,7 @@ public class CompoundAssignmentAction extends Action implements IValueAction {
 			return new CompoundAssignmentAction(null, target, replaceArgs);
 		}
 		else {
-			throw new IllegalArgumentException(String.format("No compound assignment action argument %s matched replacement data ID %s!", Helpers.listString(args), targetId));
+			throw new IllegalArgumentException(String.format("No compound assignment action argument %s matched replacement data ID %s!", Helpers.tupleString(args), targetId));
 		}
 	}
 	
@@ -125,6 +125,6 @@ public class CompoundAssignmentAction extends Action implements IValueAction {
 	
 	@Override
 	public String toString() {
-		return target + " = " + Helpers.listString(args);
+		return target + " = " + Helpers.tupleString(args);
 	}
 }

@@ -27,7 +27,7 @@ public class CallExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, null, parent.scope, true);
+		scope = new Scope(this, null, parent.scope, false);
 		
 		callerExpressionNode.setScopes(this);
 		
@@ -111,17 +111,6 @@ public class CallExpressionNode extends ExpressionNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		if (callerExpressionNode.getDirectFunction() == null) {
-			callerExpressionNode.trackFunctions(this);
-		}
-		
-		for (ExpressionNode argExpressionNode : argExpressionNodes) {
-			argExpressionNode.trackFunctions(this);
-		}
-	}
-	
-	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
 		callerExpressionNode.generateIntermediate(this);
 		
@@ -188,5 +177,23 @@ public class CallExpressionNode extends ExpressionNode {
 	@Override
 	public boolean isStatic() {
 		return callerExpressionNode.isStatic() && argExpressionNodes.stream().allMatch(ExpressionNode::isStatic);
+	}
+	
+	protected @Nullable ClosureExpressionNode getWrappedClosureExpression(@NonNull ExpressionNode expressionNode) {
+		if (expressionNode instanceof ClosureExpressionNode closureExpressionNode) {
+			return closureExpressionNode;
+		}
+		else if (expressionNode instanceof AddressExpressionNode addressExpressionNode) {
+			return getWrappedClosureExpression(addressExpressionNode.expressionNode);
+		}
+		else if (expressionNode instanceof DereferenceExpressionNode dereferenceExpressionNode) {
+			return getWrappedClosureExpression(dereferenceExpressionNode.expressionNode);
+		}
+		else if (expressionNode instanceof CastExpressionNode castExpressionNode) {
+			return getWrappedClosureExpression(castExpressionNode.expressionNode);
+		}
+		else {
+			return null;
+		}
 	}
 }

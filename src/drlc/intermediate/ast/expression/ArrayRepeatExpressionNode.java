@@ -30,7 +30,7 @@ public class ArrayRepeatExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void setScopes(ASTNode<?> parent) {
-		scope = new Scope(this, null, parent.scope, true);
+		scope = new Scope(this, null, parent.scope, false);
 		
 		constantExpressionNode.setScopes(this);
 		repeatExpressionNode.setScopes(this);
@@ -42,10 +42,11 @@ public class ArrayRepeatExpressionNode extends ExpressionNode {
 		
 		@Nullable Value<?> constantValue = constantExpressionNode.getConstantValue(Main.generator.natTypeInfo);
 		if (constantValue != null && constantValue.typeInfo.canImplicitCastTo(Main.generator.natTypeInfo)) {
-			length = constantValue.intValue(this);
-			if (length < 0) {
-				throw error("Length of array can not be negative!");
+			long lengthLong = constantValue.longValue(this);
+			if (Long.compareUnsigned(lengthLong, Integer.toUnsignedLong(Integer.MAX_VALUE)) > 0) {
+				throw error("Length of array can not exceed %d (found %s)!", Integer.MAX_VALUE, Long.toUnsignedString(lengthLong));
 			}
+			length = (int) lengthLong;
 		}
 		else {
 			throw error("Length of array is not a compile-time \"%s\" constant!", Main.generator.natTypeInfo);
@@ -81,11 +82,6 @@ public class ArrayRepeatExpressionNode extends ExpressionNode {
 		if (constantRepeatExpressionNode != null) {
 			repeatExpressionNode = constantRepeatExpressionNode;
 		}
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		repeatExpressionNode.trackFunctions(this);
 	}
 	
 	@Override

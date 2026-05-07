@@ -6,7 +6,8 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.component.type.*;
+import drlc.intermediate.component.TypeDef;
+import drlc.intermediate.component.type.TupleTypeInfo;
 
 public class TupleTypeNode extends TypeNode {
 	
@@ -56,11 +57,6 @@ public class TupleTypeNode extends TypeNode {
 	
 	@Override
 	public void foldConstants(ASTNode<?> parent) {
-		
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
 		
 	}
 	

@@ -50,11 +50,15 @@ public class Hierarchy<K, V> {
 		return shallow || parent == null ? false : parent.containsKey(key, false);
 	}
 	
-	public boolean containsValue(K key, boolean shallow) {
-		if (internal.containsKey(key)) {
+	public boolean containsValue(V value, boolean shallow) {
+		if (internal.containsValue(value)) {
 			return true;
 		}
-		return shallow || parent == null ? false : parent.containsKey(key, false);
+		return shallow || parent == null ? false : parent.containsValue(value, false);
+	}
+	
+	public void forEachLocal(BiConsumer<? super K, ? super V> consumer) {
+		internal.forEach(consumer);
 	}
 	
 	public void forEach(BiConsumer<? super K, ? super V> consumer, boolean shallow) {
@@ -62,5 +66,11 @@ public class Hierarchy<K, V> {
 		if (!shallow && parent != null) {
 			parent.forEach(consumer, false);
 		}
+	}
+	
+	public Hierarchy<K, V> local() {
+		Hierarchy<K, V> copy = new Hierarchy<>(null);
+		forEachLocal((k, v) -> copy.put(k, v, true));
+		return copy;
 	}
 }

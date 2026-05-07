@@ -7,7 +7,8 @@ import org.eclipse.jdt.annotation.*;
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.expression.ExpressionNode;
-import drlc.intermediate.component.type.*;
+import drlc.intermediate.component.TypeDef;
+import drlc.intermediate.component.type.ArrayTypeInfo;
 import drlc.intermediate.component.value.Value;
 
 public class ArrayTypeNode extends TypeNode {
@@ -38,10 +39,11 @@ public class ArrayTypeNode extends TypeNode {
 		
 		@Nullable Value<?> constantValue = constantExpressionNode.getConstantValue(Main.generator.natTypeInfo);
 		if (constantValue != null && constantValue.typeInfo.canImplicitCastTo(Main.generator.natTypeInfo)) {
-			length = constantValue.intValue(this);
-			if (length < 0) {
-				throw error("Length of array type can not be negative!");
+			long lengthLong = constantValue.longValue(this);
+			if (Long.compareUnsigned(lengthLong, Integer.toUnsignedLong(Integer.MAX_VALUE)) > 0) {
+				throw error("Length of array type can not exceed %d (found %s)!", Integer.MAX_VALUE, Long.toUnsignedString(lengthLong));
 			}
+			length = (int) lengthLong;
 		}
 		else {
 			throw error("Length of array type is not a compile-time \"%s\" constant!", Main.generator.natTypeInfo);
@@ -69,11 +71,6 @@ public class ArrayTypeNode extends TypeNode {
 	
 	@Override
 	public void foldConstants(ASTNode<?> parent) {
-		
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
 		
 	}
 	

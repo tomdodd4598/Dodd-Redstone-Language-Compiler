@@ -87,7 +87,7 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 					DataId target = ca.target, caller = ca.caller;
 					List<DataId> args = ca.args;
 					
-					Function callerFunction = caller.getFunction();
+					Function callerFunction = ca.getDirectFunction();
 					RedstoneRoutine subroutine = callerFunction == null ? null : code.getRoutine(callerFunction);
 					boolean indirectCall = subroutine == null;
 					boolean isStackRoutine = indirectCall || subroutine.isStackRoutine();
@@ -377,7 +377,7 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 		}
 		
 		List<Instruction> instructionList = Helpers.map(args, x -> {
-			Function function = x.getFunction();
+			Function function = x.getDirectFunction();
 			if (function != null) {
 				return new InstructionSubroutineAddressData(function);
 			}
@@ -401,7 +401,7 @@ public class RedstoneRoutine extends LowRoutine<RedstoneCode, RedstoneRoutine, I
 	}
 	
 	protected void loadThen(List<Instruction> text, boolean reverse, DataId arg, IntConsumer consumer) {
-		Function function = arg.getFunction();
+		Function function = arg.getDirectFunction();
 		if (function != null) {
 			text.add(new InstructionLoadSubroutineAddress(function));
 			consumer.accept(0);

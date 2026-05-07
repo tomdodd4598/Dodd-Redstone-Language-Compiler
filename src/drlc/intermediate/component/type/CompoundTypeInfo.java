@@ -8,6 +8,7 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.TypeDef;
 
 public abstract class CompoundTypeInfo extends TypeInfo {
 	
@@ -22,7 +23,20 @@ public abstract class CompoundTypeInfo extends TypeInfo {
 	
 	@Override
 	public int getSize() {
-		return isAddress() ? Main.generator.getAddressSize() : Helpers.sumToInt(typeInfos, TypeInfo::getSize);
+		if (isAddress()) {
+			return Main.generator.getAddressSize();
+		}
+		
+		try {
+			int size = 0;
+			for (TypeInfo typeInfo : typeInfos) {
+				size = Math.addExact(size, typeInfo.getSize());
+			}
+			return size;
+		}
+		catch (ArithmeticException e) {
+			throw Helpers.error("Size of type \"%s\" is too large!", rawString());
+		}
 	}
 	
 	@Override
@@ -46,30 +60,39 @@ public abstract class CompoundTypeInfo extends TypeInfo {
 	
 	@Override
 	public int indexToOffsetShallow(ASTNode<?> node, int index) {
-		if (index >= count) {
+		if (index < 0 || index >= count) {
 			throw Helpers.nodeError(node, "Attempted to index type \"%s\" at position %d!", this, index);
 		}
 		else {
-			int offset = 0;
-			for (int i = 0; i < index; ++i) {
-				offset += typeInfos.get(i).getSize();
+			try {
+				int offset = 0;
+				for (int i = 0; i < index; ++i) {
+					offset = Math.addExact(offset, typeInfos.get(i).getSize());
+				}
+				return offset;
 			}
-			return offset;
+			catch (ArithmeticException e) {
+				throw Helpers.nodeError(node, "Offset of type \"%s\" at position %d is too large!", this, index);
+			}
 		}
 	}
 	
 	@Override
 	public int offsetToIndexShallow(ASTNode<?> node, int offset) {
-		int index = 0;
-		while ((offset -= typeInfos.get(index).getSize()) >= 0) {
-			++index;
+		if (offset < 0) {
+			throw Helpers.nodeError(node, "Attempted to index type \"%s\" at position %d!", this, offset);
 		}
-		if (index >= count) {
-			throw Helpers.nodeError(node, "Attempted to index type \"%s\" at position %d!", this, index);
+		
+		int remainingOffset = offset;
+		for (int index = 0; index < count; ++index) {
+			int size = typeInfos.get(index).getSize();
+			if (remainingOffset < size) {
+				return index;
+			}
+			remainingOffset -= size;
 		}
-		else {
-			return index;
-		}
+		
+		throw Helpers.nodeError(node, "Attempted to index type \"%s\" at position %d!", this, count);
 	}
 	
 	@Override

@@ -6,6 +6,7 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.Main;
 import drlc.intermediate.ast.ASTNode;
+import drlc.intermediate.component.TypeDef;
 
 public abstract class BasicTypeInfo extends TypeInfo {
 	

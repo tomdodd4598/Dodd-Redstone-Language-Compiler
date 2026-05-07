@@ -110,14 +110,6 @@ public class VariableDeclarationNode extends StaticSectionNode<Scope> {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		if (expressionNode != null) {
-			expressionNode.trackFunctions(this);
-		}
-		declaratorNode.trackFunctions(this);
-	}
-	
-	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
 		if (expressionNode != null) {
 			expressionNode.generateIntermediate(this);

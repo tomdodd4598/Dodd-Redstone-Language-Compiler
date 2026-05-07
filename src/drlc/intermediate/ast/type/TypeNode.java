@@ -6,7 +6,8 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.component.type.*;
+import drlc.intermediate.component.TypeDef;
+import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.scope.Scope;
 
 public abstract class TypeNode extends ASTNode<Scope> {

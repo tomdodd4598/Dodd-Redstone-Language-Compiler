@@ -11,8 +11,8 @@ public class IterativeScope extends Scope {
 	
 	public final @NonNull JumpAction continueJump = new JumpAction(null, -1), breakJump = new JumpAction(null, -1);
 	
-	public IterativeScope(ASTNode<?> node, @Nullable String name, @Nullable Scope parent, boolean pseudo, boolean definiteExecution, @Nullable String label) {
-		super(node, name, parent, pseudo);
+	public IterativeScope(ASTNode<?> node, @Nullable String name, @Nullable Scope parent, boolean concrete, boolean definiteExecution, @Nullable String label) {
+		super(node, name, parent, concrete);
 		this.definiteExecution = definiteExecution;
 		this.label = label;
 		potentialOuterMultipleExecution = true;

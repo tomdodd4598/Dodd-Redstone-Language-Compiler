@@ -49,11 +49,6 @@ public class BreakNode extends StopNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		
-	}
-	
-	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
 		routine.addAction(scope.getBreakJump(this, label));
 	}

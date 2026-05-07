@@ -4,10 +4,10 @@ import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import drlc.*;
+import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.element.DeclaratorNode;
-import drlc.intermediate.component.MemberInfo;
+import drlc.intermediate.component.*;
 import drlc.intermediate.component.type.*;
 import drlc.intermediate.scope.Scope;
 
@@ -15,6 +15,8 @@ public class StructDefinitionNode extends StaticSectionNode<Scope> {
 	
 	public final @NonNull String name;
 	public final @NonNull List<DeclaratorNode> componentNodes;
+	protected final @NonNull Map<String, MemberInfo> memberMap = new LinkedHashMap<>();
+	protected final @NonNull List<TypeInfo> typeInfos = new ArrayList<>();
 	
 	@SuppressWarnings("null")
 	public @NonNull TypeDef typeDef = null;
@@ -40,14 +42,19 @@ public class StructDefinitionNode extends StaticSectionNode<Scope> {
 		}
 	}
 	
-	@SuppressWarnings("null")
+	@SuppressWarnings("unused")
+	@Override
+	public void declareTypes(ASTNode<?> parent) {
+		if (typeDef == null) {
+			typeDef = new TypeDef(name, 0, memberMap, (n, r) -> new StructTypeInfo(n, r, typeInfos, typeDef));
+			
+			scope.addTypeDef(this, typeDef.name, typeDef);
+		}
+	}
+	
 	@Override
 	public void defineTypes(ASTNode<?> parent) {
-		Map<String, MemberInfo> memberMap = new LinkedHashMap<>();
-		List<TypeInfo> typeInfos = new ArrayList<>();
-		typeDef = new TypeDef(name, 0, memberMap, (n, r, s) -> new StructTypeInfo(n, r, typeInfos, s, name));
-		
-		scope.addTypeDef(this, typeDef);
+		declareTypes(parent);
 		
 		for (DeclaratorNode componentNode : componentNodes) {
 			componentNode.defineTypes(this);
@@ -61,6 +68,9 @@ public class StructDefinitionNode extends StaticSectionNode<Scope> {
 			throw error("Struct \"%s\" can not directly contain itself!", name);
 		}
 		
+		typeInfos.clear();
+		memberMap.clear();
+		
 		for (DeclaratorNode componentNode : componentNodes) {
 			componentNode.typeNode.setTypeInfo();
 		}
@@ -69,7 +79,16 @@ public class StructDefinitionNode extends StaticSectionNode<Scope> {
 			typeInfos.add(componentNode.typeNode.getTypeInfo());
 		}
 		
-		typeDef.size = Helpers.sumToInt(typeInfos, TypeInfo::getSize);
+		try {
+			int size = 0;
+			for (TypeInfo typeInfo : typeInfos) {
+				size = Math.addExact(size, typeInfo.getSize());
+			}
+			typeDef.size = size;
+		}
+		catch (ArithmeticException e) {
+			throw error("Size of struct \"%s\" is too large!", name);
+		}
 		
 		int count = componentNodes.size(), offset = 0;
 		for (int i = 0; i < count; ++i) {
@@ -80,7 +99,12 @@ public class StructDefinitionNode extends StaticSectionNode<Scope> {
 			else {
 				@NonNull TypeInfo typeInfo = typeInfos.get(i);
 				memberMap.put(memberName, new MemberInfo(memberName, typeInfo, i, offset));
-				offset += typeInfo.getSize();
+				try {
+					offset = Math.addExact(offset, typeInfo.getSize());
+				}
+				catch (ArithmeticException e) {
+					throw error("Offset of member \"%s\" in struct \"%s\" is too large!", memberName, name);
+				}
 			}
 		}
 	}
@@ -106,12 +130,7 @@ public class StructDefinitionNode extends StaticSectionNode<Scope> {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		
-	}
-	
-	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
-		routine.typeDefMap.put(typeDef.toString(), typeDef.getTypeInfo(this, new ArrayList<>(), scope));
+		routine.typeDefMap.put(typeDef.toString(), typeDef.getTypeInfo(this, new ArrayList<>()));
 	}
 }

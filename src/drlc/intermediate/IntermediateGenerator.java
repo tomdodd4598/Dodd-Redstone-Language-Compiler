@@ -1,5 +1,6 @@
 package drlc.intermediate;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -70,7 +71,7 @@ public class IntermediateGenerator extends Generator {
 	}
 	
 	@Override
-	public void generate() {
+	public void generate() throws IOException {
 		StringBuilder sb = new StringBuilder();
 		boolean begin = true;
 		for (Routine routine : Main.rootScope.routineMap.values()) {

@@ -145,7 +145,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 					DataId target = ca.target, caller = ca.caller;
 					List<DataId> args = ca.args;
 					
-					Function callerFunction = caller.getFunction();
+					Function callerFunction = ca.getDirectFunction();
 					EdsacRoutine subroutine = callerFunction == null ? null : code.getRoutine(callerFunction);
 					boolean indirectCall = subroutine == null;
 					boolean isStackRoutine = indirectCall || subroutine.isStackRoutine();
@@ -485,7 +485,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 	}
 	
 	protected LowDataInfo ensureDataInfo(DataId arg) {
-		Function function = arg.getFunction();
+		Function function = arg.getDirectFunction();
 		if (function != null) {
 			return ensureFunctionInfo(function, arg);
 		}
@@ -717,7 +717,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 	}
 	
 	protected void loadThen(List<Instruction> text, boolean reverse, DataId arg, IntConsumer consumer) {
-		Function function = arg.getFunction();
+		Function function = arg.getDirectFunction();
 		if (function != null) {
 			LowDataInfo info = ensureFunctionInfo(function, arg);
 			clearAccumulator(text);
@@ -802,7 +802,7 @@ public class EdsacRoutine extends LowRoutine<EdsacCode, EdsacRoutine, Instructio
 		}
 		
 		List<Instruction> instructionList = Helpers.map(args, x -> {
-			Function function = x.getFunction();
+			Function function = x.getDirectFunction();
 			if (function != null) {
 				return new InstructionSubroutineAddressData(function);
 			}

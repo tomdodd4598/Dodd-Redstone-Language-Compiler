@@ -1,5 +1,6 @@
 package drlc.low.drc1;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -13,7 +14,7 @@ public class RedstoneAssemblyGenerator extends RedstoneGenerator {
 	}
 	
 	@Override
-	public void generate() {
+	public void generate() throws IOException {
 		generateInternal();
 		
 		StringBuilder sb = new StringBuilder();

@@ -1,5 +1,6 @@
 package drlc;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -67,13 +68,13 @@ public abstract class Generator {
 	}
 	
 	public void addBuiltInTypes() {
-		Main.rootScope.addTypeAlias(null, Global.BOOL, boolTypeInfo = boolTypeInfo());
-		Main.rootScope.addTypeAlias(null, Global.INT, intTypeInfo = intTypeInfo());
-		Main.rootScope.addTypeAlias(null, Global.NAT, natTypeInfo = natTypeInfo());
-		Main.rootScope.addTypeAlias(null, Global.CHAR, charTypeInfo = charTypeInfo());
+		Main.rootScope.addDirectTypeName(null, Global.BOOL, boolTypeInfo = boolTypeInfo());
+		Main.rootScope.addDirectTypeName(null, Global.INT, intTypeInfo = intTypeInfo());
+		Main.rootScope.addDirectTypeName(null, Global.NAT, natTypeInfo = natTypeInfo());
+		Main.rootScope.addDirectTypeName(null, Global.CHAR, charTypeInfo = charTypeInfo());
 		
 		unitTypeInfo = new TupleTypeInfo(null, new ArrayList<>(), new ArrayList<>());
-		Main.rootScope.addTypeAlias(null, Global.VOID, voidTypeInfo = unitTypeInfo.addressOf(null, true));
+		Main.rootScope.addDirectTypeName(null, Global.VOID, voidTypeInfo = unitTypeInfo.addressOf(null, true));
 		
 		Main.rootScope.addStructTypeDef(null, Global.BOOLS, Helpers.arrayList(boolTypeInfo(true), natTypeInfo), Helpers.arrayList(Global.PTR, Global.LEN));
 		Main.rootScope.addStructTypeDef(null, Global.INTS, Helpers.arrayList(intTypeInfo(true), natTypeInfo), Helpers.arrayList(Global.PTR, Global.LEN));
@@ -153,7 +154,11 @@ public abstract class Generator {
 	public abstract int getAddressSize();
 	
 	public @NonNull Function getBuiltInFunction(ASTNode<?> node, String name) {
-		return Main.rootScope.getFunction(node, name, false);
+		@NonNull Function function = Main.rootScope.getDeclaredFunction(node, name, false);
+		if (function.builtIn && !Main.rootScope.routineExists(function)) {
+			Main.rootScope.addRoutine(node, new Routine(function));
+		}
+		return function;
 	}
 	
 	public @NonNull BoolTypeInfo boolTypeInfo(Boolean... referenceMutability) {
@@ -261,25 +266,27 @@ public abstract class Generator {
 		
 		if (left instanceof AddressValue leftAddress) {
 			if (right instanceof AddressValue rightAddress) {
-				if (opType.equals(BinaryOpType.MINUS) && !leftType.equals(rightType)) {
-					throw undefinedBinaryOp(node, leftType, opType, rightType);
-				}
-				
 				switch (opType) {
 					case LOGICAL_AND:
 					case LOGICAL_OR:
 						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					case EQUAL_TO:
+						requireAddressComparisonTypes(node, leftType, opType, rightType);
 						return boolValue(leftAddress.address == rightAddress.address);
 					case NOT_EQUAL_TO:
+						requireAddressComparisonTypes(node, leftType, opType, rightType);
 						return boolValue(leftAddress.address != rightAddress.address);
 					case LESS_THAN:
+						requireAddressComparisonTypes(node, leftType, opType, rightType);
 						return boolValue(leftAddress.address < rightAddress.address);
 					case LESS_OR_EQUAL:
+						requireAddressComparisonTypes(node, leftType, opType, rightType);
 						return boolValue(leftAddress.address <= rightAddress.address);
 					case MORE_THAN:
+						requireAddressComparisonTypes(node, leftType, opType, rightType);
 						return boolValue(leftAddress.address > rightAddress.address);
 					case MORE_OR_EQUAL:
+						requireAddressComparisonTypes(node, leftType, opType, rightType);
 						return boolValue(leftAddress.address >= rightAddress.address);
 					case PLUS:
 					case AND:
@@ -287,7 +294,8 @@ public abstract class Generator {
 					case XOR:
 						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					case MINUS:
-						return intValue((leftAddress.address - rightAddress.address) / leftType.getAddressOffsetSize(node));
+						requireAddressSubtractTypes(node, leftType, opType, rightType);
+						return intValue((leftAddress.address - rightAddress.address) / addressSubtractOffsetSize(node, leftType));
 					case MULTIPLY:
 					case DIVIDE:
 					case REMAINDER:
@@ -312,15 +320,8 @@ public abstract class Generator {
 			}
 		}
 		else {
-			if (right instanceof AddressValue rightAddress) {
-				if (plusOrMinus && leftType.isWord()) {
-					long leftLong = left.longValue(node);
-					int size = leftType.getAddressOffsetSize(node);
-					return addressValue(rightType, opType.equals(BinaryOpType.PLUS) ? leftLong * size + rightAddress.address : leftLong * size - rightAddress.address);
-				}
-				else {
-					throw undefinedBinaryOp(node, leftType, opType, rightType);
-				}
+			if (right instanceof AddressValue) {
+				throw undefinedBinaryOp(node, leftType, opType, rightType);
 			}
 			else {
 				throw Helpers.nodeError(node, "Unexpectedly used address binary op \"%s\" on expressions of types \"%s\" and \"%s\"!", opType, leftType, rightType);
@@ -585,10 +586,6 @@ public abstract class Generator {
 		
 		if (leftType.isAddress()) {
 			if (rightType.isAddress()) {
-				if (opType.equals(BinaryOpType.MINUS) && !leftType.equals(rightType)) {
-					throw undefinedBinaryOp(node, leftType, opType, rightType);
-				}
-				
 				switch (opType) {
 					case LOGICAL_AND:
 					case LOGICAL_OR:
@@ -599,6 +596,7 @@ public abstract class Generator {
 					case LESS_OR_EQUAL:
 					case MORE_THAN:
 					case MORE_OR_EQUAL:
+						requireAddressComparisonTypes(node, leftType, opType, rightType);
 						return boolTypeInfo;
 					case PLUS:
 					case AND:
@@ -606,6 +604,8 @@ public abstract class Generator {
 					case XOR:
 						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					case MINUS:
+						requireAddressSubtractTypes(node, leftType, opType, rightType);
+						addressSubtractOffsetSize(node, leftType);
 						return intTypeInfo;
 					case MULTIPLY:
 					case DIVIDE:
@@ -630,12 +630,7 @@ public abstract class Generator {
 		}
 		else {
 			if (rightType.isAddress()) {
-				if (plusOrMinus && leftType.isWord()) {
-					return rightType;
-				}
-				else {
-					throw undefinedBinaryOp(node, leftType, opType, rightType);
-				}
+				throw undefinedBinaryOp(node, leftType, opType, rightType);
 			}
 			else {
 				throw Helpers.nodeError(node, "Unexpectedly used address binary op \"%s\" on expressions of types \"%s\" and \"%s\"!", opType, leftType, rightType);
@@ -883,27 +878,29 @@ public abstract class Generator {
 		
 		if (leftType.isAddress()) {
 			if (rightType.isAddress()) {
-				if (opType.equals(BinaryOpType.MINUS) && !leftType.equals(rightType)) {
-					throw undefinedBinaryOp(node, leftType, opType, rightType);
-				}
-				
 				switch (opType) {
 					case EQUAL_TO:
+						requireAddressComparisonTypes(node, leftType, opType, rightType);
 						routine.addAction(BinaryActionType.INT_EQUAL_TO_INT.action(node, target, arg1, arg2));
 						return;
 					case NOT_EQUAL_TO:
+						requireAddressComparisonTypes(node, leftType, opType, rightType);
 						routine.addAction(BinaryActionType.INT_NOT_EQUAL_TO_INT.action(node, target, arg1, arg2));
 						return;
 					case LESS_THAN:
+						requireAddressComparisonTypes(node, leftType, opType, rightType);
 						routine.addAction(BinaryActionType.INT_LESS_THAN_INT.action(node, target, arg1, arg2));
 						return;
 					case LESS_OR_EQUAL:
+						requireAddressComparisonTypes(node, leftType, opType, rightType);
 						routine.addAction(BinaryActionType.INT_LESS_OR_EQUAL_INT.action(node, target, arg1, arg2));
 						return;
 					case MORE_THAN:
+						requireAddressComparisonTypes(node, leftType, opType, rightType);
 						routine.addAction(BinaryActionType.INT_MORE_THAN_INT.action(node, target, arg1, arg2));
 						return;
 					case MORE_OR_EQUAL:
+						requireAddressComparisonTypes(node, leftType, opType, rightType);
 						routine.addAction(BinaryActionType.INT_MORE_OR_EQUAL_INT.action(node, target, arg1, arg2));
 						return;
 					case PLUS:
@@ -912,9 +909,11 @@ public abstract class Generator {
 					case XOR:
 						throw undefinedBinaryOp(node, leftType, opType, rightType);
 					case MINUS:
+						requireAddressSubtractTypes(node, leftType, opType, rightType);
+						int offsetSize = addressSubtractOffsetSize(node, leftType);
 						DataId raw = routine.nextRegId(intTypeInfo);
 						routine.addAction(BinaryActionType.INT_MINUS_INT.action(node, raw, arg1, arg2));
-						routine.addAction(BinaryActionType.INT_DIVIDE_INT.action(node, target, raw, intValue(leftType.getAddressOffsetSize(node)).dataId()));
+						routine.addAction(BinaryActionType.INT_DIVIDE_INT.action(node, target, raw, intValue(offsetSize).dataId()));
 						return;
 					case MULTIPLY:
 					case DIVIDE:
@@ -943,21 +942,33 @@ public abstract class Generator {
 		}
 		else {
 			if (rightType.isAddress()) {
-				if (plusOrMinus && leftType.isWord()) {
-					DataId offset = routine.nextRegId(leftType);
-					int offsetSize = rightType.getAddressOffsetSize(node);
-					routine.addAction(BinaryActionType.INT_MULTIPLY_INT.action(node, offset, arg1, (leftType.equals(intTypeInfo) ? intValue(offsetSize) : natValue(offsetSize)).dataId()));
-					routine.addAction((opType.equals(BinaryOpType.PLUS) ? BinaryActionType.INT_PLUS_INT : BinaryActionType.INT_MINUS_INT).action(node, target, offset, arg2));
-					return;
-				}
-				else {
-					throw undefinedBinaryOp(node, leftType, opType, rightType);
-				}
+				throw undefinedBinaryOp(node, leftType, opType, rightType);
 			}
 			else {
 				throw Helpers.nodeError(node, "Unexpectedly used address binary op \"%s\" on expressions of types \"%s\" and \"%s\"!", opType, leftType, rightType);
 			}
 		}
+	}
+	
+	protected void requireAddressComparisonTypes(ASTNode<?> node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType) {
+		if (leftType.getReferenceLevel() != rightType.getReferenceLevel()) {
+			throw undefinedBinaryOp(node, leftType, opType, rightType);
+		}
+	}
+	
+	protected void requireAddressSubtractTypes(ASTNode<?> node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType) {
+		requireAddressComparisonTypes(node, leftType, opType, rightType);
+		if (!leftType.equalsOther(rightType, true)) {
+			throw undefinedBinaryOp(node, leftType, opType, rightType);
+		}
+	}
+	
+	protected int addressSubtractOffsetSize(ASTNode<?> node, @NonNull TypeInfo addressType) {
+		int offsetSize = addressType.getAddressOffsetSize(node);
+		if (offsetSize == 0) {
+			throw Helpers.nodeError(node, "Can not subtract addresses with zero-sized pointee type \"%s\"!", addressType.dereference(node, 1));
+		}
+		return offsetSize;
 	}
 	
 	protected RuntimeException undefinedBinaryOp(ASTNode<?> node, @NonNull TypeInfo leftType, @NonNull BinaryOpType opType, @NonNull TypeInfo rightType) {
@@ -1341,8 +1352,8 @@ public abstract class Generator {
 		else if (leftType.equals(charTypeInfo)) {
 			return charTypeInfo;
 		}
-		else if (leftType.isAddress() && intTypeInfo.equals(targetTypeInfo)) {
-			return leftType;
+		else if (leftType.isAddress() && opType.equals(BinaryOpType.MINUS) && intTypeInfo.equals(targetTypeInfo)) {
+			return leftType.copy(node, Collections.nCopies(leftType.getReferenceLevel(), false));
 		}
 		else {
 			return null;
@@ -1360,7 +1371,7 @@ public abstract class Generator {
 	
 	// Code Generation
 	
-	public abstract void generate();
+	public abstract void generate() throws IOException;
 	
 	public void generateRootRoutine() {
 		Function mainFunction = null;
@@ -1386,19 +1397,7 @@ public abstract class Generator {
 	}
 	
 	public void optimizeIntermediate() {
-		boolean flag = true;
-		while (flag) {
-			flag = false;
-			for (Entry<Function, Routine> entry : new LinkedHashSet<>(Main.rootScope.routineMap.entrySet())) {
-				Routine routine = entry.getValue();
-				if (!routine.function.isRequired()) {
-					flag = true;
-					Main.rootScope.removeRoutine(null, entry.getKey());
-					routine.function.setUnused();
-				}
-			}
-		}
-		
+		boolean flag;
 		for (Routine routine : Main.rootScope.routineMap.values()) {
 			flag = true;
 			while (flag) {
@@ -1407,6 +1406,7 @@ public abstract class Generator {
 				flag |= IntermediateOptimization.removeEmptySections(routine);
 				flag |= IntermediateOptimization.concatenateSections(routine);
 				flag |= IntermediateOptimization.simplifyJumps(routine);
+				flag |= IntermediateOptimization.removeUnreachableSections(routine);
 				flag |= IntermediateOptimization.compressRegisters(routine);
 				flag |= IntermediateOptimization.reorderRvalues(routine);
 				flag |= IntermediateOptimization.foldRvalues(routine);
@@ -1416,5 +1416,86 @@ public abstract class Generator {
 				flag |= IntermediateOptimization.orderRegisters(routine);
 			}
 		}
+		
+		Set<Function> requiredFunctions = collectRequiredFunctions();
+		for (Entry<Function, Routine> entry : new LinkedHashSet<>(Main.rootScope.routineMap.entrySet())) {
+			Function function = entry.getKey();
+			if (!requiredFunctions.contains(function)) {
+				Main.rootScope.removeRoutine(null, function);
+				function.setUnused();
+			}
+		}
+	}
+	
+	protected Set<Function> collectRequiredFunctions() {
+		Set<Function> requiredFunctions = new LinkedHashSet<>();
+		Deque<Function> stack = new ArrayDeque<>();
+		
+		Function rootFunction = Main.rootRoutine.function;
+		requiredFunctions.add(rootFunction);
+		stack.push(rootFunction);
+		
+		while (!stack.isEmpty()) {
+			Function function = stack.pop();
+			if (!Main.rootScope.routineExists(function)) {
+				continue;
+			}
+			
+			Routine routine = Main.rootScope.getRoutine(null, function);
+			
+			Set<Integer> reachableSections = routine.getReachableSections();
+			for (int section = 0; section < routine.body.size(); ++section) {
+				if (!reachableSections.contains(section)) {
+					continue;
+				}
+				
+				for (Action action : routine.body.get(section)) {
+					if (action instanceof CallAction callAction) {
+						Function callFunction = callAction.getDirectFunction();
+						if (callFunction != null) {
+							if (requiredFunctions.add(callFunction)) {
+								stack.push(callFunction);
+							}
+						}
+						else {
+							// Only unknown-callee calls require the caller function value to be treated as indirect.
+							callAction.caller.forEachFunction(callerFunction -> {
+								if (Main.rootScope.routineExists(callerFunction)) {
+									Main.rootScope.getRoutine(null, callerFunction).onRequiresStack();
+								}
+								if (requiredFunctions.add(callerFunction)) {
+									stack.push(callerFunction);
+								}
+							});
+						}
+						
+						for (DataId arg : callAction.args) {
+							arg.forEachFunction(argFunction -> {
+								if (Main.rootScope.routineExists(argFunction)) {
+									Main.rootScope.getRoutine(null, argFunction).onRequiresStack();
+								}
+								if (requiredFunctions.add(argFunction)) {
+									stack.push(argFunction);
+								}
+							});
+						}
+					}
+					else if (action instanceof IValueAction valueAction) {
+						for (DataId rvalue : valueAction.rvalues()) {
+							rvalue.forEachFunction(rvalueFunction -> {
+								if (Main.rootScope.routineExists(rvalueFunction)) {
+									Main.rootScope.getRoutine(null, rvalueFunction).onRequiresStack();
+								}
+								if (requiredFunctions.add(rvalueFunction)) {
+									stack.push(rvalueFunction);
+								}
+							});
+						}
+					}
+				}
+			}
+		}
+		
+		return requiredFunctions;
 	}
 }

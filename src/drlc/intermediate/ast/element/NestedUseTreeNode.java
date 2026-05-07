@@ -1,6 +1,6 @@
 package drlc.intermediate.ast.element;
 
-import java.util.List;
+import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNull;
 
@@ -28,6 +28,13 @@ public class NestedUseTreeNode extends UseTreeNode {
 	}
 	
 	@Override
+	public void declareImports(ASTNode<?> parent) {
+		for (UseTreeNode useTreeNode : useTreeNodes) {
+			useTreeNode.declareImports(this);
+		}
+	}
+	
+	@Override
 	public void defineTypes(ASTNode<?> parent) {
 		for (UseTreeNode useTreeNode : useTreeNodes) {
 			useTreeNode.defineTypes(this);
@@ -51,6 +58,13 @@ public class NestedUseTreeNode extends UseTreeNode {
 	}
 	
 	@Override
+	public void checkImports(ASTNode<?> parent) {
+		for (UseTreeNode useTreeNode : useTreeNodes) {
+			useTreeNode.checkImports(this);
+		}
+	}
+	
+	@Override
 	public void checkTypes(ASTNode<?> parent) {
 		for (UseTreeNode useTreeNode : useTreeNodes) {
 			useTreeNode.checkTypes(this);
@@ -65,13 +79,6 @@ public class NestedUseTreeNode extends UseTreeNode {
 	}
 	
 	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		for (UseTreeNode useTreeNode : useTreeNodes) {
-			useTreeNode.trackFunctions(this);
-		}
-	}
-	
-	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
 		for (UseTreeNode useTreeNode : useTreeNodes) {
 			useTreeNode.generateIntermediate(this);
@@ -80,11 +87,13 @@ public class NestedUseTreeNode extends UseTreeNode {
 	
 	@Override
 	public void buildPath(@NonNull List<String> pathPrefix) {
-		pathPrefix.addAll(this.pathPrefix);
-		pathSegments.addAll(pathPrefix);
+		List<String> localPathPrefix = new ArrayList<>(pathPrefix);
+		localPathPrefix.addAll(this.pathPrefix);
+		pathSegments.clear();
+		pathSegments.addAll(localPathPrefix);
 		
 		for (UseTreeNode useTreeNode : useTreeNodes) {
-			useTreeNode.buildPath(pathPrefix);
+			useTreeNode.buildPath(new ArrayList<>(localPathPrefix));
 		}
 	}
 }

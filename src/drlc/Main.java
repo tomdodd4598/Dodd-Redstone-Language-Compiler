@@ -7,9 +7,11 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import drlc.intermediate.ast.StartNode;
 import drlc.intermediate.component.Function;
+import drlc.intermediate.module.ModuleOrigin;
 import drlc.intermediate.routine.Routine;
-import drlc.intermediate.scope.RootScope;
+import drlc.intermediate.scope.*;
 
 public class Main {
 	
@@ -57,15 +59,35 @@ public class Main {
 		}
 	}
 	
-	public static Generator generator;
+	@SuppressWarnings("null")
+	public static @NonNull Generator generator;
 	
-	public static String rootFile;
+	@SuppressWarnings("null")
+	public static @NonNull String rootFile;
 	
 	@SuppressWarnings("null")
 	public static @NonNull RootScope rootScope;
 	
 	@SuppressWarnings("null")
 	public static @NonNull Routine rootRoutine;
+	
+	@SuppressWarnings("null")
+	public static @NonNull Map<String, StartNode> fileASTMap;
+	
+	@SuppressWarnings("null")
+	public static @NonNull Map<String, ModuleScope> fileScopeMap;
+	
+	@SuppressWarnings("null")
+	public static @NonNull Map<String, ModuleOrigin> fileOriginMap;
+	
+	@SuppressWarnings("null")
+	public static @NonNull Map<String, String> fileParentMap;
+	
+	@SuppressWarnings("null")
+	public static @NonNull Map<ModuleScope, String> scopeFileMap;
+	
+	@SuppressWarnings("null")
+	public static @NonNull Set<String> activeFileSet;
 	
 	private static boolean first = true;
 	
@@ -76,11 +98,20 @@ public class Main {
 		
 		generator = Generator.CONSTRUCTOR_MAP.get(target).apply(outputFile);
 		
-		rootFile = inputFile;
+		rootFile = Helpers.canonicalFileName(inputFile);
+		
+		fileASTMap = new LinkedHashMap<>();
+		fileScopeMap = new LinkedHashMap<>();
+		fileOriginMap = new LinkedHashMap<>();
+		fileParentMap = new LinkedHashMap<>();
+		scopeFileMap = new IdentityHashMap<>();
+		activeFileSet = new HashSet<>();
 		
 		rootScope = new RootScope(null);
 		
 		generator.init();
+		
+		rootScope.capturePrelude();
 		
 		Function rootFunction = new Function(null, Global.ROOT, false, generator.rootReturnTypeInfo, new ArrayList<>(), false, true);
 		rootFunction.functionScope = rootScope;
@@ -107,7 +138,15 @@ public class Main {
 			previousTime[0] = currentTime[0];
 		};
 		
-		Helpers.getAST(inputFile).traverse();
+		StartNode ast = Helpers.getAST(rootFile);
+		
+		fileASTMap.put(rootFile, ast);
+		fileScopeMap.put(rootFile, rootScope);
+		fileOriginMap.put(rootFile, ModuleOrigin.ROOT);
+		fileParentMap.put(rootFile, null);
+		scopeFileMap.put(rootScope, rootFile);
+		
+		ast.traverse();
 		
 		generator.generateRootRoutine();
 		rootScope.flattenRoutines();

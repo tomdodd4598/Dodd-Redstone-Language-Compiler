@@ -46,6 +46,13 @@ public class DeclaratorNode extends ASTNode<Scope> {
 		}
 	}
 	
+	@SuppressWarnings("unused")
+	public void declareFunctionParameter() {
+		if (declaratorInfo == null) {
+			declaratorInfo = new DeclaratorInfo(new Variable(name, variableModifier, typeNode.getTypeInfo()));
+		}
+	}
+	
 	@Override
 	public void declareExpressions(ASTNode<?> parent) {
 		routine = parent.routine;
@@ -59,8 +66,8 @@ public class DeclaratorNode extends ASTNode<Scope> {
 		}
 		
 		if (functionParameter) {
-			declaratorInfo = new DeclaratorInfo(new Variable(name, variableModifier, typeNode.getTypeInfo()));
-			scope.addVariable(this, declaratorInfo.variable);
+			declareFunctionParameter();
+			scope.addVariable(this, declaratorInfo.variable.name, declaratorInfo.variable);
 			scope.onVariableInitialization(this, declaratorInfo.variable);
 		}
 	}
@@ -73,7 +80,7 @@ public class DeclaratorNode extends ASTNode<Scope> {
 		
 		if (!functionParameter) {
 			declaratorInfo = new DeclaratorInfo(new Variable(name, variableModifier, typeNode == null ? inferredTypeInfo : typeNode.getTypeInfo()));
-			scope.addVariable(this, declaratorInfo.variable);
+			scope.addVariable(this, declaratorInfo.variable.name, declaratorInfo.variable);
 		}
 	}
 	
@@ -88,13 +95,6 @@ public class DeclaratorNode extends ASTNode<Scope> {
 	public void foldConstants(ASTNode<?> parent) {
 		if (typeNode != null) {
 			typeNode.foldConstants(this);
-		}
-	}
-	
-	@Override
-	public void trackFunctions(ASTNode<?> parent) {
-		if (typeNode != null) {
-			typeNode.trackFunctions(this);
 		}
 	}
 	

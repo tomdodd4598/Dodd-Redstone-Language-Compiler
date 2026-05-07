@@ -1,5 +1,6 @@
 package drlc.intermediate.scope;
 
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.Nullable;
@@ -11,8 +12,8 @@ public class ConditionalScope extends Scope {
 	
 	protected final boolean hasElseBranch;
 	
-	public ConditionalScope(ASTNode<?> node, @Nullable String name, @Nullable Scope parent, boolean pseudo, boolean hasElseBranch) {
-		super(node, name, parent, pseudo);
+	public ConditionalScope(ASTNode<?> node, @Nullable String name, @Nullable Scope parent, boolean concrete, boolean hasElseBranch) {
+		super(node, name, parent, concrete);
 		this.hasElseBranch = hasElseBranch;
 	}
 	
@@ -21,17 +22,41 @@ public class ConditionalScope extends Scope {
 	}
 	
 	@Override
-	public boolean hasDefiniteReturn() {
-		return super.hasDefiniteReturn() || (hasElseBranch && branchingChildren().allMatch(Scope::hasDefiniteReturn));
+	protected boolean hasDefiniteReturnInternal(Set<Scope> path) {
+		if (!path.add(this)) {
+			return false;
+		}
+		try {
+			return definiteLocalReturn || childMap.values().stream().anyMatch(x -> x.definiteExecution && x.hasDefiniteReturnInternal(path)) || (hasElseBranch && branchingChildren().allMatch(x -> x.hasDefiniteReturnInternal(path)));
+		}
+		finally {
+			path.remove(this);
+		}
 	}
 	
 	@Override
-	protected boolean isVariablePotentiallyInitializedInternal(Variable variable, Scope location) {
-		return initializationSet.contains(variable) || childMap.values().stream().anyMatch(x -> (x.definiteExecution || x.isSubScopeOf(location) || !location.isSubScopeOf(this)) && x.isVariablePotentiallyInitializedInternal(variable, location));
+	protected boolean isVariablePotentiallyInitializedInternal(Variable variable, Scope location, Set<Scope> path) {
+		if (!path.add(this)) {
+			return false;
+		}
+		try {
+			return initializationSet.contains(variable) || childMap.values().stream().anyMatch(x -> (x.definiteExecution || location.isSubScopeOf(x) || !location.isSubScopeOf(this)) && x.isVariablePotentiallyInitializedInternal(variable, location, path));
+		}
+		finally {
+			path.remove(this);
+		}
 	}
 	
 	@Override
-	protected boolean isVariableDefinitelyInitializedInternal(Variable variable, Scope location) {
-		return super.isVariableDefinitelyInitializedInternal(variable, location) || (hasElseBranch && branchingChildren().allMatch(x -> x.isVariableDefinitelyInitializedInternal(variable, location)));
+	protected boolean isVariableDefinitelyInitializedInternal(Variable variable, Scope location, Set<Scope> path) {
+		if (!path.add(this)) {
+			return false;
+		}
+		try {
+			return initializationSet.contains(variable) || childMap.values().stream().anyMatch(x -> (x.definiteExecution || location.isSubScopeOf(x)) && x.isVariableDefinitelyInitializedInternal(variable, location, path)) || (hasElseBranch && branchingChildren().allMatch(x -> x.isVariableDefinitelyInitializedInternal(variable, location, path)));
+		}
+		finally {
+			path.remove(this);
+		}
 	}
 }
