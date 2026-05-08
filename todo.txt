@@ -1,17 +1,21 @@
-Add 'macro! name(...) { ... }' syntax
+Destructuring/patterns
+
+Enums (nominal typing)
+
+Match statements
+
+Add 'if let' and 'while let'
 
 Generics/templates
 
 Generic slices/ranges
 
+Minimal standard library/prelude
+
 For loops
-
-Pattern matching
-
-Enums (nominal typing)
 
 Add move semantics
 
-Implement program arguments
+Add 'macro! name(...) { ... }' syntax
 
-Small standard library
+Implement program arguments
