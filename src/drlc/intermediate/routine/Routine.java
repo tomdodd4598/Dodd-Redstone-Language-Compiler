@@ -215,6 +215,23 @@ public class Routine {
 		return dataId;
 	}
 	
+	public @NonNull DataId addOffsetAddressAction(ASTNode<?> node, @NonNull DataId baseAddressDataId, @NonNull TypeInfo targetAddressTypeInfo, int offset) {
+		DataId target = nextRegId(targetAddressTypeInfo);
+		addAction(BinaryActionType.INT_PLUS_INT.action(node, target, baseAddressDataId, Main.generator.natValue(offset).dataId()));
+		return target;
+	}
+	
+	public @NonNull DataId addMemberAddressAction(ASTNode<?> node, @NonNull DataId baseAddressDataId, @NonNull MemberInfo memberInfo) {
+		return addOffsetAddressAction(node, baseAddressDataId, memberInfo.typeInfo.addressOf(node, true), memberInfo.offset);
+	}
+	
+	public @NonNull DataId addMemberValueAction(ASTNode<?> node, @NonNull DataId baseAddressDataId, @NonNull MemberInfo memberInfo) {
+		DataId addressDataId = addMemberAddressAction(node, baseAddressDataId, memberInfo);
+		DataId dataId = nextRegId(memberInfo.typeInfo);
+		addDereferenceAssignmentAction(node, dataId, addressDataId);
+		return dataId;
+	}
+	
 	public void addAssignmentAction(ASTNode<?> node, DataId target, DataId arg) {
 		addAction(new AssignmentAction(node, target, arg));
 	}

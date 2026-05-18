@@ -38,6 +38,7 @@ public class NatRightShiftIntEdsacRoutine extends EdsacRoutine {
 		storeData(continueText, x, true);
 		continueText.add(new InstructionJumpIfMoreThanOrEqualToZero(0));
 		
+		clearAccumulator(returnText);
 		addData(returnText, x);
 		returnFromSubroutine(returnText);
 	}

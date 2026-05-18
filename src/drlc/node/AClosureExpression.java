@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AClosureExpression extends PExpression
 {
-    private PClosureDeclaratorList _closureDeclaratorList_;
+    private PClosurePatternList _closurePatternList_;
     private PClosureBody _closureBody_;
 
     public AClosureExpression()
@@ -16,11 +16,11 @@ public final class AClosureExpression extends PExpression
     }
 
     public AClosureExpression(
-        @SuppressWarnings("hiding") PClosureDeclaratorList _closureDeclaratorList_,
+        @SuppressWarnings("hiding") PClosurePatternList _closurePatternList_,
         @SuppressWarnings("hiding") PClosureBody _closureBody_)
     {
         // Constructor
-        setClosureDeclaratorList(_closureDeclaratorList_);
+        setClosurePatternList(_closurePatternList_);
 
         setClosureBody(_closureBody_);
 
@@ -30,7 +30,7 @@ public final class AClosureExpression extends PExpression
     public Object clone()
     {
         return new AClosureExpression(
-            cloneNode(this._closureDeclaratorList_),
+            cloneNode(this._closurePatternList_),
             cloneNode(this._closureBody_));
     }
 
@@ -40,16 +40,16 @@ public final class AClosureExpression extends PExpression
         ((Analysis) sw).caseAClosureExpression(this);
     }
 
-    public PClosureDeclaratorList getClosureDeclaratorList()
+    public PClosurePatternList getClosurePatternList()
     {
-        return this._closureDeclaratorList_;
+        return this._closurePatternList_;
     }
 
-    public void setClosureDeclaratorList(PClosureDeclaratorList node)
+    public void setClosurePatternList(PClosurePatternList node)
     {
-        if(this._closureDeclaratorList_ != null)
+        if(this._closurePatternList_ != null)
         {
-            this._closureDeclaratorList_.parent(null);
+            this._closurePatternList_.parent(null);
         }
 
         if(node != null)
@@ -62,7 +62,7 @@ public final class AClosureExpression extends PExpression
             node.parent(this);
         }
 
-        this._closureDeclaratorList_ = node;
+        this._closurePatternList_ = node;
     }
 
     public PClosureBody getClosureBody()
@@ -94,7 +94,7 @@ public final class AClosureExpression extends PExpression
     public String toString()
     {
         return ""
-            + toString(this._closureDeclaratorList_)
+            + toString(this._closurePatternList_)
             + toString(this._closureBody_);
     }
 
@@ -102,9 +102,9 @@ public final class AClosureExpression extends PExpression
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._closureDeclaratorList_ == child)
+        if(this._closurePatternList_ == child)
         {
-            this._closureDeclaratorList_ = null;
+            this._closurePatternList_ = null;
             return;
         }
 
@@ -121,9 +121,9 @@ public final class AClosureExpression extends PExpression
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._closureDeclaratorList_ == oldChild)
+        if(this._closurePatternList_ == oldChild)
         {
-            setClosureDeclaratorList((PClosureDeclaratorList) newChild);
+            setClosurePatternList((PClosurePatternList) newChild);
             return;
         }
 

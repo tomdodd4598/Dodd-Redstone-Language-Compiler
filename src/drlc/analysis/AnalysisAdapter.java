@@ -249,13 +249,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAExcludingInitializationVariableDeclaration(AExcludingInitializationVariableDeclaration node)
+    public void caseAExcludingInitializerVariableDeclaration(AExcludingInitializerVariableDeclaration node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseAIncludingInitializationVariableDeclaration(AIncludingInitializationVariableDeclaration node)
+    public void caseAIncludingInitializerVariableDeclaration(AIncludingInitializerVariableDeclaration node)
     {
         defaultCase(node);
     }
@@ -489,7 +489,37 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseADeclarator(ADeclarator node)
+    public void caseAPattern(APattern node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAWildcardRawPattern(AWildcardRawPattern node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABindingRawPattern(ABindingRawPattern node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAParenthesesRawPattern(AParenthesesRawPattern node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseATupleRawPattern(ATupleRawPattern node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAStructRawPattern(AStructRawPattern node)
     {
         defaultCase(node);
     }
@@ -507,6 +537,12 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseADeclarator(ADeclarator node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseADeclaratorList(ADeclaratorList node)
     {
         defaultCase(node);
@@ -514,6 +550,60 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseADeclaratorListTail(ADeclaratorListTail node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseABindingPattern(ABindingPattern node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPatternList(APatternList node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAPatternListTail(APatternListTail node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseATuplePatternList(ATuplePatternList node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseATuplePatternListHead(ATuplePatternListHead node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALabelledStructPatternList(ALabelledStructPatternList node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALabelledPatternList(ALabelledPatternList node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALabelledPatternListTail(ALabelledPatternListTail node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseALabelledPattern(ALabelledPattern node)
     {
         defaultCase(node);
     }
@@ -537,13 +627,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAStandardClosureDeclaratorList(AStandardClosureDeclaratorList node)
+    public void caseAStandardClosurePatternList(AStandardClosurePatternList node)
     {
         defaultCase(node);
     }
 
     @Override
-    public void caseALogicalOrClosureDeclaratorList(ALogicalOrClosureDeclaratorList node)
+    public void caseALogicalOrClosurePatternList(ALogicalOrClosurePatternList node)
     {
         defaultCase(node);
     }
@@ -808,12 +898,6 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseATupleExpressionListHead(ATupleExpressionListHead node)
-    {
-        defaultCase(node);
-    }
-
-    @Override
-    public void caseABasicStructExpressionList(ABasicStructExpressionList node)
     {
         defaultCase(node);
     }
@@ -1402,6 +1486,12 @@ public class AnalysisAdapter implements Analysis
 
     @Override
     public void caseTQuestionMark(TQuestionMark node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseTUnderscore(TUnderscore node)
     {
         defaultCase(node);
     }

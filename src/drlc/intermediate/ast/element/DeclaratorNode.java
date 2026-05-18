@@ -49,7 +49,7 @@ public class DeclaratorNode extends ASTNode<Scope> {
 	@SuppressWarnings("unused")
 	public void declareFunctionParameter() {
 		if (declaratorInfo == null) {
-			declaratorInfo = new DeclaratorInfo(new Variable(name, variableModifier, typeNode.getTypeInfo()));
+			declaratorInfo = new DeclaratorInfo(new Variable(name, variableModifier, typeNode == null ? inferredTypeInfo : typeNode.getTypeInfo()));
 		}
 	}
 	

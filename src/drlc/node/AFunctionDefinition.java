@@ -10,7 +10,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
     private TFn _fn_;
     private TName _name_;
     private TLPar _lPar_;
-    private PDeclaratorList _declaratorList_;
+    private PPatternList _patternList_;
     private TRPar _rPar_;
     private PReturnType _returnType_;
     private TLBrace _lBrace_;
@@ -26,7 +26,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
         @SuppressWarnings("hiding") TFn _fn_,
         @SuppressWarnings("hiding") TName _name_,
         @SuppressWarnings("hiding") TLPar _lPar_,
-        @SuppressWarnings("hiding") PDeclaratorList _declaratorList_,
+        @SuppressWarnings("hiding") PPatternList _patternList_,
         @SuppressWarnings("hiding") TRPar _rPar_,
         @SuppressWarnings("hiding") PReturnType _returnType_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
@@ -40,7 +40,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
 
         setLPar(_lPar_);
 
-        setDeclaratorList(_declaratorList_);
+        setPatternList(_patternList_);
 
         setRPar(_rPar_);
 
@@ -61,7 +61,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
             cloneNode(this._fn_),
             cloneNode(this._name_),
             cloneNode(this._lPar_),
-            cloneNode(this._declaratorList_),
+            cloneNode(this._patternList_),
             cloneNode(this._rPar_),
             cloneNode(this._returnType_),
             cloneNode(this._lBrace_),
@@ -150,16 +150,16 @@ public final class AFunctionDefinition extends PFunctionDefinition
         this._lPar_ = node;
     }
 
-    public PDeclaratorList getDeclaratorList()
+    public PPatternList getPatternList()
     {
-        return this._declaratorList_;
+        return this._patternList_;
     }
 
-    public void setDeclaratorList(PDeclaratorList node)
+    public void setPatternList(PPatternList node)
     {
-        if(this._declaratorList_ != null)
+        if(this._patternList_ != null)
         {
-            this._declaratorList_.parent(null);
+            this._patternList_.parent(null);
         }
 
         if(node != null)
@@ -172,7 +172,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
             node.parent(this);
         }
 
-        this._declaratorList_ = node;
+        this._patternList_ = node;
     }
 
     public TRPar getRPar()
@@ -307,7 +307,7 @@ public final class AFunctionDefinition extends PFunctionDefinition
             + toString(this._fn_)
             + toString(this._name_)
             + toString(this._lPar_)
-            + toString(this._declaratorList_)
+            + toString(this._patternList_)
             + toString(this._rPar_)
             + toString(this._returnType_)
             + toString(this._lBrace_)
@@ -337,9 +337,9 @@ public final class AFunctionDefinition extends PFunctionDefinition
             return;
         }
 
-        if(this._declaratorList_ == child)
+        if(this._patternList_ == child)
         {
-            this._declaratorList_ = null;
+            this._patternList_ = null;
             return;
         }
 
@@ -398,9 +398,9 @@ public final class AFunctionDefinition extends PFunctionDefinition
             return;
         }
 
-        if(this._declaratorList_ == oldChild)
+        if(this._patternList_ == oldChild)
         {
-            setDeclaratorList((PDeclaratorList) newChild);
+            setPatternList((PPatternList) newChild);
             return;
         }
 

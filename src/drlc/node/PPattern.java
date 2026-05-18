@@ -2,7 +2,7 @@
 
 package drlc.node;
 
-public abstract class PClosureDeclaratorList extends Node
+public abstract class PPattern extends Node
 {
     // Empty body
 }

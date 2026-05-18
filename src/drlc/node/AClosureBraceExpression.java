@@ -7,7 +7,7 @@ import drlc.analysis.*;
 @SuppressWarnings("nls")
 public final class AClosureBraceExpression extends PBraceExpression
 {
-    private PClosureDeclaratorList _closureDeclaratorList_;
+    private PClosurePatternList _closurePatternList_;
     private PBraceExpression _braceExpression_;
 
     public AClosureBraceExpression()
@@ -16,11 +16,11 @@ public final class AClosureBraceExpression extends PBraceExpression
     }
 
     public AClosureBraceExpression(
-        @SuppressWarnings("hiding") PClosureDeclaratorList _closureDeclaratorList_,
+        @SuppressWarnings("hiding") PClosurePatternList _closurePatternList_,
         @SuppressWarnings("hiding") PBraceExpression _braceExpression_)
     {
         // Constructor
-        setClosureDeclaratorList(_closureDeclaratorList_);
+        setClosurePatternList(_closurePatternList_);
 
         setBraceExpression(_braceExpression_);
 
@@ -30,7 +30,7 @@ public final class AClosureBraceExpression extends PBraceExpression
     public Object clone()
     {
         return new AClosureBraceExpression(
-            cloneNode(this._closureDeclaratorList_),
+            cloneNode(this._closurePatternList_),
             cloneNode(this._braceExpression_));
     }
 
@@ -40,16 +40,16 @@ public final class AClosureBraceExpression extends PBraceExpression
         ((Analysis) sw).caseAClosureBraceExpression(this);
     }
 
-    public PClosureDeclaratorList getClosureDeclaratorList()
+    public PClosurePatternList getClosurePatternList()
     {
-        return this._closureDeclaratorList_;
+        return this._closurePatternList_;
     }
 
-    public void setClosureDeclaratorList(PClosureDeclaratorList node)
+    public void setClosurePatternList(PClosurePatternList node)
     {
-        if(this._closureDeclaratorList_ != null)
+        if(this._closurePatternList_ != null)
         {
-            this._closureDeclaratorList_.parent(null);
+            this._closurePatternList_.parent(null);
         }
 
         if(node != null)
@@ -62,7 +62,7 @@ public final class AClosureBraceExpression extends PBraceExpression
             node.parent(this);
         }
 
-        this._closureDeclaratorList_ = node;
+        this._closurePatternList_ = node;
     }
 
     public PBraceExpression getBraceExpression()
@@ -94,7 +94,7 @@ public final class AClosureBraceExpression extends PBraceExpression
     public String toString()
     {
         return ""
-            + toString(this._closureDeclaratorList_)
+            + toString(this._closurePatternList_)
             + toString(this._braceExpression_);
     }
 
@@ -102,9 +102,9 @@ public final class AClosureBraceExpression extends PBraceExpression
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._closureDeclaratorList_ == child)
+        if(this._closurePatternList_ == child)
         {
-            this._closureDeclaratorList_ = null;
+            this._closurePatternList_ = null;
             return;
         }
 
@@ -121,9 +121,9 @@ public final class AClosureBraceExpression extends PBraceExpression
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._closureDeclaratorList_ == oldChild)
+        if(this._closurePatternList_ == oldChild)
         {
-            setClosureDeclaratorList((PClosureDeclaratorList) newChild);
+            setClosurePatternList((PClosurePatternList) newChild);
             return;
         }
 

@@ -5,46 +5,46 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class ABasicStructExpressionList extends PStructExpressionList
+public final class ALogicalOrClosurePatternList extends PClosurePatternList
 {
-    private PExpressionList _expressionList_;
+    private TLogicalOr _logicalOr_;
 
-    public ABasicStructExpressionList()
+    public ALogicalOrClosurePatternList()
     {
         // Constructor
     }
 
-    public ABasicStructExpressionList(
-        @SuppressWarnings("hiding") PExpressionList _expressionList_)
+    public ALogicalOrClosurePatternList(
+        @SuppressWarnings("hiding") TLogicalOr _logicalOr_)
     {
         // Constructor
-        setExpressionList(_expressionList_);
+        setLogicalOr(_logicalOr_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new ABasicStructExpressionList(
-            cloneNode(this._expressionList_));
+        return new ALogicalOrClosurePatternList(
+            cloneNode(this._logicalOr_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseABasicStructExpressionList(this);
+        ((Analysis) sw).caseALogicalOrClosurePatternList(this);
     }
 
-    public PExpressionList getExpressionList()
+    public TLogicalOr getLogicalOr()
     {
-        return this._expressionList_;
+        return this._logicalOr_;
     }
 
-    public void setExpressionList(PExpressionList node)
+    public void setLogicalOr(TLogicalOr node)
     {
-        if(this._expressionList_ != null)
+        if(this._logicalOr_ != null)
         {
-            this._expressionList_.parent(null);
+            this._logicalOr_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class ABasicStructExpressionList extends PStructExpressionList
             node.parent(this);
         }
 
-        this._expressionList_ = node;
+        this._logicalOr_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._expressionList_);
+            + toString(this._logicalOr_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._expressionList_ == child)
+        if(this._logicalOr_ == child)
         {
-            this._expressionList_ = null;
+            this._logicalOr_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class ABasicStructExpressionList extends PStructExpressionList
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._expressionList_ == oldChild)
+        if(this._logicalOr_ == oldChild)
         {
-            setExpressionList((PExpressionList) newChild);
+            setLogicalOr((TLogicalOr) newChild);
             return;
         }
 

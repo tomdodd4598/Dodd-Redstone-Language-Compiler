@@ -9,6 +9,7 @@ import drlc.analysis.AnalysisAdapter;
 import drlc.intermediate.ast.*;
 import drlc.intermediate.ast.element.*;
 import drlc.intermediate.ast.expression.*;
+import drlc.intermediate.ast.pattern.*;
 import drlc.intermediate.ast.section.*;
 import drlc.intermediate.ast.stop.*;
 import drlc.intermediate.ast.type.*;
@@ -40,9 +41,12 @@ public class Visitor extends AnalysisAdapter {
 	
 	public final Deque<DeclaratorNode> declaratorStack = new ArrayDeque<>();
 	
+	public final Deque<PatternNode> patternStack = new ArrayDeque<>();
+	
 	public final Deque<ExpressionNode> expressionStack = new ArrayDeque<>();
 	
 	public final Deque<Pair<String, ExpressionNode>> labelledExpressionPairStack = new ArrayDeque<>();
+	public final Deque<Pair<String, PatternNode>> labelledPatternPairStack = new ArrayDeque<>();
 	
 	public Visitor(String fileName, String contents) {
 		this.fileName = fileName;
@@ -80,6 +84,10 @@ public class Visitor extends AnalysisAdapter {
 	
 	protected @NonNull DeclaratorNode declarator(Node node) {
 		return traverse(node, declaratorStack);
+	}
+	
+	protected @NonNull PatternNode pattern(Node node) {
+		return traverse(node, patternStack);
 	}
 	
 	protected @NonNull ExpressionNode expression(Node node) {
@@ -150,9 +158,9 @@ public class Visitor extends AnalysisAdapter {
 		return new Pair<>(new ScopedBodyNode(source(node), new ArrayList<>(), returnNode), returnNode);
 	}
 	
-	protected @NonNull List<DeclaratorNode> closureDeclaratorList(PClosureDeclaratorList node) {
-		if (node instanceof AStandardClosureDeclaratorList standardClosureDeclaratorListNode) {
-			return declaratorList(standardClosureDeclaratorListNode.getDeclaratorList());
+	protected @NonNull List<PatternNode> closurePatternList(PClosurePatternList node) {
+		if (node instanceof AStandardClosurePatternList standardClosurePatternListNode) {
+			return patternList(standardClosurePatternListNode.getPatternList());
 		}
 		else {
 			return new ArrayList<>();
@@ -166,6 +174,16 @@ public class Visitor extends AnalysisAdapter {
 		else {
 			ADeclaratorList declaratorList = (ADeclaratorList) node;
 			return traverseList(declaratorList.getDeclarator(), declaratorList.getDeclaratorListTail(), declaratorStack);
+		}
+	}
+	
+	protected @NonNull List<PatternNode> patternList(PPatternList node) {
+		if (node == null) {
+			return new ArrayList<>();
+		}
+		else {
+			APatternList patternList = (APatternList) node;
+			return traverseList(patternList.getPattern(), patternList.getPatternListTail(), patternStack);
 		}
 	}
 	
@@ -194,6 +212,21 @@ public class Visitor extends AnalysisAdapter {
 		}
 	}
 	
+	protected @NonNull List<PatternNode> tuplePatternList(PTuplePatternList node) {
+		if (node == null) {
+			return new ArrayList<>();
+		}
+		else {
+			ATuplePatternList tuplePatternList = (ATuplePatternList) node;
+			List<PatternNode> out = traverseList(tuplePatternList.getTuplePatternListHead(), patternStack);
+			PPattern tail = tuplePatternList.getPattern();
+			if (tail != null) {
+				out.add(pattern(tail));
+			}
+			return out;
+		}
+	}
+	
 	protected @NonNull List<UseTreeNode> useTreeList(PUseTreeList node) {
 		if (node == null) {
 			return new ArrayList<>();
@@ -208,9 +241,6 @@ public class Visitor extends AnalysisAdapter {
 		if (node == null) {
 			return new Pair<>(new ArrayList<>(), new ArrayList<>());
 		}
-		else if (node instanceof ABasicStructExpressionList basicStructExpressionListNode) {
-			return new Pair<>(null, expressionList(basicStructExpressionListNode.getExpressionList()));
-		}
 		else {
 			return labelledExpressionListPair(((ALabelledStructExpressionList) node).getLabelledExpressionList());
 		}
@@ -222,6 +252,28 @@ public class Visitor extends AnalysisAdapter {
 			ALabelledExpressionList labelledExpressionList = (ALabelledExpressionList) node;
 			List<Pair<String, ExpressionNode>> pairList = traverseList(labelledExpressionList.getLabelledExpression(), labelledExpressionList.getLabelledExpressionListTail(), labelledExpressionPairStack);
 			for (Pair<String, ExpressionNode> pair : pairList) {
+				listPair.left.add(pair.left);
+				listPair.right.add(pair.right);
+			}
+		}
+		return listPair;
+	}
+	
+	protected @NonNull Pair<@NonNull List<String>, @NonNull List<PatternNode>> structPatternListPair(PStructPatternList node) {
+		if (node == null) {
+			return new Pair<>(new ArrayList<>(), new ArrayList<>());
+		}
+		else {
+			return labelledPatternListPair(((ALabelledStructPatternList) node).getLabelledPatternList());
+		}
+	}
+	
+	protected @NonNull Pair<@NonNull List<String>, @NonNull List<PatternNode>> labelledPatternListPair(PLabelledPatternList node) {
+		Pair<@NonNull List<String>, @NonNull List<PatternNode>> listPair = new Pair<>(new ArrayList<>(), new ArrayList<>());
+		if (node != null) {
+			ALabelledPatternList labelledPatternList = (ALabelledPatternList) node;
+			List<Pair<String, PatternNode>> pairList = traverseList(labelledPatternList.getLabelledPattern(), labelledPatternList.getLabelledPatternListTail(), labelledPatternPairStack);
+			for (Pair<String, PatternNode> pair : pairList) {
 				listPair.left.add(pair.left);
 				listPair.right.add(pair.right);
 			}
@@ -427,7 +479,7 @@ public class Visitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAFunctionDefinition(AFunctionDefinition node) {
-		staticSectionStack.push(new FunctionDefinitionNode(source(node), text(node.getName()), declaratorList(node.getDeclaratorList()), returnType(node.getReturnType()), scope(node.getScopedBody()), false));
+		staticSectionStack.push(new FunctionDefinitionNode(source(node), text(node.getName()), patternList(node.getPatternList()), returnType(node.getReturnType()), scope(node.getScopedBody()), false));
 	}
 	
 	@Override
@@ -446,13 +498,13 @@ public class Visitor extends AnalysisAdapter {
 	}
 	
 	@Override
-	public void caseAExcludingInitializationVariableDeclaration(AExcludingInitializationVariableDeclaration node) {
-		staticSectionStack.push(new VariableDeclarationNode(source(node), declarator(node.getDeclarator()), null));
+	public void caseAExcludingInitializerVariableDeclaration(AExcludingInitializerVariableDeclaration node) {
+		staticSectionStack.push(new VariableDeclarationNode(source(node), pattern(node.getPattern()), null));
 	}
 	
 	@Override
-	public void caseAIncludingInitializationVariableDeclaration(AIncludingInitializationVariableDeclaration node) {
-		staticSectionStack.push(new VariableDeclarationNode(source(node), declarator(node.getDeclarator()), expression(node.getExpression())));
+	public void caseAIncludingInitializerVariableDeclaration(AIncludingInitializerVariableDeclaration node) {
+		staticSectionStack.push(new VariableDeclarationNode(source(node), pattern(node.getPattern()), expression(node.getExpression())));
 	}
 	
 	@Override
@@ -639,6 +691,83 @@ public class Visitor extends AnalysisAdapter {
 	}
 	
 	@Override
+	public void caseAPatternList(APatternList node) {
+		node.getPattern().apply(this);
+	}
+	
+	@Override
+	public void caseAPatternListTail(APatternListTail node) {
+		node.getPattern().apply(this);
+	}
+	
+	@Override
+	public void caseAPattern(APattern node) {
+		PatternNode patternNode = pattern(node.getRawPattern());
+		TypeNode typeNode = typeAnnotation(node.getTypeAnnotation());
+		patternStack.push(typeNode == null ? patternNode : new TypedPatternNode(source(node), patternNode, typeNode));
+	}
+	
+	@Override
+	public void caseAWildcardRawPattern(AWildcardRawPattern node) {
+		patternStack.push(new WildcardPatternNode(source(node)));
+	}
+	
+	@Override
+	public void caseABindingRawPattern(ABindingRawPattern node) {
+		node.getBindingPattern().apply(this);
+	}
+	
+	@Override
+	public void caseAParenthesesRawPattern(AParenthesesRawPattern node) {
+		node.getPattern().apply(this);
+	}
+	
+	@Override
+	public void caseATupleRawPattern(ATupleRawPattern node) {
+		patternStack.push(new TuplePatternNode(source(node), tuplePatternList(node.getTuplePatternList())));
+	}
+	
+	@Override
+	public void caseAStructRawPattern(AStructRawPattern node) {
+		patternStack.push(new StructPatternNode(source(node), path(node.getPath()), structPatternListPair(node.getStructPatternList())));
+	}
+	
+	@Override
+	public void caseABindingPattern(ABindingPattern node) {
+		patternStack.push(new BindingPatternNode(source(node), new DeclaratorNode(source(node), variableModifier(node, node.getVariableModifier()), text(node.getName()), null)));
+	}
+	
+	@Override
+	public void caseATuplePatternList(ATuplePatternList node) {
+		node.getPattern().apply(this);
+	}
+	
+	@Override
+	public void caseATuplePatternListHead(ATuplePatternListHead node) {
+		node.getPattern().apply(this);
+	}
+	
+	@Override
+	public void caseALabelledStructPatternList(ALabelledStructPatternList node) {
+		node.getLabelledPatternList().apply(this);
+	}
+	
+	@Override
+	public void caseALabelledPatternList(ALabelledPatternList node) {
+		node.getLabelledPattern().apply(this);
+	}
+	
+	@Override
+	public void caseALabelledPatternListTail(ALabelledPatternListTail node) {
+		node.getLabelledPattern().apply(this);
+	}
+	
+	@Override
+	public void caseALabelledPattern(ALabelledPattern node) {
+		labelledPatternPairStack.push(new Pair<>(label(node.getLabel()), pattern(node.getPattern())));
+	}
+	
+	@Override
 	public void caseAPrioritizedExpression(APrioritizedExpression node) {
 		node.getAssignmentExpression().apply(this);
 	}
@@ -647,7 +776,7 @@ public class Visitor extends AnalysisAdapter {
 	public void caseAClosureExpression(AClosureExpression node) {
 		long id = Main.rootScope.nextLocalId();
 		@NonNull Pair<@NonNull ScopedBodyNode, @Nullable ReturnNode> closureBodyPair = closureBodyPair(node.getClosureBody());
-		@NonNull FunctionDefinitionNode functionNode = new FunctionDefinitionNode(source(node), Global.LAMBDA + id, closureDeclaratorList(node.getClosureDeclaratorList()), closureReturnType(node.getClosureBody()), closureBodyPair.left, true);
+		@NonNull FunctionDefinitionNode functionNode = new FunctionDefinitionNode(source(node), Global.LAMBDA + id, closurePatternList(node.getClosurePatternList()), closureReturnType(node.getClosureBody()), closureBodyPair.left, true);
 		if (closureBodyPair.right != null) {
 			closureBodyPair.right.closureDefinition = functionNode;
 		}
@@ -946,7 +1075,7 @@ public class Visitor extends AnalysisAdapter {
 	public void caseAClosureBraceExpression(AClosureBraceExpression node) {
 		long id = Main.rootScope.nextLocalId();
 		@NonNull Pair<@NonNull ScopedBodyNode, @Nullable ReturnNode> closureBodyPair = expressionClosureBodyPair(node.getBraceExpression());
-		@NonNull FunctionDefinitionNode functionNode = new FunctionDefinitionNode(source(node), Global.LAMBDA + id, closureDeclaratorList(node.getClosureDeclaratorList()), null, closureBodyPair.left, true);
+		@NonNull FunctionDefinitionNode functionNode = new FunctionDefinitionNode(source(node), Global.LAMBDA + id, closurePatternList(node.getClosurePatternList()), null, closureBodyPair.left, true);
 		if (closureBodyPair.right != null) {
 			closureBodyPair.right.closureDefinition = functionNode;
 		}

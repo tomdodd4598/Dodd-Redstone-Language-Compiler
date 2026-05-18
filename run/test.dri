@@ -1,182 +1,24 @@
 nesting fn root() -> Int:
 {def}:
-	Fraction: Fraction {Int, Int}
+	Coord: Coord {Int, Int}
 {0}:
 	%0 = call $main()
 	exit $0
 
-leaf fn gcd(<9> a: Int, <9> b: Int) -> Int:
-{dec}:
-	<11> \r0: Int
-	<10> x: Int
-	<14> \r0: Int
-	<10> y: Int
-{0}:
-	%t = <9> a < $0
-	cnj 1
-	<11> \r0 = -<9> a
-	jmp 2
-{1}:
-	<11> \r0 = <9> a
-{2}:
-	<10> x = <11> \r0
-	%t = <9> b < $0
-	cnj 3
-	<14> \r0 = -<9> b
-	jmp 4
-{3}:
-	<14> \r0 = <9> b
-{4}:
-	<10> y = <14> \r0
-	%t = <10> x == $0
-	cnj 5
-	ret <10> y
-{5}:
-	%t = <10> y == $0
-	cnj 6
-	ret <10> x
-{6}:
-	jmp 9
-{7}:
-	%t = <10> x > <10> y
-	cnj 8
-	<10> x = <10> x - <10> y
-	jmp 9
-{8}:
-	<10> y = <10> y - <10> x
-	%5 = <10> y
-{9}:
-	%t = <10> x != <10> y
-	cj 7
-	ret <10> x
-
-leaf fn divInt(<32> a: Int, <32> b: Int) -> Int:
-{dec}:
-	<33> x: Int
-	<33> q: Int
-{0}:
-	<33> x = <32> a
-	<33> q = $0
-	jmp 2
-{1}:
-	<33> x = <33> x - <32> b
-	<33> q = <33> q + $1
-	%0 = <33> q
-{2}:
-	%t = <33> x >= <32> b
-	cj 1
-	ret <33> q
-
-nesting fn reduceFraction(<39> this: &Fraction {Int, Int}) -> ():
-{dec}:
-	<40> num: Int
-	<40> den: Int
-	<40> d: Int
-	<48> \r0: Int
-{0}:
-	%0 = <39> this + $0
-	<40> num = *%0
-	%1 = <39> this + $8
-	<40> den = *%1
-	%2 = call $gcd(<40> num, <40> den)
-	<40> d = %2
-	%t = <40> d > $1
-	cnj 3
-	%t = <40> num < $0
-	cnj 1
-	%5 = -<40> num
-	%6 = call $divInt(%5, <40> d)
-	<48> \r0 = -%6
-	jmp 2
-{1}:
-	%7 = call $divInt(<40> num, <40> d)
-	<48> \r0 = %7
-{2}:
-	%8 = <39> this + $0
-	*%8 = <48> \r0
-	%9 = call $divInt(<40> den, <40> d)
-	%10 = <39> this + $8
-	*%10 = %9
-	%11 = *%10
-{3}:
-	ret $()
-
-nesting fn addFraction(<58> this: &Fraction {Int, Int}, <58> other: Fraction {Int, Int}) -> ():
-{dec}:
-	<59> d: Int
-	<59> left: Int
-	<59> right: Int
-{0}:
-	%0 = <58> this + $8
-	%1 = *%0
-	%2 = &<58> other + $8
-	%3 = *%2
-	%4 = call $gcd(%1, %3)
-	<59> d = %4
-	%5 = &<58> other + $8
-	%6 = *%5
-	%7 = call $divInt(%6, <59> d)
-	<59> left = %7
-	%8 = <58> this + $8
-	%9 = *%8
-	%10 = call $divInt(%9, <59> d)
-	<59> right = %10
-	%11 = <58> this + $0
-	%12 = *%11
-	%13 = %12 * <59> left
-	%14 = &<58> other + $0
-	%15 = *%14
-	%16 = %15 * <59> right
-	%17 = %16 + %13
-	%18 = <58> this + $0
-	*%18 = %17
-	%19 = <58> this + $8
-	%20 = *%19
-	*%19 = %20 * <59> left
-	%21 = call $reduceFraction(<58> this)
-	ret $()
-
-nesting fn term(<77> a: Int, <77> sign: Int) -> Fraction {Int, Int}:
-{dec}:
-	<78> term: Fraction {Int, Int}
-{0}:
-	%0 = $4 * <77> sign
-	%1 = <77> a + $1
-	%2 = %1 * <77> a
-	%3 = <77> a + $2
-	%4 = %3 * %2
-	<78> term = (%0, %4)
-	%5 = call $reduceFraction(&<78> term)
-	ret <78> term
-
 nesting fn main() -> ():
 {dec}:
-	<87> pi: Fraction {Int, Int}
-	<87> a: Int
-	<87> sign: Int
-	<87> i: Int
+	<10> coord: Coord {Int, Int}
+	<10> a: Int
+	<10> b: Int
 {0}:
-	<87> pi = $Fraction {3, 1}
-	<87> a = $2
-	<87> sign = $1
-	<87> i = $0
-	jmp 2
-{1}:
-	%0 = call $term(<87> a, <87> sign)
-	%1 = call $addFraction(&<87> pi, %0)
-	<87> a = <87> a + $2
-	<87> sign = -<87> sign
-	<87> i = <87> i + $1
-	%2 = <87> i
-{2}:
-	%t = <87> i < $5
-	cj 1
-	%4 = &<87> pi + $0
-	%5 = *%4
-	%6 = call builtin $printInt(%5)
-	%7 = call builtin $printChar($'/')
-	%8 = &<87> pi + $8
-	%9 = *%8
-	%10 = call builtin $printInt(%9)
-	%11 = call builtin $printChar($'\n')
+	<10> coord = $Coord {3, 5}
+	%0 = <10> coord
+	%1 = &%0 + $0
+	<10> a = *%1
+	%2 = &%0 + $8
+	<10> b = *%2
+	%3 = call builtin $printInt(<10> a)
+	%4 = call builtin $printChar($'\n')
+	%5 = call builtin $printInt(<10> b)
+	%6 = call builtin $printChar($'\n')
 	ret $()

@@ -5,26 +5,26 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AStandardClosureDeclaratorList extends PClosureDeclaratorList
+public final class AStandardClosurePatternList extends PClosurePatternList
 {
     private TOr _lOr_;
-    private PDeclaratorList _declaratorList_;
+    private PPatternList _patternList_;
     private TOr _rOr_;
 
-    public AStandardClosureDeclaratorList()
+    public AStandardClosurePatternList()
     {
         // Constructor
     }
 
-    public AStandardClosureDeclaratorList(
+    public AStandardClosurePatternList(
         @SuppressWarnings("hiding") TOr _lOr_,
-        @SuppressWarnings("hiding") PDeclaratorList _declaratorList_,
+        @SuppressWarnings("hiding") PPatternList _patternList_,
         @SuppressWarnings("hiding") TOr _rOr_)
     {
         // Constructor
         setLOr(_lOr_);
 
-        setDeclaratorList(_declaratorList_);
+        setPatternList(_patternList_);
 
         setROr(_rOr_);
 
@@ -33,16 +33,16 @@ public final class AStandardClosureDeclaratorList extends PClosureDeclaratorList
     @Override
     public Object clone()
     {
-        return new AStandardClosureDeclaratorList(
+        return new AStandardClosurePatternList(
             cloneNode(this._lOr_),
-            cloneNode(this._declaratorList_),
+            cloneNode(this._patternList_),
             cloneNode(this._rOr_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAStandardClosureDeclaratorList(this);
+        ((Analysis) sw).caseAStandardClosurePatternList(this);
     }
 
     public TOr getLOr()
@@ -70,16 +70,16 @@ public final class AStandardClosureDeclaratorList extends PClosureDeclaratorList
         this._lOr_ = node;
     }
 
-    public PDeclaratorList getDeclaratorList()
+    public PPatternList getPatternList()
     {
-        return this._declaratorList_;
+        return this._patternList_;
     }
 
-    public void setDeclaratorList(PDeclaratorList node)
+    public void setPatternList(PPatternList node)
     {
-        if(this._declaratorList_ != null)
+        if(this._patternList_ != null)
         {
-            this._declaratorList_.parent(null);
+            this._patternList_.parent(null);
         }
 
         if(node != null)
@@ -92,7 +92,7 @@ public final class AStandardClosureDeclaratorList extends PClosureDeclaratorList
             node.parent(this);
         }
 
-        this._declaratorList_ = node;
+        this._patternList_ = node;
     }
 
     public TOr getROr()
@@ -125,7 +125,7 @@ public final class AStandardClosureDeclaratorList extends PClosureDeclaratorList
     {
         return ""
             + toString(this._lOr_)
-            + toString(this._declaratorList_)
+            + toString(this._patternList_)
             + toString(this._rOr_);
     }
 
@@ -139,9 +139,9 @@ public final class AStandardClosureDeclaratorList extends PClosureDeclaratorList
             return;
         }
 
-        if(this._declaratorList_ == child)
+        if(this._patternList_ == child)
         {
-            this._declaratorList_ = null;
+            this._patternList_ = null;
             return;
         }
 
@@ -164,9 +164,9 @@ public final class AStandardClosureDeclaratorList extends PClosureDeclaratorList
             return;
         }
 
-        if(this._declaratorList_ == oldChild)
+        if(this._patternList_ == oldChild)
         {
-            setDeclaratorList((PDeclaratorList) newChild);
+            setPatternList((PPatternList) newChild);
             return;
         }
 

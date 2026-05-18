@@ -39,6 +39,7 @@ public class IntLeftRotateIntEdsacRoutine extends EdsacRoutine {
 		storeData(rotateText, x, true);
 		rotateText.add(new InstructionJumpIfMoreThanOrEqualToZero(0));
 		
+		clearAccumulator(returnText);
 		addData(returnText, x);
 		returnFromSubroutine(returnText);
 	}

@@ -5,46 +5,46 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class ALogicalOrClosureDeclaratorList extends PClosureDeclaratorList
+public final class ABindingRawPattern extends PRawPattern
 {
-    private TLogicalOr _logicalOr_;
+    private PBindingPattern _bindingPattern_;
 
-    public ALogicalOrClosureDeclaratorList()
+    public ABindingRawPattern()
     {
         // Constructor
     }
 
-    public ALogicalOrClosureDeclaratorList(
-        @SuppressWarnings("hiding") TLogicalOr _logicalOr_)
+    public ABindingRawPattern(
+        @SuppressWarnings("hiding") PBindingPattern _bindingPattern_)
     {
         // Constructor
-        setLogicalOr(_logicalOr_);
+        setBindingPattern(_bindingPattern_);
 
     }
 
     @Override
     public Object clone()
     {
-        return new ALogicalOrClosureDeclaratorList(
-            cloneNode(this._logicalOr_));
+        return new ABindingRawPattern(
+            cloneNode(this._bindingPattern_));
     }
 
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseALogicalOrClosureDeclaratorList(this);
+        ((Analysis) sw).caseABindingRawPattern(this);
     }
 
-    public TLogicalOr getLogicalOr()
+    public PBindingPattern getBindingPattern()
     {
-        return this._logicalOr_;
+        return this._bindingPattern_;
     }
 
-    public void setLogicalOr(TLogicalOr node)
+    public void setBindingPattern(PBindingPattern node)
     {
-        if(this._logicalOr_ != null)
+        if(this._bindingPattern_ != null)
         {
-            this._logicalOr_.parent(null);
+            this._bindingPattern_.parent(null);
         }
 
         if(node != null)
@@ -57,23 +57,23 @@ public final class ALogicalOrClosureDeclaratorList extends PClosureDeclaratorLis
             node.parent(this);
         }
 
-        this._logicalOr_ = node;
+        this._bindingPattern_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._logicalOr_);
+            + toString(this._bindingPattern_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._logicalOr_ == child)
+        if(this._bindingPattern_ == child)
         {
-            this._logicalOr_ = null;
+            this._bindingPattern_ = null;
             return;
         }
 
@@ -84,9 +84,9 @@ public final class ALogicalOrClosureDeclaratorList extends PClosureDeclaratorLis
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._logicalOr_ == oldChild)
+        if(this._bindingPattern_ == oldChild)
         {
-            setLogicalOr((TLogicalOr) newChild);
+            setBindingPattern((PBindingPattern) newChild);
             return;
         }
 

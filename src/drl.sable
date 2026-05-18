@@ -52,6 +52,7 @@ Tokens
 	semicolon = ';';
 	full_stop = '.';
 	question_mark = '?';
+	underscore = '_';
 	
 	equals = '=';
 	
@@ -204,7 +205,7 @@ Productions
 		as name;
 	
 	function_definition =
-		fn name l_par declarator_list? r_par return_type? l_brace scoped_body r_brace;
+		fn name l_par pattern_list? r_par return_type? l_brace scoped_body r_brace;
 	
 	type_alias_definition =
 		alias name equals type semicolon;
@@ -216,8 +217,8 @@ Productions
 		const name type_annotation? equals expression semicolon;
 	
 	variable_declaration =
-		{excluding_initialization} let declarator semicolon |
-		{including_initialization} let declarator equals expression semicolon;
+		{excluding_initializer} let pattern semicolon |
+		{including_initializer} let pattern equals expression semicolon;
 	
 	empty_section =
 		semicolon;
@@ -301,12 +302,22 @@ Productions
 		{self} self |
 		{name} name;
 	
-	declarator =
-		variable_modifier* name type_annotation?;
+	pattern =
+		raw_pattern type_annotation?;
+	
+	raw_pattern =
+		{wildcard} underscore |
+		{binding} binding_pattern |
+		{parentheses} l_par pattern r_par |
+		{tuple} l_par tuple_pattern_list? r_par |
+		{struct} path l_brace struct_pattern_list? r_brace;
 	
 	variable_modifier =
 		{static} static |
 		{mut} mut;
+	
+	declarator =
+		variable_modifier* name type_annotation?;
 	
 	declarator_list =
 		declarator declarator_list_tail* comma?;
@@ -314,15 +325,42 @@ Productions
 	declarator_list_tail =
 		comma declarator;
 	
+	binding_pattern =
+		variable_modifier* name;
+	
+	pattern_list =
+		pattern pattern_list_tail* comma?;
+	
+	pattern_list_tail =
+		comma pattern;
+	
+	tuple_pattern_list =
+		tuple_pattern_list_head+ pattern?;
+	
+	tuple_pattern_list_head =
+		pattern comma;
+	
+	struct_pattern_list =
+		{labelled} labelled_pattern_list;
+	
+	labelled_pattern_list =
+		labelled_pattern labelled_pattern_list_tail* comma?;
+	
+	labelled_pattern_list_tail =
+		comma labelled_pattern;
+	
+	labelled_pattern =
+		label pattern;
+	
 	label =
 		name colon;
 	
 	expression =
 		{prioritized} assignment_expression |
-		{closure} closure_declarator_list closure_body;
+		{closure} closure_pattern_list closure_body;
 	
-	closure_declarator_list =
-		{standard} [l_or]:or declarator_list? [r_or]:or |
+	closure_pattern_list =
+		{standard} [l_or]:or pattern_list? [r_or]:or |
 		{logical_or} logical_or;
 	
 	closure_body =
@@ -410,7 +448,6 @@ Productions
 		expression comma;
 	
 	struct_expression_list =
-		{basic} expression_list |
 		{labelled} labelled_expression_list;
 	
 	labelled_expression_list =
@@ -438,7 +475,7 @@ Productions
 	
 	brace_expression =
 		{prioritized} brace_assignment_expression |
-		{closure} closure_declarator_list brace_expression;
+		{closure} closure_pattern_list brace_expression;
 	
 	brace_assignment_expression =
 		{prioritized} brace_ternary_expression |

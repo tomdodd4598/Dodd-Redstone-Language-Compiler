@@ -98,15 +98,7 @@ public class MemberExpressionNode extends ExpressionNode {
 			baseDataId = routine.addSelfDereferenceAssignmentAction(this, expressionTypeInfo.getReferenceLevel(), expressionNode.dataId);
 		}
 		
-		@NonNull TypeInfo addressTypeInfo = typeInfo.addressOf(this, true);
-		DataId target = routine.nextRegId(addressTypeInfo);
-		DataId indexId = Main.generator.natValue(getMemberInfo().offset).dataId();
-		
-		DataId baseWordDataId = routine.nextRegId(Main.generator.natTypeInfo);
-		routine.addTypeCastAction(this, scope, Main.generator.natTypeInfo, baseDataId.typeInfo, baseWordDataId, baseDataId);
-		DataId targetWordDataId = routine.nextRegId(Main.generator.natTypeInfo);
-		routine.addBinaryOpAction(this, Main.generator.natTypeInfo, BinaryOpType.PLUS, Main.generator.natTypeInfo, targetWordDataId, baseWordDataId, indexId);
-		routine.addTypeCastAction(this, scope, addressTypeInfo, Main.generator.natTypeInfo, target, targetWordDataId);
+		DataId target = routine.addMemberAddressAction(this, baseDataId, getMemberInfo());
 		
 		if (isLvalue) {
 			dataId = target;

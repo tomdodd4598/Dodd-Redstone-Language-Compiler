@@ -691,9 +691,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getRPar().apply(this);
         }
-        if(node.getDeclaratorList() != null)
+        if(node.getPatternList() != null)
         {
-            node.getDeclaratorList().apply(this);
+            node.getPatternList().apply(this);
         }
         if(node.getLPar() != null)
         {
@@ -825,49 +825,49 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outAConstantDefinition(node);
     }
 
-    public void inAExcludingInitializationVariableDeclaration(AExcludingInitializationVariableDeclaration node)
+    public void inAExcludingInitializerVariableDeclaration(AExcludingInitializerVariableDeclaration node)
     {
         defaultIn(node);
     }
 
-    public void outAExcludingInitializationVariableDeclaration(AExcludingInitializationVariableDeclaration node)
+    public void outAExcludingInitializerVariableDeclaration(AExcludingInitializerVariableDeclaration node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAExcludingInitializationVariableDeclaration(AExcludingInitializationVariableDeclaration node)
+    public void caseAExcludingInitializerVariableDeclaration(AExcludingInitializerVariableDeclaration node)
     {
-        inAExcludingInitializationVariableDeclaration(node);
+        inAExcludingInitializerVariableDeclaration(node);
         if(node.getSemicolon() != null)
         {
             node.getSemicolon().apply(this);
         }
-        if(node.getDeclarator() != null)
+        if(node.getPattern() != null)
         {
-            node.getDeclarator().apply(this);
+            node.getPattern().apply(this);
         }
         if(node.getLet() != null)
         {
             node.getLet().apply(this);
         }
-        outAExcludingInitializationVariableDeclaration(node);
+        outAExcludingInitializerVariableDeclaration(node);
     }
 
-    public void inAIncludingInitializationVariableDeclaration(AIncludingInitializationVariableDeclaration node)
+    public void inAIncludingInitializerVariableDeclaration(AIncludingInitializerVariableDeclaration node)
     {
         defaultIn(node);
     }
 
-    public void outAIncludingInitializationVariableDeclaration(AIncludingInitializationVariableDeclaration node)
+    public void outAIncludingInitializerVariableDeclaration(AIncludingInitializerVariableDeclaration node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAIncludingInitializationVariableDeclaration(AIncludingInitializationVariableDeclaration node)
+    public void caseAIncludingInitializerVariableDeclaration(AIncludingInitializerVariableDeclaration node)
     {
-        inAIncludingInitializationVariableDeclaration(node);
+        inAIncludingInitializerVariableDeclaration(node);
         if(node.getSemicolon() != null)
         {
             node.getSemicolon().apply(this);
@@ -880,15 +880,15 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getEquals().apply(this);
         }
-        if(node.getDeclarator() != null)
+        if(node.getPattern() != null)
         {
-            node.getDeclarator().apply(this);
+            node.getPattern().apply(this);
         }
         if(node.getLet() != null)
         {
             node.getLet().apply(this);
         }
-        outAIncludingInitializationVariableDeclaration(node);
+        outAIncludingInitializerVariableDeclaration(node);
     }
 
     public void inAEmptySection(AEmptySection node)
@@ -2009,37 +2009,162 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outANamePathSegment(node);
     }
 
-    public void inADeclarator(ADeclarator node)
+    public void inAPattern(APattern node)
     {
         defaultIn(node);
     }
 
-    public void outADeclarator(ADeclarator node)
+    public void outAPattern(APattern node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseADeclarator(ADeclarator node)
+    public void caseAPattern(APattern node)
     {
-        inADeclarator(node);
+        inAPattern(node);
         if(node.getTypeAnnotation() != null)
         {
             node.getTypeAnnotation().apply(this);
         }
-        if(node.getName() != null)
+        if(node.getRawPattern() != null)
         {
-            node.getName().apply(this);
+            node.getRawPattern().apply(this);
         }
+        outAPattern(node);
+    }
+
+    public void inAWildcardRawPattern(AWildcardRawPattern node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAWildcardRawPattern(AWildcardRawPattern node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAWildcardRawPattern(AWildcardRawPattern node)
+    {
+        inAWildcardRawPattern(node);
+        if(node.getUnderscore() != null)
         {
-            List<PVariableModifier> copy = new ArrayList<PVariableModifier>(node.getVariableModifier());
-            Collections.reverse(copy);
-            for(PVariableModifier e : copy)
-            {
-                e.apply(this);
-            }
+            node.getUnderscore().apply(this);
         }
-        outADeclarator(node);
+        outAWildcardRawPattern(node);
+    }
+
+    public void inABindingRawPattern(ABindingRawPattern node)
+    {
+        defaultIn(node);
+    }
+
+    public void outABindingRawPattern(ABindingRawPattern node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseABindingRawPattern(ABindingRawPattern node)
+    {
+        inABindingRawPattern(node);
+        if(node.getBindingPattern() != null)
+        {
+            node.getBindingPattern().apply(this);
+        }
+        outABindingRawPattern(node);
+    }
+
+    public void inAParenthesesRawPattern(AParenthesesRawPattern node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAParenthesesRawPattern(AParenthesesRawPattern node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAParenthesesRawPattern(AParenthesesRawPattern node)
+    {
+        inAParenthesesRawPattern(node);
+        if(node.getRPar() != null)
+        {
+            node.getRPar().apply(this);
+        }
+        if(node.getPattern() != null)
+        {
+            node.getPattern().apply(this);
+        }
+        if(node.getLPar() != null)
+        {
+            node.getLPar().apply(this);
+        }
+        outAParenthesesRawPattern(node);
+    }
+
+    public void inATupleRawPattern(ATupleRawPattern node)
+    {
+        defaultIn(node);
+    }
+
+    public void outATupleRawPattern(ATupleRawPattern node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseATupleRawPattern(ATupleRawPattern node)
+    {
+        inATupleRawPattern(node);
+        if(node.getRPar() != null)
+        {
+            node.getRPar().apply(this);
+        }
+        if(node.getTuplePatternList() != null)
+        {
+            node.getTuplePatternList().apply(this);
+        }
+        if(node.getLPar() != null)
+        {
+            node.getLPar().apply(this);
+        }
+        outATupleRawPattern(node);
+    }
+
+    public void inAStructRawPattern(AStructRawPattern node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAStructRawPattern(AStructRawPattern node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAStructRawPattern(AStructRawPattern node)
+    {
+        inAStructRawPattern(node);
+        if(node.getRBrace() != null)
+        {
+            node.getRBrace().apply(this);
+        }
+        if(node.getStructPatternList() != null)
+        {
+            node.getStructPatternList().apply(this);
+        }
+        if(node.getLBrace() != null)
+        {
+            node.getLBrace().apply(this);
+        }
+        if(node.getPath() != null)
+        {
+            node.getPath().apply(this);
+        }
+        outAStructRawPattern(node);
     }
 
     public void inAStaticVariableModifier(AStaticVariableModifier node)
@@ -2082,6 +2207,39 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
             node.getMut().apply(this);
         }
         outAMutVariableModifier(node);
+    }
+
+    public void inADeclarator(ADeclarator node)
+    {
+        defaultIn(node);
+    }
+
+    public void outADeclarator(ADeclarator node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseADeclarator(ADeclarator node)
+    {
+        inADeclarator(node);
+        if(node.getTypeAnnotation() != null)
+        {
+            node.getTypeAnnotation().apply(this);
+        }
+        if(node.getName() != null)
+        {
+            node.getName().apply(this);
+        }
+        {
+            List<PVariableModifier> copy = new ArrayList<PVariableModifier>(node.getVariableModifier());
+            Collections.reverse(copy);
+            for(PVariableModifier e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        outADeclarator(node);
     }
 
     public void inADeclaratorList(ADeclaratorList node)
@@ -2140,6 +2298,251 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
             node.getComma().apply(this);
         }
         outADeclaratorListTail(node);
+    }
+
+    public void inABindingPattern(ABindingPattern node)
+    {
+        defaultIn(node);
+    }
+
+    public void outABindingPattern(ABindingPattern node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseABindingPattern(ABindingPattern node)
+    {
+        inABindingPattern(node);
+        if(node.getName() != null)
+        {
+            node.getName().apply(this);
+        }
+        {
+            List<PVariableModifier> copy = new ArrayList<PVariableModifier>(node.getVariableModifier());
+            Collections.reverse(copy);
+            for(PVariableModifier e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        outABindingPattern(node);
+    }
+
+    public void inAPatternList(APatternList node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAPatternList(APatternList node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAPatternList(APatternList node)
+    {
+        inAPatternList(node);
+        if(node.getComma() != null)
+        {
+            node.getComma().apply(this);
+        }
+        {
+            List<PPatternListTail> copy = new ArrayList<PPatternListTail>(node.getPatternListTail());
+            Collections.reverse(copy);
+            for(PPatternListTail e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        if(node.getPattern() != null)
+        {
+            node.getPattern().apply(this);
+        }
+        outAPatternList(node);
+    }
+
+    public void inAPatternListTail(APatternListTail node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAPatternListTail(APatternListTail node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAPatternListTail(APatternListTail node)
+    {
+        inAPatternListTail(node);
+        if(node.getPattern() != null)
+        {
+            node.getPattern().apply(this);
+        }
+        if(node.getComma() != null)
+        {
+            node.getComma().apply(this);
+        }
+        outAPatternListTail(node);
+    }
+
+    public void inATuplePatternList(ATuplePatternList node)
+    {
+        defaultIn(node);
+    }
+
+    public void outATuplePatternList(ATuplePatternList node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseATuplePatternList(ATuplePatternList node)
+    {
+        inATuplePatternList(node);
+        if(node.getPattern() != null)
+        {
+            node.getPattern().apply(this);
+        }
+        {
+            List<PTuplePatternListHead> copy = new ArrayList<PTuplePatternListHead>(node.getTuplePatternListHead());
+            Collections.reverse(copy);
+            for(PTuplePatternListHead e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        outATuplePatternList(node);
+    }
+
+    public void inATuplePatternListHead(ATuplePatternListHead node)
+    {
+        defaultIn(node);
+    }
+
+    public void outATuplePatternListHead(ATuplePatternListHead node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseATuplePatternListHead(ATuplePatternListHead node)
+    {
+        inATuplePatternListHead(node);
+        if(node.getComma() != null)
+        {
+            node.getComma().apply(this);
+        }
+        if(node.getPattern() != null)
+        {
+            node.getPattern().apply(this);
+        }
+        outATuplePatternListHead(node);
+    }
+
+    public void inALabelledStructPatternList(ALabelledStructPatternList node)
+    {
+        defaultIn(node);
+    }
+
+    public void outALabelledStructPatternList(ALabelledStructPatternList node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseALabelledStructPatternList(ALabelledStructPatternList node)
+    {
+        inALabelledStructPatternList(node);
+        if(node.getLabelledPatternList() != null)
+        {
+            node.getLabelledPatternList().apply(this);
+        }
+        outALabelledStructPatternList(node);
+    }
+
+    public void inALabelledPatternList(ALabelledPatternList node)
+    {
+        defaultIn(node);
+    }
+
+    public void outALabelledPatternList(ALabelledPatternList node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseALabelledPatternList(ALabelledPatternList node)
+    {
+        inALabelledPatternList(node);
+        if(node.getComma() != null)
+        {
+            node.getComma().apply(this);
+        }
+        {
+            List<PLabelledPatternListTail> copy = new ArrayList<PLabelledPatternListTail>(node.getLabelledPatternListTail());
+            Collections.reverse(copy);
+            for(PLabelledPatternListTail e : copy)
+            {
+                e.apply(this);
+            }
+        }
+        if(node.getLabelledPattern() != null)
+        {
+            node.getLabelledPattern().apply(this);
+        }
+        outALabelledPatternList(node);
+    }
+
+    public void inALabelledPatternListTail(ALabelledPatternListTail node)
+    {
+        defaultIn(node);
+    }
+
+    public void outALabelledPatternListTail(ALabelledPatternListTail node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseALabelledPatternListTail(ALabelledPatternListTail node)
+    {
+        inALabelledPatternListTail(node);
+        if(node.getLabelledPattern() != null)
+        {
+            node.getLabelledPattern().apply(this);
+        }
+        if(node.getComma() != null)
+        {
+            node.getComma().apply(this);
+        }
+        outALabelledPatternListTail(node);
+    }
+
+    public void inALabelledPattern(ALabelledPattern node)
+    {
+        defaultIn(node);
+    }
+
+    public void outALabelledPattern(ALabelledPattern node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseALabelledPattern(ALabelledPattern node)
+    {
+        inALabelledPattern(node);
+        if(node.getPattern() != null)
+        {
+            node.getPattern().apply(this);
+        }
+        if(node.getLabel() != null)
+        {
+            node.getLabel().apply(this);
+        }
+        outALabelledPattern(node);
     }
 
     public void inALabel(ALabel node)
@@ -2206,61 +2609,61 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getClosureBody().apply(this);
         }
-        if(node.getClosureDeclaratorList() != null)
+        if(node.getClosurePatternList() != null)
         {
-            node.getClosureDeclaratorList().apply(this);
+            node.getClosurePatternList().apply(this);
         }
         outAClosureExpression(node);
     }
 
-    public void inAStandardClosureDeclaratorList(AStandardClosureDeclaratorList node)
+    public void inAStandardClosurePatternList(AStandardClosurePatternList node)
     {
         defaultIn(node);
     }
 
-    public void outAStandardClosureDeclaratorList(AStandardClosureDeclaratorList node)
+    public void outAStandardClosurePatternList(AStandardClosurePatternList node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAStandardClosureDeclaratorList(AStandardClosureDeclaratorList node)
+    public void caseAStandardClosurePatternList(AStandardClosurePatternList node)
     {
-        inAStandardClosureDeclaratorList(node);
+        inAStandardClosurePatternList(node);
         if(node.getROr() != null)
         {
             node.getROr().apply(this);
         }
-        if(node.getDeclaratorList() != null)
+        if(node.getPatternList() != null)
         {
-            node.getDeclaratorList().apply(this);
+            node.getPatternList().apply(this);
         }
         if(node.getLOr() != null)
         {
             node.getLOr().apply(this);
         }
-        outAStandardClosureDeclaratorList(node);
+        outAStandardClosurePatternList(node);
     }
 
-    public void inALogicalOrClosureDeclaratorList(ALogicalOrClosureDeclaratorList node)
+    public void inALogicalOrClosurePatternList(ALogicalOrClosurePatternList node)
     {
         defaultIn(node);
     }
 
-    public void outALogicalOrClosureDeclaratorList(ALogicalOrClosureDeclaratorList node)
+    public void outALogicalOrClosurePatternList(ALogicalOrClosurePatternList node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseALogicalOrClosureDeclaratorList(ALogicalOrClosureDeclaratorList node)
+    public void caseALogicalOrClosurePatternList(ALogicalOrClosurePatternList node)
     {
-        inALogicalOrClosureDeclaratorList(node);
+        inALogicalOrClosurePatternList(node);
         if(node.getLogicalOr() != null)
         {
             node.getLogicalOr().apply(this);
         }
-        outALogicalOrClosureDeclaratorList(node);
+        outALogicalOrClosurePatternList(node);
     }
 
     public void inAExpressionClosureBody(AExpressionClosureBody node)
@@ -3435,27 +3838,6 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outATupleExpressionListHead(node);
     }
 
-    public void inABasicStructExpressionList(ABasicStructExpressionList node)
-    {
-        defaultIn(node);
-    }
-
-    public void outABasicStructExpressionList(ABasicStructExpressionList node)
-    {
-        defaultOut(node);
-    }
-
-    @Override
-    public void caseABasicStructExpressionList(ABasicStructExpressionList node)
-    {
-        inABasicStructExpressionList(node);
-        if(node.getExpressionList() != null)
-        {
-            node.getExpressionList().apply(this);
-        }
-        outABasicStructExpressionList(node);
-    }
-
     public void inALabelledStructExpressionList(ALabelledStructExpressionList node)
     {
         defaultIn(node);
@@ -3813,9 +4195,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getBraceExpression().apply(this);
         }
-        if(node.getClosureDeclaratorList() != null)
+        if(node.getClosurePatternList() != null)
         {
-            node.getClosureDeclaratorList().apply(this);
+            node.getClosurePatternList().apply(this);
         }
         outAClosureBraceExpression(node);
     }

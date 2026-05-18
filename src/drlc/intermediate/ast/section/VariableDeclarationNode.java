@@ -6,24 +6,27 @@ import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.element.DeclaratorNode;
 import drlc.intermediate.ast.expression.*;
+import drlc.intermediate.ast.pattern.PatternNode;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.scope.Scope;
 
 public class VariableDeclarationNode extends StaticSectionNode<Scope> {
 	
-	public final @NonNull DeclaratorNode declaratorNode;
+	public final @NonNull PatternNode patternNode;
 	public @Nullable ExpressionNode expressionNode;
 	
-	public VariableDeclarationNode(Source source, @NonNull DeclaratorNode declaratorNode, @Nullable ExpressionNode expressionNode) {
+	public VariableDeclarationNode(Source source, @NonNull PatternNode patternNode, @Nullable ExpressionNode expressionNode) {
 		super(source);
-		this.declaratorNode = declaratorNode;
+		this.patternNode = patternNode;
 		this.expressionNode = expressionNode;
+		
+		patternNode.checkDeclaratorNames();
 		
 		if (expressionNode == null) {
 			if (isStaticVariable()) {
 				throw error("Static variables require an initializer!");
 			}
-			if (declaratorNode.typeNode == null) {
+			if (!patternNode.canDeclareExcludingInitializer()) {
 				throw error("Can not infer type without variable initializer!");
 			}
 		}
@@ -36,7 +39,7 @@ public class VariableDeclarationNode extends StaticSectionNode<Scope> {
 		if (expressionNode != null) {
 			expressionNode.setScopes(this);
 		}
-		declaratorNode.setScopes(this);
+		patternNode.setScopes(this);
 	}
 	
 	@Override
@@ -44,7 +47,7 @@ public class VariableDeclarationNode extends StaticSectionNode<Scope> {
 		if (expressionNode != null) {
 			expressionNode.defineTypes(this);
 		}
-		declaratorNode.defineTypes(this);
+		patternNode.defineTypes(this);
 	}
 	
 	@Override
@@ -54,24 +57,36 @@ public class VariableDeclarationNode extends StaticSectionNode<Scope> {
 		if (expressionNode != null) {
 			expressionNode.declareExpressions(this);
 		}
-		declaratorNode.declareExpressions(this);
+		patternNode.declareExpressions(this);
 	}
 	
 	@Override
 	public void defineExpressions(ASTNode<?> parent) {
 		if (expressionNode != null) {
-			expressionNode.setTypeInfo(declaratorNode.typeNode == null ? null : declaratorNode.typeNode.getTypeInfo());
+			expressionNode.setTypeInfo(patternNode.getExplicitTypeInfo());
 			expressionNode.defineExpressions(this);
+			
+			patternNode.setTypeInfo(expressionNode.getTypeInfo());
+			patternNode.defineExpressions(this);
+		}
+		else {
+			if (!patternNode.canDeclareExcludingInitializer()) {
+				throw error("Can not infer type without variable initializer!");
+			}
+			
+			TypeInfo typeInfo = patternNode.getExplicitTypeInfo();
+			if (typeInfo == null) {
+				throw error("Could not infer type of variable!");
+			}
+			
+			patternNode.setTypeInfo(typeInfo);
+			patternNode.defineExpressions(this);
 		}
 		
-		if (declaratorNode.typeNode == null) {
-			declaratorNode.inferredTypeInfo = expressionNode.getTypeInfo();
-		}
-		
-		declaratorNode.defineExpressions(this);
-		
-		if (expressionNode != null) {
-			scope.onVariableInitialization(this, declaratorNode.declaratorInfo.variable);
+		for (DeclaratorNode declaratorNode : patternNode.getDeclaratorNodes()) {
+			if (expressionNode != null) {
+				scope.onVariableInitialization(this, declaratorNode.declaratorInfo.variable);
+			}
 		}
 	}
 	
@@ -80,14 +95,7 @@ public class VariableDeclarationNode extends StaticSectionNode<Scope> {
 		if (expressionNode != null) {
 			expressionNode.checkTypes(this);
 		}
-		declaratorNode.checkTypes(this);
-		
-		if (expressionNode != null) {
-			@NonNull TypeInfo expressionType = expressionNode.getTypeInfo(), variableType = declaratorNode.declaratorInfo.getTypeInfo();
-			if (!expressionType.canImplicitCastTo(variableType)) {
-				throw castError("initialization value", expressionType, variableType);
-			}
-		}
+		patternNode.checkTypes(this);
 	}
 	
 	@Override
@@ -95,7 +103,7 @@ public class VariableDeclarationNode extends StaticSectionNode<Scope> {
 		if (expressionNode != null) {
 			expressionNode.foldConstants(this);
 		}
-		declaratorNode.foldConstants(this);
+		patternNode.foldConstants(this);
 		
 		if (expressionNode != null) {
 			@Nullable ConstantExpressionNode constantExpressionNode = expressionNode.constantExpressionNode();
@@ -104,7 +112,7 @@ public class VariableDeclarationNode extends StaticSectionNode<Scope> {
 			}
 		}
 		
-		if (isStaticVariable() && !expressionNode.isStatic()) {
+		if (expressionNode != null && isStaticVariable() && !expressionNode.isStatic()) {
 			throw error("Static variables require a static initializer!");
 		}
 	}
@@ -114,14 +122,12 @@ public class VariableDeclarationNode extends StaticSectionNode<Scope> {
 		if (expressionNode != null) {
 			expressionNode.generateIntermediate(this);
 		}
-		declaratorNode.generateIntermediate(this);
 		
-		if (expressionNode != null) {
-			routine.addAssignmentAction(this, declaratorNode.declaratorInfo.dataId(), expressionNode.dataId);
-		}
+		patternNode.dataId = expressionNode == null ? null : expressionNode.dataId;
+		patternNode.generateIntermediate(this);
 	}
 	
 	protected boolean isStaticVariable() {
-		return declaratorNode.variableModifier._static;
+		return patternNode.hasStaticBinding();
 	}
 }

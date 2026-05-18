@@ -1,14 +1,15 @@
 package drlc.intermediate.ast.section;
 
-import java.util.List;
+import java.util.*;
 
 import org.eclipse.jdt.annotation.*;
 
 import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.element.DeclaratorNode;
+import drlc.intermediate.ast.pattern.*;
 import drlc.intermediate.ast.type.TypeNode;
-import drlc.intermediate.component.Function;
+import drlc.intermediate.component.*;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.FunctionScope;
@@ -17,6 +18,7 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 	
 	public final @NonNull String name;
 	public final @NonNull List<DeclaratorNode> parameterNodes;
+	protected final @NonNull List<ParameterPattern> parameterPatterns = new ArrayList<>();
 	public final @Nullable TypeNode returnTypeNode;
 	public final @NonNull ScopedBodyNode bodyNode;
 	public final boolean closure;
@@ -24,19 +26,44 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 	@SuppressWarnings("null")
 	public @NonNull Function function = null;
 	
-	public FunctionDefinitionNode(Source source, @NonNull String name, @NonNull List<DeclaratorNode> parameterNodes, @Nullable TypeNode returnTypeNode, @NonNull ScopedBodyNode bodyNode, boolean closure) {
+	public FunctionDefinitionNode(Source source, @NonNull String name, @NonNull List<PatternNode> parameterPatternNodes, @Nullable TypeNode returnTypeNode, @NonNull ScopedBodyNode bodyNode, boolean closure) {
 		super(source);
 		this.name = name;
-		this.parameterNodes = parameterNodes;
+		this.parameterNodes = new ArrayList<>();
 		this.returnTypeNode = returnTypeNode;
 		this.bodyNode = bodyNode;
 		this.closure = closure;
 		
-		for (DeclaratorNode parameterNode : parameterNodes) {
-			parameterNode.functionParameter = true;
-			if (parameterNode.typeNode == null) {
-				throw error("Function parameter types must be explicitly defined!");
+		Set<String> names = new HashSet<>();
+		int hiddenCount = 0;
+		for (PatternNode patternNode : parameterPatternNodes) {
+			patternNode.checkDeclaratorNames();
+			for (DeclaratorNode declaratorNode : patternNode.getDeclaratorNodes()) {
+				if (!names.add(declaratorNode.name)) {
+					throw Helpers.nodeError(declaratorNode, "Repeated parameter name \"%s\"!", declaratorNode.name);
+				}
+				if (declaratorNode.variableModifier._static) {
+					throw Helpers.nodeError(declaratorNode, "Function parameters can not be static!");
+				}
 			}
+			
+			DeclaratorNode parameterNode = directParameterNode(patternNode);
+			if (parameterNode == null) {
+				parameterNode = new DeclaratorNode(patternNode.source, new VariableModifier(false, false), Global.PARAM + hiddenCount++, null);
+				parameterPatterns.add(new ParameterPattern(parameterNode, patternNode));
+			}
+			parameterNodes.add(parameterNode);
+			parameterNode.functionParameter = true;
+		}
+	}
+	
+	protected @Nullable DeclaratorNode directParameterNode(@NonNull PatternNode patternNode) {
+		if (patternNode instanceof TypedPatternNode typedPatternNode && typedPatternNode.patternNode instanceof BindingPatternNode bindingPatternNode) {
+			DeclaratorNode declaratorNode = bindingPatternNode.declaratorNode;
+			return new DeclaratorNode(declaratorNode.source, declaratorNode.variableModifier, declaratorNode.name, typedPatternNode.typeNode);
+		}
+		else {
+			return null;
 		}
 	}
 	
@@ -46,6 +73,9 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 		
 		for (DeclaratorNode parameterNode : parameterNodes) {
 			parameterNode.setScopes(this);
+		}
+		for (ParameterPattern parameterPattern : parameterPatterns) {
+			parameterPattern.patternNode.setScopes(this);
 		}
 		if (returnTypeNode != null) {
 			returnTypeNode.setScopes(this);
@@ -57,6 +87,9 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 	public void defineTypes(ASTNode<?> parent) {
 		for (DeclaratorNode parameterNode : parameterNodes) {
 			parameterNode.defineTypes(this);
+		}
+		for (ParameterPattern parameterPattern : parameterPatterns) {
+			parameterPattern.patternNode.defineTypes(this);
 		}
 		if (returnTypeNode != null) {
 			returnTypeNode.defineTypes(this);
@@ -71,6 +104,9 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 			return;
 		}
 		
+		for (ParameterPattern parameterPattern : parameterPatterns) {
+			parameterPattern.defineParameterType();
+		}
 		for (DeclaratorNode parameterNode : parameterNodes) {
 			parameterNode.declareFunctionParameter();
 		}
@@ -88,6 +124,9 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 		for (DeclaratorNode parameterNode : parameterNodes) {
 			parameterNode.routine = routine;
 		}
+		for (ParameterPattern parameterPattern : parameterPatterns) {
+			parameterPattern.patternNode.routine = routine;
+		}
 		if (returnTypeNode != null) {
 			returnTypeNode.routine = routine;
 		}
@@ -102,6 +141,9 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 		}
 		if (returnTypeNode != null) {
 			returnTypeNode.declareExpressions(this);
+		}
+		for (ParameterPattern parameterPattern : parameterPatterns) {
+			parameterPattern.patternNode.declareExpressions(this);
 		}
 		
 		bodyNode.declareExpressions(this);
@@ -123,6 +165,9 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 		if (returnTypeNode != null) {
 			returnTypeNode.defineExpressions(this);
 		}
+		for (ParameterPattern parameterPattern : parameterPatterns) {
+			parameterPattern.defineExpressions();
+		}
 		bodyNode.defineExpressions(this);
 		
 		@NonNull TypeInfo returnType = routine.getReturnTypeInfo();
@@ -139,6 +184,9 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 		if (returnTypeNode != null) {
 			returnTypeNode.checkTypes(this);
 		}
+		for (ParameterPattern parameterPattern : parameterPatterns) {
+			parameterPattern.patternNode.checkTypes(this);
+		}
 		bodyNode.checkTypes(this);
 	}
 	
@@ -150,6 +198,9 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 		if (returnTypeNode != null) {
 			returnTypeNode.foldConstants(this);
 		}
+		for (ParameterPattern parameterPattern : parameterPatterns) {
+			parameterPattern.patternNode.foldConstants(this);
+		}
 		bodyNode.foldConstants(this);
 	}
 	
@@ -158,6 +209,41 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 		for (DeclaratorNode parameterNode : parameterNodes) {
 			parameterNode.generateIntermediate(this);
 		}
+		for (ParameterPattern parameterPattern : parameterPatterns) {
+			parameterPattern.generateIntermediate();
+		}
 		bodyNode.generateIntermediate(this);
+	}
+	
+	protected final class ParameterPattern {
+		
+		public final @NonNull DeclaratorNode parameterNode;
+		public final @NonNull PatternNode patternNode;
+		
+		protected ParameterPattern(@NonNull DeclaratorNode parameterNode, @NonNull PatternNode patternNode) {
+			this.parameterNode = parameterNode;
+			this.patternNode = patternNode;
+		}
+		
+		protected void defineParameterType() {
+			TypeInfo typeInfo = patternNode.getExplicitTypeInfo();
+			if (typeInfo == null) {
+				throw Helpers.nodeError(patternNode, "Function parameter pattern types must be explicitly defined!");
+			}
+			parameterNode.inferredTypeInfo = typeInfo;
+		}
+		
+		protected void defineExpressions() {
+			patternNode.setTypeInfo(parameterNode.declaratorInfo.getTypeInfo());
+			patternNode.defineExpressions(FunctionDefinitionNode.this);
+			for (DeclaratorNode declaratorNode : patternNode.getDeclaratorNodes()) {
+				scope.onVariableInitialization(FunctionDefinitionNode.this, declaratorNode.declaratorInfo.variable);
+			}
+		}
+		
+		protected void generateIntermediate() {
+			patternNode.dataId = parameterNode.declaratorInfo.dataId();
+			patternNode.generateIntermediate(FunctionDefinitionNode.this);
+		}
 	}
 }
