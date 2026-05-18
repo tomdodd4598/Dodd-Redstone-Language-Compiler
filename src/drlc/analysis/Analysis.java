@@ -39,7 +39,9 @@ public interface Analysis extends Switch
     void caseAUseAlias(AUseAlias node);
     void caseAFunctionDefinition(AFunctionDefinition node);
     void caseATypeAliasDefinition(ATypeAliasDefinition node);
-    void caseAStructDefinition(AStructDefinition node);
+    void caseAStandardStructDefinition(AStandardStructDefinition node);
+    void caseATupleStructDefinition(ATupleStructDefinition node);
+    void caseAUnitStructDefinition(AUnitStructDefinition node);
     void caseAConstantDefinition(AConstantDefinition node);
     void caseAExcludingInitializerVariableDeclaration(AExcludingInitializerVariableDeclaration node);
     void caseAIncludingInitializerVariableDeclaration(AIncludingInitializerVariableDeclaration node);
@@ -86,7 +88,8 @@ public interface Analysis extends Switch
     void caseABindingRawPattern(ABindingRawPattern node);
     void caseAParenthesesRawPattern(AParenthesesRawPattern node);
     void caseATupleRawPattern(ATupleRawPattern node);
-    void caseAStructRawPattern(AStructRawPattern node);
+    void caseAStandardStructRawPattern(AStandardStructRawPattern node);
+    void caseATupleStructRawPattern(ATupleStructRawPattern node);
     void caseAStaticVariableModifier(AStaticVariableModifier node);
     void caseAMutVariableModifier(AMutVariableModifier node);
     void caseADeclarator(ADeclarator node);

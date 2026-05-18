@@ -6,7 +6,7 @@ import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.Function;
 import drlc.intermediate.component.type.TypeInfo;
-import drlc.intermediate.component.value.Value;
+import drlc.intermediate.component.value.*;
 import drlc.intermediate.routine.Routine;
 import drlc.intermediate.scope.Scope;
 
@@ -57,6 +57,9 @@ public class ValueExpressionNode extends ConstantExpressionNode {
 	
 	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
+		if (value instanceof StructConstructorValue) {
+			throw error("Tuple struct constructor \"%s\" can only be used as a caller expression!", value.valueString());
+		}
 		routine.addValueAssignmentAction(this, dataId = routine.nextRegId(getTypeInfo()), value);
 	}
 	

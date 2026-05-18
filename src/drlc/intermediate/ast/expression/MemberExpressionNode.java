@@ -2,9 +2,9 @@ package drlc.intermediate.ast.expression;
 
 import org.eclipse.jdt.annotation.*;
 
-import drlc.*;
+import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
-import drlc.intermediate.component.*;
+import drlc.intermediate.component.MemberInfo;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.TypeInfo;
 import drlc.intermediate.component.value.Value;

@@ -1,24 +1,31 @@
 nesting fn root() -> Int:
 {def}:
-	Coord: Coord {Int, Int}
+	Unit1: Unit1 {}
+	Unit2: Unit2 {}
+	Unit3: Unit3 {}
 {0}:
 	%0 = call $main()
 	exit $0
 
-nesting fn main() -> ():
+leaf fn main() -> ():
 {dec}:
-	<10> coord: Coord {Int, Int}
-	<10> a: Int
-	<10> b: Int
+	<10> u11: Unit1 {}
+	<10> u12: Unit1 {}
+	<10> u13: Unit1 {}
+	<10> u21: Unit2 {}
+	<10> u22: Unit2 {}
+	<10> u23: Unit2 {}
+	<10> u31: Unit3 {}
+	<10> u32: Unit3 {}
+	<10> u33: Unit3 {}
 {0}:
-	<10> coord = $Coord {3, 5}
-	%0 = <10> coord
-	%1 = &%0 + $0
-	<10> a = *%1
-	%2 = &%0 + $8
-	<10> b = *%2
-	%3 = call builtin $printInt(<10> a)
-	%4 = call builtin $printChar($'\n')
-	%5 = call builtin $printInt(<10> b)
-	%6 = call builtin $printChar($'\n')
+	<10> u11 = $Unit1 {}
+	<10> u12 = $Unit1 {}
+	<10> u13 = $Unit1 {}
+	<10> u21 = $Unit2 {}
+	<10> u22 = $Unit2 {}
+	<10> u23 = $Unit2 {}
+	<10> u31 = $Unit3 {}
+	<10> u32 = $Unit3 {}
+	<10> u33 = $Unit3 {}
 	ret $()

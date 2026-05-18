@@ -742,20 +742,20 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outATypeAliasDefinition(node);
     }
 
-    public void inAStructDefinition(AStructDefinition node)
+    public void inAStandardStructDefinition(AStandardStructDefinition node)
     {
         defaultIn(node);
     }
 
-    public void outAStructDefinition(AStructDefinition node)
+    public void outAStandardStructDefinition(AStandardStructDefinition node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAStructDefinition(AStructDefinition node)
+    public void caseAStandardStructDefinition(AStandardStructDefinition node)
     {
-        inAStructDefinition(node);
+        inAStandardStructDefinition(node);
         if(node.getStruct() != null)
         {
             node.getStruct().apply(this);
@@ -776,7 +776,77 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getRBrace().apply(this);
         }
-        outAStructDefinition(node);
+        outAStandardStructDefinition(node);
+    }
+
+    public void inATupleStructDefinition(ATupleStructDefinition node)
+    {
+        defaultIn(node);
+    }
+
+    public void outATupleStructDefinition(ATupleStructDefinition node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseATupleStructDefinition(ATupleStructDefinition node)
+    {
+        inATupleStructDefinition(node);
+        if(node.getStruct() != null)
+        {
+            node.getStruct().apply(this);
+        }
+        if(node.getName() != null)
+        {
+            node.getName().apply(this);
+        }
+        if(node.getLPar() != null)
+        {
+            node.getLPar().apply(this);
+        }
+        if(node.getTypeList() != null)
+        {
+            node.getTypeList().apply(this);
+        }
+        if(node.getRPar() != null)
+        {
+            node.getRPar().apply(this);
+        }
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        outATupleStructDefinition(node);
+    }
+
+    public void inAUnitStructDefinition(AUnitStructDefinition node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAUnitStructDefinition(AUnitStructDefinition node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAUnitStructDefinition(AUnitStructDefinition node)
+    {
+        inAUnitStructDefinition(node);
+        if(node.getStruct() != null)
+        {
+            node.getStruct().apply(this);
+        }
+        if(node.getName() != null)
+        {
+            node.getName().apply(this);
+        }
+        if(node.getSemicolon() != null)
+        {
+            node.getSemicolon().apply(this);
+        }
+        outAUnitStructDefinition(node);
     }
 
     public void inAConstantDefinition(AConstantDefinition node)
@@ -2121,20 +2191,20 @@ public class DepthFirstAdapter extends AnalysisAdapter
         outATupleRawPattern(node);
     }
 
-    public void inAStructRawPattern(AStructRawPattern node)
+    public void inAStandardStructRawPattern(AStandardStructRawPattern node)
     {
         defaultIn(node);
     }
 
-    public void outAStructRawPattern(AStructRawPattern node)
+    public void outAStandardStructRawPattern(AStandardStructRawPattern node)
     {
         defaultOut(node);
     }
 
     @Override
-    public void caseAStructRawPattern(AStructRawPattern node)
+    public void caseAStandardStructRawPattern(AStandardStructRawPattern node)
     {
-        inAStructRawPattern(node);
+        inAStandardStructRawPattern(node);
         if(node.getPath() != null)
         {
             node.getPath().apply(this);
@@ -2151,7 +2221,40 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getRBrace().apply(this);
         }
-        outAStructRawPattern(node);
+        outAStandardStructRawPattern(node);
+    }
+
+    public void inATupleStructRawPattern(ATupleStructRawPattern node)
+    {
+        defaultIn(node);
+    }
+
+    public void outATupleStructRawPattern(ATupleStructRawPattern node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseATupleStructRawPattern(ATupleStructRawPattern node)
+    {
+        inATupleStructRawPattern(node);
+        if(node.getPath() != null)
+        {
+            node.getPath().apply(this);
+        }
+        if(node.getLPar() != null)
+        {
+            node.getLPar().apply(this);
+        }
+        if(node.getPatternList() != null)
+        {
+            node.getPatternList().apply(this);
+        }
+        if(node.getRPar() != null)
+        {
+            node.getRPar().apply(this);
+        }
+        outATupleStructRawPattern(node);
     }
 
     public void inAStaticVariableModifier(AStaticVariableModifier node)

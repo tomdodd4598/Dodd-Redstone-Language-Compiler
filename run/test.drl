@@ -935,19 +935,26 @@ fn main() {
 }
 */
 
-// DESTRUCTURING TEST
+// UNIT STRUCT TEST
 
 
-struct Coord {
-	x: Int,
-	y: Int,
-}
+struct Unit1{};
+
+struct Unit2();
+
+struct Unit3;
 
 fn main() {
-	let coord = Coord { x: 3, y: 5 };
-	let Coord { x: a, y: b } = coord;
-	printInt(a);
-	printChar('\n');
-	printInt(b);
-	printChar('\n');
+	let u11 = Unit1{};
+	let u12 = Unit1();
+	let u13 = Unit1;
+	
+	let u21 = Unit2{};
+	let u22 = Unit2();
+	let u23 = Unit2;
+	
+	let u31 = Unit3{};
+	let u32 = Unit3();
+	let u33 = Unit3;
 }
+

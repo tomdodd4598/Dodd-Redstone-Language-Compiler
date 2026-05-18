@@ -211,7 +211,9 @@ Productions
 		alias name equals type semicolon;
 	
 	struct_definition =
-		struct name l_brace declarator_list? r_brace;
+		{standard} struct name l_brace declarator_list? r_brace |
+		{tuple} struct name l_par type_list? r_par semicolon |
+		{unit} struct name semicolon;
 	
 	constant_definition =
 		const name type_annotation? equals expression semicolon;
@@ -310,7 +312,8 @@ Productions
 		{binding} binding_pattern |
 		{parentheses} l_par pattern r_par |
 		{tuple} l_par tuple_pattern_list? r_par |
-		{struct} path l_brace struct_pattern_list? r_brace;
+		{standard_struct} path l_brace struct_pattern_list? r_brace |
+		{tuple_struct} path l_par pattern_list? r_par;
 	
 	variable_modifier =
 		{static} static |

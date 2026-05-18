@@ -49,7 +49,7 @@ public class FunctionDefinitionNode extends StaticSectionNode<FunctionScope> {
 			
 			DeclaratorNode parameterNode = directParameterNode(patternNode);
 			if (parameterNode == null) {
-				parameterNode = new DeclaratorNode(patternNode.source, new VariableModifier(false, false), Global.PARAM + hiddenCount++, null);
+				parameterNode = new DeclaratorNode(patternNode.source, VariableModifier.DEFAULT, Global.PARAM + hiddenCount++, null);
 				parameterPatterns.add(new ParameterPattern(parameterNode, patternNode));
 			}
 			parameterNodes.add(parameterNode);

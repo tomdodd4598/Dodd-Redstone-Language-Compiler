@@ -8,7 +8,7 @@ import drlc.Source;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.*;
-import drlc.intermediate.component.value.Value;
+import drlc.intermediate.component.value.*;
 import drlc.intermediate.scope.Scope;
 
 public class CallExpressionNode extends ExpressionNode {
@@ -18,6 +18,8 @@ public class CallExpressionNode extends ExpressionNode {
 	
 	@SuppressWarnings("null")
 	public @NonNull FunctionTypeInfo functionTypeInfo = null;
+	public @Nullable StructConstructorTypeInfo structConstructorTypeInfo = null;
+	public @Nullable StructValue constantValue = null;
 	
 	public CallExpressionNode(Source source, @NonNull ExpressionNode callerExpressionNode, @NonNull List<ExpressionNode> argExpressionNodes) {
 		super(source);
@@ -70,7 +72,9 @@ public class CallExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void checkTypes(ASTNode<?> parent) {
-		callerExpressionNode.checkTypes(this);
+		if (structConstructorTypeInfo == null) {
+			callerExpressionNode.checkTypes(this);
+		}
 		
 		for (ExpressionNode argExpressionNode : argExpressionNodes) {
 			argExpressionNode.checkTypes(this);
@@ -112,6 +116,24 @@ public class CallExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
+		if (structConstructorTypeInfo != null) {
+			for (ExpressionNode argExpressionNode : argExpressionNodes) {
+				argExpressionNode.generateIntermediate(this);
+			}
+			
+			List<DataId> args = new ArrayList<>();
+			for (ExpressionNode argExpressionNode : argExpressionNodes) {
+				args.add(argExpressionNode.dataId);
+			}
+			
+			@NonNull StructTypeInfo typeInfo = structConstructorTypeInfo.structTypeInfo;
+			@NonNull TypeInfo rawTypeInfo = typeInfo.copy(this);
+			routine.addCompoundAssignmentAction(this, dataId = typeInfo.isAddress() ? scope.nextLocalDataId(routine, rawTypeInfo) : routine.nextRegId(rawTypeInfo), args);
+			
+			dataId = routine.addSelfAddressAssignmentAction(this, scope, typeInfo.getReferenceLevel(), dataId);
+			return;
+		}
+		
 		callerExpressionNode.generateIntermediate(this);
 		
 		for (ExpressionNode argExpressionNode : argExpressionNodes) {
@@ -143,7 +165,15 @@ public class CallExpressionNode extends ExpressionNode {
 	protected void setTypeInfoInternal(@Nullable TypeInfo targetType) {
 		callerExpressionNode.setTypeInfo(null);
 		@NonNull TypeInfo callerExpressionType = callerExpressionNode.getTypeInfo();
-		if (callerExpressionType instanceof FunctionTypeInfo) {
+		if (callerExpressionType instanceof StructConstructorTypeInfo constructorTypeInfo) {
+			structConstructorTypeInfo = constructorTypeInfo;
+			functionTypeInfo = constructorTypeInfo;
+		}
+		else if (callerExpressionNode instanceof PathExpressionNode && callerExpressionType instanceof StructTypeInfo structTypeInfo && structTypeInfo.count == 0 && callerExpressionNode.getConstantValue() instanceof StructValue structValue && structValue.count == 0) {
+			structConstructorTypeInfo = new StructConstructorTypeInfo(this, structValue.typeInfo);
+			functionTypeInfo = structConstructorTypeInfo;
+		}
+		else if (callerExpressionType instanceof FunctionTypeInfo) {
 			functionTypeInfo = (FunctionTypeInfo) callerExpressionType;
 		}
 		else if (callerExpressionType instanceof ClosureTypeInfo) {
@@ -156,7 +186,7 @@ public class CallExpressionNode extends ExpressionNode {
 		List<TypeInfo> argTypeInfos = functionTypeInfo.getArgTypeInfos();
 		int functionArgCount = argTypeInfos.size(), argExpressionCount = argExpressionNodes.size();
 		if (functionArgCount != argExpressionCount) {
-			throw error("Function call requires %d arguments but received %d!", functionArgCount, argExpressionCount);
+			throw error("%s requires %d arguments but received %d!", structConstructorTypeInfo == null ? "Function call" : "Struct constructor", functionArgCount, argExpressionCount);
 		}
 		
 		for (int i = 0; i < argExpressionCount; ++i) {
@@ -166,12 +196,22 @@ public class CallExpressionNode extends ExpressionNode {
 	
 	@Override
 	protected @Nullable Value<?> getConstantValueInternal() {
-		return null;
+		return constantValue;
 	}
 	
 	@Override
 	protected void setConstantValueInternal() {
-		
+		if (structConstructorTypeInfo != null) {
+			List<Value<?>> values = new ArrayList<>();
+			for (ExpressionNode argExpressionNode : argExpressionNodes) {
+				@Nullable Value<?> value = argExpressionNode.getConstantValue();
+				if (value == null) {
+					return;
+				}
+				values.add(value);
+			}
+			constantValue = new StructValue(this, structConstructorTypeInfo.structTypeInfo, values);
+		}
 	}
 	
 	@Override

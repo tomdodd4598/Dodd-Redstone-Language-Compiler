@@ -480,8 +480,18 @@ public class Visitor extends AnalysisAdapter {
 	}
 	
 	@Override
-	public void caseAStructDefinition(AStructDefinition node) {
-		staticSectionStack.push(new StructDefinitionNode(source(node), text(node.getName()), declaratorList(node.getDeclaratorList())));
+	public void caseAStandardStructDefinition(AStandardStructDefinition node) {
+		staticSectionStack.push(new StructDefinitionNode(source(node), text(node.getName()), declaratorList(node.getDeclaratorList()), false));
+	}
+	
+	@Override
+	public void caseATupleStructDefinition(ATupleStructDefinition node) {
+		staticSectionStack.push(new StructDefinitionNode(source(node), text(node.getName()), Helpers.mapIndexed(typeList(node.getTypeList()), (i, x) -> new DeclaratorNode(x.source, VariableModifier.DEFAULT, Integer.toString(i), x)), true));
+	}
+	
+	@Override
+	public void caseAUnitStructDefinition(AUnitStructDefinition node) {
+		staticSectionStack.push(new StructDefinitionNode(source(node), text(node.getName()), new ArrayList<>(), false));
 	}
 	
 	@Override
@@ -720,8 +730,13 @@ public class Visitor extends AnalysisAdapter {
 	}
 	
 	@Override
-	public void caseAStructRawPattern(AStructRawPattern node) {
-		patternStack.push(new StructPatternNode(source(node), path(node.getPath()), structPatternListPair(node.getStructPatternList())));
+	public void caseAStandardStructRawPattern(AStandardStructRawPattern node) {
+		patternStack.push(new StandardStructPatternNode(source(node), path(node.getPath()), structPatternListPair(node.getStructPatternList())));
+	}
+	
+	@Override
+	public void caseATupleStructRawPattern(ATupleStructRawPattern node) {
+		patternStack.push(new TupleStructPatternNode(source(node), path(node.getPath()), patternList(node.getPatternList())));
 	}
 	
 	@Override

@@ -237,7 +237,19 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAStructDefinition(AStructDefinition node)
+    public void caseAStandardStructDefinition(AStandardStructDefinition node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseATupleStructDefinition(ATupleStructDefinition node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseAUnitStructDefinition(AUnitStructDefinition node)
     {
         defaultCase(node);
     }
@@ -519,7 +531,13 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseAStructRawPattern(AStructRawPattern node)
+    public void caseAStandardStructRawPattern(AStandardStructRawPattern node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
+    public void caseATupleStructRawPattern(ATupleStructRawPattern node)
     {
         defaultCase(node);
     }

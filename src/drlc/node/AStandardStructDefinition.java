@@ -5,7 +5,7 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AStructDefinition extends PStructDefinition
+public final class AStandardStructDefinition extends PStructDefinition
 {
     private TStruct _struct_;
     private TName _name_;
@@ -13,12 +13,12 @@ public final class AStructDefinition extends PStructDefinition
     private PDeclaratorList _declaratorList_;
     private TRBrace _rBrace_;
 
-    public AStructDefinition()
+    public AStandardStructDefinition()
     {
         // Constructor
     }
 
-    public AStructDefinition(
+    public AStandardStructDefinition(
         @SuppressWarnings("hiding") TStruct _struct_,
         @SuppressWarnings("hiding") TName _name_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
@@ -41,7 +41,7 @@ public final class AStructDefinition extends PStructDefinition
     @Override
     public Object clone()
     {
-        return new AStructDefinition(
+        return new AStandardStructDefinition(
             cloneNode(this._struct_),
             cloneNode(this._name_),
             cloneNode(this._lBrace_),
@@ -52,7 +52,7 @@ public final class AStructDefinition extends PStructDefinition
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAStructDefinition(this);
+        ((Analysis) sw).caseAStandardStructDefinition(this);
     }
 
     public TStruct getStruct()

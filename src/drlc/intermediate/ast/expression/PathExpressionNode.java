@@ -6,7 +6,7 @@ import drlc.*;
 import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.type.*;
-import drlc.intermediate.component.value.Value;
+import drlc.intermediate.component.value.*;
 
 public class PathExpressionNode extends ExpressionNode {
 	
@@ -62,7 +62,9 @@ public class PathExpressionNode extends ExpressionNode {
 	
 	@Override
 	public void checkTypes(ASTNode<?> parent) {
-		
+		if (value instanceof StructConstructorValue) {
+			throw error("Tuple struct constructor \"%s\" can only be used as a caller expression!", path);
+		}
 	}
 	
 	@Override
@@ -76,6 +78,9 @@ public class PathExpressionNode extends ExpressionNode {
 		@NonNull TypeInfo typeInfo = getTypeInfo();
 		
 		if (value != null) {
+			if (value instanceof StructConstructorValue) {
+				throw error("Tuple struct constructor \"%s\" can only be used as a caller expression!", path);
+			}
 			routine.addValueAssignmentAction(this, dataId = routine.nextRegId(typeInfo), value);
 		}
 		else {

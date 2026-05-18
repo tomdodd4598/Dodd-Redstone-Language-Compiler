@@ -2,7 +2,7 @@ package drlc.intermediate.scope;
 
 import java.util.*;
 
-import org.eclipse.jdt.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 import drlc.*;
 import drlc.intermediate.action.*;

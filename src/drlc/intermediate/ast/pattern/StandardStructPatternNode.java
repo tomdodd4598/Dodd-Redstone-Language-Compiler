@@ -12,22 +12,24 @@ import drlc.intermediate.component.*;
 import drlc.intermediate.component.data.DataId;
 import drlc.intermediate.component.type.*;
 
-public class StructPatternNode extends PatternNode {
+public class StandardStructPatternNode extends PatternNode {
 	
 	public final @NonNull Path path;
 	public final @NonNull List<String> labels;
 	public final @NonNull List<PatternNode> patternNodes;
+	public final int count;
 	
 	@SuppressWarnings("null")
 	public @NonNull StructTypeInfo typeInfo = null;
 	@SuppressWarnings("null")
 	public @NonNull List<MemberInfo> memberInfos = null;
 	
-	public StructPatternNode(Source source, @NonNull Path path, @NonNull Pair<@NonNull List<String>, @NonNull List<PatternNode>> patternNodesPair) {
+	public StandardStructPatternNode(Source source, @NonNull Path path, @NonNull Pair<@NonNull List<String>, @NonNull List<PatternNode>> patternNodesPair) {
 		super(source);
 		this.path = path;
 		labels = patternNodesPair.left;
 		patternNodes = patternNodesPair.right;
+		count = patternNodes.size();
 	}
 	
 	@Override
@@ -83,7 +85,6 @@ public class StructPatternNode extends PatternNode {
 			throw castError("struct pattern value", inputTypeInfo, typeInfo);
 		}
 		
-		int count = patternNodes.size();
 		Set<String> uniqueLabels = new HashSet<>();
 		memberInfos = new ArrayList<>();
 		for (int i = 0; i < count; ++i) {
@@ -132,7 +133,6 @@ public class StructPatternNode extends PatternNode {
 		}
 		DataId addressDataId = getInputAddressDataId(dataId);
 		
-		int count = patternNodes.size();
 		for (int i = 0; i < count; ++i) {
 			PatternNode patternNode = patternNodes.get(i);
 			patternNode.dataId = routine.addMemberValueAction(this, addressDataId, memberInfos.get(i));

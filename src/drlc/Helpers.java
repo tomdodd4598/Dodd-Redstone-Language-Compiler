@@ -413,6 +413,15 @@ public class Helpers {
 		return set.stream().map(function).collect(Collectors.toSet());
 	}
 	
+	public static interface IntObjBiFunction<T, R> {
+		
+		public R apply(int i, T t);
+	}
+	
+	public static <T, U> List<U> mapIndexed(List<T> list, IntObjBiFunction<? super T, ? extends U> function) {
+		return IntStream.range(0, list.size()).mapToObj(x -> function.apply(x, list.get(x))).collect(Collectors.toList());
+	}
+	
 	public static String toBinary(long value, int length) {
 		if ((length & 31) != 0) {
 			value &= ((1 << length) - 1);

@@ -9,22 +9,26 @@ import drlc.intermediate.ast.ASTNode;
 import drlc.intermediate.ast.element.DeclaratorNode;
 import drlc.intermediate.component.*;
 import drlc.intermediate.component.type.*;
+import drlc.intermediate.component.value.*;
 import drlc.intermediate.scope.Scope;
 
 public class StructDefinitionNode extends StaticSectionNode<Scope> {
 	
 	public final @NonNull String name;
 	public final @NonNull List<DeclaratorNode> componentNodes;
+	public final boolean tupleStruct;
 	protected final @NonNull Map<String, MemberInfo> memberMap = new LinkedHashMap<>();
 	protected final @NonNull List<TypeInfo> typeInfos = new ArrayList<>();
+	protected boolean valueConstructorDeclared = false;
 	
 	@SuppressWarnings("null")
 	public @NonNull TypeDef typeDef = null;
 	
-	public StructDefinitionNode(Source source, @NonNull String name, @NonNull List<DeclaratorNode> componentNodes) {
+	public StructDefinitionNode(Source source, @NonNull String name, @NonNull List<DeclaratorNode> componentNodes, boolean tupleStruct) {
 		super(source);
 		this.name = name;
 		this.componentNodes = componentNodes;
+		this.tupleStruct = tupleStruct;
 		
 		for (DeclaratorNode componentNode : componentNodes) {
 			if (componentNode.typeNode == null) {
@@ -107,6 +111,20 @@ public class StructDefinitionNode extends StaticSectionNode<Scope> {
 				}
 			}
 		}
+		
+		declareValueConstructor();
+	}
+	
+	protected void declareValueConstructor() {
+		if (valueConstructorDeclared || (!tupleStruct && !componentNodes.isEmpty())) {
+			return;
+		}
+		
+		StructTypeInfo structTypeInfo = (StructTypeInfo) typeDef.getTypeInfo(this, new ArrayList<>());
+		Value<?> value = componentNodes.isEmpty() ? new StructValue(this, structTypeInfo, new ArrayList<>()) : new StructConstructorValue(this, new StructConstructorTypeInfo(this, structTypeInfo), name, scope);
+		scope.addConstant(this, name, new Constant(name, value));
+		
+		valueConstructorDeclared = true;
 	}
 	
 	@Override

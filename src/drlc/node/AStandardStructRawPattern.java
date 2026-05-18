@@ -5,19 +5,19 @@ package drlc.node;
 import drlc.analysis.*;
 
 @SuppressWarnings("nls")
-public final class AStructRawPattern extends PRawPattern
+public final class AStandardStructRawPattern extends PRawPattern
 {
     private PPath _path_;
     private TLBrace _lBrace_;
     private PStructPatternList _structPatternList_;
     private TRBrace _rBrace_;
 
-    public AStructRawPattern()
+    public AStandardStructRawPattern()
     {
         // Constructor
     }
 
-    public AStructRawPattern(
+    public AStandardStructRawPattern(
         @SuppressWarnings("hiding") PPath _path_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
         @SuppressWarnings("hiding") PStructPatternList _structPatternList_,
@@ -37,7 +37,7 @@ public final class AStructRawPattern extends PRawPattern
     @Override
     public Object clone()
     {
-        return new AStructRawPattern(
+        return new AStandardStructRawPattern(
             cloneNode(this._path_),
             cloneNode(this._lBrace_),
             cloneNode(this._structPatternList_),
@@ -47,7 +47,7 @@ public final class AStructRawPattern extends PRawPattern
     @Override
     public void apply(Switch sw)
     {
-        ((Analysis) sw).caseAStructRawPattern(this);
+        ((Analysis) sw).caseAStandardStructRawPattern(this);
     }
 
     public PPath getPath()

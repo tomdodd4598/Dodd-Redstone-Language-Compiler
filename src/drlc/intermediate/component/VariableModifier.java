@@ -8,6 +8,7 @@ import drlc.Global;
 
 public class VariableModifier {
 	
+	public static final @NonNull VariableModifier DEFAULT = new VariableModifier(false, false);
 	public static final @NonNull VariableModifier ROOT = new VariableModifier(true, true);
 	public static final @NonNull VariableModifier BUILT_IN = new VariableModifier(false, true);
 	
