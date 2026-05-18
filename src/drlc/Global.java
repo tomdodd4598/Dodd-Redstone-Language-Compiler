@@ -59,9 +59,7 @@ public final class Global {
 	public static final @NonNull String EQUALS = "=";
 	
 	public static final @NonNull String IF = "if";
-	public static final @NonNull String UNLESS = "unless";
 	public static final @NonNull String WHILE = "while";
-	public static final @NonNull String UNTIL = "until";
 	
 	public static final @NonNull String DEREFERENCE = "*";
 	public static final @NonNull String ADDRESS_OF = "&";

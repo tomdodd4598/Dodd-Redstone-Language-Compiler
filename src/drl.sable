@@ -117,11 +117,11 @@ Tokens
 	static = 'static';
 	mut = 'mut';
 	
-	conditional_branch_keyword = 'if' | 'unless';
+	if = 'if';
 	else = 'else';
 	
 	loop = 'loop';
-	conditional_iterative_keyword = 'while' | 'until';
+	while = 'while';
 	do = 'do';
 	
 	exit = 'exit';
@@ -230,7 +230,7 @@ Productions
 		expression semicolon;
 	
 	conditional_section =
-		conditional_branch_keyword brace_expression l_brace scoped_body r_brace else_section?;
+		if brace_expression l_brace scoped_body r_brace else_section?;
 	
 	else_section =
 		{excluding_branch} else l_brace scoped_body r_brace |
@@ -238,8 +238,8 @@ Productions
 	
 	iterative_section =
 		{loop} label? loop l_brace scoped_body r_brace |
-		{conditional} label? conditional_iterative_keyword brace_expression l_brace scoped_body r_brace |
-		{do_conditional} label? do l_brace scoped_body r_brace conditional_iterative_keyword expression semicolon;
+		{conditional} label? while brace_expression l_brace scoped_body r_brace |
+		{do_conditional} label? do l_brace scoped_body r_brace while expression semicolon;
 	
 	scoped_body =
 		runtime_section* stop_statement?;

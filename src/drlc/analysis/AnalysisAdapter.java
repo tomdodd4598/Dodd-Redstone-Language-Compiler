@@ -1779,7 +1779,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTConditionalBranchKeyword(TConditionalBranchKeyword node)
+    public void caseTIf(TIf node)
     {
         defaultCase(node);
     }
@@ -1797,7 +1797,7 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
-    public void caseTConditionalIterativeKeyword(TConditionalIterativeKeyword node)
+    public void caseTWhile(TWhile node)
     {
         defaultCase(node);
     }

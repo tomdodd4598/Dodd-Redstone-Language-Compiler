@@ -297,10 +297,10 @@ public interface Analysis extends Switch
     void caseTAs(TAs node);
     void caseTStatic(TStatic node);
     void caseTMut(TMut node);
-    void caseTConditionalBranchKeyword(TConditionalBranchKeyword node);
+    void caseTIf(TIf node);
     void caseTElse(TElse node);
     void caseTLoop(TLoop node);
-    void caseTConditionalIterativeKeyword(TConditionalIterativeKeyword node);
+    void caseTWhile(TWhile node);
     void caseTDo(TDo node);
     void caseTExit(TExit node);
     void caseTReturn(TReturn node);

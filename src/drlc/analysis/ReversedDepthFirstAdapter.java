@@ -1000,9 +1000,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getBraceExpression().apply(this);
         }
-        if(node.getConditionalBranchKeyword() != null)
+        if(node.getIf() != null)
         {
-            node.getConditionalBranchKeyword().apply(this);
+            node.getIf().apply(this);
         }
         outAConditionalSection(node);
     }
@@ -1132,9 +1132,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getBraceExpression().apply(this);
         }
-        if(node.getConditionalIterativeKeyword() != null)
+        if(node.getWhile() != null)
         {
-            node.getConditionalIterativeKeyword().apply(this);
+            node.getWhile().apply(this);
         }
         if(node.getLabel() != null)
         {
@@ -1165,9 +1165,9 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         {
             node.getExpression().apply(this);
         }
-        if(node.getConditionalIterativeKeyword() != null)
+        if(node.getWhile() != null)
         {
-            node.getConditionalIterativeKeyword().apply(this);
+            node.getWhile().apply(this);
         }
         if(node.getRBrace() != null)
         {

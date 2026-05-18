@@ -11,14 +11,13 @@ import drlc.intermediate.scope.IterativeScope;
 
 public class ConditionalIterativeSectionNode extends IterativeSectionNode {
 	
-	public final boolean _do, until;
+	public final boolean _do;
 	public @NonNull ExpressionNode expressionNode;
 	public final @NonNull ScopedBodyNode bodyNode;
 	
-	public ConditionalIterativeSectionNode(Source source, @Nullable String label, boolean _do, boolean until, @NonNull ExpressionNode expressionNode, @NonNull ScopedBodyNode bodyNode) {
+	public ConditionalIterativeSectionNode(Source source, @Nullable String label, boolean _do, @NonNull ExpressionNode expressionNode, @NonNull ScopedBodyNode bodyNode) {
 		super(source, label);
 		this._do = _do;
-		this.until = until;
 		this.expressionNode = expressionNode;
 		this.bodyNode = bodyNode;
 	}
@@ -82,7 +81,7 @@ public class ConditionalIterativeSectionNode extends IterativeSectionNode {
 			conditionConstant = false;
 		}
 		
-		if (conditionConstant == null || _do || conditionConstant != until) {
+		if (conditionConstant == null || _do || conditionConstant) {
 			bodyNode.foldConstants(this);
 		}
 	}
@@ -99,7 +98,7 @@ public class ConditionalIterativeSectionNode extends IterativeSectionNode {
 		routine.incrementSectionId();
 		scope.continueJump.setTarget(routine.currentSectionId());
 		expressionNode.generateIntermediate(this);
-		routine.addConditionalJumpAction(this, cjTarget, !until);
+		routine.addConditionalJumpAction(this, cjTarget, true);
 		
 		routine.incrementSectionId();
 		scope.breakJump.setTarget(routine.currentSectionId());

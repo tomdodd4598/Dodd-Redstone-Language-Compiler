@@ -12,14 +12,12 @@ import drlc.intermediate.scope.ConditionalScope;
 
 public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope> {
 	
-	public final boolean unless;
 	public @NonNull ExpressionNode expressionNode;
 	public final @NonNull ScopedBodyNode thenNode;
 	public final @Nullable ASTNode<?> elseNode;
 	
-	public ConditionalSectionNode(Source source, boolean unless, @NonNull ExpressionNode expressionNode, @NonNull ScopedBodyNode thenNode, @Nullable ASTNode<?> elseNode) {
+	public ConditionalSectionNode(Source source, @NonNull ExpressionNode expressionNode, @NonNull ScopedBodyNode thenNode, @Nullable ASTNode<?> elseNode) {
 		super(source);
-		this.unless = unless;
 		this.expressionNode = expressionNode;
 		this.thenNode = thenNode;
 		this.elseNode = elseNode;
@@ -104,10 +102,10 @@ public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope>
 			conditionConstant = false;
 		}
 		
-		if (conditionConstant == null || conditionConstant != unless) {
+		if (conditionConstant == null || conditionConstant) {
 			thenNode.foldConstants(this);
 		}
-		if (elseNode != null && (conditionConstant == null || conditionConstant == unless)) {
+		if (elseNode != null && (conditionConstant == null || !conditionConstant)) {
 			elseNode.foldConstants(this);
 		}
 	}
@@ -115,7 +113,7 @@ public class ConditionalSectionNode extends RuntimeSectionNode<ConditionalScope>
 	@Override
 	public void generateIntermediate(ASTNode<?> parent) {
 		expressionNode.generateIntermediate(this);
-		ConditionalJumpAction cja = routine.addConditionalJumpAction(this, -1, unless);
+		ConditionalJumpAction cja = routine.addConditionalJumpAction(this, -1, false);
 		thenNode.generateIntermediate(this);
 		
 		if (elseNode != null) {

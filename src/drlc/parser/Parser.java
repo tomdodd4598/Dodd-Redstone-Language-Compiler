@@ -3640,19 +3640,19 @@ public class Parser
         PConditionalSection pconditionalsectionNode1;
         {
             // Block
-        TConditionalBranchKeyword tconditionalbranchkeywordNode2;
+        TIf tifNode2;
         PBraceExpression pbraceexpressionNode3;
         TLBrace tlbraceNode4;
         PScopedBody pscopedbodyNode5;
         TRBrace trbraceNode6;
         @SuppressWarnings("unused") Object nullNode7 = null;
-        tconditionalbranchkeywordNode2 = (TConditionalBranchKeyword)nodeArrayList1.get(0);
+        tifNode2 = (TIf)nodeArrayList1.get(0);
         pbraceexpressionNode3 = (PBraceExpression)nodeArrayList2.get(0);
         tlbraceNode4 = (TLBrace)nodeArrayList3.get(0);
         pscopedbodyNode5 = (PScopedBody)nodeArrayList4.get(0);
         trbraceNode6 = (TRBrace)nodeArrayList5.get(0);
 
-        pconditionalsectionNode1 = new AConditionalSection(tconditionalbranchkeywordNode2, pbraceexpressionNode3, tlbraceNode4, pscopedbodyNode5, trbraceNode6, null);
+        pconditionalsectionNode1 = new AConditionalSection(tifNode2, pbraceexpressionNode3, tlbraceNode4, pscopedbodyNode5, trbraceNode6, null);
         }
 	nodeList.add(pconditionalsectionNode1);
         return nodeList;
@@ -3674,20 +3674,20 @@ public class Parser
         PConditionalSection pconditionalsectionNode1;
         {
             // Block
-        TConditionalBranchKeyword tconditionalbranchkeywordNode2;
+        TIf tifNode2;
         PBraceExpression pbraceexpressionNode3;
         TLBrace tlbraceNode4;
         PScopedBody pscopedbodyNode5;
         TRBrace trbraceNode6;
         PElseSection pelsesectionNode7;
-        tconditionalbranchkeywordNode2 = (TConditionalBranchKeyword)nodeArrayList1.get(0);
+        tifNode2 = (TIf)nodeArrayList1.get(0);
         pbraceexpressionNode3 = (PBraceExpression)nodeArrayList2.get(0);
         tlbraceNode4 = (TLBrace)nodeArrayList3.get(0);
         pscopedbodyNode5 = (PScopedBody)nodeArrayList4.get(0);
         trbraceNode6 = (TRBrace)nodeArrayList5.get(0);
         pelsesectionNode7 = (PElseSection)nodeArrayList6.get(0);
 
-        pconditionalsectionNode1 = new AConditionalSection(tconditionalbranchkeywordNode2, pbraceexpressionNode3, tlbraceNode4, pscopedbodyNode5, trbraceNode6, pelsesectionNode7);
+        pconditionalsectionNode1 = new AConditionalSection(tifNode2, pbraceexpressionNode3, tlbraceNode4, pscopedbodyNode5, trbraceNode6, pelsesectionNode7);
         }
 	nodeList.add(pconditionalsectionNode1);
         return nodeList;
@@ -3823,18 +3823,18 @@ public class Parser
         {
             // Block
         @SuppressWarnings("unused") Object nullNode2 = null;
-        TConditionalIterativeKeyword tconditionaliterativekeywordNode3;
+        TWhile twhileNode3;
         PBraceExpression pbraceexpressionNode4;
         TLBrace tlbraceNode5;
         PScopedBody pscopedbodyNode6;
         TRBrace trbraceNode7;
-        tconditionaliterativekeywordNode3 = (TConditionalIterativeKeyword)nodeArrayList1.get(0);
+        twhileNode3 = (TWhile)nodeArrayList1.get(0);
         pbraceexpressionNode4 = (PBraceExpression)nodeArrayList2.get(0);
         tlbraceNode5 = (TLBrace)nodeArrayList3.get(0);
         pscopedbodyNode6 = (PScopedBody)nodeArrayList4.get(0);
         trbraceNode7 = (TRBrace)nodeArrayList5.get(0);
 
-        piterativesectionNode1 = new AConditionalIterativeSection(null, tconditionaliterativekeywordNode3, pbraceexpressionNode4, tlbraceNode5, pscopedbodyNode6, trbraceNode7);
+        piterativesectionNode1 = new AConditionalIterativeSection(null, twhileNode3, pbraceexpressionNode4, tlbraceNode5, pscopedbodyNode6, trbraceNode7);
         }
 	nodeList.add(piterativesectionNode1);
         return nodeList;
@@ -3857,19 +3857,19 @@ public class Parser
         {
             // Block
         PLabel plabelNode2;
-        TConditionalIterativeKeyword tconditionaliterativekeywordNode3;
+        TWhile twhileNode3;
         PBraceExpression pbraceexpressionNode4;
         TLBrace tlbraceNode5;
         PScopedBody pscopedbodyNode6;
         TRBrace trbraceNode7;
         plabelNode2 = (PLabel)nodeArrayList1.get(0);
-        tconditionaliterativekeywordNode3 = (TConditionalIterativeKeyword)nodeArrayList2.get(0);
+        twhileNode3 = (TWhile)nodeArrayList2.get(0);
         pbraceexpressionNode4 = (PBraceExpression)nodeArrayList3.get(0);
         tlbraceNode5 = (TLBrace)nodeArrayList4.get(0);
         pscopedbodyNode6 = (PScopedBody)nodeArrayList5.get(0);
         trbraceNode7 = (TRBrace)nodeArrayList6.get(0);
 
-        piterativesectionNode1 = new AConditionalIterativeSection(plabelNode2, tconditionaliterativekeywordNode3, pbraceexpressionNode4, tlbraceNode5, pscopedbodyNode6, trbraceNode7);
+        piterativesectionNode1 = new AConditionalIterativeSection(plabelNode2, twhileNode3, pbraceexpressionNode4, tlbraceNode5, pscopedbodyNode6, trbraceNode7);
         }
 	nodeList.add(piterativesectionNode1);
         return nodeList;
@@ -3897,18 +3897,18 @@ public class Parser
         TLBrace tlbraceNode4;
         PScopedBody pscopedbodyNode5;
         TRBrace trbraceNode6;
-        TConditionalIterativeKeyword tconditionaliterativekeywordNode7;
+        TWhile twhileNode7;
         PExpression pexpressionNode8;
         TSemicolon tsemicolonNode9;
         tdoNode3 = (TDo)nodeArrayList1.get(0);
         tlbraceNode4 = (TLBrace)nodeArrayList2.get(0);
         pscopedbodyNode5 = (PScopedBody)nodeArrayList3.get(0);
         trbraceNode6 = (TRBrace)nodeArrayList4.get(0);
-        tconditionaliterativekeywordNode7 = (TConditionalIterativeKeyword)nodeArrayList5.get(0);
+        twhileNode7 = (TWhile)nodeArrayList5.get(0);
         pexpressionNode8 = (PExpression)nodeArrayList6.get(0);
         tsemicolonNode9 = (TSemicolon)nodeArrayList7.get(0);
 
-        piterativesectionNode1 = new ADoConditionalIterativeSection(null, tdoNode3, tlbraceNode4, pscopedbodyNode5, trbraceNode6, tconditionaliterativekeywordNode7, pexpressionNode8, tsemicolonNode9);
+        piterativesectionNode1 = new ADoConditionalIterativeSection(null, tdoNode3, tlbraceNode4, pscopedbodyNode5, trbraceNode6, twhileNode7, pexpressionNode8, tsemicolonNode9);
         }
 	nodeList.add(piterativesectionNode1);
         return nodeList;
@@ -3937,7 +3937,7 @@ public class Parser
         TLBrace tlbraceNode4;
         PScopedBody pscopedbodyNode5;
         TRBrace trbraceNode6;
-        TConditionalIterativeKeyword tconditionaliterativekeywordNode7;
+        TWhile twhileNode7;
         PExpression pexpressionNode8;
         TSemicolon tsemicolonNode9;
         plabelNode2 = (PLabel)nodeArrayList1.get(0);
@@ -3945,11 +3945,11 @@ public class Parser
         tlbraceNode4 = (TLBrace)nodeArrayList3.get(0);
         pscopedbodyNode5 = (PScopedBody)nodeArrayList4.get(0);
         trbraceNode6 = (TRBrace)nodeArrayList5.get(0);
-        tconditionaliterativekeywordNode7 = (TConditionalIterativeKeyword)nodeArrayList6.get(0);
+        twhileNode7 = (TWhile)nodeArrayList6.get(0);
         pexpressionNode8 = (PExpression)nodeArrayList7.get(0);
         tsemicolonNode9 = (TSemicolon)nodeArrayList8.get(0);
 
-        piterativesectionNode1 = new ADoConditionalIterativeSection(plabelNode2, tdoNode3, tlbraceNode4, pscopedbodyNode5, trbraceNode6, tconditionaliterativekeywordNode7, pexpressionNode8, tsemicolonNode9);
+        piterativesectionNode1 = new ADoConditionalIterativeSection(plabelNode2, tdoNode3, tlbraceNode4, pscopedbodyNode5, trbraceNode6, twhileNode7, pexpressionNode8, tsemicolonNode9);
         }
 	nodeList.add(piterativesectionNode1);
         return nodeList;
@@ -11689,7 +11689,7 @@ public class Parser
     private static String[] errorMessages;
 /*      {
 			"expecting: ';', 'mod', 'use', 'fn', 'alias', 'struct', 'const', 'let', EOF",
-			"expecting: '(', '[', '{', '}', ';', '&&', '||', '&', '|', '-', '*', '!', 'mod', 'use', 'root', 'super', 'self', 'fn', 'alias', 'struct', 'const', 'let', conditional branch keyword, 'loop', conditional iterative keyword, 'do', 'exit', 'return', 'continue', 'break', 'sizeof', 'null', bool value, name, int value, nat value, word value, char value, string literal, EOF",
+			"expecting: '(', '[', '{', '}', ';', '&&', '||', '&', '|', '-', '*', '!', 'mod', 'use', 'root', 'super', 'self', 'fn', 'alias', 'struct', 'const', 'let', 'if', 'loop', 'while', 'do', 'exit', 'return', 'continue', 'break', 'sizeof', 'null', bool value, name, int value, nat value, word value, char value, string literal, EOF",
 			"expecting: name",
 			"expecting: '{', '*', 'root', 'super', 'self', name",
 			"expecting: '(', '_', 'root', 'super', 'self', 'static', 'mut', name",
@@ -11744,18 +11744,18 @@ public class Parser
 			"expecting: ')', '[', ']', '}', ',', ':', ';', '.', '?', '=', '+=', '&=', '|=', '^=', '-=', '<<=', '>>=', '<<<=', '>>>=', '*=', '/=', '%=', '&&', '||', '==', '!=', '<', '<=', '>', '>=', '+', '&', '|', '^', '-', '<<', '>>', '<<<', '>>>', '*', '/', '%', 'as'",
 			"expecting: '(', ')', '[', ']', '}', ',', ':', ';', '.', '?', '=', '+=', '&=', '|=', '^=', '-=', '<<=', '>>=', '<<<=', '>>>=', '*=', '/=', '%=', '&&', '||', '==', '!=', '<', '<=', '>', '>=', '+', '&', '|', '^', '-', '<<', '>>', '<<<', '>>>', '*', '/', '%', 'as'",
 			"expecting: ':'",
-			"expecting: '(', '[', '{', '}', ';', '&&', '||', '&', '|', '-', '*', '!', 'mod', 'use', 'root', 'super', 'self', 'fn', 'alias', 'struct', 'const', 'let', conditional branch keyword, 'loop', conditional iterative keyword, 'do', 'exit', 'return', 'continue', 'break', 'sizeof', 'null', bool value, name, int value, nat value, word value, char value, string literal",
+			"expecting: '(', '[', '{', '}', ';', '&&', '||', '&', '|', '-', '*', '!', 'mod', 'use', 'root', 'super', 'self', 'fn', 'alias', 'struct', 'const', 'let', 'if', 'loop', 'while', 'do', 'exit', 'return', 'continue', 'break', 'sizeof', 'null', bool value, name, int value, nat value, word value, char value, string literal",
 			"expecting: '(', ')', '_', '|', 'root', 'super', 'self', 'static', 'mut', name",
 			"expecting: ','",
 			"expecting: ']', ',', ';'",
 			"expecting: ']'",
 			"expecting: '|'",
 			"expecting: 'root', 'super', 'self', name, word value",
-			"expecting: '(', '[', '_', '&&', '||', '&', '|', '-', '*', '!', 'root', 'super', 'self', 'static', 'mut', 'loop', conditional iterative keyword, 'do', 'sizeof', 'null', bool value, name, int value, nat value, word value, char value, string literal",
+			"expecting: '(', '[', '_', '&&', '||', '&', '|', '-', '*', '!', 'root', 'super', 'self', 'static', 'mut', 'loop', 'while', 'do', 'sizeof', 'null', bool value, name, int value, nat value, word value, char value, string literal",
 			"expecting: '(', '[', ';', '&&', '||', '&', '|', '-', '*', '!', 'root', 'super', 'self', 'sizeof', 'null', bool value, name, int value, nat value, word value, char value, string literal",
 			"expecting: ';', name",
 			"expecting: '::', '(', '[', '{', ':', ';', '.', '?', '=', '+=', '&=', '|=', '^=', '-=', '<<=', '>>=', '<<<=', '>>>=', '*=', '/=', '%=', '&&', '||', '==', '!=', '<', '<=', '>', '>=', '+', '&', '|', '^', '-', '<<', '>>', '<<<', '>>>', '*', '/', '%', 'as'",
-			"expecting: 'loop', conditional iterative keyword, 'do'",
+			"expecting: 'loop', 'while', 'do'",
 			"expecting: '->', '(', ')', '[', ']', '{', '}', ',', ':', ';', '.', '?', '=', '+=', '&=', '|=', '^=', '-=', '<<=', '>>=', '<<<=', '>>>=', '*=', '/=', '%=', '&&', '||', '==', '!=', '<', '<=', '>', '>=', '+', '&', '|', '^', '-', '<<', '>>', '<<<', '>>>', '*', '/', '%', 'as'",
 			"expecting: '(', ')', '[', ']', '&&', '||', '&', '|', '-', '*', '!', 'root', 'super', 'self', 'sizeof', 'null', bool value, name, int value, nat value, word value, char value, string literal",
 			"expecting: ')', ']', ','",
@@ -11771,9 +11771,9 @@ public class Parser
 			"expecting: '{', '?', '=', '+=', '&=', '|=', '^=', '-=', '<<=', '>>=', '<<<=', '>>>=', '*=', '/=', '%=', '&&', '||', '==', '!=', '<', '<=', '>', '>=', '+', '&', '|', '^', '-', '<<', '>>', '<<<', '>>>', '*', '/', '%', 'as'",
 			"expecting: '[', '{', '.', '?', '=', '+=', '&=', '|=', '^=', '-=', '<<=', '>>=', '<<<=', '>>>=', '*=', '/=', '%=', '&&', '||', '==', '!=', '<', '<=', '>', '>=', '+', '&', '|', '^', '-', '<<', '>>', '<<<', '>>>', '*', '/', '%', 'as'",
 			"expecting: '{', '?', '&&', '||', '==', '!=', '<', '<=', '>', '>=', '+', '&', '|', '^', '-', '<<', '>>', '<<<', '>>>', '*', '/', '%', 'as'",
-			"expecting: conditional iterative keyword",
-			"expecting: '(', '[', '{', '}', ';', '&&', '||', '&', '|', '-', '*', '!', 'mod', 'use', 'root', 'super', 'self', 'fn', 'alias', 'struct', 'const', 'let', conditional branch keyword, 'else', 'loop', conditional iterative keyword, 'do', 'exit', 'return', 'continue', 'break', 'sizeof', 'null', bool value, name, int value, nat value, word value, char value, string literal",
-			"expecting: '{', conditional branch keyword",
+			"expecting: 'while'",
+			"expecting: '(', '[', '{', '}', ';', '&&', '||', '&', '|', '-', '*', '!', 'mod', 'use', 'root', 'super', 'self', 'fn', 'alias', 'struct', 'const', 'let', 'if', 'else', 'loop', 'while', 'do', 'exit', 'return', 'continue', 'break', 'sizeof', 'null', bool value, name, int value, nat value, word value, char value, string literal",
+			"expecting: '{', 'if'",
         };*/
     private static int[] errors;
 /*      {

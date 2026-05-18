@@ -975,9 +975,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
     public void caseAConditionalSection(AConditionalSection node)
     {
         inAConditionalSection(node);
-        if(node.getConditionalBranchKeyword() != null)
+        if(node.getIf() != null)
         {
-            node.getConditionalBranchKeyword().apply(this);
+            node.getIf().apply(this);
         }
         if(node.getBraceExpression() != null)
         {
@@ -1115,9 +1115,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getLabel().apply(this);
         }
-        if(node.getConditionalIterativeKeyword() != null)
+        if(node.getWhile() != null)
         {
-            node.getConditionalIterativeKeyword().apply(this);
+            node.getWhile().apply(this);
         }
         if(node.getBraceExpression() != null)
         {
@@ -1172,9 +1172,9 @@ public class DepthFirstAdapter extends AnalysisAdapter
         {
             node.getRBrace().apply(this);
         }
-        if(node.getConditionalIterativeKeyword() != null)
+        if(node.getWhile() != null)
         {
-            node.getConditionalIterativeKeyword().apply(this);
+            node.getWhile().apply(this);
         }
         if(node.getExpression() != null)
         {

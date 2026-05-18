@@ -8,7 +8,7 @@ import drlc.analysis.*;
 public final class AConditionalIterativeSection extends PIterativeSection
 {
     private PLabel _label_;
-    private TConditionalIterativeKeyword _conditionalIterativeKeyword_;
+    private TWhile _while_;
     private PBraceExpression _braceExpression_;
     private TLBrace _lBrace_;
     private PScopedBody _scopedBody_;
@@ -21,7 +21,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
 
     public AConditionalIterativeSection(
         @SuppressWarnings("hiding") PLabel _label_,
-        @SuppressWarnings("hiding") TConditionalIterativeKeyword _conditionalIterativeKeyword_,
+        @SuppressWarnings("hiding") TWhile _while_,
         @SuppressWarnings("hiding") PBraceExpression _braceExpression_,
         @SuppressWarnings("hiding") TLBrace _lBrace_,
         @SuppressWarnings("hiding") PScopedBody _scopedBody_,
@@ -30,7 +30,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
         // Constructor
         setLabel(_label_);
 
-        setConditionalIterativeKeyword(_conditionalIterativeKeyword_);
+        setWhile(_while_);
 
         setBraceExpression(_braceExpression_);
 
@@ -47,7 +47,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
     {
         return new AConditionalIterativeSection(
             cloneNode(this._label_),
-            cloneNode(this._conditionalIterativeKeyword_),
+            cloneNode(this._while_),
             cloneNode(this._braceExpression_),
             cloneNode(this._lBrace_),
             cloneNode(this._scopedBody_),
@@ -85,16 +85,16 @@ public final class AConditionalIterativeSection extends PIterativeSection
         this._label_ = node;
     }
 
-    public TConditionalIterativeKeyword getConditionalIterativeKeyword()
+    public TWhile getWhile()
     {
-        return this._conditionalIterativeKeyword_;
+        return this._while_;
     }
 
-    public void setConditionalIterativeKeyword(TConditionalIterativeKeyword node)
+    public void setWhile(TWhile node)
     {
-        if(this._conditionalIterativeKeyword_ != null)
+        if(this._while_ != null)
         {
-            this._conditionalIterativeKeyword_.parent(null);
+            this._while_.parent(null);
         }
 
         if(node != null)
@@ -107,7 +107,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
             node.parent(this);
         }
 
-        this._conditionalIterativeKeyword_ = node;
+        this._while_ = node;
     }
 
     public PBraceExpression getBraceExpression()
@@ -215,7 +215,7 @@ public final class AConditionalIterativeSection extends PIterativeSection
     {
         return ""
             + toString(this._label_)
-            + toString(this._conditionalIterativeKeyword_)
+            + toString(this._while_)
             + toString(this._braceExpression_)
             + toString(this._lBrace_)
             + toString(this._scopedBody_)
@@ -232,9 +232,9 @@ public final class AConditionalIterativeSection extends PIterativeSection
             return;
         }
 
-        if(this._conditionalIterativeKeyword_ == child)
+        if(this._while_ == child)
         {
-            this._conditionalIterativeKeyword_ = null;
+            this._while_ = null;
             return;
         }
 
@@ -275,9 +275,9 @@ public final class AConditionalIterativeSection extends PIterativeSection
             return;
         }
 
-        if(this._conditionalIterativeKeyword_ == oldChild)
+        if(this._while_ == oldChild)
         {
-            setConditionalIterativeKeyword((TConditionalIterativeKeyword) newChild);
+            setWhile((TWhile) newChild);
             return;
         }
 

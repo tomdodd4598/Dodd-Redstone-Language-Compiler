@@ -376,7 +376,7 @@ class TokenIndex extends AnalysisAdapter
     }
 
     @Override
-    public void caseTConditionalBranchKeyword(@SuppressWarnings("unused") TConditionalBranchKeyword node)
+    public void caseTIf(@SuppressWarnings("unused") TIf node)
     {
         this.index = 61;
     }
@@ -394,7 +394,7 @@ class TokenIndex extends AnalysisAdapter
     }
 
     @Override
-    public void caseTConditionalIterativeKeyword(@SuppressWarnings("unused") TConditionalIterativeKeyword node)
+    public void caseTWhile(@SuppressWarnings("unused") TWhile node)
     {
         this.index = 64;
     }

@@ -12,7 +12,7 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
     private TLBrace _lBrace_;
     private PScopedBody _scopedBody_;
     private TRBrace _rBrace_;
-    private TConditionalIterativeKeyword _conditionalIterativeKeyword_;
+    private TWhile _while_;
     private PExpression _expression_;
     private TSemicolon _semicolon_;
 
@@ -27,7 +27,7 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
         @SuppressWarnings("hiding") TLBrace _lBrace_,
         @SuppressWarnings("hiding") PScopedBody _scopedBody_,
         @SuppressWarnings("hiding") TRBrace _rBrace_,
-        @SuppressWarnings("hiding") TConditionalIterativeKeyword _conditionalIterativeKeyword_,
+        @SuppressWarnings("hiding") TWhile _while_,
         @SuppressWarnings("hiding") PExpression _expression_,
         @SuppressWarnings("hiding") TSemicolon _semicolon_)
     {
@@ -42,7 +42,7 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
 
         setRBrace(_rBrace_);
 
-        setConditionalIterativeKeyword(_conditionalIterativeKeyword_);
+        setWhile(_while_);
 
         setExpression(_expression_);
 
@@ -59,7 +59,7 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
             cloneNode(this._lBrace_),
             cloneNode(this._scopedBody_),
             cloneNode(this._rBrace_),
-            cloneNode(this._conditionalIterativeKeyword_),
+            cloneNode(this._while_),
             cloneNode(this._expression_),
             cloneNode(this._semicolon_));
     }
@@ -195,16 +195,16 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
         this._rBrace_ = node;
     }
 
-    public TConditionalIterativeKeyword getConditionalIterativeKeyword()
+    public TWhile getWhile()
     {
-        return this._conditionalIterativeKeyword_;
+        return this._while_;
     }
 
-    public void setConditionalIterativeKeyword(TConditionalIterativeKeyword node)
+    public void setWhile(TWhile node)
     {
-        if(this._conditionalIterativeKeyword_ != null)
+        if(this._while_ != null)
         {
-            this._conditionalIterativeKeyword_.parent(null);
+            this._while_.parent(null);
         }
 
         if(node != null)
@@ -217,7 +217,7 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
             node.parent(this);
         }
 
-        this._conditionalIterativeKeyword_ = node;
+        this._while_ = node;
     }
 
     public PExpression getExpression()
@@ -279,7 +279,7 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
             + toString(this._lBrace_)
             + toString(this._scopedBody_)
             + toString(this._rBrace_)
-            + toString(this._conditionalIterativeKeyword_)
+            + toString(this._while_)
             + toString(this._expression_)
             + toString(this._semicolon_);
     }
@@ -318,9 +318,9 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
             return;
         }
 
-        if(this._conditionalIterativeKeyword_ == child)
+        if(this._while_ == child)
         {
-            this._conditionalIterativeKeyword_ = null;
+            this._while_ = null;
             return;
         }
 
@@ -373,9 +373,9 @@ public final class ADoConditionalIterativeSection extends PIterativeSection
             return;
         }
 
-        if(this._conditionalIterativeKeyword_ == oldChild)
+        if(this._while_ == oldChild)
         {
-            setConditionalIterativeKeyword((TConditionalIterativeKeyword) newChild);
+            setWhile((TWhile) newChild);
             return;
         }
 

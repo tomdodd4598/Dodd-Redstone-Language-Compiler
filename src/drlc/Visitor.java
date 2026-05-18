@@ -336,14 +336,6 @@ public class Visitor extends AnalysisAdapter {
 		return new Path(pathSegments);
 	}
 	
-	protected boolean unless(Token token) {
-		return text(token).equals(Global.UNLESS);
-	}
-	
-	protected boolean until(Token token) {
-		return text(token).equals(Global.UNTIL);
-	}
-	
 	protected <T> @NonNull String trim(T node) {
 		return node.toString().trim();
 	}
@@ -524,7 +516,7 @@ public class Visitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAConditionalSection(AConditionalSection node) {
-		conditionalSectionStack.push(new ConditionalSectionNode(source(node), unless(node.getConditionalBranchKeyword()), expression(node.getBraceExpression()), scope(node.getScopedBody()), traverseNullable(node.getElseSection(), conditionalEndStack)));
+		conditionalSectionStack.push(new ConditionalSectionNode(source(node), expression(node.getBraceExpression()), scope(node.getScopedBody()), traverseNullable(node.getElseSection(), conditionalEndStack)));
 	}
 	
 	@Override
@@ -544,12 +536,12 @@ public class Visitor extends AnalysisAdapter {
 	
 	@Override
 	public void caseAConditionalIterativeSection(AConditionalIterativeSection node) {
-		runtimeSectionStack.push(new ConditionalIterativeSectionNode(source(node), labelNullable(node.getLabel()), false, until(node.getConditionalIterativeKeyword()), expression(node.getBraceExpression()), scope(node.getScopedBody())));
+		runtimeSectionStack.push(new ConditionalIterativeSectionNode(source(node), labelNullable(node.getLabel()), false, expression(node.getBraceExpression()), scope(node.getScopedBody())));
 	}
 	
 	@Override
 	public void caseADoConditionalIterativeSection(ADoConditionalIterativeSection node) {
-		runtimeSectionStack.push(new ConditionalIterativeSectionNode(source(node), labelNullable(node.getLabel()), true, until(node.getConditionalIterativeKeyword()), expression(node.getExpression()), scope(node.getScopedBody())));
+		runtimeSectionStack.push(new ConditionalIterativeSectionNode(source(node), labelNullable(node.getLabel()), true, expression(node.getExpression()), scope(node.getScopedBody())));
 	}
 	
 	@Override

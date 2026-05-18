@@ -232,7 +232,7 @@ fn main() {
 		printInt(1);
 		printChar('\n');
 	}
-	else unless b == 0 {
+	else if b != 0 {
 		printInt(2);
 		printChar('\n');
 	}
@@ -246,7 +246,7 @@ fn main() {
 		printChar('\n');
 	}
 	
-	unless a == 1 {
+	if a != 1 {
 		printInt(5);
 		printChar('\n');
 	}
@@ -270,7 +270,7 @@ fn main() {
 				printChar('\n');
 				break outer;
 			}
-			until c == 2;
+			while c != 2;
 		}
 	}
 }
@@ -951,4 +951,3 @@ fn main() {
 	printInt(b);
 	printChar('\n');
 }
-
